@@ -5,9 +5,7 @@ UHI is envisioned as an open protocol for various digital health services. UHI N
 
 The current version of the UHI specification is -  
 
-### Previous Versions
-
-This repository also contains all [previous versions](versions).
+### Structure
 
 Each folder in this repository, such as [examples](examples) and [schemas](schemas), should contain folders pertaining to the current and previous versions of the specification.
 
