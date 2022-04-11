@@ -1,5 +1,7 @@
 # UHI
-UHI is envisioned as an open protocol for various digital health services. UHI Network will be an open network of End User Applications (EUAs) and participating Health Service Provider (HSP) applications. UHI will enable a wide variety of digital health services between patients and health service providers (HSPs) including appointment booking, teleconsultation, service discovery and others
+Created by National Health Authority to facilitate collaborative development of various components of the Universal Health Interface. National Health Authority (NHA) is the apex body responsible for implementing India’s flagship public health insurance/assurance scheme called “Ayushman Bharat Pradhan Mantri Jan Arogya Yojana” & has been entrusted with the role of designing strategy, building technological infrastructure and implementation of “National Digital Health Mission” to create a National Digital Health Eco-system.(https://www.nha.gov.in)
+
+UHI is envisioned as an open protocol for various digital health services. UHI Network will be an open network of End User Applications (EUAs) and participating Health Service Provider (HSP) applications. UHI will enable a wide variety of digital health services between patients and health service providers (HSPs) including appointment booking, teleconsultation, service discovery and others.
 
 ## Current Version - []
 
