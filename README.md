@@ -11,7 +11,9 @@ The current version of the UHI specification is -
 
 ### Structure
 
-Each folder in this repository, such as [examples](examples) and [schemas](schemas), should contain folders pertaining to the current and previous versions of the specification.
+[schemas](Schemas) - this folder stores the schemas used in UHI Protocol
+[specification](Specification) - this folder stores the API specifications for UHI Protocol
+[src](Src) - this folder stores opensource code for various UHI components like Gateway, Network Registry etc.
 
 ## See It in Action
 
