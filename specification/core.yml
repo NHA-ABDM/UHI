@@ -1783,12 +1783,12 @@ components:
               $ref: '#/components/schemas/Person'
             contact:
               $ref: '#/components/schemas/Contact'
-        person:
+        agent:
           $ref: '#/components/schemas/Agent'
         person:
           $ref: '#/components/schemas/Person'
         contact:
-          $ref: '#/components/schemas/Contcat'
+          $ref: '#/components/schemas/Contact'
         start:
           description: Details on the start of fulfillment
           type: object
@@ -1987,7 +1987,7 @@ components:
       properties:
         uri:
           type: string
-          description: 'A payment target uri to be called by the UHI Protocol-Consumer. Supported formats are <br></br>a) https and, <br></br>b) payto - Refer to RFC8905'
+          description: 'A payment target uri to be called by the DHP-Consumer. Supported formats are <br></br>a) https and, <br></br>b) payto - Refer to RFC8905'
           format: uri
         tl_method:
           type: string
@@ -2012,7 +2012,7 @@ components:
             - currency
         type:
           type: string
-          descriptor: Stage at which the payment is expected
+          description: Stage at which the payment is expected
           enum:
             - ON-ORDER
             - PRE-FULFILLMENT
