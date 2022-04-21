@@ -5,11 +5,13 @@ Created by National Health Authority to facilitate collaborative development of 
 
 UHI is envisioned as an open protocol for various digital health services. UHI Network will be an open network of End User Applications (EUAs) and participating Health Service Provider (HSP) applications. UHI will enable a wide variety of digital health services between patients and health service providers (HSPs) including appointment booking, teleconsultation, service discovery and others.
 
-## Current Version - []
+## Current Versions
 
-The current version of the UHI specification is -  
+* UHI Protocol specification is -  0.0.1
+* UHI Gateway (Upcoming) -  1.0.0 
+* UHI Network Registry (Upcoming) -  1.0.0
 
-### Structure
+## Structure
 
 [Schema](schema) - this folder stores the schemas used in UHI Protocol
 [Specification](specification) - this folder stores the API specifications for UHI Protocol
