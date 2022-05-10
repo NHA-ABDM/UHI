@@ -1,7 +1,24 @@
 
 # UHI Gateway
 
+### Approach
+
+![alt text](https://github.com/NHA-ABDM/UHI/blob/main/assets/approach.jpg?raw=true)
+
+
+-   Gateway handles only initial discovery (Search and On_Search)
+-   EUAs and HSPAs will register to the network registry
+-   After initial discovery
+-   Discovery, Booking and Fulfilment will transact from EUA to HSPA directly
+
+
 The UHI gateway enables service discovery & handshaking between an EUA & HSPA for facilitating user-initiated service search via the UHI layer. Gateway comprises of 3 main components
+
+### Highlevel Diagram
+
+![alt text](https://github.com/NHA-ABDM/UHI/blob/main/assets/Gateway_HLD.jpg?raw=true)
+
+
 
 ### Network registry – EUA & HSPA on-boarding
     
