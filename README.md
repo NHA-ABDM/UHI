@@ -8,7 +8,7 @@ UHI is envisioned as an open protocol for various digital health services. UHI N
 ## Current Versions
 
 * UHI Protocol specification is -  0.0.1
-* UHI Gateway (Upcoming) -  1.0.0 
+* UHI Gateway Current - Pre-release (Upcoming -  1.0.0)
 * UHI Network Registry (Upcoming) -  1.0.0
 
 ## Structure
