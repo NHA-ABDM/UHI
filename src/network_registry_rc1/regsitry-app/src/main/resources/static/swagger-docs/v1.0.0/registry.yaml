@@ -1,0 +1,200 @@
+---
+swagger: '2.0'
+info:
+  description: UHI Network will be an open network of End User Applications (EUAs) and participating Health Service Provider (HSP) applications. UHI will enable a wide variety of digital health services between patients and health service providers (HSPs) including appointment booking, teleconsultation, service discovery and others.
+  version: '1.0'
+  title: UHI Network-Registry Project
+  termsOfService: termsOfServiceUrl
+  contact:
+    name: National Health Authority India
+  license:
+    name: License 1.0
+    url: https://licenseUrl.com
+host: localhost:9090
+basePath: "/"
+tags:
+- name: Registry
+  description: Controller for network registry
+- name: Subscriber
+  description: Subscriber Controller
+paths:
+  "/api/lookup":
+    post:
+      tags:
+      - Registry
+      summary: Lookup service
+      operationId: lookupUsingPOST
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: requestData
+        description: requestData
+        required: true
+        schema:
+          "$ref": "#/definitions/LookupDto"
+      responses:
+        '200':
+          description: Ok
+          schema:
+            "$ref": "#/definitions/Subscriber"
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Subscriber does not exist
+          schema:
+            "$ref": "#/definitions/ErrorDetails"
+  "/api/on_subscribe":
+    post:
+      tags:
+      - Subscriber
+      summary: onSubscriber
+      operationId: onSubscriberUsingPOST
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: onSubscribeDto
+        description: onSubscribeDto
+        required: true
+        schema:
+          "$ref": "#/definitions/OnSubscribeDto"
+      responses:
+        '200':
+          description: OK
+          schema:
+            "$ref": "#/definitions/OnSubscribeResponseDto"
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  "/api/subscribe":
+    post:
+      tags:
+      - Registry
+      summary: Create  new subscriber
+      operationId: createSubscriberUsingPOST
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: subscriberData
+        description: subscriberData
+        required: true
+        schema:
+          "$ref": "#/definitions/Subscriber"
+      responses:
+        '200':
+          description: OK
+          schema:
+            "$ref": "#/definitions/SubscribeResponseDto"
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+definitions:
+  ErrorDetails:
+    type: object
+    properties:
+      message:
+        type: string
+        description: Human readable message describing the error
+      path:
+        type: string
+        description: Path to json schema generating the error. Used only during json schema validation errors.
+      status:
+        type: string
+        description: UHI specific error code.
+      timestamp:
+        type: string
+        format: date-time
+    title: Error
+  LookupDto:
+    type: object
+    properties:
+      city:
+        type: string
+      country:
+        type: string
+      domain:
+        type: string
+      status:
+        type: string
+      type:
+        type: string
+        required: ["city,country,domain,status,type"]
+    title: Lookup
+  OnSubscribeDto:
+    type: object
+    properties:
+      challenge:
+        type: string
+      subscriber_id:
+        type: string
+    title: OnSubscribe
+  OnSubscribeResponseDto:
+    type: object
+    properties:
+      answer:
+        type: string
+    title: OnSubscribeResponse
+  SubscribeResponseDto:
+    type: object
+    properties:
+      error:
+            "$ref": "#/definitions/ErrorDetails"
+      status:
+        type: string
+        description: If data is inserted successfully status will be INITIATED.
+    title: Response
+  Subscriber:
+    type: object
+    properties:
+      city:
+        type: string
+      country:
+        type: string
+      domain:
+        type: string
+      encr_public_key:
+        type: string
+      pub_key_id:
+        type: string
+      radius:
+        type: string
+      signing_public_key:
+        type: string
+      status:
+        type: string
+      subscriber_id:
+        type: string
+      type:
+        type: string
+      unique_key_id:
+        type: string
+      url:
+        type: string
+      valid_from:
+        type: string
+      valid_to:
+        type: string
+    title: Subscriber
+  
