@@ -1,0 +1,2713 @@
+---
+openapi: 3.0.3
+info:
+  title: UHI-Gateway
+  description: UHI(Unified Health Interface) is envisioned as an open protocol for various digital health services. UHI Network will be an open network of End User Applications (EUAs) and participating Health Service Provider (HSP) applications. UHI will enable a wide variety of digital health services between patients and health service providers (HSPs) including appointment booking, teleconsultation, service discovery and others.<br>
+  
+    <b>API Security</b><br>
+    You need Authorization Token to consume APIs.
+    <br><br><b>Gateway Signing</b>
+    <br>The BG will send its signature in the Proxy-Authorization header in the exact same format as shown below - 
+    <ul><li><p>X-Gateway-Authorization:Signature keyId="{subscriber_id}|{unique_key_id}|{algorithm}" algorithm="xed25519" created="1606970629" expires="1607030629" headers="(created) (expires) digest" signature="Base64(BLAKE-512(signing string))"</p></li></ul>
+    
+    <p>The EUAs and HSPAs subscriber is expected to send an Authorization header (as defined in RFC 7235, Section 4.1) where the “auth-scheme” is “Signature” and the “auth-param” parameters <br>
+    Below is the format of a EUA/HSPA Authorization header in the typical HTTP Signature format - </p>
+    
+    <ul><li><p>Authorization:Signature keyId
+     ="{subscriber_id}|{unique_key_id}|{algorithm}" 
+     algorithm="xed25519" created="1606970629" expires="1607030629" headers="(created) (expires) digest" signature="Base64(BLAKE-512(signing string))"</p></li></ul>
+  
+    <p><b>Hashing Algorithm</b><br>
+    For computing the digest of the request body, the hashing function will use the BLAKE-512 hashing algorithm. BLAKE is a cryptographic hash function based on Dan Bernstein’s ChaCha stream cipher. For more documentation on the BLAKE-512 algorithm, please go to RFC7693.<br></p>
+
+   <p><b>Signing Algorithm</b><br>
+    To digitally sign the singing string, the subscribers should use the “XEdDSA” signature scheme (or “XEd25519”). For the first version of UHI gateway, we’ll be using the XEd25519 Signature Scheme.<br></p>
+
+  termsOfService: termsOfServiceUrl
+  contact:
+    name: National Health Authority India
+  license:
+    name: License 1.0
+    url: https://licenseUrl.com
+  version: '1.0.0'
+paths:
+  /search:
+    post:
+      tags:
+        - HSPA - Provider Platform
+      description: Search for services by intent
+      requestBody:
+        description: EUA-Consumer Platform searches for healthcare services/product
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                context:
+                  $ref: '#/components/schemas/Context'
+                message:
+                  type: object
+                  properties:
+                    intent:
+                      $ref: '#/components/schemas/Intent'
+              required:
+                - context
+                - message
+            examples:
+              Search by healthcare service Name:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: search
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    intent:
+                      item:
+                        descriptor:
+                          name: MRI Scan
+                          
+              Get details of a specific healthcare service:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: search
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    intent:
+                      item:
+                        id: 289edce4-d002-4962-b311-4c025e22b4f6
+                        
+              Search by healthcare service provider name:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: search
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    intent:
+                      provider:
+                        descriptor:
+                          name: MAX Hospitals
+                          
+              Get services of a specific healthcare service provider:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: search
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    intent:
+                      provider:
+                        id: 675eecec-2da8-41e1-9303-3aeac992bb7e
+                        
+              Search by healthcare services category name:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: search
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    intent:
+                      category:
+                        descriptor:
+                          name: ent
+                      fulfillment:
+                        person:
+                          descriptor:
+                            name: Dr Asthana
+                            
+              Get all healthcare services under a category:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: search
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    intent:
+                      category:
+                        id: c63a05de-242f-4314-a748-323f71a1d3b1
+                        
+              Search by Healthcare Professional Name:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: search
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    intent:
+                      fulfillment:
+                        person:
+                          descriptor:
+                            name: Dr Asthana
+                            
+              Search by Healthcare professional ID:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: search
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    intent:
+                      fulfillment:
+                        person:
+                          cred: uhiId:98479873843985
+                          
+              Search by Healthcare Fulfillment Service timings:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: search
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    intent:
+                      fulfillment:
+                        start:
+                          time:
+                            timestamp: 2021-03-23T10:00.000Z
+                        end:
+                          time:
+                            timestamp: 2021-03-23T11:00.000Z
+                            
+              Search for teleconsultation services by symptom:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: search
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    intent:
+                      category:
+                        descriptor:
+                          name: ent
+                      tags:
+                        ./dhp-0_7_1.symptoms: cough,fever
+                        ./dhp-0_7_1.temperature": 101 C
+                        
+              Search for a cardiologist with 5+ years of experience and who can speak Kannada:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: search
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    intent:
+                      category:
+                        descriptor:
+                          code: CARDIOLOGY
+                      fulfillment:
+                        person:
+                          tags:
+                            ./dhp-0_7_1.exp: gt 5Y
+                            ./dhp-0_7_1.lang: kan
+                            
+              Search for a female doctor in Bangalore who speaks Hindi and is from Internal Medicine department:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: search
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    intent:
+                      fulfillment:
+                        person:
+                          tags:
+                            ./dhp-0_7_1.gender: female
+                            ./dhp-0_7_1.lang: hin
+                      category:
+                        descriptor:
+                          code: INTERNAL_MEDICINE
+                  
+      responses:
+        '200':
+          description: Acknowledgement of message received
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: object
+                    properties:
+                      ack:
+                        $ref: '#/components/schemas/Ack'
+                    required:
+                      - ack
+                  error:
+                    $ref: '#/components/schemas/Error'
+                required:
+                  - message
+  /select:
+    post:
+      tags:
+        - HSPA - Provider Platform
+      description: Select items from the catalog and build your order
+      requestBody:
+        description: Selection of various products/services as part of order
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                context:
+                  $ref: '#/components/schemas/Context'
+                message:
+                  type: object
+                  properties:
+                    order:
+                      type: object
+                      properties:
+                        provider:
+                          type: object
+                          properties:
+                            id:
+                              $ref: '#/components/schemas/Provider/properties/id'
+                        items:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                $ref: '#/components/schemas/Item/properties/id'
+                              quantity:
+                                $ref: '#/components/schemas/ItemQuantity/properties/selected'
+                              fulfillment_id:
+                                $ref: '#/components/schemas/Fulfillment/properties/id'
+                            required:
+                              - id
+                  required:
+                    - order
+              required:
+                - context
+                - message
+            examples:
+              Patient requests a quote for booking a consultation slot in a given doctor’s schedule:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: select
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    order:
+                      provider:
+                        id: '1'
+                      items:
+                        - id: '1'
+                          fulfillment_id: '2'
+
+      responses:
+        '200':
+          description: Acknowledgement of message received
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: object
+                    properties:
+                      ack:
+                        $ref: '#/components/schemas/Ack'
+                    required:
+                      - ack
+                  error:
+                    $ref: '#/components/schemas/Error'
+                required:
+                  - message
+  /init:
+    post:
+      tags:
+        - HSPA - Provider Platform
+      description: Initialize an order by providing billing and/or shipping details
+      requestBody:
+        description: Initialization of the order once quote is agreed
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                context:
+                  $ref: '#/components/schemas/Context'
+                message:
+                  type: object
+                  properties:
+                    order:
+                      type: object
+                      properties:
+                        provider:
+                          type: object
+                          properties:
+                            id:
+                              $ref: '#/components/schemas/Provider/properties/id'
+                        items:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                $ref: '#/components/schemas/Item/properties/id'
+                              quantity:
+                                $ref: '#/components/schemas/ItemQuantity/properties/selected'
+                              fulfillment_id:
+                                $ref: '#/components/schemas/Fulfillment/properties/id'
+                            required:
+                              - id
+                        billing:
+                          $ref: '#/components/schemas/Billing'
+                        fulfillment:
+                          $ref: '#/components/schemas/Fulfillment'
+                        quote:
+                          $ref: '#/components/schemas/Quotation'  
+                  required:
+                    - order
+              required:
+                - context
+                - message
+            examples:
+              Patient provides any additional billing and fulfillment details and finalizes booking:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: init
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    order:
+                      provider:
+                        id: '1'
+                      items:
+                        - id: '1'
+                          fulfillment_id: '2'
+                      billing:
+                        name: John Doe
+                        address:
+                          door: '12'
+                          building: Salarpuria Greenage
+                          street: No 7, Hosur Road
+                          area_code: '560068'
+                        email: john.doe@example.com
+                        phone: +91-9999999999
+                      fulfillment:
+                        customer:
+                          id: 61-8787-9274-4422
+                          cred: example@ndhm
+
+      responses:
+        '200':
+          description: Acknowledgement of message received
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: object
+                    properties:
+                      ack:
+                        $ref: '#/components/schemas/Ack'
+                    required:
+                      - ack
+                  error:
+                    $ref: '#/components/schemas/Error'
+                required:
+                  - message
+  /confirm:
+    post:
+      tags:
+        - HSPA - Provider Platform
+      description: Confirms the order by agreeing to the fullfillment terms
+      requestBody:
+        description: Confirmation of the order once fulfillment terms are agreed
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                context:
+                  $ref: '#/components/schemas/Context'
+                message:
+                  type: object
+                  properties:
+                    order:
+                      type: object
+                      properties:
+                        provider:
+                          type: object
+                          properties:
+                            id:
+                              $ref: '#/components/schemas/Provider/properties/id'
+                        state:
+                          $ref: '#/components/schemas/State'  
+                        items:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                $ref: '#/components/schemas/Item/properties/id'
+                              quantity:
+                                $ref: '#/components/schemas/ItemQuantity/properties/selected'
+                              fulfillment_id:
+                                $ref: '#/components/schemas/Fulfillment/properties/id'
+                            required:
+                              - id
+                        billing:
+                          $ref: '#/components/schemas/Billing'
+                        fulfillment:
+                          $ref: '#/components/schemas/Fulfillment'
+                  required:
+                    - order
+              required:
+                - context
+                - message
+      responses:
+        '200':
+          description: Acknowledgement of message received
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: object
+                    properties:
+                      ack:
+                        $ref: '#/components/schemas/Ack'
+                    required:
+                      - ack
+                  error:
+                    $ref: '#/components/schemas/Error'
+                required:
+                  - message
+  /status:
+    post:
+      tags:
+        - HSPA - Provider Platform
+      description: Fetch the latest order object
+      requestBody:
+        description: Fetch the fulfillment status of the order
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                context:
+                  $ref: '#/components/schemas/Context'
+                message:
+                  type: object
+                  properties:
+                    order_id:
+                      $ref: '#/components/schemas/Order/properties/id'
+                  required:
+                    - order_id
+              required:
+                - context
+                - message
+      responses:
+        '200':
+          description: Acknowledgement of message received
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: object
+                    properties:
+                      ack:
+                        $ref: '#/components/schemas/Ack'
+                    required:
+                      - ack
+                  error:
+                    $ref: '#/components/schemas/Error'
+                required:
+                  - message
+  "/api/v1/search":
+    post:
+      tags:
+      - UHI - Gateway
+      summary: Search requestor to broadcast the message over HSPAs
+      operationId: searchUsingPOST
+      parameters:
+      - name: headers
+        in: header
+        description: headers
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                context:
+                  $ref: '#/components/schemas/Context'
+                message:
+                  type: object
+                  properties:
+                    intent:
+                      $ref: '#/components/schemas/Intent'
+              required:
+                - context
+                - message
+            examples:
+              Search by healthcare service Name:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: search
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    intent:
+                      item:
+                        descriptor:
+                          name: MRI Scan
+                          
+              Get details of a specific healthcare service:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: search
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    intent:
+                      item:
+                        id: 289edce4-d002-4962-b311-4c025e22b4f6
+                        
+              Search by healthcare service provider name:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: search
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    intent:
+                      provider:
+                        descriptor:
+                          name: MAX Hospitals
+                          
+              Get services of a specific healthcare service provider:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: search
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    intent:
+                      provider:
+                        id: 675eecec-2da8-41e1-9303-3aeac992bb7e
+                        
+              Search by healthcare services category name:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: search
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    intent:
+                      category:
+                        descriptor:
+                          name: ent
+                      fulfillment:
+                        person:
+                          descriptor:
+                            name: Dr Asthana
+                            
+              Get all healthcare services under a category:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: search
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    intent:
+                      category:
+                        id: c63a05de-242f-4314-a748-323f71a1d3b1
+                        
+              Search by Healthcare Professional Name:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: search
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    intent:
+                      fulfillment:
+                        person:
+                          descriptor:
+                            name: Dr Asthana
+                            
+              Search by Healthcare professional ID:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: search
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    intent:
+                      fulfillment:
+                        person:
+                          cred: uhiId:98479873843985
+                          
+              Search by Healthcare Fulfillment Service timings:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: search
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    intent:
+                      fulfillment:
+                        start:
+                          time:
+                            timestamp: 2021-03-23T10:00.000Z
+                        end:
+                          time:
+                            timestamp: 2021-03-23T11:00.000Z
+                            
+              Search for teleconsultation services by symptom:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: search
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    intent:
+                      category:
+                        descriptor:
+                          name: ent
+                      tags:
+                        ./dhp-0_7_1.symptoms: cough,fever
+                        ./dhp-0_7_1.temperature": 101 C
+                        
+              Search for a cardiologist with 5+ years of experience and who can speak Kannada:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: search
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    intent:
+                      category:
+                        descriptor:
+                          code: CARDIOLOGY
+                      fulfillment:
+                        person:
+                          tags:
+                            ./dhp-0_7_1.exp: gt 5Y
+                            ./dhp-0_7_1.lang: kan
+                            
+              Search for a female doctor in Bangalore who speaks Hindi and is from Internal Medicine department:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: search
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    intent:
+                      fulfillment:
+                        person:
+                          tags:
+                            ./dhp-0_7_1.gender: female
+                            ./dhp-0_7_1.lang: hin
+                      category:
+                        descriptor:
+                          code: INTERNAL_MEDICINE
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Response"
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  "/api/v1/on_search":
+    post:
+      tags:
+      - UHI - Gateway
+      summary: Accepter for all the on_search response from the HSPAs
+      operationId: searchUsingPOST_1
+      requestBody:
+        content:
+          application/json:
+           schema:
+              type: object
+              properties:
+                context:
+                  $ref: '#/components/schemas/Context'
+                message:
+                  type: object
+                  properties:
+                    catalog:
+                      $ref: '#/components/schemas/Catalog'
+                  required:
+                    - catalog
+                error:
+                  $ref: '#/components/schemas/Error'
+              required:
+                - context
+              example:
+               Catalog of Doctors with their availability schedule for DIGITAL OPD Fulfillment:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: on_search
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    catalog:
+                      descriptor:
+                        name: Practo
+                      providers:
+                        - id: 289edce4-d002-4962-b311-4c025e22b4f6
+                          descriptor:
+                            name: MAX Hospitals
+                          categories:
+                            - id: '1'
+                              descriptor:
+                                name: OPD
+                            - id: '2'
+                              descriptor:
+                                name: Diagnostics
+                            - id: '3'
+                              descriptor:
+                                name: Emergency
+                          fulfillments:
+                            - id: '1'
+                              type: DIGITAL-OPD
+                              person:
+                                id: '1'
+                                name: Dr Asthana
+                                gender: male
+                                image: https://image/of/person.png
+                                cred: uhiId:237402938409485039850935
+                              start:
+                                time:
+                                  timestamp: T10:00Z
+                              end:
+                                time:
+                                  timestamp: T10:15Z
+                            - id: '2'
+                              type: DIGITAL-OPD
+                              person:
+                                id: '1'
+                                name: Dr Asthana
+                                gender: male
+                                image: https://image/of/person.png
+                                cred: uhiId:237402938409485039850935
+                              start:
+                                time:
+                                  timestamp: T10:15Z
+                              end:
+                                time:
+                                  timestamp: T10:30Z
+                            - id: '3'
+                              type: DIGITAL-OPD
+                              person:
+                                id: '1'
+                                name: Dr Bhargava
+                                gender: female
+                                image: https://image/of/person.png
+                                cred: uhiId:237402938409485039850935
+                              start:
+                                time:
+                                  timestamp: T10:00Z
+                              end:
+                                time:
+                                  timestamp: T10:15Z
+                            - id: '4'
+                              type: DIGITAL-OPD
+                              person:
+                                id: '1'
+                                name: Dr Bhargava
+                                gender: female
+                                image: https://image/of/person.png
+                                cred: uhiId:237402938409485039850935
+                              start:
+                                time:
+                                  timestamp: T10:15Z
+                              end:
+                                time:
+                                  timestamp: T10:30Z
+                          items:
+                            - id: '1'
+                              descriptor:
+                                name: Consultation
+                              category_id: '1'
+                              fulfillment_id: '1'
+                            - id: '1'
+                              descriptor:
+                                name: Consultation
+                              category_id: '1'
+                              fulfillment_id: '2'
+                            - id: '1'
+                              descriptor:
+                                name: Consultation
+                              category_id: '1'
+                              fulfillment_id: '3'
+                            - id: '1'
+                              descriptor:
+                                name: Consultation
+                              category_id: '1'
+                              fulfillment_id: '4'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Response"
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /on_search:
+    post:
+      tags:
+        - EUA - Consumer Platform
+      description: Send catalog
+      requestBody:
+        description: Sends catalog of healtchare services & products as a response to /search
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                context:
+                  $ref: '#/components/schemas/Context'
+                message:
+                  type: object
+                  properties:
+                    catalog:
+                      $ref: '#/components/schemas/Catalog'
+                  required:
+                    - catalog
+                error:
+                  $ref: '#/components/schemas/Error'
+              required:
+                - context
+            examples:
+              Catalog of Doctors with their availability schedule for DIGITAL OPD Fulfillment:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: on_search
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    catalog:
+                      descriptor:
+                        name: Practo
+                      providers:
+                        - id: 289edce4-d002-4962-b311-4c025e22b4f6
+                          descriptor:
+                            name: MAX Hospitals
+                          categories:
+                            - id: '1'
+                              descriptor:
+                                name: OPD
+                            - id: '2'
+                              descriptor:
+                                name: Diagnostics
+                            - id: '3'
+                              descriptor:
+                                name: Emergency
+                          fulfillments:
+                            - id: '1'
+                              type: DIGITAL-OPD
+                              person:
+                                id: '1'
+                                name: Dr Asthana
+                                gender: male
+                                image: https://image/of/person.png
+                                cred: uhiId:237402938409485039850935
+                              start:
+                                time:
+                                  timestamp: T10:00Z
+                              end:
+                                time:
+                                  timestamp: T10:15Z
+                            - id: '2'
+                              type: DIGITAL-OPD
+                              person:
+                                id: '1'
+                                name: Dr Asthana
+                                gender: male
+                                image: https://image/of/person.png
+                                cred: uhiId:237402938409485039850935
+                              start:
+                                time:
+                                  timestamp: T10:15Z
+                              end:
+                                time:
+                                  timestamp: T10:30Z
+                            - id: '3'
+                              type: DIGITAL-OPD
+                              person:
+                                id: '1'
+                                name: Dr Bhargava
+                                gender: female
+                                image: https://image/of/person.png
+                                cred: uhiId:237402938409485039850935
+                              start:
+                                time:
+                                  timestamp: T10:00Z
+                              end:
+                                time:
+                                  timestamp: T10:15Z
+                            - id: '4'
+                              type: DIGITAL-OPD
+                              person:
+                                id: '1'
+                                name: Dr Bhargava
+                                gender: female
+                                image: https://image/of/person.png
+                                cred: uhiId:237402938409485039850935
+                              start:
+                                time:
+                                  timestamp: T10:15Z
+                              end:
+                                time:
+                                  timestamp: T10:30Z
+                          items:
+                            - id: '1'
+                              descriptor:
+                                name: Consultation
+                              category_id: '1'
+                              fulfillment_id: '1'
+                            - id: '1'
+                              descriptor:
+                                name: Consultation
+                              category_id: '1'
+                              fulfillment_id: '2'
+                            - id: '1'
+                              descriptor:
+                                name: Consultation
+                              category_id: '1'
+                              fulfillment_id: '3'
+                            - id: '1'
+                              descriptor:
+                                name: Consultation
+                              category_id: '1'
+                              fulfillment_id: '4'
+                  
+      responses:
+        '200':
+          description: Acknowledgement of message received
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: object
+                    properties:
+                      ack:
+                        $ref: '#/components/schemas/Ack'
+                    required:
+                      - ack
+                  error:
+                    $ref: '#/components/schemas/Error'
+                required:
+                  - context
+  /on_select:
+    post:
+      tags:
+        - EUA - Consumer Platform
+      description: Send draft order object with quoted price for selected items
+      requestBody:
+        description: Draft order object with price quotation
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                context:
+                  $ref: '#/components/schemas/Context'
+                message:
+                  type: object
+                  properties:
+                    order:
+                      type: object
+                      properties:
+                        provider:
+                          $ref: '#/components/schemas/Provider'
+                        items:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                $ref: '#/components/schemas/Item/properties/id'
+                              quantity:
+                                $ref: '#/components/schemas/ItemQuantity/properties/selected'
+                              fulfillment_id:
+                                $ref: '#/components/schemas/Fulfillment/properties/id'
+                            required:
+                              - id
+                        quote:
+                          $ref: '#/components/schemas/Quotation'
+                  required:
+                    - order
+                error:
+                  $ref: '#/components/schemas/Error'
+              required:
+                - context
+            examples:
+              Patient receives a quote for booking a consultation slot in a given doctor’s schedule:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: select
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    order:
+                      provider:
+                        id: '1'
+                        descriptor:
+                          name: MAX Hospitals
+                      items:
+                        - id: '1'
+                          descriptor:
+                            name: Consultation
+                          fulfillment_id: '2'
+                          provider_id: '1'
+                      fulfillment:
+                        id: '2'
+                        type: DIGITAL-OPD
+                        person:
+                          id: '1'
+                          name: Dr Asthana
+                          gender: male
+                          image: https://image/of/doctor.png
+                          cred: uhiId:237402938409485039850935
+                        time:
+                          range:
+                            start: T10:15Z
+                            end: T10:30Z
+                      quote:
+                        price:
+                          currency: INR
+                          value: '110'
+                          breakup:
+                            - ./dhp-0_7_1.consultation: '100'
+                            - ./dhp-0_7_1.cgst: '5'
+                            - ./dhp-0_7_1.sgst: '5'
+                    
+      responses:
+        '200':
+          description: Acknowledgement of message received
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: object
+                    properties:
+                      ack:
+                        $ref: '#/components/schemas/Ack'
+                    required:
+                      - ack
+                  error:
+                    $ref: '#/components/schemas/Error'
+                required:
+                  - message
+  /on_init:
+    post:
+      tags:
+        - EUA - Consumer Platform
+      description: Send order object with payment details updated
+      requestBody:
+        description: TODO
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                context:
+                  $ref: '#/components/schemas/Context'
+                message:
+                  type: object
+                  properties:
+                    order:
+                      type: object
+                      properties:
+                        id:
+                          $ref: '#/components/schemas/Order/properties/id'
+                        provider:
+                          type: object
+                          properties:
+                            id:
+                              $ref: '#/components/schemas/Provider/properties/id'
+                        state:
+                          $ref: '#/components/schemas/State'  
+                        items:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                $ref: '#/components/schemas/Item/properties/id'
+                              quantity:
+                                $ref: '#/components/schemas/ItemQuantity/properties/selected'
+                        billing:
+                          $ref: '#/components/schemas/Billing'
+                        fulfillment:
+                          $ref: '#/components/schemas/Fulfillment'
+                        quote:
+                          $ref: '#/components/schemas/Quotation'
+                        payment:
+                          $ref: '#/components/schemas/Payment'
+                  required:
+                    - order
+                error:
+                  $ref: '#/components/schemas/Error'
+              required:
+                - context
+            examples:
+              HSPA Platform generates a booking and sends terms that require settlement to a bank account:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: on_init
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    order:
+                      id: '26492'
+                      state : "PROVISIONALLY_BOOKED"
+                      provider:
+                        id: '1'
+                        descriptor:
+                          name: MAX Hospitals
+                      items:
+                        - id: '1'
+                          descriptor:
+                            name: Consultation
+                          fulfillment_id: '2'
+                          provider_id: '1'
+                      billing:
+                        name: John Doe
+                        address:
+                          door: '12'
+                          building: Salarpuria Greenage
+                          street: No 7, Hosur Road
+                          area_code: '560068'
+                        email: john.doe@example.com
+                        phone: +91-9999999999
+                      fulfillment:
+                        id: '2'
+                        type: DIGITAL-OPD
+                        person:
+                          id: '1'
+                          name: Dr Asthana
+                          gender: male
+                          image: https://image/of/person.png
+                          cred: smc:13-50839
+                        time:
+                          range:
+                            start: T10:15Z
+                            end: T10:30Z
+                        customer:
+                          id: 61-8787-9274-4422
+                          cred: example@ndhm
+                      quote:
+                        price:
+                          currency: INR
+                          value: '120'
+                          breakup:
+                            - ./dhp-0_7_1.consultation: '100'
+                            - ./dhp-0_7_1.phr_handling_fees: '10'
+                            - ./ind-gstin.cgst: '5'
+                            - ./ind-gstin.sgst: '5'
+                      payment:
+                        uri: payto://ban/98273982749428?amount=INR:110&ifsc=SBIN0000575&message=hello
+                        type: ON-ORDER
+                        status: PENDING
+                  
+
+      responses:
+        '200':
+          description: Acknowledgement of message received
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: object
+                    properties:
+                      ack:
+                        $ref: '#/components/schemas/Ack'
+                    required:
+                      - ack
+                  error:
+                    $ref: '#/components/schemas/Error'
+                required:
+                  - message
+  /on_confirm:
+    post:
+      tags:
+        - EUA - Consumer Platform
+      description: Send active order object
+      requestBody:
+        description: TODO
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                context:
+                  $ref: '#/components/schemas/Context'
+                message:
+                  type: object
+                  properties:
+                    order:
+                      type: object
+                      properties:
+                        id:
+                          $ref: '#/components/schemas/Order/properties/id'
+                        provider:
+                          type: object
+                          properties:
+                            id:
+                              $ref: '#/components/schemas/Provider/properties/id'
+                        state:
+                          $ref: '#/components/schemas/State'  
+                        items:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                $ref: '#/components/schemas/Item/properties/id'
+                              quantity:
+                                $ref: '#/components/schemas/ItemQuantity/properties/selected'
+                        billing:
+                          $ref: '#/components/schemas/Billing'
+                        fulfillment:
+                          $ref: '#/components/schemas/Fulfillment'
+                        quote:
+                          $ref: '#/components/schemas/Quotation'
+                        payment:
+                          $ref: '#/components/schemas/Payment'
+
+                  required:
+                    - order
+                error:
+                  $ref: '#/components/schemas/Error'
+              required:
+                - context
+            examples:
+              HSPA Platform agrees to fulfill the order and sends latest state of the booking:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: on_init
+                    core_version: 0.7.1
+                    transaction_id: 8ad631e4-01e7-44e1-a999-db41ef0ae4f6
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    order:
+                      id: '26492'
+                      provider:
+                        id: '1'
+                        descriptor:
+                          name: MAX Hospitals
+                      state: PROVISIONALLY_BOOKED
+                      items:
+                        - id: '1'
+                          descriptor:
+                            name: Consultation
+                          fulfillment_id: '2'
+                          provider_id: '1'
+                      billing:
+                        name: John Doe
+                        address:
+                          door: '12'
+                          building: Salarpuria Greenage
+                          street: No 7, Hosur Road
+                          area_code: '560068'
+                        email: john.doe@example.com
+                        phone: +91-9999999999
+                      fulfillment:
+                        id: '2'
+                        type: DIGITAL-OPD
+                        person:
+                          id: '1'
+                          name: Dr Asthana
+                          gender: male
+                          image: https://image/of/person.png
+                          cred: smc:13-50839
+                        state:
+                          descriptor:
+                            code: PATIENT_IN_DWR
+                        time:
+                          range:
+                            start: T10:15Z
+                            end: T10:30Z
+                        customer:
+                          ./nha.health_id: 61-8787-9274-4422
+                          ./nha.phr_address: example@ndhm
+                      quote:
+                        price:
+                          currency: INR
+                          value: '120'
+                          breakup:
+                            - ./dhp-0_7_1.consultation: '100'
+                            - ./dhp-0_7_1.phr_handling_fees: '10'
+                            - ./ind-gstin.cgst: '5'
+                            - ./ind-gstin.sgst: '5'
+                      payment:
+                        uri: payto://ban/98273982749428?amount=INR:110&ifsc=SBIN0000575&message=hello
+                        type: ON-ORDER
+                        status: PAID
+                  
+      responses:
+        '200':
+          description: Acknowledgement of message received
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: object
+                    properties:
+                      ack:
+                        $ref: '#/components/schemas/Ack'
+                    required:
+                      - ack
+                  error:
+                    $ref: '#/components/schemas/Error'
+                required:
+                  - message
+  /on_status:
+    post:
+      tags:
+        - EUA - Consumer Platform
+      description: Fetch the status of a Service
+      requestBody:
+        description: Describes the fulfillment status of the order
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                context:
+                  $ref: '#/components/schemas/Context'
+                message:
+                  type: object
+                  properties:
+                    order:
+                      $ref: '#/components/schemas/Order'
+                  required:
+                    - order
+                error:
+                  $ref: '#/components/schemas/Error'
+              required:
+                - context
+            examples:
+              Patient in DWR:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: on_status
+                    core_version: 0.7.1
+                    transaction_id: 8ad631e4-01e7-44e1-a999-db41ef0ae4f6
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    order:
+                      id: '26492'
+                      provider:
+                        id: '1'
+                        descriptor:
+                          name: MAX Hospitals
+                      state: PROVISIONALLY_BOOKED
+                      items:
+                        - id: '1'
+                          descriptor:
+                            name: Consultation
+                          fulfillment_id: '2'
+                          provider_id: '1'
+                      billing:
+                        name: John Doe
+                        address:
+                          door: '12'
+                          building: Salarpuria Greenage
+                          street: No 7, Hosur Road
+                          area_code: '560068'
+                        email: john.doe@example.com
+                        phone: +91-9999999999
+                      fulfillment:
+                        id: '2'
+                        type: DIGITAL-OPD
+                        person:
+                          id: '1'
+                          name: Dr Asthana
+                          gender: male
+                          image: https://image/of/person.png
+                          cred: smc:13-50839
+                        state:
+                          descriptor:
+                            code: IN_DWR
+                        time:
+                          range:
+                            start: T10:15Z
+                            end: T10:30Z
+                        customer:
+                          ./dhp-0_7_1.health_id: 61-8787-9274-4422
+                          ./dhp-0_7_1.phr_address: example@ndhm
+                        tags:
+                          ./dhp-0_7_1.teleconf_url: https://us06web.zoom.us/j/82071160538
+                      quote:
+                        price:
+                          currency: INR
+                          value: '120'
+                          breakup:
+                            - ./dhp-0_7_1.consultation: '100'
+                            - ./dhp-0_7_1.phr_handling_fees: '10'
+                            - ./ind-gstin.cgst: '5'
+                            - ./ind-gstin.sgst: '5'
+                      payment:
+                        uri: payto://ban/98273982749428?amount=INR:110&ifsc=SBIN0000575&message=hello
+                        type: ON-ORDER
+                        status: PAID
+                        
+              Consultation Started:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: on_status
+                    core_version: 0.7.1
+                    transaction_id: 8ad631e4-01e7-44e1-a999-db41ef0ae4f6
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    order:
+                      id: '26492'
+                      provider:
+                        id: '1'
+                        descriptor:
+                          name: MAX Hospitals
+                      state: PROVISIONALLY_BOOKED
+                      items:
+                        - id: '1'
+                          descriptor:
+                            name: Consultation
+                          fulfillment_id: '2'
+                          provider_id: '1'
+                      billing:
+                        name: John Doe
+                        address:
+                          door: '12'
+                          building: Salarpuria Greenage
+                          street: No 7, Hosur Road
+                          area_code: '560068'
+                        email: john.doe@example.com
+                        phone: +91-9999999999
+                      fulfillment:
+                        id: '2'
+                        type: DIGITAL-OPD
+                        person:
+                          id: '1'
+                          name: Dr Asthana
+                          gender: male
+                          image: https://image/of/person.png
+                          cred: smc:13-50839
+                        state:
+                          descriptor:
+                            code: CONSULTATION_STARTED
+                        time:
+                          range:
+                            start: T10:15Z
+                            end: T10:30Z
+                        customer:
+                          ./dhp-0_7_1.health_id: 61-8787-9274-4422
+                          ./dhp-0_7_1.phr_address: example@ndhm
+                        tags:
+                          ./dhp-0_7_1.teleconf_url: https://us06web.zoom.us/j/82071160538
+                      quote:
+                        price:
+                          currency: INR
+                          value: '120'
+                          breakup:
+                            - ./dhp-0_7_1.consultation: '100'
+                            - ./dhp-0_7_1.phr_handling_fees: '10'
+                            - ./ind-gstin.cgst: '5'
+                            - ./ind-gstin.sgst: '5'
+                      payment:
+                        uri: payto://ban/98273982749428?amount=INR:110&ifsc=SBIN0000575&message=hello
+                        type: ON-ORDER
+                        status: PAID
+                        
+              Prescription Generated:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: on_status
+                    core_version: 0.7.1
+                    transaction_id: 8ad631e4-01e7-44e1-a999-db41ef0ae4f6
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    order:
+                      id: '26492'
+                      provider:
+                        id: '1'
+                        descriptor:
+                          name: MAX Hospitals
+                      state: BOOKED
+                      items:
+                        - id: '1'
+                          descriptor:
+                            name: Consultation
+                          fulfillment_id: '2'
+                          provider_id: '1'
+                      billing:
+                        name: John Doe
+                        address:
+                          door: '12'
+                          building: Salarpuria Greenage
+                          street: No 7, Hosur Road
+                          area_code: '560068'
+                        email: john.doe@example.com
+                        phone: +91-9999999999
+                      fulfillment:
+                        id: '2'
+                        type: DIGITAL-OPD
+                        person:
+                          id: '1'
+                          name: Dr Asthana
+                          gender: male
+                          image: https://image/of/person.png
+                          cred: smc:13-50839
+                        state:
+                          descriptor:
+                            code: PRESCRIPTION_GENERATED
+                        time:
+                          range:
+                            start: T10:15Z
+                            end: T10:30Z
+                        customer:
+                          ./nha.health_id: 61-8787-9274-4422
+                          ./nha.phr_address: example@ndhm
+                        tags:
+                          ./dhp-0_7_1.teleconf_url: https://us06web.zoom.us/j/82071160538
+                      quote:
+                        price:
+                          currency: INR
+                          value: '120'
+                          breakup:
+                            - ./dhp-0_7_1.consultation: '100'
+                            - ./dhp-0_7_1.phr_handling_fees: '10'
+                            - ./ind-gstin.cgst: '5'
+                            - ./ind-gstin.sgst: '5'
+                      payment:
+                        uri: payto://ban/98273982749428?amount=INR:110&ifsc=SBIN0000575&message=hello
+                        type: ON-ORDER
+                        status: PAID
+                        
+              Consultation complete:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: on_status
+                    core_version: 0.7.1
+                    transaction_id: 8ad631e4-01e7-44e1-a999-db41ef0ae4f6
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    order:
+                      id: '26492'
+                      provider:
+                        id: '1'
+                        descriptor:
+                          name: MAX Hospitals
+                      state: BOOKED
+                      items:
+                        - id: '1'
+                          descriptor:
+                            name: Consultation
+                          fulfillment_id: '2'
+                          provider_id: '1'
+                      billing:
+                        name: John Doe
+                        address:
+                          door: '12'
+                          building: Salarpuria Greenage
+                          street: No 7, Hosur Road
+                          area_code: '560068'
+                        email: john.doe@example.com
+                        phone: +91-9999999999
+                      fulfillment:
+                        id: '2'
+                        type: DIGITAL-OPD
+                        person:
+                          id: '1'
+                          name: Dr Asthana
+                          gender: male
+                          image: https://image/of/person.png
+                          cred: smc:13-50839
+                        state:
+                          descriptor:
+                            code: CONSULTATION_COMPLETE
+                        time:
+                          range:
+                            start: T10:15Z
+                            end: T10:30Z
+                        customer:
+                          ./nha.health_id: 61-8787-9274-4422
+                          ./nha.phr_address: example@ndhm
+                        tags:
+                          ./dhp-0_7_1.teleconf_url: https://us06web.zoom.us/j/82071160538
+                      quote:
+                        price:
+                          currency: INR
+                          value: '120'
+                          breakup:
+                            - ./dhp-0_7_1.consultation: '100'
+                            - ./dhp-0_7_1.phr_handling_fees: '10'
+                            - ./ind-gstin.cgst: '5'
+                            - ./ind-gstin.sgst: '5'
+                      payment:
+                        uri: payto://ban/98273982749428?amount=INR:110&ifsc=SBIN0000575&message=hello
+                        type: ON-ORDER
+                        status: PAID
+                        
+              Health Records uploaded:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: on_status
+                    core_version: 0.7.1
+                    transaction_id: 8ad631e4-01e7-44e1-a999-db41ef0ae4f6
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    order:
+                      id: '26492'
+                      provider:
+                        id: '1'
+                        descriptor:
+                          name: MAX Hospitals
+                      state: BOOKED
+                      items:
+                        - id: '1'
+                          descriptor:
+                            name: Consultation
+                          fulfillment_id: '2'
+                          provider_id: '1'
+                      billing:
+                        name: John Doe
+                        address:
+                          door: '12'
+                          building: Salarpuria Greenage
+                          street: No 7, Hosur Road
+                          area_code: '560068'
+                        email: john.doe@example.com
+                        phone: +91-9999999999
+                      fulfillment:
+                        id: '2'
+                        type: DIGITAL-OPD
+                        person:
+                          id: '1'
+                          name: Dr Asthana
+                          gender: male
+                          image: https://image/of/person.png
+                          cred: smc:13-50839
+                        state:
+                          descriptor:
+                            code: HEALTH_RECORDS_UPLOADED
+                        time:
+                          range:
+                            start: T10:15Z
+                            end: T10:30Z
+                        customer:
+                          ./nha.health_id: 61-8787-9274-4422
+                          ./nha.phr_address: example@ndhm
+                        tags:
+                          ./dhp-0_7_1.teleconf_url: https://us06web.zoom.us/j/82071160538
+                      quote:
+                        price:
+                          currency: INR
+                          value: '120'
+                          breakup:
+                            - ./dhp-0_7_1.consultation: '100'
+                            - ./dhp-0_7_1.phr_handling_fees: '10'
+                            - ./ind-gstin.cgst: '5'
+                            - ./ind-gstin.sgst: '5'
+                      payment:
+                        uri: payto://ban/98273982749428?amount=INR:110&ifsc=SBIN0000575&message=hello
+                        type: ON-ORDER
+                        status: PAID
+      responses:
+        '200':
+          description: Acknowledgement of message received
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: object
+                    properties:
+                      ack:
+                        $ref: '#/components/schemas/Ack'
+                    required:
+                      - ack
+                  error:
+                    $ref: '#/components/schemas/Error'
+                required:
+                  - message
+components:
+  schemas:
+    Ack:
+      description: Describes the ACK response
+      type: object
+      properties:
+        status:
+          type: string
+          description: 'Describe the status of the ACK response. If schema validation passes, status is ACK else it is NACK'
+          enum:
+            - ACK
+            - NACK
+      required:
+        - status
+    Address:
+      description: Describes an address
+      type: object
+      properties:
+        door:
+          type: string
+          description: Door / Shop number of the address
+        name:
+          type: string
+          description: 'Name of address if applicable. Example, shop name'
+        building:
+          type: string
+          description: Name of the building or block
+        street:
+          type: string
+          description: Street name or number
+        locality:
+          type: string
+          description: 'Name of the locality, apartments'
+        ward:
+          type: string
+          description: Name or number of the ward if applicable
+        city:
+          type: string
+          description: City name
+        state:
+          type: string
+          description: State name
+        country:
+          type: string
+          description: Country name
+        area_code:
+          type: string
+          description: 'Area code. This can be Pincode, ZIP code or any equivalent'
+    Agent:
+      description: Describes an order executor
+      allOf:
+        - $ref: '#/components/schemas/Person'
+        - $ref: '#/components/schemas/Contact'
+        - type: object
+    Billing:
+      description: Describes a billing event
+      type: object
+      properties:
+        name:
+          description: Personal details of the customer needed for billing.
+          type: string
+        organization:
+          $ref: '#/components/schemas/Organization'
+        address:
+          $ref: '#/components/schemas/Address'
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        time:
+          $ref: '#/components/schemas/Time'
+        tax_number:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - name
+        - phone
+    Catalog:
+      description: Describes a DHP-Provider catalog
+      type: object
+      properties:
+        descriptor:
+          $ref: '#/components/schemas/Descriptor'
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+        fulfillments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Fulfillment'
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Payment'
+        providers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Provider'
+        exp:
+          type: string
+          description: Time after which catalog has to be refreshed
+          format: date-time
+    Category:
+      description: Describes a category
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique id of the category
+        parent_category_id:
+          $ref: '#/components/schemas/Category/properties/id'
+        descriptor:
+          $ref: '#/components/schemas/Descriptor'
+        time:
+          $ref: '#/components/schemas/Time'
+        tags:
+          $ref: '#/components/schemas/Tags'
+    City:
+      description: Describes a city
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the city
+        code:
+          type: string
+          description: City code
+    Contact:
+      type: object
+      properties:
+        phone:
+          type: string
+        email:
+          type: string
+        tags:
+          $ref: '#/components/schemas/Tags'
+    Context:
+      description: Describes a DHP message context
+      type: object
+      properties:
+        domain:
+          $ref: '#/components/schemas/Domain'
+        country:
+          $ref: '#/components/schemas/Country/properties/code'
+        city:
+          $ref: '#/components/schemas/City/properties/code'
+        action:
+          type: string
+          description: Defines the DHP API call. Any actions other than the enumerated actions are not supported by DHP Protocol
+          enum:
+            - search
+            - select
+            - init
+            - confirm
+            - status
+            - on_search
+            - on_select
+            - on_init
+            - on_confirm
+            - on_status
+        core_version:
+          type: string
+          description: Version of DHP core API specification being used
+        consumer_id:
+          type: string
+          format: uri
+          description: Unique id of the Consumer. By default it is the fully qualified domain name of the Consumer
+        consumer_uri:
+          type: string
+          format: uri
+          description: URI of the Consumer for accepting callbacks. Must have the same domain name as the consumer_id
+        provider_id:
+          type: string
+          format: uri
+          description: Unique id of the Provider. By default it is the fully qualified domain name of the Provider
+        provider_uri:
+          type: string
+          format: uri
+          description: URI of the Provider. Must have the same domain name as the provider_id
+        transaction_id:
+          type: string
+          description: This is a unique value which persists across all API calls from search through confirm
+        message_id:
+          type: string
+          description: This is a unique value which persists during a request / callback cycle
+        timestamp:
+          type: string
+          format: date-time
+          description: Time of request generation in RFC3339 format
+        key:
+          type: string
+          description: The encryption public key of the sender
+        ttl:
+          type: string
+          description: The duration in ISO8601 format after timestamp for which this message holds valid
+      required:
+        - domain
+        - action
+        - country
+        - city
+        - core_version
+        - transaction_id
+        - message_id
+        - consumer_id
+        - consumer_uri
+        - timestamp
+    Country:
+      description: Describes a country.
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the country
+        code:
+          type: string
+          description: Country code as per ISO 3166-1 and ISO 3166-2 format
+    DecimalValue:
+      description: Describes a decimal value
+      type: string
+      pattern: '[+-]?([0-9]*[.])?[0-9]+'
+
+    Descriptor:
+      description: Describes the description of a real-world object.
+      type: object
+      properties:
+        name:
+          type: string
+        code:
+          type: string
+        symbol:
+          type: string
+        short_desc:
+          type: string
+        long_desc:
+          type: string
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/Image'
+        audio:
+          type: string
+          format: uri
+        3d_render:
+          type: string
+          format: uri
+
+    Domain:
+      description: Describes the domain of an object
+      type: string
+
+    Duration:
+      description: Describes duration as per ISO8601 format
+      type: string
+
+    Error:
+      description: Describes an error object
+      type: object
+      properties:
+        type:
+          type: string
+        code:
+          type: string
+          description: 'DHP specific error code. For full list of error codes, refer to error_codes.md in the root folder of this repo'
+        path:
+          type: string
+          description: Path to json schema generating the error. Used only during json schema validation errors
+        message:
+          type: string
+          description: Human readable message describing the error
+      required:
+        - type
+        - code
+
+    Fulfillment:
+      description: Describes how a single product/service will be rendered/fulfilled to the end customer
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique reference ID to the fulfillment of an order
+        type:
+          type: string
+          description: This describes the type of fulfillment
+        provider_id:
+          $ref: '#/components/schemas/Provider/properties/id'
+        state:
+          $ref: '#/components/schemas/State'
+        tracking:
+          type: boolean
+          description: Indicates whether the fulfillment allows tracking
+          default: false
+        customer:
+          type: object
+          properties:
+            person:
+              $ref: '#/components/schemas/Person'
+            contact:
+              $ref: '#/components/schemas/Contact'
+        agent:
+          $ref: '#/components/schemas/Agent'
+        person:
+          $ref: '#/components/schemas/Person'
+        contact:
+          $ref: '#/components/schemas/Contact'
+        start:
+          description: Details on the start of fulfillment
+          type: object
+          properties:
+            time:
+              $ref: '#/components/schemas/Time'
+            instructions:
+              $ref: '#/components/schemas/Descriptor'
+            contact:
+              $ref: '#/components/schemas/Contact'
+            person:
+              $ref: '#/components/schemas/Person'
+        end:
+          description: Details on the end of fulfillment
+          type: object
+          properties:
+            time:
+              $ref: '#/components/schemas/Time'
+            instructions:
+              $ref: '#/components/schemas/Descriptor'
+            contact:
+              $ref: '#/components/schemas/Contact'
+            person:
+              $ref: '#/components/schemas/Person'
+        tags:
+          $ref: '#/components/schemas/Tags'
+    
+    Image:
+      description: 'Image of an object. <br/><br/> A url based image will look like <br/><br/>```uri:http://path/to/image``` <br/><br/>'
+      type: string
+    
+    Intent:
+      description: Intent of a user. Used for searching for services
+      type: object
+      properties:
+        descriptor:
+          $ref: '#/components/schemas/Descriptor'
+        provider:
+          $ref: '#/components/schemas/Provider'
+        fulfillment:
+          $ref: '#/components/schemas/Fulfillment'
+        payment:
+          $ref: '#/components/schemas/Payment'
+        category:
+          $ref: '#/components/schemas/Category'
+        item:
+          $ref: '#/components/schemas/Item'
+        tags:
+          $ref: '#/components/schemas/Tags'
+            
+    ItemQuantity:
+      description: Describes count or amount of an item
+      type: object
+      properties:
+        allocated:
+          type: object
+          properties:
+            count:
+              type: integer
+              minimum: 0
+            measure:
+              $ref: '#/components/schemas/Scalar'
+        available:
+          type: object
+          properties:
+            count:
+              type: integer
+              minimum: 0
+            measure:
+              $ref: '#/components/schemas/Scalar'
+        maximum:
+          type: object
+          properties:
+            count:
+              type: integer
+              minimum: 1
+            measure:
+              $ref: '#/components/schemas/Scalar'
+        minimum:
+          type: object
+          properties:
+            count:
+              type: integer
+              minimum: 0
+            measure:
+              $ref: '#/components/schemas/Scalar'
+        selected:
+          type: object
+          properties:
+            count:
+              type: integer
+              minimum: 0
+            measure:
+              $ref: '#/components/schemas/Scalar'
+    Item:
+      description: Describes an item. Allows for domain extension.
+      type: object
+      properties:
+        id:
+          description: This is the most unique identifier of a service item. An example of an Item ID could be the SKU of a product.
+          type: string
+          format: '#/components/schemas/Item/properties/id'
+        parent_item_id:
+          $ref: '#/components/schemas/Item/properties/id'
+        descriptor:
+          $ref: '#/components/schemas/Descriptor'
+        price:
+          $ref: '#/components/schemas/Price'
+        category_id:
+          $ref: '#/components/schemas/Category/properties/id'
+        fulfillment_id:
+          $ref: '#/components/schemas/Fulfillment/properties/id'
+        time:
+          $ref: '#/components/schemas/Time'
+        matched:
+          type: boolean
+        related:
+          type: boolean
+        recommended:
+          type: boolean
+        tags:
+          $ref: '#/components/schemas/Tags'
+    Language:
+      description: indicates language code. DHP supports country codes as per ISO 639.2 standard
+      type: object
+      properties:
+        code:
+          type: string
+    MessageAck:
+      title: Message
+      type: object
+      properties:
+        ack:
+          "$ref": "#/components/schemas/Ack"
+    Name:
+      type: string
+      description: 'Describes the name of a person in format: ./{given_name}/{honorific_prefix}/{first_name}/{middle_name}/{last_name}/{honorific_suffix}'
+      pattern: '^\./[^/]+/[^/]*/[^/]*/[^/]*/[^/]*/[^/]*$'
+
+    Order:
+      description: Describes the details of an order
+      type: object
+      properties:
+        id:
+          type: string
+          description: Hash of order object without id
+        state:
+          type: string
+        provider:
+          type: object
+          properties:
+            id:
+              $ref: '#/components/schemas/Provider/properties/id'
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                $ref: '#/components/schemas/Item/properties/id'
+              quantity:
+                $ref: '#/components/schemas/ItemQuantity/properties/selected'
+            required:
+              - id
+        billing:
+          $ref: '#/components/schemas/Billing'
+        fulfillment:
+          $ref: '#/components/schemas/Fulfillment'
+        quote:
+          $ref: '#/components/schemas/Quotation'
+        payment:
+          $ref: '#/components/schemas/Payment'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Organization:
+      description: Describes an organization
+      type: object
+      properties:
+        name:
+          type: string
+        cred:
+          type: string
+
+    Page:
+      description: Describes a page in a search result
+      type: object
+      properties:
+        id:
+          type: string
+        next_id:
+          type: string
+
+    Payment:
+      description: Describes a payment
+      type: object
+      properties:
+        uri:
+          type: string
+          description: 'A payment target uri to be called by the DHP-Consumer. Supported formats are <br></br>a) https and, <br></br>b) payto - Refer to RFC8905'
+          format: uri
+        tl_method:
+          type: string
+          enum:
+            - https
+            - payto
+        params:
+          type: object
+          properties:
+            transaction_id:
+              type: string
+              description: This value will be placed in the the $transaction_id url param in case of http/get and in the requestBody http/post requests
+            transaction_status:
+              type: string
+            amount:
+              $ref: '#/components/schemas/Price/properties/value'
+            currency:
+              $ref: '#/components/schemas/Price/properties/currency'
+          additionalProperties:
+            type: string
+          required:
+            - currency
+        type:
+          type: string
+          description: Stage at which the payment is expected
+          enum:
+            - ON-ORDER
+            - PRE-FULFILLMENT
+            - ON-FULFILLMENT
+            - POST-FULFILLMENT
+        status:
+          type: string
+          enum:
+            - PAID
+            - NOT-PAID
+        time:
+          $ref: '#/components/schemas/Time'
+
+    Person:
+      description: Describes a person.
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          $ref: '#/components/schemas/Name'
+        image:
+          $ref: '#/components/schemas/Image'
+        dob:
+          type: string
+          format: date
+        gender:
+          type: string
+          description: 'Gender of something, typically a Person, but possibly also fictional characters, animals, etc. While Male and Female may be used, text strings are also acceptable for people who do not identify as a binary gender'
+        cred:
+          type: string
+        tags:
+          $ref: '#/components/schemas/Tags'
+      required:
+        - name
+
+    Policy:
+      description: Describes a policy. Allows for domain extension.
+      type: object
+      properties:
+        id:
+          type: string
+        descriptor:
+          $ref: '#/components/schemas/Descriptor'
+        parent_policy_id:
+          $ref: '#/components/schemas/Policy/properties/id'
+        time:
+          $ref: '#/components/schemas/Time'
+
+    Price:
+      description: Describes the price of an item. Allows for domain extension.
+      type: object
+      properties:
+        currency:
+          type: string
+        value:
+          $ref: '#/components/schemas/DecimalValue'
+        estimated_value:
+          $ref: '#/components/schemas/DecimalValue'
+        computed_value:
+          $ref: '#/components/schemas/DecimalValue'
+        listed_value:
+          $ref: '#/components/schemas/DecimalValue'
+        offered_value:
+          $ref: '#/components/schemas/DecimalValue'
+        minimum_value:
+          $ref: '#/components/schemas/DecimalValue'
+        maximum_value:
+          $ref: '#/components/schemas/DecimalValue'
+          
+    Provider:
+      description: 'Describes a service provider. This can be a restaurant, a hospital, a Store etc'
+      type: object
+      properties:
+        id:
+          type: string
+          description: 'Id of the provider'
+        descriptor:
+          $ref: '#/components/schemas/Descriptor'
+        category_id:
+          type: string
+          description: 'Category Id of the provider'
+        time:
+          $ref: '#/components/schemas/Time'
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+        fulfillments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Fulfillment'
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Payment'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Item'
+        exp:
+          type: string
+          description: Time after which catalog has to be refreshed
+          format: date-time
+        tags:
+          $ref: '#/components/schemas/Tags'
+
+    Quotation:
+      description: Describes a quote
+      type: object
+      properties:
+        price:
+          $ref: '#/components/schemas/Price'
+        breakup:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              price:
+                $ref: '#/components/schemas/Price'
+        ttl:
+          $ref: '#/components/schemas/Duration'
+    Response:
+      title: Response
+      type: object
+      properties:
+        error:
+          "$ref": "#/components/schemas/Error"
+        message:
+          "$ref": "#/components/schemas/MessageAck"
+    Scalar:
+      description: An object representing a scalar quantity.
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - CONSTANT
+            - VARIABLE
+        value:
+          type: number
+        estimated_value:
+          type: number
+        computed_value:
+          type: number
+        range:
+          type: object
+          properties:
+            min:
+              type: number
+            max:
+              type: number
+        unit:
+          type: string
+      required:
+        - value
+        - unit
+
+    Schedule:
+      description: Describes a schedule
+      type: object
+      properties:
+        frequency:
+          $ref: '#/components/schemas/Duration'
+        holidays:
+          type: array
+          items:
+            type: string
+            format: date-time
+        times:
+          type: array
+          items:
+            type: string
+            format: date-time
+
+    State:
+      description: Describes a state
+      type: object
+      properties:
+        descriptor:
+          $ref: '#/components/schemas/Descriptor'
+        updated_at:
+          type: string
+          format: date-time
+        updated_by:
+          type: string
+          description: ID of entity which changed the state
+
+    Subscriber:
+      type: object
+      description: 'Any entity which wants to authenticate itself on a network. This can be a DHP-Consumer, DHP-Provider, DG.'
+      properties:
+        subscriber_id:
+          type: string
+          description: Registered domain name of the subscriber. Must have a valid SSL certificate issued by a Certificate Authority of the operating region
+        type:
+          type: string
+          enum:
+            - consumer
+            - provider
+            - gateway
+        cb_url:
+          type: string
+          description: Callback URL of the subscriber. The Registry will call this URL's on_subscribe API to validate the subscriber\'s credentials
+        domain:
+          $ref: '#/components/schemas/Domain'
+        city:
+          $ref: '#/components/schemas/City/properties/code'
+        country:
+          $ref: '#/components/schemas/Country/properties/code'
+        signing_public_key:
+          type: string
+          description: 'Signing Public key of the subscriber. <br/><br/>Any subscriber platform (dhp_consumer, dhp_provider, dg) who wants to transact on the network must digitally sign the ```requestBody``` using the corresponding private key of this public key and send it in the transport layer header. In case of ```HTTP``` it is the ```Authorization``` header. <br><br/>The ```Authorization``` will be used to validate the signature of a dhp_consumer or dhp_provider.<br/><br/>Furthermore, if an API call is being proxied or multicast by a DHP Gateway, the BG must use it\''s signing key to digitally sign the ```requestBody``` using the corresponding private key of this public key and send it in the ```Proxy-Authorization``` header.'
+        encryption_public_key:
+          type: string
+          description: Encryption public key of the dhp_consumer subscriber. Any dhp_provider must encrypt the ```requestBody.message``` value of the ```on_search``` API using this public key.
+        status:
+          type: string
+          enum:
+            - INITIATED
+            - UNDER_SUBSCRIPTION
+            - SUBSCRIBED
+            - INVALID_SSL
+            - UNSUBSCRIBED
+        created:
+          type: string
+          description: Timestamp when a subscriber was added to the registry with status = INITIATED
+          format: date-time
+        updated:
+          type: string
+          format: date-time
+        expires:
+          type: string
+          description: Expiry timestamp in UTC derived from the ```lease_time``` of the subscriber
+          format: date-time
+
+    Tags:
+      description: Describes a tag. This is a simple key-value store which is used to contain read-only metadata
+      additionalProperties:
+        type: string
+
+    Time:
+      description: Describes time in its various forms. It can be a single point in time; duration; or a structured timetable of operations
+      type: object
+      properties:
+        label:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        duration:
+          $ref: '#/components/schemas/Duration'
+        range:
+          type: object
+          properties:
+            start:
+              type: string
+              format: date-time
+            end:
+              type: string
+              format: date-time
+        days:
+          type: string
+          description: comma separated values representing days of the week
+        schedule:
+          $ref: '#/components/schemas/Schedule'
+        
