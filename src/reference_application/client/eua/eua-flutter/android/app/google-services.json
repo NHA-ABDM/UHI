@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "179299234068",
+    "project_id": "abdm-uhi",
+    "storage_bucket": "abdm-uhi.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:179299234068:android:d768e073dba0f460a79201",
+        "android_client_info": {
+          "package_name": "in.abdm.gov.uhi.eua"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "179299234068-8m6lu0qguj83j6dn7be3ejt6d0lut9fn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4U4MikcTAP5NknjOCjpUtr-pRFa6l_Qo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "179299234068-8m6lu0qguj83j6dn7be3ejt6d0lut9fn.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "179299234068-ak3jh1ihu8hue6g5vppjefc3r8528o49.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "in.abdm.gov.uhi.hspa"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:179299234068:android:f27c255186a3aa0ba79201",
+        "android_client_info": {
+          "package_name": "in.abdm.gov.uhi.hspa"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "179299234068-8m6lu0qguj83j6dn7be3ejt6d0lut9fn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4U4MikcTAP5NknjOCjpUtr-pRFa6l_Qo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "179299234068-8m6lu0qguj83j6dn7be3ejt6d0lut9fn.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "179299234068-ak3jh1ihu8hue6g5vppjefc3r8528o49.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "in.abdm.gov.uhi.hspa"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
