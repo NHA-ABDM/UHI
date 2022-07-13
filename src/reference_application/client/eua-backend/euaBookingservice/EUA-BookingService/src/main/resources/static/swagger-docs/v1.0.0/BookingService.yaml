@@ -1,0 +1,1445 @@
+swagger: '2.0'
+info:
+  description: UHI Booking Service under UHI(Unified Health Interface)
+  version: '1.0'
+  title: UHI Booking Service  Project
+  termsOfService: termsOfServiceUrl
+  contact:
+    name: National Health Authority India
+  license:
+    name: License 1.0
+    url: https://licenseUrl.com
+host: localhost:8903
+basePath: /
+tags:
+  - name: Booking Service
+    description: Eua Booking Controller
+  - name: Chat Service
+    description: Chat Controller
+paths:
+  /api/v1/bookingService/getCategories:
+    get:
+      tags:
+        - Booking Service
+      summary: Get all categories
+      operationId: getCategoriesUsingGET
+      produces:
+        - '*/*'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Categories'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /api/v1/bookingService/getCategories/{categoryid}:
+    get:
+      tags:
+        - Booking Service
+      summary: Get Categories by category id
+      operationId: getCategoriesByCategoryidUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: categoryid
+          in: path
+          description: categoryid
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Categories'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /api/v1/bookingService/getMessage:
+    get:
+      tags:
+        - Chat Service
+      summary: Get all messages
+      description: This endpoint will give all messages from database
+      operationId: getMessageUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: pageNumber
+          in: query
+          description: pageNumber
+          required: false
+          type: integer
+          default: 0
+          format: int32
+        - name: pageSize
+          in: query
+          description: pageSize
+          required: false
+          type: integer
+          default: 200
+          format: int32
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/MessagesDTO'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /api/v1/bookingService/getMessages/{sender}/{receiver}:
+    get:
+      tags:
+        - Chat Service
+      summary: Find message b/w sender and receiver
+      description: This endpoint will give conversation  b/w sender and receiver
+      operationId: getMessagesBetweenTwoUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: pageNumber
+          in: query
+          description: pageNumber
+          required: false
+          type: integer
+          default: 0
+          format: int32
+        - name: pageSize
+          in: query
+          description: pageSize
+          required: false
+          type: integer
+          default: 200
+          format: int32
+        - name: receiver
+          in: path
+          description: receiver
+          required: true
+          type: string
+        - name: sender
+          in: path
+          description: sender
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/MessagesDTO'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /api/v1/bookingService/getOrders:
+    get:
+      tags:
+        - Booking Service
+      summary: Get all Orders
+      operationId: getOrdersUsingGET
+      produces:
+        - '*/*'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Orders'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /api/v1/bookingService/getOrdersByAbhaId/{abhaid}:
+    get:
+      tags:
+        - Booking Service
+      summary: Get order by abha id
+      operationId: getOrderByAbhaidUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: abhaid
+          in: path
+          description: abhaid
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Orders'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /api/v1/bookingService/getOrdersByOrderid/{orderid}:
+    get:
+      tags:
+        - Booking Service
+      summary: Get order by order id
+      operationId: getOrderByOrderidUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: orderid
+          in: path
+          description: orderid
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Orders'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /api/v1/bookingService/getTokenUsers:
+    get:
+      tags:
+        - Chat Service
+      summary: Get token assigned to users
+      description: Get details of all token assigned to users
+      operationId: getAllTokenUsersUsingGET
+      produces:
+        - '*/*'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/UserToken'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /api/v1/bookingService/getUser:
+    get:
+      tags:
+        - Chat Service
+      summary: 'Get all users '
+      description: This endpoint will give all available users
+      operationId: getAllUsersUsingGET
+      produces:
+        - '*/*'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ChatUser'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /api/v1/bookingService/getUser/{userid}:
+    get:
+      tags:
+        - Chat Service
+      summary: Get users by userid
+      description: 'This endpoint will give users by userid '
+      operationId: getUserByIdUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: userid
+          in: path
+          description: userid
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ChatUser'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /api/v1/bookingService/message:
+    post:
+      tags:
+        - Chat Service
+      summary: Message reponse from EUA
+      description: EUA will hit this api as a request to HSPA and save in database
+      operationId: saveChatForOnMessageUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/Request'
+      responses:
+        '200':
+          description: OK
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /api/v1/bookingService/notification/token:
+    post:
+      tags:
+        - Chat Service
+      summary: 'Send notification to HSPA '
+      description: 'this endpoint will send notification to HSPA based on given token '
+      operationId: sendTokenNotificationUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/PushNotificationRequest'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/PushNotificationResponse'
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /api/v1/bookingService/on_confirm:
+    post:
+      tags:
+        - Booking Service
+      summary: Save Confirmed orders
+      operationId: savedataForConfirmUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/Request'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /api/v1/bookingService/on_init:
+    post:
+      tags:
+        - Booking Service
+      summary: Save Initialized orders
+      operationId: savedataForInitUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/Request'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /api/v1/bookingService/on_message:
+    post:
+      tags:
+        - Chat Service
+      summary: Message reponse from HSPA
+      description: HSPA will hit this api as a response to EUA and save in database
+      operationId: saveChatForMessageUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/Request'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /api/v1/bookingService/saveToken:
+    post:
+      tags:
+        - Chat Service
+      summary: 'Save user token in database '
+      description: 'app will hit this endpoint to save user token '
+      operationId: saveTokenUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/RequestTokenDTO'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/PushNotificationResponse'
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+definitions:
+  Ack:
+    type: object
+    properties:
+      status:
+        type: string
+    title: Ack
+  Address:
+    type: object
+    properties:
+      area_code:
+        type: string
+      building:
+        type: string
+      city:
+        type: string
+      country:
+        type: string
+      door:
+        type: string
+      locality:
+        type: string
+      name:
+        type: string
+      state:
+        type: string
+      street:
+        type: string
+      ward:
+        type: string
+    title: Address
+  Address0:
+    type: object
+    properties:
+      address:
+        type: string
+      addressId:
+        type: integer
+        format: int64
+      countryCode:
+        type: string
+      districtCode:
+        type: string
+      districtName:
+        type: string
+      pincode:
+        type: string
+      stateCode:
+        type: string
+      stateName:
+        type: string
+      subDistrictCode:
+        type: string
+      subdistrictName:
+        type: string
+      townCode:
+        type: string
+      townName:
+        type: string
+      user:
+        $ref: '#/definitions/User'
+      villageCode:
+        type: string
+      villageName:
+        type: string
+      wardCode:
+        type: string
+      wardName:
+        type: string
+    title: Address0
+  Agent:
+    type: object
+    properties:
+      cred:
+        type: string
+      dob:
+        type: string
+      email:
+        type: string
+      gender:
+        type: string
+      id:
+        type: string
+      image:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      tags:
+        type: object
+        additionalProperties:
+          type: string
+    title: Agent
+  Billing:
+    type: object
+    properties:
+      address:
+        $ref: '#/definitions/Address'
+      created_at:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      organization:
+        $ref: '#/definitions/Organization'
+      phone:
+        type: string
+      tax_number:
+        type: string
+      time:
+        $ref: '#/definitions/Time'
+      updated_at:
+        type: string
+    title: Billing
+  Breakup:
+    type: object
+    properties:
+      price:
+        $ref: '#/definitions/Price'
+      title:
+        type: string
+    title: Breakup
+  Catalog:
+    type: object
+    properties:
+      descriptor:
+        $ref: '#/definitions/Descriptor'
+      fulfillments:
+        type: array
+        items:
+          $ref: '#/definitions/Fulfillment'
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/Item'
+      providers:
+        type: array
+        items:
+          $ref: '#/definitions/Provider'
+    title: Catalog
+  Categories:
+    type: object
+    properties:
+      categoryId:
+        type: integer
+        format: int64
+      descriptor:
+        type: string
+    title: Categories
+  Category:
+    type: object
+    properties:
+      descriptor:
+        $ref: '#/definitions/Descriptor'
+      id:
+        type: string
+    title: Category
+  Chat:
+    type: object
+    properties:
+      content:
+        $ref: '#/definitions/Content'
+      receiver:
+        $ref: '#/definitions/Receiver'
+      sender:
+        $ref: '#/definitions/Sender'
+      time:
+        $ref: '#/definitions/Time'
+    title: Chat
+  ChatUser:
+    type: object
+    properties:
+      image:
+        type: string
+      userId:
+        type: string
+      userName:
+        type: string
+    title: ChatUser
+  Contact:
+    type: object
+    properties:
+      email:
+        type: string
+      phone:
+        type: string
+      tags:
+        type: object
+        additionalProperties:
+          type: string
+    title: Contact
+  Content:
+    type: object
+    properties:
+      content_id:
+        type: string
+      content_value:
+        type: string
+    title: Content
+  Context:
+    type: object
+    properties:
+      action:
+        type: string
+      city:
+        type: string
+      consumer_id:
+        type: string
+      consumer_uri:
+        type: string
+      core_version:
+        type: string
+      country:
+        type: string
+      domain:
+        type: string
+      key:
+        type: string
+      message_id:
+        type: string
+      provider_id:
+        type: string
+      provider_uri:
+        type: string
+      timestamp:
+        type: string
+      transaction_id:
+        type: string
+      ttl:
+        type: string
+    title: Context
+  Customer:
+    type: object
+    properties:
+      contact:
+        $ref: '#/definitions/Contact'
+      cred:
+        type: string
+      id:
+        type: string
+      person:
+        $ref: '#/definitions/Person'
+    title: Customer
+  Descriptor:
+    type: object
+    properties:
+      audio:
+        type: string
+      code:
+        type: string
+      images:
+        type: object
+        additionalProperties:
+          type: string
+      long_desc:
+        type: string
+      name:
+        type: string
+      render3d:
+        type: string
+      short_desc:
+        type: string
+      symbol:
+        type: string
+    title: Descriptor
+  End:
+    type: object
+    properties:
+      contact:
+        $ref: '#/definitions/Contact'
+      instructions:
+        $ref: '#/definitions/Instructions'
+      person:
+        $ref: '#/definitions/Person'
+      time:
+        $ref: '#/definitions/Time'
+    title: End
+  Error:
+    type: object
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+      path:
+        type: string
+      type:
+        type: string
+    title: Error
+  ErrorResponseDTO:
+    type: object
+    properties:
+      code:
+        type: string
+      errorString:
+        type: string
+      path:
+        type: string
+    title: ErrorResponseDTO
+  Fulfillment:
+    type: object
+    properties:
+      agent:
+        $ref: '#/definitions/Agent'
+      contact:
+        $ref: '#/definitions/Contact'
+      customer:
+        $ref: '#/definitions/Customer'
+      end:
+        $ref: '#/definitions/End'
+      id:
+        type: string
+      person:
+        $ref: '#/definitions/Person'
+      provider_id:
+        type: string
+      quote:
+        $ref: '#/definitions/Quote'
+      start:
+        $ref: '#/definitions/Start'
+      state:
+        $ref: '#/definitions/State'
+      tags:
+        type: object
+        additionalProperties:
+          type: string
+      time:
+        $ref: '#/definitions/Time'
+      tracking:
+        type: boolean
+      type:
+        type: string
+    title: Fulfillment
+  Instructions:
+    type: object
+    properties:
+      3d_render:
+        type: string
+      audio:
+        type: string
+      code:
+        type: string
+      images:
+        type: object
+        additionalProperties:
+          type: string
+      long_desc:
+        type: string
+      name:
+        type: string
+      short_desc:
+        type: string
+      symbol:
+        type: string
+    title: Instructions
+  Intent:
+    type: object
+    properties:
+      category:
+        $ref: '#/definitions/Category'
+      chat:
+        $ref: '#/definitions/Chat'
+      fulfillment:
+        $ref: '#/definitions/Fulfillment'
+      item:
+        $ref: '#/definitions/Item'
+      provider:
+        $ref: '#/definitions/Provider'
+      tags:
+        type: object
+        additionalProperties:
+          type: string
+    title: Intent
+  Item:
+    type: object
+    properties:
+      category_id:
+        type: string
+      descriptor:
+        $ref: '#/definitions/Descriptor'
+      fulfillment_id:
+        type: string
+      id:
+        type: string
+      price:
+        $ref: '#/definitions/Price'
+      provider_id:
+        type: string
+      quantity:
+        $ref: '#/definitions/Quantity'
+    title: Item
+  Items:
+    type: object
+    properties:
+      Items:
+        type: array
+        items:
+          $ref: '#/definitions/Item'
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/Item'
+    title: Items
+  Measure:
+    type: object
+    properties:
+      computed_value:
+        type: integer
+        format: int64
+      estimated_value:
+        type: integer
+        format: int64
+      range:
+        $ref: '#/definitions/Range'
+      type:
+        type: string
+      unit:
+        type: string
+      value:
+        type: integer
+        format: int64
+    title: Measure
+  Message:
+    type: object
+    properties:
+      consumerId:
+        type: string
+      createdAt:
+        type: string
+      dhpQueryType:
+        type: string
+      id:
+        type: integer
+        format: int64
+      messageId:
+        type: string
+      response:
+        type: string
+      user:
+        $ref: '#/definitions/User'
+      userDevice:
+        $ref: '#/definitions/UserDevice'
+    title: Message
+  Message0:
+    type: object
+    properties:
+      catalog:
+        $ref: '#/definitions/Catalog'
+      intent:
+        $ref: '#/definitions/Intent'
+      order:
+        $ref: '#/definitions/Order'
+      order_id:
+        type: string
+    title: Message0
+  MessageAck:
+    type: object
+    properties:
+      ack:
+        $ref: '#/definitions/Ack'
+    title: MessageAck
+  MessagesDTO:
+    type: object
+    properties:
+      contentId:
+        type: string
+      contentValue:
+        type: string
+      error:
+        $ref: '#/definitions/ErrorResponseDTO'
+      receiver:
+        type: string
+      sender:
+        type: string
+      time:
+        type: string
+    title: MessagesDTO
+  Mono«Response»:
+    type: object
+    title: Mono«Response»
+  Order:
+    type: object
+    properties:
+      billing:
+        $ref: '#/definitions/Billing'
+      customer:
+        $ref: '#/definitions/Customer'
+      email:
+        type: string
+      fulfillment:
+        $ref: '#/definitions/Fulfillment'
+      id:
+        type: string
+      item:
+        $ref: '#/definitions/Item'
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/Item'
+      payment:
+        $ref: '#/definitions/Payment'
+      phone:
+        type: string
+      provider:
+        $ref: '#/definitions/Provider'
+      quote:
+        $ref: '#/definitions/Quote'
+      ref_id:
+        type: string
+      state:
+        type: string
+      time:
+        $ref: '#/definitions/Time'
+    title: Order
+  Orders:
+    type: object
+    properties:
+      abhaId:
+        type: string
+      categoryId:
+        type: string
+      healthcareProfessionalDepartment:
+        type: string
+      healthcareProfessionalEmail:
+        type: string
+      healthcareProfessionalExperience:
+        type: string
+      healthcareProfessionalGender:
+        type: string
+      healthcareProfessionalId:
+        type: string
+      healthcareProfessionalImage:
+        type: string
+      healthcareProfessionalName:
+        type: string
+      healthcareProfessionalPhone:
+        type: string
+      healthcareProviderId:
+        type: string
+      healthcareProviderName:
+        type: string
+      healthcareProviderUrl:
+        type: string
+      healthcareServiceId:
+        type: string
+      healthcareServiceName:
+        type: string
+      healthcareServiceProviderEmail:
+        type: string
+      healthcareServiceProviderPhone:
+        type: string
+      isServiceFulfilled:
+        type: string
+      languagesSpokenByHealthcareProfessional:
+        type: string
+      message:
+        type: string
+      orderDate:
+        type: string
+      orderId:
+        type: string
+      payment:
+        $ref: '#/definitions/Payments'
+      serviceFulfillmentEndTime:
+        type: string
+      serviceFulfillmentStartTime:
+        type: string
+      serviceFulfillmentType:
+        type: string
+      slotId:
+        type: string
+      symptoms:
+        type: string
+      user:
+        $ref: '#/definitions/User'
+    title: Orders
+  Organization:
+    type: object
+    properties:
+      cred:
+        type: string
+      name:
+        type: string
+    title: Organization
+  Params:
+    type: object
+    properties:
+      amount:
+        type: string
+      mode:
+        type: string
+      transaction_id:
+        type: string
+      vpa:
+        type: string
+    title: Params
+  Payment:
+    type: object
+    properties:
+      params:
+        $ref: '#/definitions/Params'
+      status:
+        type: string
+      tl_method:
+        type: string
+      type:
+        type: string
+      uri:
+        type: string
+    title: Payment
+  Payments:
+    type: object
+    properties:
+      cgst:
+        type: string
+      consultationCharge:
+        type: string
+      currency:
+        type: string
+      method:
+        type: string
+      phrHandlingFees:
+        type: string
+      sgst:
+        type: string
+      transactionId:
+        type: string
+      transactionState:
+        type: string
+      transactionTimestamp:
+        type: string
+      user:
+        $ref: '#/definitions/User'
+      userAbhaId:
+        type: string
+    title: Payments
+  Person:
+    type: object
+    properties:
+      cred:
+        type: string
+      descriptor:
+        $ref: '#/definitions/Descriptor'
+      dob:
+        type: string
+      gender:
+        type: string
+      id:
+        type: string
+      image:
+        type: string
+      name:
+        type: string
+      tags:
+        type: object
+        additionalProperties:
+          type: string
+    title: Person
+  Price:
+    type: object
+    properties:
+      breakup:
+        type: array
+        items:
+          $ref: '#/definitions/Breakup'
+      computed_Value:
+        type: string
+      currency:
+        type: string
+      estimated_Value:
+        type: string
+      listed_Value:
+        type: string
+      maximum_Value:
+        type: string
+      minimum_Value:
+        type: string
+      offered_Value:
+        type: string
+      value:
+        type: string
+    title: Price
+  Provider:
+    type: object
+    properties:
+      categories:
+        type: array
+        items:
+          $ref: '#/definitions/Category'
+      descriptor:
+        $ref: '#/definitions/Descriptor'
+      fulfillments:
+        type: array
+        items:
+          $ref: '#/definitions/Fulfillment'
+      id:
+        type: string
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/Items'
+    title: Provider
+  PushNotificationRequest:
+    type: object
+    properties:
+      message:
+        type: string
+      title:
+        type: string
+      token:
+        type: string
+      topic:
+        type: string
+    title: PushNotificationRequest
+  PushNotificationResponse:
+    type: object
+    properties:
+      message:
+        type: string
+      status:
+        type: integer
+        format: int32
+    title: PushNotificationResponse
+  Quantity:
+    type: object
+    properties:
+      count:
+        type: integer
+        format: int64
+      measure:
+        $ref: '#/definitions/Measure'
+    title: Quantity
+  Quote:
+    type: object
+    properties:
+      breakup:
+        type: array
+        items:
+          $ref: '#/definitions/Breakup'
+      price:
+        $ref: '#/definitions/Price'
+    title: Quote
+  Range:
+    type: object
+    properties:
+      end:
+        type: string
+      max:
+        type: integer
+        format: int64
+      min:
+        type: integer
+        format: int64
+      start:
+        type: string
+    title: Range
+  Receiver:
+    type: object
+    properties:
+      person:
+        $ref: '#/definitions/Person'
+    title: Receiver
+  Request:
+    type: object
+    properties:
+      context:
+        $ref: '#/definitions/Context'
+      message:
+        $ref: '#/definitions/Message0'
+    title: Request
+  RequestTokenDTO:
+    type: object
+    properties:
+      deviceId:
+        type: string
+      token:
+        type: string
+      type:
+        type: string
+      userName:
+        type: string
+    title: RequestTokenDTO
+  Response:
+    type: object
+    properties:
+      error:
+        $ref: '#/definitions/Error'
+      message:
+        $ref: '#/definitions/MessageAck'
+    title: Response
+  Schedule:
+    type: object
+    properties:
+      frequency:
+        type: string
+      holidays:
+        type: array
+        items:
+          type: string
+      times:
+        type: array
+        items:
+          type: string
+    title: Schedule
+  Sender:
+    type: object
+    properties:
+      person:
+        $ref: '#/definitions/Person'
+    title: Sender
+  Start:
+    type: object
+    properties:
+      contact:
+        $ref: '#/definitions/Contact'
+      instructions:
+        $ref: '#/definitions/Instructions'
+      person:
+        $ref: '#/definitions/Person'
+      time:
+        $ref: '#/definitions/Time'
+    title: Start
+  State:
+    type: object
+    properties:
+      descriptor:
+        $ref: '#/definitions/Descriptor'
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    title: State
+  Time:
+    type: object
+    properties:
+      days:
+        type: string
+      duration:
+        type: string
+      label:
+        type: string
+      range:
+        $ref: '#/definitions/Range'
+      schedule:
+        $ref: '#/definitions/Schedule'
+      timestamp:
+        type: string
+    title: Time
+  User:
+    type: object
+    properties:
+      aadhaarVerified:
+        type: string
+      addresses:
+        type: array
+        uniqueItems: true
+        items:
+          $ref: '#/definitions/Address0'
+      authMethods:
+        type: array
+        uniqueItems: true
+        items:
+          type: string
+      dayOfBirth:
+        type: string
+      email:
+        type: string
+      emailVerified:
+        type: boolean
+      firstName:
+        type: string
+      healthId:
+        type: string
+      healthIdNumber:
+        type: string
+      kycPhoto:
+        type: string
+      kycVerified:
+        type: boolean
+      lastName:
+        type: string
+      messages:
+        type: array
+        uniqueItems: true
+        items:
+          $ref: '#/definitions/Message'
+      middleName:
+        type: string
+      mobile:
+        type: string
+      mobileVerified:
+        type: boolean
+      monthOfBirth:
+        type: string
+      orders:
+        type: array
+        uniqueItems: true
+        items:
+          $ref: '#/definitions/Orders'
+      password:
+        type: string
+      payments:
+        type: array
+        uniqueItems: true
+        items:
+          $ref: '#/definitions/Payments'
+      profilePhoto:
+        type: string
+      userDevices:
+        type: array
+        uniqueItems: true
+        items:
+          $ref: '#/definitions/UserDevice'
+      userId:
+        type: integer
+        format: int64
+      userRefreshTokens:
+        type: array
+        uniqueItems: true
+        items:
+          $ref: '#/definitions/UserRefreshToken'
+      user_abhaAddresses:
+        type: array
+        uniqueItems: true
+        items:
+          $ref: '#/definitions/UserAbhaAddress'
+      verificationStatus:
+        type: string
+      verificationType:
+        type: string
+      yearOfBirth:
+        type: string
+    title: User
+  UserAbhaAddress:
+    type: object
+    properties:
+      phrAddress:
+        type: string
+      user:
+        $ref: '#/definitions/User'
+      userPhrAddressId:
+        type: integer
+        format: int64
+    title: UserAbhaAddress
+  UserDevice:
+    type: object
+    title: UserDevice
+  UserRefreshToken:
+    type: object
+    title: UserRefreshToken
+  UserToken:
+    type: object
+    properties:
+      deviceId:
+        type: string
+      token:
+        type: string
+      userId:
+        type: string
+      userName:
+        type: string
+    title: UserToken

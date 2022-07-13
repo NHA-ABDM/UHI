@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hello WebSocket</title>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/main.css" rel="stylesheet">
+    <script src="/webjars/jquery/jquery.min.js"></script>
+    <script src="/webjars/sockjs-client/sockjs.min.js"></script>
+    <script src="/webjars/stomp-websocket/stomp.min.js"></script>
+    <script src="/app.js"></script>
+</head>
+<body>
+<noscript><h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Websocket relies on Javascript being
+    enabled. Please enable
+    Javascript and reload this page!</h2></noscript>
+<div id="main-content" class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <form class="form-inline">
+                <div class="form-group">
+                    <label for="connect">WebSocket connection:</label>
+                    <button id="connect" class="btn btn-default" type="submit">Connect</button>
+                    <input type="text" id="messageId" name="messageId"/>
+                    <button id="disconnect" class="btn btn-default" type="submit" disabled="disabled">Disconnect
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <form class="form-inline">
+                <div class="form-group">
+                    <label for="name">Enter the JSON request</label>
+                    <textarea rows="8" cols="6" id="name" class="form-control"
+                              placeholder="Your req here..."></textarea>
+                </div>
+                <!--                <button id="sendOnSearch" class="btn btn-default" type="submit">SendOnSearch</button>-->
+                <!--                <button id="SendOnSelect" class="btn btn-default" type="submit">SendOnSelect</button>-->
+                <!--                <button id="SendOnInit" class="btn btn-default" type="submit">SendOnInit</button>-->
+                <!--                <button id="SendOnConfirm" class="btn btn-default" type="submit">SendOnConfirm</button>-->
+                <!--                <button id="SendOnStatus" class="btn btn-default" type="submit">SendOnStatus</button>-->
+                <!--                <button id="get-response-by-msgId" class="btn btn-default" type="submit">Send Get-response-clientId</button>-->
+                <!--                <button id="sendSearch" class="btn btn-default" type="submit">Send search</button>-->
+                <!--                <button id="sendSelect" class="btn btn-default" type="submit">Send select</button>-->
+                <!--                <button id="sendInit" class="btn btn-default" type="submit">Send init</button>-->
+                <!--                <button id="sendConfirm" class="btn btn-default" type="submit">Send confirm</button>-->
+                <!--                <button id="sendStatus" class="btn btn-default" type="submit">Send status</button>-->
+
+
+                <!--
+
+<button id="send" class="btn btn-default" type="submit">Send</button>-->
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <table id="conversation" class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Ack</th>
+                </tr>
+                <tr>
+                    <td>For ACK response you need to check console (Inspect)</td>
+                </tr>
+                </thead>
+                <tbody id="req">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

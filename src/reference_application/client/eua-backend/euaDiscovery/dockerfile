@@ -1,0 +1,8 @@
+FROM openjdk:17.0-jdk
+RUN mkdir /APP
+WORKDIR /APP
+COPY target/EUA-ServiceDiscovery-0.0.1-SNAPSHOT.jar  /APP/EUA-ServiceDiscovery-0.0.1-SNAPSHOT.jar
+COPY opentelemetry-javaagent.jar /APP/opentelemetry-javaagent.jar
+EXPOSE 8762
+RUN chmod -R 777 /APP
+ENTRYPOINT ["java","-jar","/APP/EUA-ServiceDiscovery-0.0.1-SNAPSHOT.jar"]
