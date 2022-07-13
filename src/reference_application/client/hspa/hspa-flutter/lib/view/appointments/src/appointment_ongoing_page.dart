@@ -1,0 +1,139 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../../../constants/src/strings.dart';
+import '../../../model/src/appointments.dart';
+import '../../../theme/src/app_colors.dart';
+import '../../../theme/src/app_text_style.dart';
+import '../../../utils/src/utility.dart';
+import '../../../widgets/src/spacing.dart';
+import '../../../widgets/src/square_rounded_button.dart';
+import '../../../widgets/src/vertical_spacing.dart';
+import 'consultation_completed_page.dart';
+
+class AppointmentOngoingPage extends StatefulWidget {
+  const AppointmentOngoingPage({Key? key, required this.appointment, required this.isTeleconsultation}) : super(key: key);
+  final Appointments appointment;
+  final bool isTeleconsultation;
+
+  @override
+  State<AppointmentOngoingPage> createState() => _AppointmentOngoingPageState();
+}
+
+class _AppointmentOngoingPageState extends State<AppointmentOngoingPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.appBackgroundColor,
+      appBar: AppBar(
+        backgroundColor: AppColors.appBackgroundColor,
+        shadowColor: Colors.black.withOpacity(0.1),
+        titleSpacing: 0,
+        title: Text(
+          AppStrings().labelAppointments,
+          style: AppTextStyle.textBoldStyle(
+              color: AppColors.black, fontSize: 18),
+        ),
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: AppColors.black,
+          ),
+          onPressed: () {
+            Get.back();
+          },
+        ),
+      ),
+      body: buildBody(),
+    );
+  }
+
+  buildBody() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Text('Your appointment with ${widget.appointment.name} is ongoing.', style: AppTextStyle.textSemiBoldStyle(fontSize: 18, color: AppColors.titleTextColor),),
+          VerticalSpacing(size: 16,),
+          Card(
+            elevation: 8,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            margin: const EdgeInsets.only(top: 2, left: 4, right: 4),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            widget.appointment.name,
+                            style: AppTextStyle.textSemiBoldStyle(
+                                color: AppColors.testColor, fontSize: 16),
+                          ),
+                          Spacing(),
+                          Text(
+                            widget.appointment.appointmentDate,
+                            style: AppTextStyle
+                                .textNormalStyle(
+                                color: AppColors.testColor, fontSize: 16),
+                          ),
+                        ],
+                      ),
+                      VerticalSpacing(size: 6,),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            widget.appointment.visitType,
+                            style: AppTextStyle.textNormalStyle(
+                                color: AppColors.testColor, fontSize: 12),
+                          ),
+                          Spacing(),
+                          Text(
+                            widget.appointment.appointmentTime,
+                            style: AppTextStyle
+                                .textNormalStyle(
+                                color: AppColors.testColor, fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          VerticalSpacing(size: 36,),
+          Align(
+            alignment: Alignment.center,
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width - 48,
+              child: SquareRoundedButton(
+                  text: AppStrings().btnEndConsultation,
+                  textStyle: AppTextStyle.textBoldStyle(fontSize: 14, color: AppColors.white),
+                  onPressed: (){
+                    Get.to(() => ConsultationCompletedPage(
+                      appointment: widget.appointment,
+                      isTeleconsultation: widget.isTeleconsultation,
+                    ),
+                      transition: Utility.pageTransition,
+                    );
+                  }),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

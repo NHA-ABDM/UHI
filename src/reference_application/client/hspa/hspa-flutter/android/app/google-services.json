@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "179299234068",
+    "project_id": "abdm-uhi",
+    "storage_bucket": "abdm-uhi.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:179299234068:android:f27c255186a3aa0ba79201",
+        "android_client_info": {
+          "package_name": "in.abdm.gov.uhi.hspa"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "179299234068-8m6lu0qguj83j6dn7be3ejt6d0lut9fn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4U4MikcTAP5NknjOCjpUtr-pRFa6l_Qo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "179299234068-8m6lu0qguj83j6dn7be3ejt6d0lut9fn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

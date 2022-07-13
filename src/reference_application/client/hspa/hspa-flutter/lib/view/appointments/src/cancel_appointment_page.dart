@@ -1,0 +1,210 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+
+import '../../../constants/src/appointment_status.dart';
+import '../../../constants/src/asset_images.dart';
+import '../../../constants/src/strings.dart';
+import '../../../controller/src/appointments_controller.dart';
+import '../../../model/response/src/cancel_appointment_response.dart';
+import '../../../model/response/src/provider_appointments_response.dart';
+import '../../../theme/src/app_colors.dart';
+import '../../../theme/src/app_text_style.dart';
+import '../../../utils/src/utility.dart';
+import '../../../widgets/src/alert_dialog_with_single_action.dart';
+import '../../../widgets/src/spacing.dart';
+import '../../../widgets/src/square_rounded_button_with_icon.dart';
+import '../../../widgets/src/vertical_spacing.dart';
+
+class CancelAppointmentPage extends StatefulWidget {
+  const CancelAppointmentPage({Key? key, required this.providerAppointment}) : super(key: key);
+  final ProviderAppointments providerAppointment;
+
+  @override
+  State<CancelAppointmentPage> createState() => _CancelAppointmentPageState();
+}
+
+class _CancelAppointmentPageState extends State<CancelAppointmentPage> {
+
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  AutovalidateMode _autoValidateMode = AutovalidateMode.disabled;
+  final TextEditingController _reasonTextController = TextEditingController();
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _reasonTextController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ModalProgressHUD(
+      inAsyncCall: _isLoading,
+      child: Scaffold(
+        backgroundColor: AppColors.appBackgroundColor,
+        appBar: AppBar(
+          backgroundColor: AppColors.appBackgroundColor,
+          shadowColor: Colors.black.withOpacity(0.1),
+          titleSpacing: 0,
+          title: Text(
+            AppStrings().labelCancellation,
+            style: AppTextStyle.textBoldStyle(
+                color: AppColors.black, fontSize: 18),
+          ),
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back,
+              color: AppColors.black,
+            ),
+            onPressed: () {
+              Get.back(result: false);
+            },
+          ),
+        ),
+        body: buildBody(),
+      ),
+    );
+  }
+
+  buildBody() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Form(
+              key: _formKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(AppStrings().labelCancellingAppointment, style: AppTextStyle.textSemiBoldStyle(fontSize: 18, color: AppColors.titleTextColor),),
+                    VerticalSpacing(size: 20,),
+                    Text(AppStrings().labelAppointmentDetails, style: AppTextStyle.textSemiBoldStyle(fontSize: 18, color: AppColors.titleTextColor),),
+                    VerticalSpacing(size: 16,),
+                    Card(
+                      elevation: 8,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      margin: const EdgeInsets.only(top: 2, left: 4, right: 4),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      widget.providerAppointment.patient!.person!.display!,
+                                      style: AppTextStyle.textSemiBoldStyle(
+                                          color: AppColors.testColor, fontSize: 16),
+                                    ),
+                                    Spacing(),
+                                    Text(
+                                      Utility.getAppointmentDisplayDate(date: DateTime.parse(widget.providerAppointment.timeSlot!.startDate!)),
+                                      style: AppTextStyle
+                                          .textNormalStyle(
+                                          color: AppColors.testColor, fontSize: 16),
+                                    ),
+                                  ],
+                                ),
+                                VerticalSpacing(size: 6,),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      widget.providerAppointment.reason ?? '',
+                                      style: AppTextStyle.textNormalStyle(
+                                          color: AppColors.testColor, fontSize: 12),
+                                    ),
+                                    Spacing(),
+                                    Text(
+                                      Utility.getAppointmentDisplayTimeRange(startDateTime: DateTime.parse(widget.providerAppointment.timeSlot!.startDate!.split('.').first), endDateTime: DateTime.parse(widget.providerAppointment.timeSlot!.endDate!.split('.').first)),
+                                      style: AppTextStyle
+                                          .textNormalStyle(
+                                          color: AppColors.testColor, fontSize: 12),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    VerticalSpacing(size: 16,),
+
+                    TextFormField(
+                      controller: _reasonTextController,
+                      cursorColor: AppColors.titleTextColor,
+                      textInputAction: TextInputAction.done,
+                      style: AppTextStyle.textNormalStyle(fontSize: 16, color: AppColors.titleTextColor),
+                      decoration: InputDecoration(
+                          labelText: AppStrings().labelSendMessage,
+                          labelStyle: AppTextStyle.textLightStyle(fontSize: 14, color: AppColors.feesLabelTextColor),
+                          focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: AppColors.titleTextColor))
+                      ),
+                      keyboardType: TextInputType.text,
+                      autovalidateMode: _autoValidateMode,
+                      validator: (String? text){
+                        if(text != null && text.trim().isNotEmpty){
+                          return null;
+                        } else {
+                          return AppStrings().errorProvideCancelReason;
+                        }
+                      },
+                    ),
+                    VerticalSpacing(size: 8,),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          SquareRoundedButtonWithIcon(text: AppStrings().btnSubmit, assetImage: AssetImages.arrowLongRight, onPressed: () async{
+            if(_formKey.currentState!.validate()) {
+
+              setState(() {
+                _isLoading = true;
+              });
+
+              String cancelReason = _reasonTextController.text.trim();
+              AppointmentsController appointmentsController = AppointmentsController();
+              CancelAppointmentResponse? cancelAppointmentResponse = await appointmentsController.cancelProviderAppointment(appointmentUUID: widget.providerAppointment.uuid!, status: AppointmentStatus.cancelled, cancelReason: cancelReason);
+
+              if(cancelAppointmentResponse != null) {
+                bool? status = await appointmentsController.purgeCanceledAppointmentSlot(appointmentUUID: widget.providerAppointment.uuid!);
+              }
+
+              setState(() {
+                _isLoading = false;
+              });
+              if(cancelAppointmentResponse != null) {
+                AlertDialogWithSingleAction(context: context,
+                  title: AppStrings().labelCancelAlertTitle,
+                  showIcon: true,
+                  onCloseTap: () {
+                    Navigator.of(context).pop();
+                    Get.back(result: true);
+                  },).showAlertDialog();
+              }
+            } else {
+              setState(() {
+                _autoValidateMode = AutovalidateMode.always;
+              });
+            }
+          }),
+        ],
+      ),
+    );
+  }
+}
