@@ -1,6 +1,0 @@
-framework module geocoding {
-  umbrella header "geocoding-umbrella.h"
-
-  export *
-  module * { export * }
-}
