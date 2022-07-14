@@ -292,7 +292,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       fontSize: 18),
                 ),
                 Stack(
-                  overflow: Overflow.visible,
+                  clipBehavior: Clip.none,
                   children: [
                     CircleAvatar(
                       radius: 48,

@@ -64,5 +64,7 @@
 	</dict>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This app needs access to microphone</string>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 </dict>
 </plist>
