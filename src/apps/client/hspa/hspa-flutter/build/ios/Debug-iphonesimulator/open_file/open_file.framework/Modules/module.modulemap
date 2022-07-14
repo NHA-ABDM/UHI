@@ -1,0 +1,6 @@
+framework module open_file {
+  umbrella header "open_file-umbrella.h"
+
+  export *
+  module * { export * }
+}

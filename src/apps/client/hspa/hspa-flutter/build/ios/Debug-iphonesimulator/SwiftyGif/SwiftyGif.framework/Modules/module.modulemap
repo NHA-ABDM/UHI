@@ -1,0 +1,11 @@
+framework module SwiftyGif {
+  umbrella header "SwiftyGif-umbrella.h"
+
+  export *
+  module * { export * }
+}
+
+module SwiftyGif.Swift {
+    header "SwiftyGif-Swift.h"
+    requires objc
+}

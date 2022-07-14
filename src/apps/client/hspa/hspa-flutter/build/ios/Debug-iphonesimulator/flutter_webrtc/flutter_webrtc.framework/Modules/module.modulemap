@@ -1,0 +1,6 @@
+framework module flutter_webrtc {
+  umbrella header "flutter_webrtc-umbrella.h"
+
+  export *
+  module * { export * }
+}

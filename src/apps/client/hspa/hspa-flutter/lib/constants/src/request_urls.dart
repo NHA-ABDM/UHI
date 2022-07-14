@@ -35,7 +35,8 @@ class RequestUrls {
   /// Chat messages urls
   // static const String bookingService = 'http://100.65.158.41:8084/api/v1/';
   static const String bookingService = 'https://hspabeta.abdm.gov.in/api/v1/';
-  static const String bookingServiceHackathon = 'http://121.242.73.124/api/v1/';
+  static const String bookingServiceHackathon =
+      'http://121.242.73.124:8084/api/v1/';
   static const String getChatMessages = '${bookingServiceHackathon}getMessages';
   static const String postChatMessage = "${bookingServiceHackathon}message";
   static const String publicChatStompSocketUrl =
@@ -46,7 +47,7 @@ class RequestUrls {
   static const String vpnChatStompSocketUrl =
       "wss://hspabeta.abdm.gov.in/hspa-chat";
   static const String vpnChatStompSocketUrlHackathon =
-      "wss://121.242.73.124/hspa-chat";
+      "ws://121.242.73.124:8084/hspa-chat";
   static const String euaChatStompSocketUrl = vpnChatStompSocketUrlHackathon;
   static const String saveFirebaseToken = bookingServiceHackathon + 'saveToken';
 }
