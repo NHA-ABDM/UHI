@@ -7,7 +7,7 @@ class RequestUrls {
   static const String uhiEuaAbdmBackup =
       "https://uhieuabeta.abdm.gov.in/api/v1/";
   static const String uhiEuaAbdmHackathon =
-      "http://121.242.73.125:8081/api/v1/";
+      "http://121.242.73.125:8080/api/v1/";
 
   ///UHI EUA URL
   static const String uhiEua = uhiEuaAbdmHackathon;
@@ -23,7 +23,7 @@ class RequestUrls {
   static const String uhiEuaAbdmBackupSocket =
       "wss://uhieuabeta.abdm.gov.in/api/v1/";
   static const String uhiEuaAbdmHackathonSocket =
-      "ws://121.242.73.125:8081/api/v1/";
+      "ws://121.242.73.125:8080/api/v1/";
 
   ///UHI EUA SOCKET URL
   static const String uhiEuaSocket = uhiEuaAbdmHackathonSocket;
