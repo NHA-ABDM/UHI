@@ -27,7 +27,9 @@ import 'package:uhi_flutter_app/model/common/src/chat_message_dhp_model.dart';
 import 'package:uhi_flutter_app/model/common/src/chat_message_model.dart';
 import 'package:uhi_flutter_app/model/model.dart';
 import 'package:uhi_flutter_app/model/response/response.dart';
+import 'package:uhi_flutter_app/model/response/src/get_user_details_response.dart';
 import 'package:uhi_flutter_app/theme/theme.dart';
+import 'package:uhi_flutter_app/utils/src/shared_preferences.dart';
 import 'package:uhi_flutter_app/utils/utils.dart';
 import 'package:uuid/uuid.dart';
 
@@ -222,6 +224,17 @@ class _ChatPageState extends State<ChatPage> {
   postMessageAPI() async {
     _uniqueId = Uuid().v1();
     _postChatMessageController.refresh();
+    var userData;
+
+    await SharedPreferencesHelper.getUserData().then((value) => setState(() {
+          setState(() {
+            debugPrint("Printing the shared preference userData : $value");
+            userData = value;
+          });
+        }));
+
+    GetUserDetailsResponse? getUserDetailsResponseModel =
+        GetUserDetailsResponse.fromJson(jsonDecode(userData!));
 
     ChatMessageDhpModel chatMessageModel = ChatMessageDhpModel();
 
@@ -256,9 +269,15 @@ class _ChatPageState extends State<ChatPage> {
         : "";
 
     personSender.cred = _patientAbhaId; //Sender hpr/abha id
+    personSender.name = getUserDetailsResponseModel.fullName;
+    personSender.gender = getUserDetailsResponseModel.gender;
+    personSender.image = getUserDetailsResponseModel.profilePhoto;
     sender.person = personSender;
 
     personReceiver.cred = _doctorHprId; //Receiver hpr/abha id
+    personReceiver.name = _doctorName;
+    personReceiver.gender = _doctorGender;
+    personReceiver.image = "image";
     receiver.person = personReceiver;
 
     chat.time = time;

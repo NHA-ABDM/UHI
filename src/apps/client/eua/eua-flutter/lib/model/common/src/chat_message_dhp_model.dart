@@ -123,13 +123,15 @@ class Person {
   String? name;
   String? image;
   String? cred;
+  String? gender;
 
-  Person({this.name, this.image, this.cred});
+  Person({this.name, this.image, this.cred, this.gender});
 
   Person.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     image = json['image'];
     cred = json['cred'];
+    gender = json['gender'];
   }
 
   Map<String, dynamic> toJson() {
@@ -137,6 +139,7 @@ class Person {
     data['name'] = this.name;
     data['image'] = this.image;
     data['cred'] = this.cred;
+    data['gender'] = this.gender;
     return data;
   }
 }
