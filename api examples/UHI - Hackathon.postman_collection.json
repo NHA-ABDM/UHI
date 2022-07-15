@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "860347dd-cdde-41e9-a7b0-5398f40361cc",
+		"_postman_id": "a7210530-21dd-4d85-a7a7-871a50a192bd",
 		"name": "UHI - Hackathon",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "2059332"
+		"_exporter_id": "11132902"
 	},
 	"item": [
 		{
@@ -22,7 +22,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n       \"context\": {\n        \"domain\": \"nic2004:85111\",\n        \"country\": \"IND\",\n        \"city\": \"std:080\",\n        \"action\": \"on_search\",\n        \"timestamp\": \"2022-07-07T10:43:48.705082Z\",\n        \"core_version\": \"0.7.1\",\n        \"consumer_id\": \"eua-nha\",\n        \"consumer_uri\": \"http://121.242.73.125:8080/api/v1/euaService\",\n        \"transaction_id\": \"ae9e6d90-fde1-11ec-b66a-f551703a8c52\"\n    },\n    \"message\": {\n        \"intent\": {\n            \"fulfillment\": {\n                \"agent\": {\n                    \"name\": \"name\"\n                },\n                \"start\": {\n                    \"time\": {\n                        \"timestamp\": \"2022-06-22T15:41:36\"\n                    }\n                },\n                \"end\": {\n                    \"time\": {\n                        \"timestamp\": \"2022-06-22T23:59:59\"\n                    }\n                },\n                \"type\": \"PhysicalConsultation\"\n            }\n        }\n    }\n}",
+							"raw": "      { \"context\": {\n        \"domain\": \"Health\",\n        \"country\": \"IND\",\n        \"city\": \"Pune\",\n        \"action\": \"search\",\n        \"timestamp\": \"2022-07-07T10:43:48.705082Z\",\n        \"core_version\": \"0.7.1\",\n        \"consumer_id\": \"eua-nha\",\n        \"consumer_uri\": \"http://eu.hodo.io/\",\n        \"transaction_id\": \"ae9e6d90-fde1-11ec-b66a-f551703a8c52\",\n        \"message_id\": \"ae9e6d90-fde1-11ec-b66a-f551703a8ca2\"\n    },\n    \"message\": {\n        \"intent\": {\n            \"fulfillment\": {\n                \"agent\": {\n                    \"name\": \"ganesh\"\n                },\n                \"start\": {\n                    \"time\": {\n                        \"timestamp\": \"2022-06-22T15:41:36\"\n                    }\n                },\n                \"end\": {\n                    \"time\": {\n                        \"timestamp\": \"2022-06-22T23:59:59\"\n                    }\n                },\n                \"type\": \"PhysicalConsultation\"\n            }\n        }\n    }\n}\n",
 							"options": {
 								"raw": {
 									"language": "json"
