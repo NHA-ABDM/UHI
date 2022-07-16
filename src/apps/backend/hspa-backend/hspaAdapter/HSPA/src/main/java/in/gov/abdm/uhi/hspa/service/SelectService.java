@@ -64,24 +64,28 @@ public class SelectService implements IService {
 
         try {
             objRequest = new ObjectMapper().readValue(request, Request.class);
-            Request finalObjRequest = objRequest;
-            System.out.println(finalObjRequest);
-            run(finalObjRequest).zipWith(getAllAppointmentTypes())
-                    .flatMap(pair -> getProviderAppointment(pair, finalObjRequest))
-                    .flatMap(res -> getProviderAppointments(res, finalObjRequest))
-                    .flatMap(this::transformObject)
-                    .flatMap(collection -> generateCatalog(collection))
-                    .flatMap(catalog -> callOnSerach(catalog, finalObjRequest.getContext()))
-                    .flatMap(this::logResponse)
-                    .subscribe();
+            String typeFulfillment = objRequest.getMessage().getIntent().getFulfillment().getType();
+            if(typeFulfillment.equalsIgnoreCase("Teleconsultation") || typeFulfillment.equalsIgnoreCase("PhysicalConsultation")) {
+                System.out.println(objRequest);
+                run(objRequest).zipWith(getAllAppointmentTypes())
+                        .flatMap(pair -> getProviderAppointment(pair, objRequest))
+                        .flatMap(res -> getProviderAppointments(res, objRequest))
+                        .flatMap(this::transformObject)
+                        .flatMap(this::generateCatalog)
+                        .flatMap(catalog -> callOnSerach(catalog, objRequest.getContext()))
+                        .flatMap(this::logResponse)
+                        .subscribe();
+            }
+            else {
+                return Mono.just(new Response());
+            }
 
         } catch (Exception ex) {
             LOGGER.error("Search(Select) service processor::error::onErrorResume::" + ex);
             ack = generateNack(ex);
         }
 
-        Mono<Response> responseMono = Mono.just(ack);
-        return responseMono;
+        return Mono.just(ack);
     }
 
 

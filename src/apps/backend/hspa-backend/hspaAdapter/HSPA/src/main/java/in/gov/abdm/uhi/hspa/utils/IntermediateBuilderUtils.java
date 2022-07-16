@@ -438,7 +438,7 @@ public class IntermediateBuilderUtils {
         if (intent.isPresent()) {
             try {
                 valueName = request.getMessage().getIntent().getFulfillment().getAgent().getName();
-                valueHPRID = request.getMessage().getIntent().getFulfillment().getAgent().getId();
+                valueHPRID = request.getMessage().getIntent().getFulfillment().getAgent().getCred();
                 valueType = request.getMessage().getIntent().getFulfillment().getType();
                 valueStart = Optional.ofNullable(request.getMessage().getIntent().getFulfillment().getStart());
                 valueEnd = Optional.ofNullable(request.getMessage().getIntent().getFulfillment().getEnd());

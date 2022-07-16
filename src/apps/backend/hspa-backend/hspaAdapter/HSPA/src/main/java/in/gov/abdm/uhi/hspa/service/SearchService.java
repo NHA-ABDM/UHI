@@ -78,22 +78,26 @@ public class SearchService implements IService {
             System.out.println("Processing::Search::Request::" + request);
 
             objRequest = new ObjectMapper().readValue(request, Request.class);
-            Request finalObjRequest = objRequest;
-            System.out.println(finalObjRequest);
-            run(objRequest)
-                    .flatMap(this::transformObject)
-                    .flatMap(collection -> generateCatalog(collection, finalObjRequest))
-                    .flatMap(catalog -> callOnSerach(catalog, finalObjRequest.getContext()))
-                    .flatMap(this::logResponse)
-                    .subscribe();
+            String typeFulfillment = objRequest.getMessage().getIntent().getFulfillment().getType();
+            if(typeFulfillment.equalsIgnoreCase("Teleconsultation") || typeFulfillment.equalsIgnoreCase("PhysicalConsultation")) {
+                Request finalObjRequest = objRequest;
+                System.out.println(finalObjRequest);
+                run(objRequest)
+                        .flatMap(this::transformObject)
+                        .flatMap(collection -> generateCatalog(collection, finalObjRequest))
+                        .flatMap(catalog -> callOnSerach(catalog, finalObjRequest.getContext()))
+                        .flatMap(this::logResponse)
+                        .subscribe();
+            }
+            else {
+                return Mono.just(new Response());
+            }
         } catch (Exception ex) {
             LOGGER.error("Search Proccessor::error::onErrorResume::" + ex);
             ack = generateNack(ex);
         }
 
-        Mono<Response> responseMono = Mono.just(ack);
-
-        return responseMono;
+        return Mono.just(ack);
     }
 
     private Mono<List<IntermediateProviderModel>> transformObject(String result) {

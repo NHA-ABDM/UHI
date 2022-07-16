@@ -81,13 +81,18 @@ public class InitService implements IService {
             Request finalObjRequest = objRequest;
 
             ////TODO: If provider not found donot add patient
-            findPatient(finalObjRequest)
-                    .flatMap(result -> createPatient(result, finalObjRequest))
-                    .flatMap(result -> createResponse(result, finalObjRequest))
-                    .flatMap(this::callOnInit)
-                    .flatMap(this::logResponse)
-                    .subscribe();
-
+            String typeFulfillment = objRequest.getMessage().getOrder().getFulfillment().getType();
+            if(typeFulfillment.equalsIgnoreCase("Teleconsultation") || typeFulfillment.equalsIgnoreCase("PhysicalConsultation")) {
+                findPatient(finalObjRequest)
+                        .flatMap(result -> createPatient(result, finalObjRequest))
+                        .flatMap(result -> createResponse(result, finalObjRequest))
+                        .flatMap(this::callOnInit)
+                        .flatMap(this::logResponse)
+                        .subscribe();
+            }
+            else{
+                return Mono.just(new Response());
+            }
 
         } catch (Exception ex) {
             LOGGER.error("Init Service process::error::onErrorResume::" + ex);
@@ -95,9 +100,7 @@ public class InitService implements IService {
 
         }
 
-        Mono<Response> responseMono = Mono.just(ack);
-
-        return responseMono;
+        return Mono.just(ack);
     }
 
     @Override

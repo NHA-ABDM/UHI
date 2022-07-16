@@ -91,19 +91,19 @@ public class ConfirmService implements IService {
 
         try {
             objRequest = new ObjectMapper().readValue(request, Request.class);
-            Request finalObjRequest = objRequest;
-
-            run(finalObjRequest);
-
+             String typeFulfillment = objRequest.getMessage().getOrder().getFulfillment().getType();
+            if(typeFulfillment.equalsIgnoreCase("Teleconsultation") || typeFulfillment.equalsIgnoreCase("PhysicalConsultation")) {
+                run(objRequest);
+            } else {
+               return Mono.just(new Response());
+            }
         } catch (Exception ex) {
             LOGGER.error("Confirm Service process::error::onErrorResume::" + ex);
             ack = generateNack(mapper, ex);
 
         }
 
-        Mono<Response> responseMono = Mono.just(ack);
-
-        return responseMono;
+        return Mono.just(ack);
     }
 
     @Override
