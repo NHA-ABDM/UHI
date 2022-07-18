@@ -116,7 +116,7 @@ public class ProtocolBuilderUtils {
         return objCatalog;
     }
 
-    public static Catalog BuildProviderCatalog(List<IntermediateProviderAppointmentModel> list)
+    public static Catalog BuildProviderCatalog(List<IntermediateProviderAppointmentModel> list, String appointmentType)
     {
         List<Item> listItems = new ArrayList<>();
         List<Fulfillment> listFulfillments = new ArrayList<>();
@@ -150,7 +150,7 @@ public class ProtocolBuilderUtils {
 
                 objFulfilment.setAgent(objAgent);
                 objFulfilment.setId(obj.slotId);
-                objFulfilment.setType("DIGITAL-CONSULTATION");
+                objFulfilment.setType(appointmentType);
                 objFulfilment.setQuote(quote);
 
                 objItem.setFulfillmentId(obj.slotId);

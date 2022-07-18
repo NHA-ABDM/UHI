@@ -435,6 +435,7 @@ public class IntermediateBuilderUtils {
         Optional<End> valueEnd;
         Optional<Tag> tags;
         Map<String, String> valueTags;
+        Map<String, String> specialityTags;
         if (intent.isPresent()) {
             try {
                 valueName = request.getMessage().getIntent().getFulfillment().getAgent().getName();
@@ -443,6 +444,7 @@ public class IntermediateBuilderUtils {
                 valueStart = Optional.ofNullable(request.getMessage().getIntent().getFulfillment().getStart());
                 valueEnd = Optional.ofNullable(request.getMessage().getIntent().getFulfillment().getEnd());
                 valueTags = request.getMessage().getIntent().getFulfillment().getTags();
+                specialityTags = request.getMessage().getIntent().getFulfillment().getAgent().getTags();
 
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_TIME_PATTERN);
                 listOfParams.put("fromDate", "");
@@ -485,11 +487,16 @@ public class IntermediateBuilderUtils {
                 }
 
                 if (valueTags != null) {
-                    if (valueTags.get("@abdm/gov.in/languages") != null) {
-                        listOfParams.put("languages", valueTags.get("@abdm/gov.in/languages"));
+                    if (valueTags.get(ConstantsUtils.ABDM_GOV_IN_LANGUAGES_TAG) != null) {
+                        listOfParams.put("languages", valueTags.get(ConstantsUtils.ABDM_GOV_IN_LANGUAGES_TAG));
                     }
-                    if (valueTags.get("@abdm/gov.in/speciality") != null) {
-                        listOfParams.put("speciality", valueTags.get("@abdm/gov.in/speciality"));
+                    if (valueTags.get(ConstantsUtils.ABDM_GOV_IN_SPECIALITY_TAG) != null) {
+                        listOfParams.put("speciality", valueTags.get(ConstantsUtils.ABDM_GOV_IN_SPECIALITY_TAG));
+                    }
+                }
+                if(specialityTags != null) {
+                    if (specialityTags.get(ConstantsUtils.ABDM_GOV_IN_SPECIALITY_TAG) != null) {
+                        listOfParams.put("speciality", specialityTags.get(ConstantsUtils.ABDM_GOV_IN_SPECIALITY_TAG));
                     }
                 }
 

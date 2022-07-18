@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 public class SelectService implements IService {
@@ -71,7 +70,7 @@ public class SelectService implements IService {
                         .flatMap(pair -> getProviderAppointment(pair, objRequest))
                         .flatMap(res -> getProviderAppointments(res, objRequest))
                         .flatMap(this::transformObject)
-                        .flatMap(this::generateCatalog)
+                        .flatMap(mapResult -> generateCatalog(mapResult, objRequest.getMessage().getIntent().getFulfillment().getType()))
                         .flatMap(catalog -> callOnSerach(catalog, objRequest.getContext()))
                         .flatMap(this::logResponse)
                         .subscribe();
@@ -147,7 +146,7 @@ public class SelectService implements IService {
 
             String searchEndPoint = OPENMRS_BASE_LINK + OPENMRS_API + API_RESOURCE_APPOINTMENTSCHEDULING_TIMESLOT;
 
-            List<IntermediateAppointmentModel> appointmentTypeList = data.getAppointmentTypes().stream().filter(res -> res.getAppointmentTypeDisplay().equalsIgnoreCase(appointmentType)).collect(Collectors.toList());
+            List<IntermediateAppointmentModel> appointmentTypeList = data.getAppointmentTypes().stream().filter(res -> res.getAppointmentTypeDisplay().equalsIgnoreCase(appointmentType)).toList();
 
             String provider = data.getProviders().get(0).getId();
             String appointment = appointmentTypeList.get(0).getAppointmentTypeUUID();//"b7f07cc1-1147-48b7-8585-0df6bd15f606";//
@@ -161,11 +160,10 @@ public class SelectService implements IService {
             String view = "&v=" + data.getView();
 
             final String uri = searchEndPoint + filterProvider + filterAppointmentType + filterStartDate + filterEndDate + view;
-            final Mono<String> response = webClient.get()
+
+            return webClient.get()
                     .uri(uri)
                     .exchangeToMono(clientResponse -> clientResponse.bodyToMono(String.class));
-
-            return response;
 
 
         } else {
@@ -173,7 +171,7 @@ public class SelectService implements IService {
         }
     }
 
-       private Mono<List<IntermediateProviderAppointmentModel>> transformObject(String result) {
+    private Mono<List<IntermediateProviderAppointmentModel>> transformObject(String result) {
 
         LOGGER.info("Processing::Search(Select)::transformObject::" + result);
         System.out.println("Processing::Search(Select)::transformObject::" + result);
@@ -190,12 +188,11 @@ public class SelectService implements IService {
 
     }
 
-     private Mono<Catalog> generateCatalog(List<IntermediateProviderAppointmentModel> collection) {
+    private Mono<Catalog> generateCatalog(List<IntermediateProviderAppointmentModel> collection, String appointmentServiceType) {
 
         Catalog catalog = new Catalog();
-        List<IntermediateProviderAppointmentModel> filteredList = collection;
-        try {
-            catalog = ProtocolBuilderUtils.BuildProviderCatalog(filteredList);
+         try {
+            catalog = ProtocolBuilderUtils.BuildProviderCatalog(collection, appointmentServiceType);
 
         } catch (Exception ex) {
 

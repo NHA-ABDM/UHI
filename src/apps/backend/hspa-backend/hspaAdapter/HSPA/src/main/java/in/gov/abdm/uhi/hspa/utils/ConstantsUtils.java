@@ -9,4 +9,7 @@ public class ConstantsUtils {
     public static final String QUEUE_SPECIFIC_USER = "/queue/specific-user";
     public static final String HSPA_SCHEMA_NAME = "hspa";
     public static final String CHAT = "chat";
+
+    public static final String ABDM_GOV_IN_SPECIALITY_TAG = "@abdm/gov.in/speciality";
+    public static final String ABDM_GOV_IN_LANGUAGES_TAG = "@abdm/gov.in/languages";
 }

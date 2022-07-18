@@ -149,7 +149,7 @@ public class SearchService implements IService {
                 filteredList = filteredList.stream().filter(imd -> imd.getLanguages().toLowerCase().contains(filters.get("languages"))).collect(Collectors.toList());
             }
             if (filters.get("speciality") != null) {
-                filteredList = filteredList.stream().filter(imd -> imd.getLanguages().contains(filters.get("speciality"))).collect(Collectors.toList());
+                filteredList = filteredList.stream().filter(imd -> imd.getSpeciality().equalsIgnoreCase(filters.get("speciality"))).collect(Collectors.toList());
             }
             if (filters.get("type") != null && filters.get("type").equalsIgnoreCase("PhysicalConsultation")) {
                 filteredList = filteredList.stream().filter(imd -> imd.getIs_physical_consultation().equals("true")).collect(Collectors.toList());
