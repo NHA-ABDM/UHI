@@ -28,9 +28,6 @@ public class MessagesModel {
     @Column(name = "receiver")
     private String receiver;
     
-    @Column(name = "content_value")
-    private String contentValue;
-    
     @Column(name = "time")
     private LocalDateTime time;
 
@@ -39,7 +36,15 @@ public class MessagesModel {
 
     @Column(name = "provider_url")
     private String providerUrl;
-    
+
+    @Column(name = "content_value",length = 50000)
+    private String contentValue;
+
+    @Column(name = "content_type")
+    private String contentType;
+
+    @Column(name = "content_url",length = 50000)
+    private String contentUrl;
     
 
 }

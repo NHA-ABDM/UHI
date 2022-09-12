@@ -2,17 +2,18 @@ package in.gov.abdm.uhi.EUABookingService.serviceImpl;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import in.gov.abdm.uhi.EUABookingService.constants.ConstantsUtils;
 import in.gov.abdm.uhi.EUABookingService.entity.Categories;
 import in.gov.abdm.uhi.EUABookingService.entity.Orders;
 import in.gov.abdm.uhi.EUABookingService.entity.Payments;
-import in.gov.abdm.uhi.EUABookingService.entity.User;
 import in.gov.abdm.uhi.EUABookingService.exceptions.UserException;
 import in.gov.abdm.uhi.EUABookingService.repository.AddressRepository;
 import in.gov.abdm.uhi.EUABookingService.repository.CategoriesRepository;
@@ -27,7 +28,7 @@ import in.gov.abdm.uhi.common.dto.Request;
 
 @Repository
 public class SaveInDbServiceImpl implements SaveDataDbService {
-	Logger LOGGER = LoggerFactory.getLogger(SaveInDbServiceImpl.class);
+	Logger LOGGER = LogManager.getLogger(SaveInDbServiceImpl.class);
 	final String INIT_STATE = ConstantsUtils.INITIALIZED;
 
 	@Autowired
@@ -118,7 +119,12 @@ public class SaveInDbServiceImpl implements SaveDataDbService {
 
 	@Override
 	public List<Orders> getOrderDetailsByAbhaId(String abhaid) {
-		return orderRepo.findByAbhaId(abhaid);
+		return orderRepo.findByAbhaIdOrderByServiceFulfillmentStartTime(abhaid);
+	}
+	
+	@Override
+	public List<Orders> getOrderDetailsByAbhaIdDesc(String abhaid) {
+		return orderRepo.findByAbhaIdOrderByServiceFulfillmentStartTimeDesc(abhaid);
 	}
 
 	@Override
@@ -209,6 +215,23 @@ public class SaveInDbServiceImpl implements SaveDataDbService {
 			p.setUserAbhaId(request.getMessage().getOrder().getCustomer().getId());
 		return p;
 	}
+
+	@Override
+	public Orders saveDataInDbCancel(Request request) {
+		String orderid=request.getMessage().getOrder().getId();
+		String state=request.getMessage().getOrder().getState();
+		List<Orders> orders=getOrderDetailsByOrderId(orderid);
+		if(!orders.isEmpty())
+		{
+			Orders order= orders.get(0);
+			order.setIsServiceFulfilled(state);
+			return orderRepo.save(order);
+			
+		}
+		return null;
+	}
+
+
 
 
 

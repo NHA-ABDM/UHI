@@ -16,6 +16,9 @@ public class ConstantsUtils {
     public static final String USER_DESTINATION_PREFIX = "/msg";
     public static final String APPLICATION_DESTINATION_PREFIX = "/msg-eua";
     public static final String ON_MESSAGE = "on_message";
+	public static final String CHAT = "chat";
+	public static final String MEDIA = "media";
+	public static final String TEXT = "text";
     		
 
   

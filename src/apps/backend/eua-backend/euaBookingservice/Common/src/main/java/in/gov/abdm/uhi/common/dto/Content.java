@@ -16,5 +16,8 @@ public class Content {
 
     private String content_id;
     private String content_value;
+    private String content_type;
+    private String content_url="";
+    private String content_fileName;
 
 }

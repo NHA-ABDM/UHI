@@ -9,20 +9,20 @@ import java.util.concurrent.ExecutionException;
 
 @Service
 public class PushNotificationService {
-	
-    private Logger logger = LoggerFactory.getLogger(PushNotificationService.class);
-    
-    private FCMService fcmService;
-    
+
+    private final Logger logger = LoggerFactory.getLogger(PushNotificationService.class);
+
+    private final FCMService fcmService;
+
     public PushNotificationService(FCMService fcmService) {
         this.fcmService = fcmService;
     }
-    
-    
+
+
     public void sendPushNotificationToToken(PushNotificationRequestDTO request) throws ExecutionException, InterruptedException {
 
-            fcmService.sendMessageToToken(request);
+        fcmService.sendMessageToToken(request);
 
     }
-   
 }
+   

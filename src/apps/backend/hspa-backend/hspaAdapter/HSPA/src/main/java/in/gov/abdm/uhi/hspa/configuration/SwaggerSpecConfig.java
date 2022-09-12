@@ -1,14 +1,14 @@
 package in.gov.abdm.uhi.hspa.configuration;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import springfox.documentation.swagger.web.SwaggerResource;
 import springfox.documentation.swagger.web.SwaggerResourcesProvider;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 public class SwaggerSpecConfig {

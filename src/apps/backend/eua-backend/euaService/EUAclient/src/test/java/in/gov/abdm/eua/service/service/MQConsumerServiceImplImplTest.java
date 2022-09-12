@@ -237,7 +237,7 @@ public class MQConsumerServiceImplImplTest {
 
         Assert.assertNotNull(restClient.post());
 
-//        Mockito.verify(mqConsumerService).getAckResponseResponseEntity(requestBody, null, 1 );
+//        Mockito.verify(mqConsumerService).getAckResponseEntity(requestBody, null, 1 );
     }
 
     @Test

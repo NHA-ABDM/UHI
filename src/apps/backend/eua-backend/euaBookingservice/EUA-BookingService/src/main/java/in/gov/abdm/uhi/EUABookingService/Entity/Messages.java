@@ -23,8 +23,14 @@ public class Messages {
     @Column(name = "receiver")
     private String receiver;
     
-    @Column(name = "content_value")
+    @Column(name = "content_value",length = 50000)
     private String contentValue;
+    
+    @Column(name = "content_type")
+    private String contentType;
+    
+    @Column(name = "content_url",length = 50000)
+    private String contentUrl;
     
     @Column(name = "time")
     private LocalDateTime  time;

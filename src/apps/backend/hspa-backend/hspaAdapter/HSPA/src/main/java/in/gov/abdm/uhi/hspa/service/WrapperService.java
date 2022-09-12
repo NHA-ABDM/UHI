@@ -59,7 +59,7 @@ public class WrapperService {
             collection = IntermediateBuilderUtils.BuildIntermediateObj(result);
 
         } catch (Exception ex) {
-            System.out.println(ex);
+            LOGGER.error(ex.getMessage());
         }
         return Mono.just(collection);
 
@@ -79,7 +79,7 @@ public class WrapperService {
             catalog = ProtocolBuilderUtils.BuildCatalog(filteredList);
 
         } catch (Exception ex) {
-            System.out.println(ex);
+            LOGGER.error(ex.getMessage());
         }
         return Mono.just(catalog);
 

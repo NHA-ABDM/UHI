@@ -20,6 +20,7 @@ paths:
     post:
       tags:
         - EUA
+      summary: EUA intends to book order
       description: Confirms the order by agreeing to the fullfillment terms
       requestBody:
         description: Confirmation of the order once fulfillment terms are agreed
@@ -88,6 +89,7 @@ paths:
     post:
       tags:
         - EUA
+      summary: EUA requests payment details
       description: Initialize an order by providing billing and/or shipping details
       requestBody:
         description: Initialization of the order once quote is agreed
@@ -190,7 +192,7 @@ paths:
       summary: Message from sender
       operationId: messageUsingPOST
       requestBody:
-        description: request
+        description: When HSPA sends message, it calls this API.
         content:
           application/json:
             schema:
@@ -502,10 +504,11 @@ paths:
           description: Forbidden
         '404':
           description: Not Found
-  "/api/v1/select":
+  "/api/v1/cancel":
     post:
       tags:
         - EUA
+      summary: Appointment cancellation
       description: Select items from the catalog and build your order
       requestBody:
         description: Selection of various products/services as part of order
@@ -546,23 +549,20 @@ paths:
                 - context
                 - message
             examples:
-              Patient requests a quote for booking a consultation slot in a given doctor’s schedule:
+              Patient requests cancellation for an appointment booked by him:
                 value:
                   context:
                     domain: nic2004:85110
                     country: IND
                     city: std:080
-                    action: select
+                    action: cancel
                     core_version: 0.7.1
                     message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
                     timestamp: '2021-03-23T10:00:40.065Z'
                   message:
                     order:
-                      provider:
-                        id: '1'
-                      items:
-                        - id: '1'
-                          fulfillment_id: '2'
+                      id: 14b18490-21ec-11ed-aecd-db5b69b8edb6
+                      state: CANCELLED
       responses:
         '200':
           description: Acknowledgement of message received
@@ -582,13 +582,16 @@ paths:
                     "$ref": "#/components/schemas/Error"
                 required:
                   - message
-  "/api/v1/status":
+
+
+  "/api/v1/on_cancel":
     post:
       tags:
         - EUA
-      description: Fetch the latest order object
+      summary: Appointment cancellation response
+      description: Response for cancellation from HSPA
       requestBody:
-        description: Fetch the fulfillment status of the order
+        description: Response for cancellation from HSPA
         content:
           application/json:
             schema:
@@ -599,13 +602,47 @@ paths:
                 message:
                   type: object
                   properties:
-                    order_id:
-                      "$ref": "#/components/schemas/Order/properties/id"
+                    order:
+                      type: object
+                      properties:
+                        provider:
+                          type: object
+                          properties:
+                            id:
+                              "$ref": "#/components/schemas/Provider/properties/id"
+                        items:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                "$ref": "#/components/schemas/Item/properties/id"
+                              quantity:
+                                "$ref": "#/components/schemas/ItemQuantity/properties/selected"
+                              fulfillment_id:
+                                "$ref": "#/components/schemas/Fulfillment/properties/id"
+                            required:
+                              - id
                   required:
-                    - order_id
+                    - order
               required:
                 - context
                 - message
+            examples:
+              HSPA sends cancellation response:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: on_cancel
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    order:
+                      id: 14b18490-21ec-11ed-aecd-db5b69b8edb6
+                      state: CANCELLED
       responses:
         '200':
           description: Acknowledgement of message received
@@ -625,6 +662,398 @@ paths:
                     "$ref": "#/components/schemas/Error"
                 required:
                   - message
+
+  "/api/v1/on_search":
+    post:
+      tags:
+        - EUA
+      summary: Search response from HSPA
+      description: Sends catalog of healtchare services & products as a response to /search
+      requestBody:
+        description: Sends catalog of healtchare services & products as a response to /search
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                context:
+                  "$ref": "#/components/schemas/Context"
+                message:
+                  "$ref": "#/components/schemas/Message"
+              required:
+                - context
+                - message
+            examples:
+              HSPA sends Slot details response:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: on_cancel
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    catalog:
+                      descriptor:
+                        name: HSPA
+                      fulfillments:
+                        - id: 49a61dc5-48c7-47b8-8d58-bdc3e7b6b039
+                          type: Teleconsultation
+                          agent:
+                            id: ganeshborse@hpr.ndhm
+                            name: ganeshborse@hpr.ndhm - Ganesh Vikram Borse
+                            gender: M
+                            image:
+                          start:
+                            time:
+                              timestamp: '2022-09-02T14:00:00'
+                          end:
+                            time:
+                              timestamp: '2022-09-02T14:15:00'
+                          tags:
+                            "@abdm/gov.in/slot": 49a61dc5-48c7-47b8-8d58-bdc3e7b6b039
+                        - id: 3e1bc2ea-a063-4359-9599-7ebeed688e0f
+                          type: Teleconsultation
+                          agent:
+                            id: ganeshborse@hpr.ndhm
+                            name: ganeshborse@hpr.ndhm - Ganesh Vikram Borse
+                            gender: M
+                            image:
+                          start:
+                            time:
+                              timestamp: '2022-09-02T14:15:00'
+                          end:
+                            time:
+                              timestamp: '2022-09-02T14:30:00'
+                          tags:
+                            "@abdm/gov.in/slot": 3e1bc2ea-a063-4359-9599-7ebeed688e0f
+                          responses:
+                            '200':
+                              description: Acknowledgement of message received
+                              content:
+                                application/json:
+                                  schema:
+                                    type: object
+                                    properties:
+                                      message:
+                                        type: object
+                                        properties:
+                                          ack:
+                                            "$ref": "#/components/schemas/Ack"
+                                        required:
+                                          - ack
+                                      error:
+                                        "$ref": "#/components/schemas/Error"
+                                    required:
+                                      - message
+              HSPA sends Doctor details response:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: on_cancel
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    catalog:
+                      descriptor:
+                        name: HSPA
+                      fulfillments:
+                        - id: '0'
+                          type: Teleconsultation
+                          agent:
+                            id: ganeshborse@hpr.ndhm
+                            name: ganeshborse@hpr.ndhm - Ganesh Vikram Borse
+                            gender: M
+                            image:
+                            tags:
+                              "@abdm/gov/in/education": MBBS
+                              "@abdm/gov/in/experience": '5.0'
+                              "@abdm/gov/in/follow_up": '200.0'
+                              "@abdm/gov/in/first_consultation": '300.0'
+                              "@abdm/gov/in/speciality": Cardiology
+                              "@abdm/gov/in/languages": Eng, Hin
+                              "@abdm/gov/in/upi_id": ganeshvborse@icici
+                              "@abdm/gov/in/hpr_id": 73-5232-1888-8686
+                          start:
+                            time:
+                              timestamp: T12:02+05:30
+                          end:
+                            time:
+                              timestamp: T12:02+05:30
+
+      responses:
+        '200':
+          description: Acknowledgement of message received
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: object
+                    properties:
+                      ack:
+                        "$ref": "#/components/schemas/Ack"
+                    required:
+                      - ack
+                  error:
+                    "$ref": "#/components/schemas/Error"
+                required:
+                  - message
+
+  "/api/v1/on_init":
+    post:
+      tags:
+        - EUA
+      summary: Payment detail from HSPA
+      description: Response from HSPA consists of an order object with payment details updated
+      requestBody:
+        description: Response from HSPA consists of an order object with payment details updated
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                context:
+                  "$ref": "#/components/schemas/Context"
+                message:
+                  "$ref": "#/components/schemas/Message"
+              required:
+                - context
+                - message
+            examples:
+              HSPA sends payment details:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: on_cancel
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    order:
+                      item:
+                        id: '1'
+                        descriptor:
+                          name: Consultation
+                        fulfillment_id: 271d4ead-d053-4d4e-a20a-51e5cccced83
+                        price:
+                          currency: INR
+                          value: '1000'
+                      fulfillment:
+                        id: 271d4ead-d053-4d4e-a20a-51e5cccced83
+                        type: Teleconsultation
+                        agent:
+                          id: ganeshborse@hpr.ndhm
+                          name: ganeshborse@hpr.ndhm - Ganesh Vikram Borse
+                          gender: M
+                          image:
+                          tags:
+                            "@abdm/gov/in/education": MBBS
+                            "@abdm/gov/in/experience": '5.0'
+                            "@abdm/gov/in/follow_up": '200.0'
+                            "@abdm/gov/in/first_consultation": '300.0'
+                            "@abdm/gov/in/speciality": Cardiology
+                            "@abdm/gov/in/languages": Eng, Hin
+                            "@abdm/gov/in/upi_id": ganeshvborse@icici
+                            "@abdm/gov/in/hpr_id": 73-5232-1888-8686
+                        start:
+                          time:
+                            timestamp: '2022-09-02T17:15:00'
+                        end:
+                          time:
+                            timestamp: '2022-09-02T17:30:00'
+                        tags:
+                          "@abdm/gov.in/slot_id": 271d4ead-d053-4d4e-a20a-51e5cccced83
+                      billing:
+                        name: Vishal Umakant Swami
+                        address:
+                          door: ''
+                          name: C/O Umakant Swami someshwar nagar Parli
+                          locality: ''
+                          city:
+                          state: Maharashtra
+                          country: INDIA
+                          area_code: '431515'
+                        email: vswami241@gmail.com
+                        phone: '7721043046'
+                      customer:
+                        id: ''
+                        cred: vishalswami@sbx
+                      id: 8f61f520-22b5-11ed-80e5-15248892b45d
+
+
+      responses:
+        '200':
+          description: Acknowledgement of message received
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: object
+                    properties:
+                      ack:
+                        "$ref": "#/components/schemas/Ack"
+                    required:
+                      - ack
+                  error:
+                    "$ref": "#/components/schemas/Error"
+                required:
+                  - message
+
+
+  "/api/v1/on_confirm":
+    post:
+      tags:
+        - EUA
+      summary: Confirmation response from HSPA
+      description: HSPA sends an active order object
+      requestBody:
+        description: HSPA sends an active order object
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                context:
+                  "$ref": "#/components/schemas/Context"
+                message:
+                  "$ref": "#/components/schemas/Message"
+              required:
+                - context
+                - message
+            examples:
+              HSPA confirms appointment:
+                value:
+                  context:
+                    domain: nic2004:85110
+                    country: IND
+                    city: std:080
+                    action: on_cancel
+                    core_version: 0.7.1
+                    message_id: 85a422c4-2867-4d72-b5f5-d31588e2f7c5
+                    timestamp: '2021-03-23T10:00:40.065Z'
+                  message:
+                    order:
+                      id: 1edf8560-22ba-11ed-9b01-930d2a2c2daf
+                      state: CONFIRMED
+                      item:
+                        id: '1'
+                        descriptor:
+                          name: Consultation
+                        price:
+                          currency: INR
+                          value: '1000'
+                        fulfillment_id: 3a155953-68f7-402d-a430-be2b56dfd3cb
+                      fulfillment:
+                        id: 3a155953-68f7-402d-a430-be2b56dfd3cb
+                        type: Teleconsultation
+                        agent:
+                          id: ganeshborse@hpr.ndhm
+                          name: ganeshborse@hpr.ndhm - Ganesh Vikram Borse
+                          gender: M
+                          tags:
+                            "@abdm/gov/in/education": MBBS
+                            "@abdm/gov/in/experience": '5.0'
+                            "@abdm/gov/in/follow_up": '200.0'
+                            "@abdm/gov/in/first_consultation": '300.0'
+                            "@abdm/gov/in/speciality": Cardiology
+                            "@abdm/gov/in/languages": Eng, Hin
+                            "@abdm/gov/in/upi_id": ganeshvborse@icici
+                            "@abdm/gov/in/hpr_id": 73-5232-1888-8686
+                        start:
+                          time:
+                            timestamp: '2022-09-02T16:45:00'
+                        end:
+                          time:
+                            timestamp: '2022-09-02T17:00:00'
+                        tags:
+                          "@abdm/gov.in/slot_id": 3a155953-68f7-402d-a430-be2b56dfd3cb
+                          "@abdm/gov.in/patient_key": "[159, 248, 220, 195, 187, 221, 217, 26, 236,
+                            136, 151, 89, 126, 130, 238, 52, 205, 85, 227, 64, 252, 213, 209, 207, 56,
+                            212, 244, 15, 210, 7, 188, 14]"
+                          "@abdm/gov.in/doctors_key": "[250, 140, 77, 58, 99, 72, 235, 4, 29, 107, 226,
+                            172, 252, 207, 36, 22, 175, 95, 57, 203, 224, 229, 12, 157, 210, 43, 67,
+                            243, 96, 8, 63, 0]"
+                      billing:
+                        name: Vishal Umakant Swami
+                        address:
+                          door: ''
+                          name: C/O Umakant Swami someshwar nagar Parli
+                          building:
+                          street:
+                          locality: ''
+                          ward:
+                          city:
+                          state: Maharashtra
+                          country: INDIA
+                          area_code: '431515'
+                        email: vswami241@gmail.com
+                        phone: '7721043046'
+                      quote:
+                        price:
+                          currency: INR
+                          value: '1000'
+                        breakup:
+                          - title: Consultation
+                            price:
+                              currency: INR
+                              value: '1000'
+                          - title: CGST @ 5%
+                            price:
+                              currency: INR
+                              value: '0'
+                          - title: SGST @ 5%
+                            price:
+                              currency: INR
+                              value: '0'
+                          - title: Registration
+                            price:
+                              currency: INR
+                              value: '0'
+                      customer:
+                        id: ''
+                        cred: vishalswami@sbx
+                      payment:
+                        uri: https://api.bpp.com/pay?amt=1500&txn_id=ksh87yriuro34iyr3p4&mode=upi&vpa=sana.bhatt@upi
+                        type: ON-ORDER
+                        status: PAID
+                        tl_method: http/get
+                        params:
+                          transaction_id: ''
+                          amount: '1000'
+                          mode: UPI
+                          vpa: ganeshvborse@icici
+
+      responses:
+        '200':
+          description: Acknowledgement of message received
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: object
+                    properties:
+                      ack:
+                        "$ref": "#/components/schemas/Ack"
+                    required:
+                      - ack
+                  error:
+                    "$ref": "#/components/schemas/Error"
+                required:
+                  - message
+
 components:
   schemas:
     Address:
@@ -1529,7 +1958,3 @@ components:
       properties:
         person:
           $ref: '#/components/schemas/Person'
-
-
-
-

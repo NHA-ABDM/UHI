@@ -1,8 +1,8 @@
 package in.gov.abdm.uhi.hspa.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import in.gov.abdm.uhi.common.dto.*;
 import in.gov.abdm.uhi.common.dto.Error;
+import in.gov.abdm.uhi.common.dto.*;
 import in.gov.abdm.uhi.hspa.models.IntermediatePatientAppointmentModel;
 import in.gov.abdm.uhi.hspa.service.ServiceInterface.IService;
 import in.gov.abdm.uhi.hspa.utils.IntermediateBuilderUtils;
@@ -50,13 +50,16 @@ public class StatusService implements IService {
         Response ack = generateAck();
 
         LOGGER.info("Processing::Confirm::Request::" + request);
-        System.out.println("Processing::Confirm::Request::" + request);
-
         try {
             objRequest = new ObjectMapper().readValue(request, Request.class);
-            Request finalObjRequest = objRequest;
+            String typeFulfillment = objRequest.getMessage().getOrder().getFulfillment().getType();
+            if(typeFulfillment.equalsIgnoreCase("Teleconsultation") || typeFulfillment.equalsIgnoreCase("PhysicalConsultation")) {
 
-            run(finalObjRequest);
+                run(objRequest, request);
+            }
+            else {
+               return Mono.just(new Response());
+            }
 
         } catch (Exception ex) {
             LOGGER.error("Confirm Service process::error::onErrorResume::" + ex);
@@ -64,13 +67,11 @@ public class StatusService implements IService {
 
         }
 
-        Mono<Response> responseMono = Mono.just(ack);
-
-        return responseMono;
+        return Mono.just(ack);
     }
 
     @Override
-    public Mono<String> run(Request request) {
+    public Mono<String> run(Request request, String s) {
         Mono<String> response = Mono.empty();
         getAppointmentStatus(request).zipWith(getPatient(request))
                 .flatMap(result -> validateAppointment(result,request))
@@ -139,9 +140,6 @@ public class StatusService implements IService {
 
             onStatusRequest.getMessage().getOrder().setState("FAILED");
         }
-
-        System.out.println(onStatusRequest);
-
         WebClient on_webclient = WebClient.create();
 
         return on_webclient.post()
@@ -161,8 +159,6 @@ public class StatusService implements IService {
 
 
         LOGGER.info("OnConfirm::Log::Response::" + result);
-        System.out.println("OnConfirm::Log::Response::" + result);
-
         return Mono.just(result);
     }
     private static Response generateAck() {

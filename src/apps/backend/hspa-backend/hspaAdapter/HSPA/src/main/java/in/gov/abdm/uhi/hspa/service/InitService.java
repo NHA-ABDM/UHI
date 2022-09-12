@@ -1,11 +1,14 @@
 package in.gov.abdm.uhi.hspa.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import in.gov.abdm.uhi.common.dto.Error;
 import in.gov.abdm.uhi.common.dto.*;
+import in.gov.abdm.uhi.hspa.exceptions.UserException;
 import in.gov.abdm.uhi.hspa.models.IntermediatePatientModel;
 import in.gov.abdm.uhi.hspa.models.opemMRSModels.patient;
 import in.gov.abdm.uhi.hspa.service.ServiceInterface.IService;
+import in.gov.abdm.uhi.hspa.utils.ConstantsUtils;
 import in.gov.abdm.uhi.hspa.utils.IntermediateBuilderUtils;
 import in.gov.abdm.uhi.hspa.utils.ProtocolBuilderUtils;
 import org.apache.logging.log4j.LogManager;
@@ -42,6 +45,8 @@ public class InitService implements IService {
     @Autowired
     CacheManager cacheManager;
 
+    @Autowired
+    PaymentService paymentService;
 
     private static Response generateAck() {
 
@@ -94,6 +99,7 @@ public class InitService implements IService {
                 return Mono.just(new Response());
             }
 
+
         } catch (Exception ex) {
             LOGGER.error("Init Service process::error::onErrorResume::" + ex);
             ack = generateNack(ex);
@@ -104,7 +110,7 @@ public class InitService implements IService {
     }
 
     @Override
-    public Mono<String> run(Request request) {
+    public Mono<String> run(Request request, String s) {
 
         String searchEndPoint = OPENMRS_BASE_LINK + OPENMRS_API + API_RESOURCE_PROVIDER;
 
@@ -163,8 +169,12 @@ public class InitService implements IService {
 
     private Mono<String> callOnInit(Request request) {
         request.getContext().setAction("on_init");
-
-        System.out.println(request);
+        try {
+			paymentService.saveDataInDb(null,request,ConstantsUtils.ON_INIT);
+		} catch (JsonProcessingException | UserException e) {
+			// TODO Auto-generated catch block
+			  LOGGER.error(e.getMessage());
+		}
 
         WebClient on_webclient = WebClient.create();
         return on_webclient.post()
@@ -194,7 +204,6 @@ public class InitService implements IService {
     public Mono<String> logResponse(java.lang.String result) {
 
         LOGGER.info("OnInit::Log::Response::" + result);
-        System.out.println("OnInit::Log::Response::" + result);
 
         return Mono.just(result);
     }

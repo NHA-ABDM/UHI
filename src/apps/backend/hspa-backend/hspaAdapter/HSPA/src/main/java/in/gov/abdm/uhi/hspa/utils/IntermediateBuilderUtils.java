@@ -89,6 +89,7 @@ public class IntermediateBuilderUtils {
                                 case "upi_id" -> objIntermediate.setUpi_id(attrVal);
                                 case "is_teleconsultation" -> objIntermediate.setIs_teleconsultation(attrVal);
                                 case "is_physical_consultation" -> objIntermediate.setIs_physical_consultation(attrVal);
+                                case "profile_photo" -> objIntermediate.setProfile_photo(attrVal);
                                 default -> {
                                 }
                             }
@@ -315,6 +316,22 @@ public class IntermediateBuilderUtils {
         }
         return appointmentObj;
     }
+    
+    public static String getUUID(String result)    
+    {
+    	JsonNode resultsNode = null;
+        try {
+            ObjectMapper maps = new ObjectMapper();
+            JsonNode root = maps.readTree(result);
+            resultsNode = root.path("uuid");
+            
+        
+    } catch (Exception ex) {
+        LOGGER.error("Extracting uuid from mrs ::" + ex);
+        System.out.println("Extracting uuid from mrs::" + ex);
+    }
+        return resultsNode.textValue();
+    }
 
     public static List<IntermediateProviderModel> BuildIntermediateProviderDetails(String json) {
         List<IntermediateProviderModel> collection = new ArrayList<>();
@@ -495,10 +512,12 @@ public class IntermediateBuilderUtils {
                     }
                 }
                 if(specialityTags != null) {
-                    if (specialityTags.get(ConstantsUtils.ABDM_GOV_IN_SPECIALITY_TAG) != null) {
+                     if (specialityTags.get(ConstantsUtils.ABDM_GOV_IN_SPECIALITY_TAG) != null) {
                         listOfParams.put("speciality", specialityTags.get(ConstantsUtils.ABDM_GOV_IN_SPECIALITY_TAG));
                     }
                 }
+
+
 
             } catch (Exception ex) {
                 LOGGER.error("Intermediate Builder :: BuildSearchParametersIntent :: error::onErrorResume::" + ex);

@@ -6,16 +6,15 @@ import in.gov.abdm.eua.service.dto.dhp.AckResponseDTO;
 import in.gov.abdm.eua.service.dto.dhp.EuaRequestBody;
 import in.gov.abdm.eua.service.dto.dhp.MqMessageTO;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.support.AmqpHeaders;
-import org.springframework.messaging.handler.annotation.Header;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.nio.channels.Channel;
+import java.util.Map;
 
 public interface MQConsumerService {
 
-    Mono<AckResponseDTO> getAckResponseResponseEntity(EuaRequestBody request, String bookignServiceUrl);
+    Mono<AckResponseDTO> getAckResponseEntity(EuaRequestBody request, String bookignServiceUrl, Map<String, String> headersEncrypted);
+
 
     void prepareAndSendNackResponse(String nack, String messageId);
 

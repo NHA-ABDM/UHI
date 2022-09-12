@@ -22,5 +22,6 @@ public class IntermediateProviderModel {
     public String age;
     public String is_teleconsultation;
     public String is_physical_consultation;
+    public String profile_photo;
 
 }

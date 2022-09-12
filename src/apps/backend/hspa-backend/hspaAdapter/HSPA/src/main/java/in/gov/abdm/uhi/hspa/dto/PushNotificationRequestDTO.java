@@ -13,7 +13,8 @@ public class PushNotificationRequestDTO {
     private String type;
     private String topic;
     private String gender;
-    
+    private String sharedKey;
+    private String contentType;
 
     
     

@@ -11,7 +11,7 @@ import in.gov.abdm.uhi.EUABookingService.entity.UserToken;
 public interface UserTokenRepository extends JpaRepository<UserToken, String>{
 
 	List<UserToken> findByUserName(String userName);
-	
+	Integer deleteByUserId(String userId);
 
 
 }

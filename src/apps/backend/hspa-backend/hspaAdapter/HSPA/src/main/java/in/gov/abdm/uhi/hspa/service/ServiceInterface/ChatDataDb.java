@@ -4,6 +4,7 @@ import in.gov.abdm.uhi.common.dto.Request;
 import in.gov.abdm.uhi.hspa.models.MessagesModel;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public interface ChatDataDb {
 	

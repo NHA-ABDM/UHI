@@ -13,5 +13,7 @@ public interface OrderRepository extends JpaRepository<Orders, Long>{
 	
 	List<Orders> findByOrderId(String orderid);
 	List<Orders> findByAbhaId(String abhaid);
+	List<Orders> findByAbhaIdOrderByServiceFulfillmentStartTime(String abhaid);
+	List<Orders> findByAbhaIdOrderByServiceFulfillmentStartTimeDesc(String abhaid);
 
 }

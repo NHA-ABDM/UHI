@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import javax.annotation.PostConstruct;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ public class FCMInitializer {
 	
     @Value("${app.firebase-configuration-file}")
     private String firebaseConfigPath;
-    Logger logger = LoggerFactory.getLogger(FCMInitializer.class);
+    Logger logger = LogManager.getLogger(FCMInitializer.class);
     @PostConstruct
     public void initialize() {
         try {  	 

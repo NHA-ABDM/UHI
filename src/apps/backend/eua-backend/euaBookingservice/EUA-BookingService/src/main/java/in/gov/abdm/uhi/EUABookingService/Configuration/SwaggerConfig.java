@@ -1,3 +1,4 @@
+package in.gov.abdm.uhi.EUABookingService.configuration;
 //package in.gov.abdm.uhi.EUABookingService.configuration;
 //
 //

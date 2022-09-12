@@ -10,10 +10,13 @@ import in.gov.abdm.eua.service.dto.dhp.MqMessageTO;
 import in.gov.abdm.eua.service.exceptions.PhrException400;
 import in.gov.abdm.eua.service.exceptions.PhrException500;
 import in.gov.abdm.eua.service.service.MQConsumerService;
+import in.gov.abdm.uhi.common.dto.Error;
+import org.bouncycastle.jcajce.spec.EdDSAParameterSpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
@@ -24,6 +27,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.security.PrivateKey;
+import java.util.*;
+import java.util.function.Consumer;
 
 
 @Service
@@ -33,21 +39,34 @@ public class MQConsumerServiceImpl implements MQConsumerService {
     @Value("${spring.abdm_gateway_url}")
     private String abdmGatewayUrl;
 
+    @Value("${spring.header.encrypt.publicKeyId}")
+    private String headerPublicKeyId;
+
+    @Value("${spring.header.encrypt.privateKey}")
+    private String headerPrivateKey;
+
+    @Value("${spring.header.encrypt.subscriberId}")
+    private String subscriberId;
+
+
+
     final
     ObjectMapper objectMapper;
     private final SimpMessagingTemplate messagingTemplate;
     private final WebClient webClient;
     final
     SimpUserRegistry simpUserRegistry;
+    final Crypt cryptService;
 
 
     public MQConsumerServiceImpl(ObjectMapper objectMapper, SimpMessagingTemplate template,
                                  WebClient webClient,
-                                 SimpUserRegistry simpUserRegistry) {
+                                 SimpUserRegistry simpUserRegistry, Crypt cryptService) {
         this.objectMapper = objectMapper;
         this.messagingTemplate = template;
         this.webClient = webClient;
         this.simpUserRegistry = simpUserRegistry;
+        this.cryptService = cryptService;
     }
 
     @PostConstruct
@@ -56,7 +75,7 @@ public class MQConsumerServiceImpl implements MQConsumerService {
     }
 
     @Override
-    public Mono<AckResponseDTO> getAckResponseResponseEntity(EuaRequestBody request, String bookignServiceUrl) {
+    public Mono<AckResponseDTO> getAckResponseEntity(EuaRequestBody request, String bookignServiceUrl, Map<String, String> headersEncrypted) {
         String url = null;
 
         url = getAppropriateUrl(request, bookignServiceUrl);
@@ -65,8 +84,19 @@ public class MQConsumerServiceImpl implements MQConsumerService {
         LOGGER.info("Context.Action is  "+request.getContext().getAction());
         LOGGER.info("Message ID is "+ request.getContext().getMessageId());
 
+        HttpHeaders headers = new HttpHeaders();
+        if(headersEncrypted != null) {
+            String headersString = removeCurlyBracesAndHeaderEqualsSigns(headersEncrypted);
+            headers.add("Authorization", headersString);
+            LOGGER.info("Headers are ->>>>>>>>"+ headersString);
+        }
+
+        Consumer<HttpHeaders> consumer = it -> it.addAll(headers);
+
+
         Mono<AckResponseDTO> ackResponseMono = this.webClient.post().uri(url)
-                .header("authorization","UHI")
+//                .header("authorization","uhi")
+                .headers(consumer)
                 .body(BodyInserters.fromValue(request))
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError,
@@ -78,27 +108,36 @@ public class MQConsumerServiceImpl implements MQConsumerService {
 
         String finalUrl = url;
 
-        ackResponseMono.subscribe(res -> {
+        ackResponseMono.doOnNext(res -> {
             LOGGER.info("Inside subscribe :: URL is :: "+ finalUrl);
             LOGGER.info("Response from webclient call is ====> "+res);
-            Mono<AckResponseDTO> errorFromServerOtherThanStandard = getErrorFromServerIfNotStandard(res);
-            handleErrorOtherThanStandard(request, errorFromServerOtherThanStandard);
             sendAckOrNack_ToWebClient(request.getContext().getMessageId(), res);
         });
 
         return ackResponseMono;
     }
 
+    private String removeCurlyBracesAndHeaderEqualsSigns(Map<String, String> headersEncrypted) {
+        String headersString = String.valueOf(headersEncrypted);
+        headersString = headersString.replaceAll("\\}","");
+        headersString = headersString.replaceAll("\\{", "");
+        return headersString;
+    }
+
     private String getAppropriateUrl(EuaRequestBody request, String bookignServiceUrl) {
         String url;
-        if( null != request.getContext().getProviderUri()) {
+        boolean isProviderNotNull = null != request.getContext().getProviderUri();
+        boolean isBookingServiceUrlPresent = null != bookignServiceUrl;
+
+        if(isProviderNotNull) {
             LOGGER.info("providerUrl :: "+ request.getContext().getProviderUri());
             url = request.getContext().getProviderUri();
         }else {
             LOGGER.info("GatewayUrl :: "+ abdmGatewayUrl);
             url = abdmGatewayUrl;
         }
-        if(null != bookignServiceUrl) {
+
+        if(isBookingServiceUrlPresent) {
             LOGGER.info("BookingServiceUrl :: "+ bookignServiceUrl);
                 url = bookignServiceUrl;
         }
@@ -118,17 +157,36 @@ public class MQConsumerServiceImpl implements MQConsumerService {
 
     @Override
     @RabbitListener(queues = ConstantsUtils.QUEUE_EUA_TO_GATEWAY)
-    public void euaToGatewayConsumer(MqMessageTO request) throws IOException, JsonProcessingException {
-        LOGGER.info("Message read from MQ EUA_TO_GATEWAY::" + request);
+    public void euaToGatewayConsumer(MqMessageTO request) throws IOException {
+        LOGGER.info("Message read from MQ EUA_TO_GATEWAY::" + request.getResponse());
 
         EuaRequestBody requestClass = objectMapper.readValue(request.getResponse(), EuaRequestBody.class);
-        if("on_init".equals(requestClass.getContext().getAction()) && "on_confirm".equals(requestClass.getContext().getAction())) {
-            getAckResponseResponseEntity(requestClass, ConstantsUtils.BOOKING_SERVICE_URL);
+        PrivateKey privateKey = cryptService.getPrivateKey(EdDSAParameterSpec.Ed25519, headerPrivateKey);
+        Map<String, String> headersEncrypted = new Crypt("BC").generateAuthorizationParams(subscriberId, headerPublicKeyId, request.getResponse(), privateKey);
+
+        verifyParams(request, headersEncrypted);
+
+
+        if(ConstantsUtils.ON_INIT_ENDPOINT.equals(requestClass.getContext().getAction()) && ConstantsUtils.ON_CONFIRM_ENDPOINT.equals(requestClass.getContext().getAction())) {
+            getAckResponseEntity(requestClass, ConstantsUtils.BOOKING_SERVICE_URL, headersEncrypted).subscribe();
+
         }
         else{
-            getAckResponseResponseEntity(requestClass, null);
+            getAckResponseEntity(requestClass, null, headersEncrypted).subscribe();
         }
+    }
 
+    private void verifyParams(MqMessageTO request, Map<String, String> headersEncrypted) throws JsonProcessingException {
+        String publicKey = "MCowBQYDK2VwAyEAQCWv0rw/WPtm3xLcXChk0/Px8yNK9l2AcyoQWXbHsD8=";
+
+
+        String payload = request.getResponse();
+        long created = Long.parseLong(headersEncrypted.get("created"));
+        long expires = Long.parseLong(headersEncrypted.get("expires"));
+        String hashedSigningString = cryptService.generateBlakeHash(cryptService.getSigningString(created, expires, payload));
+
+        String signature = headersEncrypted.get("signature");
+        LOGGER.info("Verfication result|" + cryptService.verifySignature1(signature, hashedSigningString, publicKey));
     }
 
     @Override
@@ -165,29 +223,13 @@ public class MQConsumerServiceImpl implements MQConsumerService {
     }
 
     private AckResponseDTO prepareErrorObjectAck() throws JsonProcessingException {
-
         return objectMapper.readValue(ConstantsUtils.NACK_RESPONSE, AckResponseDTO.class);
     }
 
-    private void handleErrorOtherThanStandard(EuaRequestBody request, Mono<AckResponseDTO> errorFromServerOtherThanStandard) {
-        if(errorFromServerOtherThanStandard != null) {
-            errorFromServerOtherThanStandard.subscribe(err -> {
-                sendAckOrNack_ToWebClient(request.getContext().getMessageId(), err);
-            });
-        }
-    }
 
     private void sendAckOrNack_ToWebClient(String messageId, AckResponseDTO err) {
+    	LOGGER.info("sendAckOrNack_ToWebClient "+messageId+"     "+err);
         messagingTemplate.convertAndSendToUser(messageId, ConstantsUtils.QUEUE_SPECIFIC_USER, err);
-    }
-
-    private Mono<AckResponseDTO> getErrorFromServerIfNotStandard(AckResponseDTO res) {
-        Mono<AckResponseDTO> errorFromServerOtherThanStandard;
-        if(null != res.getError().getCode()) {
-            errorFromServerOtherThanStandard = getErrorSchemaReady(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR), res.getError().getMessage());
-            return errorFromServerOtherThanStandard;
-        }
-        return null;
     }
 
 }

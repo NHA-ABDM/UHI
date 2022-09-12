@@ -65,4 +65,6 @@ public class ConstantsUtils {
             <b>Signing Algorithm</b></br>
             To digitally sign the singing string, the subscribers should use the “XEdDSA” signature scheme (or “XEd25519”). For the first version of beckn networks, we’ll be using the XEd25519 Signature Scheme.""";
     public static final String OTP_DURATION = "10";
+    public static final String ON_INIT_ENDPOINT = "on_init";
+    public static final String ON_CONFIRM_ENDPOINT = "on_confirm";
 }

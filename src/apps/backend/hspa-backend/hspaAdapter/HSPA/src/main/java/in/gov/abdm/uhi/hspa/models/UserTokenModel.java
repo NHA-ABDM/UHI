@@ -3,7 +3,10 @@ package in.gov.abdm.uhi.hspa.models;
 import in.gov.abdm.uhi.hspa.utils.ConstantsUtils;
 import lombok.Data;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
 @Table(schema = ConstantsUtils.HSPA_SCHEMA_NAME, name = "UserToken")

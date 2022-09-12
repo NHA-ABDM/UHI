@@ -4,8 +4,8 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import com.google.firebase.messaging.AndroidConfig;
@@ -20,7 +20,7 @@ import com.google.gson.GsonBuilder;
 
 @Service
 public class FCMService {
-    private Logger logger = LoggerFactory.getLogger(FCMService.class);
+    private Logger logger = LogManager.getLogger(FCMService.class);
     
     
     public void sendMessageToToken(PushNotificationRequest request)
@@ -69,8 +69,19 @@ public class FCMService {
                 		Notification
                         .builder()
                         .setTitle(request.getTitle())
-                        .setBody(request.getMessage())
+                        .setBody(request.getMessage())    
                         .build()                      		
-                        );
+                        )	
+                //.putData("click_action", "FLUTTER_NOTIFICATION_CLICK")
+                .putData("senderAbhaAddress", request.getSenderAbhaAddress())
+                .putData("receiverAbhaAddress", request.getReceiverAbhaAddress())
+                .putData("providerUri",request.getProviderUri())
+                .putData("gender", request.getGender())
+                .putData("type", request.getType())
+                .putData("senderName", request.getTitle())
+                .putData("contentType", request.getContentType())
+                .putData("sharedKey", request.getSharedKey()	
+                		);
+                	
     }
 }

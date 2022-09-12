@@ -1,9 +1,13 @@
 package in.gov.abdm.uhi.hspa.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class RequestTokenDTO {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class RequestTokenDTO extends ServiceResponseDTO {
   
     private String userName;    
  

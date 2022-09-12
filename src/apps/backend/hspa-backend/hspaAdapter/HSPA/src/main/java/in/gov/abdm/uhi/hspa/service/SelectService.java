@@ -1,5 +1,6 @@
 package in.gov.abdm.uhi.hspa.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import in.gov.abdm.uhi.common.dto.Error;
 import in.gov.abdm.uhi.common.dto.*;
@@ -11,7 +12,6 @@ import in.gov.abdm.uhi.hspa.utils.IntermediateBuilderUtils;
 import in.gov.abdm.uhi.hspa.utils.ProtocolBuilderUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -48,16 +48,22 @@ public class SelectService implements IService {
 
     private static final String API_RESOURCE_APPOINTMENT_TYPE = "appointmentscheduling/appointmenttype?q=consultation";
 
-    @Autowired
+    final
     WebClient webClient;
 
+    final
+    SearchService searchService;
+
     private static final Logger LOGGER = LogManager.getLogger(WrapperService.class);
+
+    public SelectService(WebClient webClient, SearchService searchService) {
+        this.webClient = webClient;
+        this.searchService = searchService;
+    }
 
     public Mono<Response> processor(@RequestBody String request) {
 
         LOGGER.info("Processing::Search(Select)::Request::" + request);
-        System.out.println("Processing::Search(Select))::Request::" + request);
-
         Request objRequest;
         Response ack = generateAck();
 
@@ -65,13 +71,19 @@ public class SelectService implements IService {
             objRequest = new ObjectMapper().readValue(request, Request.class);
             String typeFulfillment = objRequest.getMessage().getIntent().getFulfillment().getType();
             if(typeFulfillment.equalsIgnoreCase("Teleconsultation") || typeFulfillment.equalsIgnoreCase("PhysicalConsultation")) {
-                System.out.println(objRequest);
-                run(objRequest).zipWith(getAllAppointmentTypes())
+                run(objRequest, request).zipWith(getAllAppointmentTypes())
                         .flatMap(pair -> getProviderAppointment(pair, objRequest))
                         .flatMap(res -> getProviderAppointments(res, objRequest))
-                        .flatMap(this::transformObject)
+                        .flatMap(result -> transformObject(result , objRequest))
                         .flatMap(mapResult -> generateCatalog(mapResult, objRequest.getMessage().getIntent().getFulfillment().getType()))
-                        .flatMap(catalog -> callOnSerach(catalog, objRequest.getContext()))
+                        .flatMap(catalog -> {
+                            try {
+                                return callOnSerach(catalog, objRequest.getContext());
+                            } catch (JsonProcessingException e) {
+                                e.printStackTrace();
+                            }
+                            return null;
+                        })
                         .flatMap(this::logResponse)
                         .subscribe();
             }
@@ -89,7 +101,7 @@ public class SelectService implements IService {
 
 
     @Override
-    public Mono<String> run(Request request) {
+    public Mono<String> run(Request request, String s) {
 
             String searchEndPoint = OPENMRS_BASE_LINK + OPENMRS_API + API_RESOURCE_PROVIDER;
 
@@ -111,8 +123,6 @@ public class SelectService implements IService {
     private Mono<IntermediateAppointmentSearchModel> getProviderAppointment(Tuple2 result, Request request) {
 
         LOGGER.info("Processing::Search(Select)::getProviderAppointment::" + result);
-        System.out.println("Processing::Search(Select)::getProviderAppointment::" + result);
-
         IntermediateAppointmentSearchModel appointmentSearchModel = new IntermediateAppointmentSearchModel();
         appointmentSearchModel.providers = new ArrayList<>();
         appointmentSearchModel.appointmentTypes = new ArrayList<>();
@@ -171,11 +181,9 @@ public class SelectService implements IService {
         }
     }
 
-    private Mono<List<IntermediateProviderAppointmentModel>> transformObject(String result) {
+       private Mono<List<IntermediateProviderAppointmentModel>> transformObject(String result, Request request) {
 
         LOGGER.info("Processing::Search(Select)::transformObject::" + result);
-        System.out.println("Processing::Search(Select)::transformObject::" + result);
-
         List<IntermediateProviderAppointmentModel> collection = new ArrayList<>();
         try {
 
@@ -188,7 +196,8 @@ public class SelectService implements IService {
 
     }
 
-    private Mono<Catalog> generateCatalog(List<IntermediateProviderAppointmentModel> collection, String appointmentServiceType) {
+
+     private Mono<Catalog> generateCatalog(List<IntermediateProviderAppointmentModel> collection, String appointmentServiceType) {
 
         Catalog catalog = new Catalog();
          try {
@@ -202,18 +211,19 @@ public class SelectService implements IService {
 
     }
 
-    private Mono<String> callOnSerach(Catalog catalog, Context context) {
+    private Mono<String> callOnSerach(Catalog catalog, Context context) throws JsonProcessingException {
         Request onSearchRequest = new Request();
         Message objMessage = new Message();
         objMessage.setCatalog(catalog);
         context.setProviderId(PROVIDER_URI);
-        context.setProviderUri(PROVIDER_URI);
+        if(context.getConsumerId().equalsIgnoreCase("eua-nha"))
+            context.setProviderUri(PROVIDER_URI);
+        else
+            context.setProviderUri("http://121.242.73.124:8084/api/v1");
         context.setAction("on_search");
         onSearchRequest.setMessage(objMessage);
         onSearchRequest.setContext(context);
         onSearchRequest.getContext().setAction("on_search");
-
-        System.out.println(onSearchRequest);
 
         WebClient on_webclient = WebClient.create();
 
@@ -272,7 +282,6 @@ public class SelectService implements IService {
     public Mono<String> logResponse(java.lang.String result) {
 
         LOGGER.info("OnSearch(Select)::Log::Response::" + result);
-        System.out.println("OnSearch(Select)::Log::Response::" + result);
 
         return Mono.just(result);
     }

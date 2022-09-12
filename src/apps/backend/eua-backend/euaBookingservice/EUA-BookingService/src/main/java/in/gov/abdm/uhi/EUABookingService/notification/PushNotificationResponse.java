@@ -1,6 +1,11 @@
 package in.gov.abdm.uhi.EUABookingService.notification;
 
-public class PushNotificationResponse {
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import in.gov.abdm.uhi.EUABookingService.dto.ServiceResponseDTO;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class PushNotificationResponse extends ServiceResponseDTO {
     private int status;
     private String message;
     

@@ -43,6 +43,7 @@ public class EuaServiceImpl implements EuaService {
 
     @Override
     public void pushToMq(String searchRequest, String clientId, String action, String requestMessageId) {
+    	LOGGER.info("pushToMq "+searchRequest+"     "+clientId+"     "+action+" "+requestMessageId);
         LOGGER.info("Pushing to MQ. Message ID is "+ requestMessageId);
         MqMessageTO message = extractMessage(searchRequest,clientId, requestMessageId, action);
         template.convertAndSend(ConstantsUtils.EXCHANGE, ConstantsUtils.ROUTING_KEY_EUA_TO_GATEWAY, message);

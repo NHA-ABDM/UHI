@@ -5,11 +5,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
+
+import javax.transaction.Transactional;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,17 +24,25 @@ import org.springframework.stereotype.Repository;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
+import com.google.firebase.messaging.Message;
+
 import in.gov.abdm.uhi.EUABookingService.constants.ConstantsUtils;
 import in.gov.abdm.uhi.EUABookingService.dto.ErrorResponseDTO;
 import in.gov.abdm.uhi.EUABookingService.dto.MessagesDTO;
+import in.gov.abdm.uhi.EUABookingService.dto.RequestSharedKeyDTO;
 import in.gov.abdm.uhi.EUABookingService.dto.RequestTokenDTO;
 import in.gov.abdm.uhi.EUABookingService.entity.ChatUser;
 import in.gov.abdm.uhi.EUABookingService.entity.Messages;
+import in.gov.abdm.uhi.EUABookingService.entity.SharedKey;
 import in.gov.abdm.uhi.EUABookingService.entity.UserToken;
 import in.gov.abdm.uhi.EUABookingService.notification.PushNotificationRequest;
+import in.gov.abdm.uhi.EUABookingService.notification.PushNotificationResponse;
 import in.gov.abdm.uhi.EUABookingService.notification.PushNotificationService;
 import in.gov.abdm.uhi.EUABookingService.repository.ChatUserReposotory;
 import in.gov.abdm.uhi.EUABookingService.repository.MessagesRepository;
+import in.gov.abdm.uhi.EUABookingService.repository.SharedKeyRepository;
 import in.gov.abdm.uhi.EUABookingService.repository.UserTokenRepository;
 import in.gov.abdm.uhi.EUABookingService.service.ChatDataDbService;
 import in.gov.abdm.uhi.common.dto.Ack;
@@ -44,7 +55,7 @@ import reactor.core.publisher.Mono;
 
 @Repository
 public class SaveChatIndbServiceImpl implements ChatDataDbService {
-	Logger LOGGER = LoggerFactory.getLogger(SaveChatIndbServiceImpl.class);
+	Logger LOGGER = LogManager.getLogger(SaveChatIndbServiceImpl.class);
 
 	@Autowired
 	WebClient webclient;
@@ -55,6 +66,9 @@ public class SaveChatIndbServiceImpl implements ChatDataDbService {
 	@Autowired
 	ChatUserReposotory chatUserRepo;
 
+	@Autowired
+	SharedKeyRepository sharedKeyRepo;
+	
 	@Autowired
 	ModelMapper modelMapper;
 	
@@ -105,8 +119,14 @@ public class SaveChatIndbServiceImpl implements ChatDataDbService {
 
 		private Messages saveMessage(Request request) {
 		   Messages m = new Messages();
+		   String contentType=request.getMessage().getIntent().getChat().getContent().getContent_type();
 		   m.setContentId(request.getMessage().getIntent().getChat().getContent().getContent_id());
+		   
+		   if(contentType.equalsIgnoreCase(ConstantsUtils.TEXT))
 		   m.setContentValue(request.getMessage().getIntent().getChat().getContent().getContent_value());
+		   
+		   m.setContentType(contentType);
+		   m.setContentUrl(request.getMessage().getIntent().getChat().getContent().getContent_url());
 		   m.setReceiver(request.getMessage().getIntent().getChat().getReceiver().getPerson().getCred());
 		   m.setSender(request.getMessage().getIntent().getChat().getSender().getPerson().getCred());
 		   m.setTime(getLocalDateTimeFromString(request));
@@ -163,10 +183,12 @@ public class SaveChatIndbServiceImpl implements ChatDataDbService {
 		if (applyDataValidation(request, saveDataInDb)) {
 			request.getContext().setAction(ConstantsUtils.ON_MESSAGE);
 			Mono<Response> onErrorResume = webClientCall(request);
-			return ResponseEntity.status(HttpStatus.OK).body(onErrorResume);
+			onErrorResume.subscribe(e->LOGGER.info("INSIDE SUBSCRIBE "));
+			
+			return ResponseEntity.status(HttpStatus.OK).body(Mono.just(createAcknowledgementTO()));
 		} else {
 			Response createNacknowledgementTO = createNacknowledgementTO(null);
-			return ResponseEntity.status(HttpStatus.OK).body(Mono.just(createNacknowledgementTO));
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Mono.just(createNacknowledgementTO));
 		}
 	}
 
@@ -188,6 +210,7 @@ public class SaveChatIndbServiceImpl implements ChatDataDbService {
 					return Mono.empty();
 				});
 		return onErrorResume;
+	
 	}
 
 	public Response createAcknowledgementTO() {
@@ -196,10 +219,12 @@ public class SaveChatIndbServiceImpl implements ChatDataDbService {
 		return new Response(ackMessage, null);
 	}
 
-	public Response createNacknowledgementTO(Error error) {
+	public Response createNacknowledgementTO(String error) {
+		Error err= new Error();
+		err.setMessage(error);	
 		Ack ack = new Ack("NACK");
 		MessageAck ackMessage = new MessageAck(ack);
-		return new Response(ackMessage, error);
+		return new Response(ackMessage, err);
 	}
 	
 	public List<MessagesDTO> getErrorMessage(String message) {
@@ -256,17 +281,90 @@ public class SaveChatIndbServiceImpl implements ChatDataDbService {
 	}
 
 	@Override
-	public void sendNotificationToreceiver(Request request) {		
+	public void sendNotificationToreceiver(Request request) throws InterruptedException, ExecutionException {		
 		String receiver=request.getMessage().getIntent().getChat().getReceiver().getPerson().getCred();
+		String sender =request.getMessage().getIntent().getChat().getSender().getPerson().getCred();
+		String contentType=request.getMessage().getIntent().getChat().getContent().getContent_type();
 		List<UserToken> userTokenByName = getUserTokenByName(receiver);
-		userTokenByName.forEach(token->{
-			PushNotificationRequest pushnot=new PushNotificationRequest();
-			pushnot.setTitle(request.getMessage().getIntent().getChat().getSender().getPerson().getCred());
-			pushnot.setMessage(request.getMessage().getIntent().getChat().getContent().getContent_value());
-			pushnot.setToken(token.getToken());	
-			pushNotificationService.sendPushNotificationToToken(pushnot);
-			pushnot=null;
-		});		
+		String userName=receiver+"|"+sender;
+		List<SharedKey> lsk=getKeyDetails(userName);
+		String sharedKey="";
+		if(!lsk.isEmpty())
+		{
+			sharedKey=lsk.get(0).getPublicKey();
+		}
+	for(UserToken token:userTokenByName){		
+		if(token.getToken()!=null)
+		{			
+			if(isValidFCMToken(token.getToken()))
+				{				
+					PushNotificationRequest pushnot=new PushNotificationRequest();
+					pushnot.setTitle(request.getMessage().getIntent().getChat().getSender().getPerson().getName());
+					if(contentType.equalsIgnoreCase(ConstantsUtils.MEDIA))
+					{
+						pushnot.setMessage(request.getMessage().getIntent().getChat().getContent().getContent_url());
+					}else {
+						pushnot.setMessage(request.getMessage().getIntent().getChat().getContent().getContent_value());	
+					}
+					pushnot.setSenderAbhaAddress(sender);
+					pushnot.setGender(request.getMessage().getIntent().getChat().getSender().getPerson().getGender());
+					pushnot.setReceiverAbhaAddress(receiver);
+					pushnot.setProviderUri(request.getContext().getProviderUri());
+					pushnot.setType(ConstantsUtils.CHAT);
+					pushnot.setToken(token.getToken());			
+					pushnot.setSharedKey(sharedKey);
+					pushnot.setContentType(contentType);
+					pushNotificationService.sendPushNotificationToToken(pushnot);
+					pushnot=null;
+				}
+		}
+		}	
+	}
+	public Boolean isValidFCMToken(String fcmToken) {
+        Message message = Message.builder().setToken(fcmToken).build();
+        try {
+            FirebaseMessaging.getInstance().send(message);
+            return true;
+        } catch (FirebaseMessagingException fme) {
+        	LOGGER.error("Firebase token verification exception");
+            return false;
+        }
+    }
+	
+	@Transactional
+	@Override
+	public ResponseEntity<PushNotificationResponse> deleteToken(RequestTokenDTO tokenDTO) {
+		 
+		   Integer userTokenModel = userTokenRepo.deleteByUserId(tokenDTO.getUserName()+"|"+ tokenDTO.getDeviceId());
+		   if (null != userTokenModel) {
+			   return new ResponseEntity<>(new PushNotificationResponse(HttpStatus.OK.value(), "token deleted"), HttpStatus.OK);
+		   }
+		   throw new RuntimeException("Error logging out. Either Token not found or some error occurred");
+	}
+
+	@Override
+	public SharedKey saveSharedKey(RequestSharedKeyDTO request) {
+		if(request.getPublicKey()!=null)
+		{
+		SharedKey sk=new SharedKey();
+		sk.setUserName(request.getUserName());
+		sk.setPublicKey(request.getPublicKey());		
+		sk.setPrivateKey(request.getPrivateKey());
+		
+			List<SharedKey> skl=getKeyDetails(request.getUserName());
+			if(skl.isEmpty())
+			{
+				return sharedKeyRepo.save(sk);
+			}
+			return skl.get(0);
+		}
+		else
+			return null;
+	}
+
+	@Override
+	public List<SharedKey> getKeyDetails(String userName) {
+		return sharedKeyRepo.findByUserName(userName);
 	}
 
 

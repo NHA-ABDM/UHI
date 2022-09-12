@@ -75,14 +75,11 @@ public class SearchService implements IService {
         Response ack = generateAck();
         try {
             LOGGER.info("Processing::Search::Request::" + request);
-            System.out.println("Processing::Search::Request::" + request);
-
             objRequest = new ObjectMapper().readValue(request, Request.class);
             String typeFulfillment = objRequest.getMessage().getIntent().getFulfillment().getType();
             if(typeFulfillment.equalsIgnoreCase("Teleconsultation") || typeFulfillment.equalsIgnoreCase("PhysicalConsultation")) {
                 Request finalObjRequest = objRequest;
-                System.out.println(finalObjRequest);
-                run(objRequest)
+                run(objRequest, request)
                         .flatMap(this::transformObject)
                         .flatMap(collection -> generateCatalog(collection, finalObjRequest))
                         .flatMap(catalog -> callOnSerach(catalog, finalObjRequest.getContext()))
@@ -103,8 +100,6 @@ public class SearchService implements IService {
     private Mono<List<IntermediateProviderModel>> transformObject(String result) {
 
         LOGGER.info("Processing::Search::TransformObject" + result);
-        System.out.println("Processing::Search::TransformObject" + result);
-
         List<IntermediateProviderModel> collection = new ArrayList<>();
         try {
 
@@ -120,8 +115,6 @@ public class SearchService implements IService {
     private Mono<Catalog> generateCatalog(List<IntermediateProviderModel> collection, Request request) {
 
         LOGGER.info("Processing::Search::CatalogGeneration" + collection);
-        System.out.println("Processing::Search::CatalogGeneration" + collection);
-
         Catalog catalog = new Catalog();
 
         try {
@@ -139,8 +132,6 @@ public class SearchService implements IService {
     private List<IntermediateProviderModel> filterListByAttributes(List<IntermediateProviderModel> collection, Request request) {
 
         LOGGER.info("Processing::Search::FilterListByAttribute" + collection);
-        System.out.println("Processing::Search::FilterListByAttribute" + collection);
-
 
         Map<String, String> filters = IntermediateBuilderUtils.BuildSearchParametersIntent(request);
         List<IntermediateProviderModel> filteredList = collection;
@@ -153,15 +144,12 @@ public class SearchService implements IService {
             }
             if (filters.get("type") != null && filters.get("type").equalsIgnoreCase("PhysicalConsultation")) {
                 filteredList = filteredList.stream().filter(imd -> imd.getIs_physical_consultation().equals("true")).collect(Collectors.toList());
-
             }
             if (filters.get("type") != null && filters.get("type").equalsIgnoreCase("TeleConsultation")) {
                 filteredList = filteredList.stream().filter(imd -> imd.getIs_teleconsultation().equals("true")).collect(Collectors.toList());
             }
         } catch (Exception ex) {
-
             LOGGER.error("Search Service Filter by Attribute::error::" + ex);
-
         }
         return filteredList;
 
@@ -174,14 +162,15 @@ public class SearchService implements IService {
         objMessage.setCatalog(catalog);
         onSearchRequest.setMessage(objMessage);
         context.setProviderId(PROVIDER_URI);
-        context.setProviderUri(PROVIDER_URI);
+        if(context.getConsumerId().equalsIgnoreCase("eua-nha"))
+            context.setProviderUri(PROVIDER_URI);
+        else
+            context.setProviderUri("http://121.242.73.124:8084/api/v1");
         context.setAction("on_search");
         onSearchRequest.setContext(context);
         onSearchRequest.getContext().setAction("on_search");
 
         LOGGER.info("Processing::Search::CallOnSearch" + onSearchRequest);
-        System.out.println("Processing::Search::CallOnSearch" + onSearchRequest);
-
         WebClient on_webclient = WebClient.create();
 
         return on_webclient.post()
@@ -197,7 +186,7 @@ public class SearchService implements IService {
     }
 
     @Override
-    public Mono<String> run(Request request) {
+    public Mono<String> run(Request request, String s) {
 
         String searchEndPoint = OPENMRS_BASE_LINK + OPENMRS_API + API_RESOURCE_PROVIDER;
 
@@ -230,8 +219,6 @@ public class SearchService implements IService {
     public Mono<String> logResponse(String result) {
 
         LOGGER.info("OnSearch::Log::Response::" + result);
-        System.out.println("OnSearch::Log::Response::" + result);
-
         return Mono.just(result);
     }
 }

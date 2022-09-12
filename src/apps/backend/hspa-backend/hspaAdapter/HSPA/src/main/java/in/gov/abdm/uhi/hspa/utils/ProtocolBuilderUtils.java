@@ -46,6 +46,7 @@ public class ProtocolBuilderUtils {
                 objAgent.setId(obj.id);
                 objAgent.setName(obj.name);
                 objAgent.setGender(obj.gender);
+//                objAgent.setImage(obj.profile_photo);
 
                 Map<String, String> tags = new HashMap<>();
                 tags.put("@abdm/gov/in/languages", obj.getLanguages());

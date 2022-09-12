@@ -2,7 +2,6 @@ package in.gov.abdm.eua.service.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import in.gov.abdm.eua.service.constants.ConstantsUtils;
 import in.gov.abdm.eua.service.dto.dhp.AckResponseDTO;
 import in.gov.abdm.eua.service.dto.dhp.EuaRequestBody;
@@ -10,7 +9,6 @@ import in.gov.abdm.eua.service.dto.dhp.MqMessageTO;
 import in.gov.abdm.eua.service.service.impl.EuaServiceImpl;
 import in.gov.abdm.eua.service.service.impl.MQConsumerServiceImpl;
 import in.gov.abdm.uhi.common.dto.Fulfillment;
-import in.gov.abdm.uhi.common.dto.MessageAck;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -45,11 +43,9 @@ public class EuaController {
 
 	private final String bookignServiceUrl;
 
-	private final String abdmGatewayUrl;
-
 	private final EuaServiceImpl euaService;
 
-	private ObjectMapper objectMapper;
+	private final ObjectMapper objectMapper;
 
 	public EuaController(EuaServiceImpl euaService, ObjectMapper objectMapper,
 						 @Value("${spring.abdm_eua_url}")
@@ -66,7 +62,6 @@ public class EuaController {
 		this.euaService = euaService;
 		this.objectMapper = objectMapper;
 
-		this.abdmGatewayUrl = abdmGatewayUrl;
 		this.abdmEUAURl = abdmEUAURl;
 		this.bookignServiceUrl = bookignServiceUrl;
 
@@ -151,7 +146,7 @@ public class EuaController {
 			String consumerId = onInitRequest.getContext().getConsumerId();
 			String action = onInitRequest.getContext().getAction();
 			final MqMessageTO message = euaService.extractMessage(onInitRequestString, consumerId, requestMessageId, action);
-			Mono<AckResponseDTO> callToBookingService = mqService.getAckResponseResponseEntity(onInitRequest, bookignServiceUrl);
+			Mono<AckResponseDTO> callToBookingService = mqService.getAckResponseEntity(onInitRequest, bookignServiceUrl, null);
 
 			LOGGER.info("printing response from booking service :: " + callToBookingService);
 			euaService.pushToMqGatewayTOEua(message, requestMessageId);
@@ -197,7 +192,7 @@ public class EuaController {
 			String consumerId = onConfirmRequest.getContext().getConsumerId();
 			String action = onConfirmRequest.getContext().getAction();
 			final MqMessageTO message = euaService.extractMessage(onConfirmRequestString, consumerId, requestMessageId, action);
-			Mono<AckResponseDTO> callToBookingService = mqService.getAckResponseResponseEntity(onConfirmRequest, bookignServiceUrl);
+			Mono<AckResponseDTO> callToBookingService = mqService.getAckResponseEntity(onConfirmRequest, bookignServiceUrl, null);
 
 			LOGGER.info("printing response from booking service :: " + callToBookingService);
 			euaService.pushToMqGatewayTOEua(message, requestMessageId);
@@ -207,6 +202,48 @@ public class EuaController {
 		} catch (Exception e) {
 			LOGGER.error(e.toString());
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Mono.just(Objects.requireNonNull(getNackResponseResponseEntityWithoutMono().getBody())));
+		}
+
+	}
+	
+	@PostMapping("/on_cancel")
+	@Operation(
+			summary = "on-status",
+			description = "Gets the response from the HSPA to reveal cancellation status of service to EUA",
+			responses = {
+					@ApiResponse(
+							description = "Success",
+							responseCode = "200",
+							content = @Content(mediaType = "application/json", schema = @Schema(implementation = AckResponseDTO.class))
+					),
+					@ApiResponse(description = "Not found", responseCode = "404", content = @Content),
+					@ApiResponse(description = "Internal error", responseCode = "500", content = @Content)
+			}
+	)
+	public ResponseEntity<Mono<AckResponseDTO>> onCancel(@RequestBody String onCancelRequestString) throws JsonProcessingException {
+		LOGGER.info("Inside on_cancel API ");
+		try {
+			EuaRequestBody onCancelRequest = getEuaRequestBody(onCancelRequestString);
+			String requestMessageId = onCancelRequest.getContext().getMessageId();
+
+			ResponseEntity<AckResponseDTO> onCancelAck = getResponseEntityForErrorCases(onCancelRequest, objectMapper);
+			if(onCancelAck != null) {			
+				ResponseEntity<AckResponseDTO> bodyError = ResponseEntity.status(onCancelAck.getStatusCode()).body(Objects.requireNonNull(onCancelAck.getBody()));
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Mono.just(Objects.requireNonNull(bodyError.getBody())));
+			}
+			LOGGER.info("Request Body :" + onCancelRequestString);
+			String consumerId = onCancelRequest.getContext().getConsumerId();
+			String action = onCancelRequest.getContext().getAction();
+			final MqMessageTO message = euaService.extractMessage(onCancelRequestString, consumerId, requestMessageId, action);
+			Mono<AckResponseDTO> callToBookingService = mqService.getAckResponseEntity(onCancelRequest, bookignServiceUrl, null);
+			LOGGER.info("printing response from booking service :: " + callToBookingService);				
+			euaService.pushToMqGatewayTOEua(message, requestMessageId);
+			return ResponseEntity.status(HttpStatus.OK).body(callToBookingService);
+
+		} catch (Exception e) {
+			LOGGER.error(e.toString());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Mono.just(Objects.requireNonNull(getNackResponseResponseEntityWithoutMono().getBody())));
+		
 		}
 
 	}
@@ -250,45 +287,7 @@ public class EuaController {
 
 	}
 
-	@PostMapping("/on_cancel")
-	@Operation(
-			summary = "on-status",
-			description = "Gets the response from the HSPA to reveal cancellation status of service to EUA",
-			responses = {
-					@ApiResponse(
-							description = "Success",
-							responseCode = "200",
-							content = @Content(mediaType = "application/json", schema = @Schema(implementation = AckResponseDTO.class))
-					),
-					@ApiResponse(description = "Not found", responseCode = "404", content = @Content),
-					@ApiResponse(description = "Internal error", responseCode = "500", content = @Content)
-			}
-	)
-	public ResponseEntity<AckResponseDTO> onCancel(@RequestBody String onCancelRequestString) throws JsonProcessingException {
-		LOGGER.info("Inside on_cancel API ");
-		try {
-			EuaRequestBody onCancelRequest = getEuaRequestBody(onCancelRequestString);
-			String requestMessageId = onCancelRequest.getContext().getMessageId();
-
-			ResponseEntity<AckResponseDTO> onCancelAck = getResponseEntityForErrorCases(onCancelRequest, objectMapper);
-			if (onCancelAck != null) return onCancelAck;
-
-			LOGGER.info("Request Body :" + onCancelRequestString);
-			String consumerId = onCancelRequest.getContext().getConsumerId();
-			String action = onCancelRequest.getContext().getAction();
-
-			final MqMessageTO message = euaService.extractMessage(onCancelRequestString, consumerId, requestMessageId, action);
-			euaService.pushToMqGatewayTOEua(message, requestMessageId);
-
-			return euaService.getOnAckResponseResponseEntity(objectMapper, onCancelRequestString, "on_cancel", requestMessageId);
-
-		} catch (Exception e) {
-			LOGGER.error(e.toString());
-			return getNackResponseResponseEntityWithoutMono();
-
-		}
-
-	}
+	
 
 		@PostMapping(ConstantsUtils.SEARCH_ENDPOINT)
 	@Operation(
@@ -326,7 +325,7 @@ public class EuaController {
 			String action = searchRequest.getContext().getAction();
 
 			LOGGER.info("Request Body :" + searchRequestString);
-			euaService.pushToMq(searchRequestString, clientId, action, requestMessageId);
+			euaService.pushToMq(objectMapper.writeValueAsString(searchRequest), clientId, action, requestMessageId);
 
 			LOGGER.info("Request Body enqueued successfully:" + searchRequestString);
 
@@ -379,7 +378,7 @@ public class EuaController {
 			LOGGER.info("Provider URI :" + providerURI);
 			LOGGER.info("Request Body :" + initRequestString);
 
-			euaService.pushToMq(initRequestString, clientId, action, requestMessageId);
+			euaService.pushToMq(objectMapper.writeValueAsString(initRequest), clientId, action, requestMessageId);
 
 			LOGGER.info("Request Body enqueued successfully:" + initRequestString);
 
@@ -432,7 +431,7 @@ public class EuaController {
 			LOGGER.info("Provider URI :" + providerURI);
 			LOGGER.info("Request Body :" + confirmRequestString);
 
-			euaService.pushToMq(confirmRequestString, clientId, action, requestMessageId);
+			euaService.pushToMq(objectMapper.writeValueAsString(confirmRequest), clientId, action, requestMessageId);
 
 			LOGGER.info("Request Body enqueued successfully:" + confirmRequestString);
 
@@ -485,7 +484,7 @@ public class EuaController {
 			LOGGER.info("Provider URI :" + providerURI);
 			LOGGER.info("Request Body :" + statusRequestString);
 
-			euaService.pushToMq(statusRequestString, clientId, action, requestMessageId);
+			euaService.pushToMq(objectMapper.writeValueAsString(statusRequest), clientId, action, requestMessageId);
 
 			LOGGER.info("Request Body enqueued successfully:" + statusRequestString);
 
@@ -534,7 +533,7 @@ public class EuaController {
 			LOGGER.info("Provider URI :" + providerURI);
 			LOGGER.info("Request Body :" + cancelRequestString);
 
-			euaService.pushToMq(cancelRequestString, clientId, action, requestMessageId);
+			euaService.pushToMq(objectMapper.writeValueAsString(cancelRequest), clientId, action, requestMessageId);
 			LOGGER.info("Request Body enqueued successfully:" + cancelRequestString);
 
 		} catch (Exception e) {

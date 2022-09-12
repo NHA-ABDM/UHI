@@ -11,5 +11,9 @@ public class MessagesDTO extends ServiceResponseDTO {
     private String sender;
     private String receiver;
     private String contentValue;
+    private String contentType;
+    private String contentUrl;
     private String time;
+    private String consumerUrl;
+    private String providerUrl;
 }

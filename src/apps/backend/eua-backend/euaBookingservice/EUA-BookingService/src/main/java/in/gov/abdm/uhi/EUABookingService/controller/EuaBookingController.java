@@ -1,12 +1,14 @@
 package in.gov.abdm.uhi.EUABookingService.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.Valid;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +17,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import in.gov.abdm.uhi.EUABookingService.constants.ConstantsUtils;
 import in.gov.abdm.uhi.EUABookingService.entity.Categories;
@@ -32,10 +37,16 @@ import io.swagger.annotations.ApiOperation;
 @RequestMapping(value = "/api/v1/bookingService")
 @Api(tags = "Booking Service", value = "Bookingservice")
 public class EuaBookingController {
-	Logger LOGGER = LoggerFactory.getLogger(EuaBookingController.class);
+	Logger LOGGER = LogManager.getLogger(EuaBookingController.class);
 	
 	@Autowired
 	SaveDataDbService savedatadb;
+	
+	@Autowired
+	WebClient webclient;
+	
+	@Value("${spring.notificationService.baseUrl}")
+	private String notificationService_baseUrl;
 
 	@ApiOperation(value = "Save Initialized orders")
 	@PostMapping(path = "/on_init")
@@ -59,12 +70,46 @@ public class EuaBookingController {
 		LOGGER.info(request.getContext().getMessageId()+"Received request inside on_confirm "+request);		
 		Orders saveDataInDb;
 		try {
-			saveDataInDb = savedatadb.saveDataInDb(request,ConstantsUtils.ON_CONFIRM);
+			saveDataInDb = savedatadb.saveDataInDb(request,ConstantsUtils.ON_CONFIRM);		
 			return applyValidationForProviderUrlAndNullData(request, saveDataInDb);
 		} 
 		catch (UserException |JsonProcessingException e) {			
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createNacknowledgementTO(e.getMessage()));
 		} 
+		catch (Exception e)
+		{
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createNacknowledgementTO(e.getMessage()));
+		}
+		
+		 
+	}
+	
+	@PostMapping(path = "/on_cancel")
+	public ResponseEntity<Response> savedataForCancel(@RequestBody @Valid Request request) {
+		LOGGER.info(request.getContext().getMessageId()+"Received request inside on_cancel "+request);		
+		Orders saveDataInDb;
+		try {
+			saveDataInDb = savedatadb.saveDataInDbCancel(request);		
+			Map<String, String> fulfillmentTagsMap=request.getMessage().getOrder().getFulfillment().getTags();               
+            String key = fulfillmentTagsMap.get("@abdm/gov.in/cancelledby");			
+			 if(key.equalsIgnoreCase("doctor"))
+             {   
+            	 WebClient on_webclient = WebClient.create();
+            	 on_webclient.post().uri(notificationService_baseUrl+"/sendCancelNotification")
+            	 .body(BodyInserters.fromValue(saveDataInDb))
+            	 .retrieve()
+            	 .onStatus(HttpStatus::is4xxClientError,
+		            response -> response.bodyToMono(String.class).map(Exception::new))
+            	 .onStatus(HttpStatus::is5xxServerError,
+		            response -> response.bodyToMono(String.class).map(Exception::new))
+            	 .toEntity(String.class)
+            	 .doOnError(throwable -> {
+            		 LOGGER.error("Error sending notification---"+throwable.getMessage());
+            	 }).subscribe(res ->LOGGER.info("Sent notification---"+res.getBody()));
+             }
+			return applyValidationForProviderUrlAndNullData(request, saveDataInDb);
+		} 
+	
 		catch (Exception e)
 		{
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createNacknowledgementTO(e.getMessage()));
@@ -112,6 +157,13 @@ public class EuaBookingController {
 		return new ResponseEntity<>(getOrderDetails,HttpStatus.OK);		
 	}
 	
+	@GetMapping(path = "/getOrdersByAbhaIdDesc/{abhaid}")
+	public ResponseEntity<List<Orders>> getOrderByAbhaidDesc(@PathVariable("abhaid") String abhaid){	
+		LOGGER.info("inside Get order by abhaid");
+		List<Orders> getOrderDetails = savedatadb.getOrderDetailsByAbhaIdDesc(abhaid);		
+		return new ResponseEntity<>(getOrderDetails,HttpStatus.OK);		
+	}
+	
 	@ApiOperation(value = "Get Categories by category id")
 	@GetMapping(path = "/getCategories/{categoryid}")
 	public ResponseEntity<List<Categories>> getCategoriesByCategoryid(@PathVariable("categoryid") long categoryid){
@@ -138,7 +190,7 @@ public class EuaBookingController {
 		}
 		else if(saveDataInDb==null )
 		{
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createNacknowledgementTO("error saving data"));
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createNacknowledgementTO("error saving data order id not present"));
 		}
 		else
 		{

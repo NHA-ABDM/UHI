@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import in.gov.abdm.uhi.common.dto.Error;
 import in.gov.abdm.uhi.common.dto.*;
+import in.gov.abdm.uhi.hspa.models.MessagesModel;
 import in.gov.abdm.uhi.hspa.service.ServiceInterface.IService;
 import in.gov.abdm.uhi.hspa.utils.ConstantsUtils;
 import org.apache.logging.log4j.LogManager;
@@ -15,8 +16,15 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
 @Service
 public class MessageService implements IService {
+
+    @Value("${spring.media.type.media}")
+    private String mediaTypeMedia;
+
     final
     ObjectMapper mapper;
 
@@ -26,36 +34,39 @@ public class MessageService implements IService {
     final
     WebClient webClient;
 
+    final FileStorageService fileStorageService;
+
     private final SimpMessagingTemplate messagingTemplate;
 
     @Value("${spring.provider_uri}")
     String PROVIDER_URI;
 
+    @Value("${spring.file.upload-dir}")
+     private String uploadDir;
+
+
+
     private static final Logger LOGGER = LogManager.getLogger(MessageService.class);
 
-    public MessageService(SimpMessagingTemplate messagingTemplate, ObjectMapper mapper, SaveChatService chatService, WebClient webClient) {
+    public MessageService(SimpMessagingTemplate messagingTemplate, ObjectMapper mapper, SaveChatService chatService, WebClient webClient, FileStorageService fileStorageService) {
         this.messagingTemplate = messagingTemplate;
         this.mapper = mapper;
         this.chatService = chatService;
         this.webClient = webClient;
+        this.fileStorageService = fileStorageService;
     }
 
-    @Override
     public Mono<Response> processor(String request) throws Exception {
 
         Request objRequest;
         Response ack = generateAck(mapper);
 
         LOGGER.info("Processing::Message::Request::" + request);
-        System.out.println("Processing::Message::Request::" + request);
 
             objRequest = new ObjectMapper().readValue(request, Request.class);
             Request finalObjRequest = objRequest;
-            String action = finalObjRequest.getContext().getAction();
-            if(ConstantsUtils.ON_MESSAGE_ACTION.equals(action))
-                pushMessageToWebSocket(request, finalObjRequest);
 
-            run(finalObjRequest)
+            run(finalObjRequest, request)
                     .filter(res -> finalObjRequest.getContext().getAction().equals(ConstantsUtils.MESSAGE_ACTION))
                     .flatMap(res -> callMessageApiOnEua(finalObjRequest))
                     .subscribe();
@@ -65,34 +76,52 @@ public class MessageService implements IService {
         return Mono.just(ack);
     }
 
-    private void pushMessageToWebSocket(String request, Request finalObjRequest) {
+    private void pushMessageToWebSocket(Request finalObjRequest) throws JsonProcessingException {
+        String request = mapper.writeValueAsString(finalObjRequest);
         String receiver= finalObjRequest.getMessage().getIntent().getChat().getReceiver().getPerson().getCred();
         String sender= finalObjRequest.getMessage().getIntent().getChat().getSender().getPerson().getCred();
-
-
         String concatReceiverSender = concatReceiverSender(receiver,sender);
+        LOGGER.info("Webclient Call "+finalObjRequest);
         messagingTemplate.convertAndSendToUser(concatReceiverSender, ConstantsUtils.QUEUE_SPECIFIC_USER, request);
     }
 
     @Override
-    public Mono<String> run(Request request) throws Exception {
-            return logResponse(chatService.saveChatDataInDb(request).toString());
+    public Mono<String> run(Request objReq, String request) throws Exception {
+        MessagesModel messageSaved = chatService.saveChatDataInDb(objReq);
+        LOGGER.info("DB call done.");
+        String action = objReq.getContext().getAction();
+        actionsInCaseOf_OnMessageAction(objReq, messageSaved, action);
+        return logResponse(request);
+    }
+
+    private void actionsInCaseOf_OnMessageAction(Request objReq, MessagesModel messageSaved, String action) throws JsonProcessingException, ExecutionException, InterruptedException {
+        if(ConstantsUtils.ON_MESSAGE_ACTION.equals(action)) {
+            String contentUrl = messageSaved.getContentUrl();
+            objReq.getMessage().getIntent().getChat().getContent().setContent_url(contentUrl);
+            String content_type = objReq.getMessage().getIntent().getChat().getContent().getContent_type();
+            sendNullContentValueInCaseOfFileSharing(objReq, content_type);
+            LOGGER.info("Saved Content url for omMessage recieved ->>"+contentUrl);
+            pushMessageToWebSocket(objReq);
+        }
+    }
+
+    private void sendNullContentValueInCaseOfFileSharing(Request objReq, String content_type) {
+        if(mediaTypeMedia.equalsIgnoreCase(content_type))
+            objReq.getMessage().getIntent().getChat().getContent().setContent_value(null);
     }
 
     @Override
     public Mono<String> logResponse(String result) {
-        LOGGER.info(result);
         return Mono.just(result);
     }
 
-    private Mono<String> callMessageApiOnEua(Request chatRequest) {
+
+    private Mono<String> callMessageApiOnEua(Request chatRequest){
 
        chatRequest.getContext().setAction(ConstantsUtils.ON_MESSAGE_ACTION);
        chatRequest.getContext().setProviderUri(PROVIDER_URI);
 
         LOGGER.info("Processing::"+ ConstantsUtils.ON_MESSAGE_ACTION +"::callMessageOnEua" + chatRequest);
-        System.out.println("Processing::"+ ConstantsUtils.ON_MESSAGE_ACTION +"::callMessageOnEua" + chatRequest);
-
 
         return webClient.post()
                 .uri(chatRequest.getContext().getConsumerUri() +"/"+ ConstantsUtils.ON_MESSAGE_ACTION)
@@ -106,7 +135,6 @@ public class MessageService implements IService {
                         e.printStackTrace();
                     }
                 })
-                .retry(3)
                 .onErrorResume(error -> {
                     LOGGER.error("Unable to call eua :error::onErrorResume::" + error);
                     return Mono.empty();
@@ -127,7 +155,7 @@ public class MessageService implements IService {
         return res;
     }
 
-    private static Response generateNack(ObjectMapper mapper, Exception js) {
+    public static Mono<Response> generateNack(Exception js) {
 
         MessageAck msz = new MessageAck();
         Response res = new Response();
@@ -139,7 +167,7 @@ public class MessageService implements IService {
         err.setType("MessageService");
         res.setError(err);
         res.setMessage(msz);
-        return res;
+        return Mono.just(res);
     }
 
     private String concatReceiverSender(String receiver, String sender) {
