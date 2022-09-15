@@ -147,18 +147,29 @@ class Person {
 class Content {
   String? contentId;
   String? contentValue;
-
-  Content({this.contentId, this.contentValue});
-
+  String? contentType;
+  String? contentUrl;
+  String? contentFilename;
+  Content(
+      {this.contentId,
+      this.contentValue,
+      this.contentType,
+      this.contentFilename});
   Content.fromJson(Map<String, dynamic> json) {
     contentId = json['content_id'];
     contentValue = json['content_value'];
+    contentType = json['content_type'];
+    contentUrl = json['content_url'];
+    contentFilename = json['content_fileName'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['content_id'] = this.contentId;
-    data['content_value'] = this.contentValue;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['content_id'] = contentId;
+    data['content_value'] = contentValue;
+    data['content_type'] = contentType;
+    data['content_url'] = contentUrl;
+    data['content_fileName'] = contentFilename;
     return data;
   }
 }

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
@@ -14,6 +15,9 @@ import 'package:uhi_flutter_app/theme/src/app_colors.dart';
 import 'package:uhi_flutter_app/theme/src/app_text_style.dart';
 import 'package:uhi_flutter_app/utils/src/shared_preferences.dart';
 import 'package:uhi_flutter_app/view/authentication/login/src/base_login_page.dart';
+
+import '../../../controller/login/src/logout_controller.dart';
+import '../../../model/model.dart';
 
 class UserProfilePage extends StatefulWidget {
   UserProfilePage({Key? key}) : super(key: key);
@@ -32,6 +36,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
   String? userName;
   String? imageB64;
   final homeScreenController = Get.put(HomeScreenController());
+  final postLogoutController = Get.put(LogoutController());
+
   String? mobileNumber;
   String? emailID;
   String? gender;
@@ -177,11 +183,48 @@ class _UserProfilePageState extends State<UserProfilePage> {
     }
   }
 
-  logout() {
+  ///LOGOUT USER API
+  logout() async {
+    showProgressDialog();
     Get.back();
-    SharedPreferencesHelper.setAutoLoginFlag(false);
-    Get.offAll(() => BaseLoginPage());
+
+    FCMTokenModel fcmTokenModel = FCMTokenModel();
+    fcmTokenModel.userName = abhaAddress;
+    fcmTokenModel.deviceId = await _getId();
+
+    log("${json.encode(fcmTokenModel)}", name: "LOGOUT MODEL");
+
+    await postLogoutController.postLogoutDetails(logoutDetails: fcmTokenModel);
+
+    if (postLogoutController.logoutResponse["status"] == 200) {
+      hideProgressDialog();
+      SharedPreferencesHelper.setAutoLoginFlag(false);
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      await preferences.clear();
+      Get.offAll(() => BaseLoginPage());
+    } else {
+      hideProgressDialog();
+    }
   }
+
+  Future<String?> _getId() async {
+    var deviceInfo = DeviceInfoPlugin();
+    if (Platform.isIOS) {
+      // import 'dart:io'
+      var iosDeviceInfo = await deviceInfo.iosInfo;
+      return iosDeviceInfo.identifierForVendor; // unique ID on iOS
+    } else if (Platform.isAndroid) {
+      var androidDeviceInfo = await deviceInfo.androidInfo;
+      return androidDeviceInfo.androidId; // unique ID on Android
+    }
+    return null;
+  }
+
+  // logout() {
+  //   Get.back();
+  //   SharedPreferencesHelper.setAutoLoginFlag(false);
+  //   Get.offAll(() => BaseLoginPage());
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -292,7 +335,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       fontSize: 18),
                 ),
                 Stack(
-                  clipBehavior: Clip.none,
+                  overflow: Overflow.visible,
                   children: [
                     CircleAvatar(
                       radius: 48,

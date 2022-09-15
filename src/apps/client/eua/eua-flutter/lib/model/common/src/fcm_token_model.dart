@@ -15,10 +15,22 @@ class FCMTokenModel {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['userName'] = this.userName;
-    data['token'] = this.token;
-    data['deviceId'] = this.deviceId;
-    data['type'] = this.type;
+    if (this.userName != null) {
+      data['userName'] = this.userName;
+    }
+    // data['userName'] = this.userName;
+    if (this.token != null) {
+      data['token'] = this.token;
+    }
+    // data['token'] = this.token;
+    if (this.deviceId != null) {
+      data['deviceId'] = this.deviceId;
+    }
+    // data['deviceId'] = this.deviceId;
+    if (this.type != null) {
+      data['type'] = this.type;
+    }
+    // data['type'] = this.type;
     return data;
   }
 }

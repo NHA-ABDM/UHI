@@ -64,7 +64,7 @@
 	</dict>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This app needs access to microphone</string>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
+	<key>NSFaceIDUsageDescription</key>
+	<string>UHI wants to access to Face id to authenticate</string>
 </dict>
 </plist>

@@ -28,6 +28,8 @@ class AppColors {
   static const Color DARK_PURPLE = Color(0xFF203746);
   static const Color paymentButtonBackgroundColor = Color(0xFF479CFB);
   static const Color appointmentConfirmTextColor = Color(0xFF1B1C20);
+  static const Color titleTextColor = Color(0xFF171717);
+  //
   static const Color appointmentConfirmDoctorActionsTextColor =
       Color(0xFFA6AEC1);
   static const Color appointmentConfirmDoctorActionsEnabledTextColor =

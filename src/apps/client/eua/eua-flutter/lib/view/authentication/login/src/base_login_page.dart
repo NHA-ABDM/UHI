@@ -1,34 +1,27 @@
-import 'dart:developer';
+import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:easy_localization/easy_localization.dart';
+import 'package:encrypt/encrypt.dart';
 import 'package:encrypt/encrypt_io.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pointycastle/asymmetric/api.dart';
 import 'package:uhi_flutter_app/common/common.dart';
 import 'package:uhi_flutter_app/constants/src/strings.dart';
 import 'package:uhi_flutter_app/controller/login/login.dart';
 import 'package:uhi_flutter_app/controller/login/src/access_token_controller.dart';
-import 'package:uhi_flutter_app/main.dart';
 import 'package:uhi_flutter_app/model/model.dart';
 import 'package:uhi_flutter_app/theme/theme.dart';
-import 'package:encrypt/encrypt.dart';
 import 'package:uhi_flutter_app/utils/src/shared_preferences.dart';
 import 'package:uhi_flutter_app/view/authentication/authentication.dart';
-import 'dart:io';
-import 'package:pointycastle/asymmetric/api.dart';
-import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:uhi_flutter_app/view/authentication/login/src/web_view_registration.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class BaseLoginPage extends StatefulWidget {
-  String? fcmToken;
-
-  BaseLoginPage({this.fcmToken});
+  const BaseLoginPage();
 
   @override
   State<BaseLoginPage> createState() => _BaseLoginPageState();
@@ -38,7 +31,7 @@ class _BaseLoginPageState extends State<BaseLoginPage> {
   ///CONTROLLERS
   final mobileNumberTextEditingController = TextEditingController();
   final loginInitController = Get.put(LoginInitController());
-  final AccessTokenController commonController = Get.find();
+  //final AccessTokenController commonController = Get.find();
   final accessTokenController = Get.put(AccessTokenController());
 
   ///SIZE
@@ -55,6 +48,7 @@ class _BaseLoginPageState extends State<BaseLoginPage> {
   @override
   void initState() {
     super.initState();
+    callAccessTokenApi();
   }
 
   void showProgressDialog() {
@@ -97,7 +91,6 @@ class _BaseLoginPageState extends State<BaseLoginPage> {
 
   ///APIs
   callApi() async {
-    await callAccessTokenApi();
     loginInitController.refresh();
     LoginInitRequestModel initRequestModel = LoginInitRequestModel();
     initRequestModel.authMode = "MOBILE_OTP";
@@ -128,7 +121,6 @@ class _BaseLoginPageState extends State<BaseLoginPage> {
     Get.to(OTPVerificationPage(
       mobileNumber: mobileNumberTextEditingController.text,
       isFromMobile: true,
-      fcmToken: widget.fcmToken,
     ));
   }
 
@@ -344,7 +336,7 @@ class _BaseLoginPageState extends State<BaseLoginPage> {
           GestureDetector(
             onTap: () {
               Get.to(() => WebViewRegistration());
-              //_launchUrl();
+              //Get.to(RegistrationPage());
             },
             child: Center(
               child: Text(

@@ -39,7 +39,7 @@ class NewConfirmationDialog {
 
     return showDialog(
       context: context,
-      barrierDismissible: true,
+      barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
           buttonPadding: EdgeInsets.zero,

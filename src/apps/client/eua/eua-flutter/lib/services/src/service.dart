@@ -71,13 +71,21 @@ class BaseClient {
 
       return _processResponse(response);
     } on SocketException {
-      throw SocketExceptionHandler('Socket connection error', url);
+      throw SocketExceptionHandler(
+          'Socket connection error.\nPlease check your internet connection and try again.',
+          url);
     } on TimeoutException {
-      throw RequestTimeoutException('Request timeout', url);
+      throw RequestTimeoutException(
+          'Request timeout.\nPlease check your internet connection and try again.',
+          url);
     } on FormatException {
-      throw FetchDataException("Something went wrong", url);
+      throw FetchDataException(
+          "Something went wrong.\nServers are busy at this moment please try again.",
+          url);
     } on HandshakeException {
-      throw NoInternetConnectionException("No internet connection", url);
+      throw NoInternetConnectionException(
+          "No internet connection.\nPlease check your internet connection and try again.",
+          url);
     }
   }
 
@@ -93,13 +101,21 @@ class BaseClient {
 
       return _processResponse(response);
     } on SocketException {
-      throw SocketExceptionHandler('Socket connection error', url);
+      throw SocketExceptionHandler(
+          'Socket connection error.\nPlease check your internet connection and try again.',
+          url);
     } on TimeoutException {
-      throw RequestTimeoutException('Request timeout', url);
+      throw RequestTimeoutException(
+          'Request timeout.\nPlease check your internet connection and try again.',
+          url);
     } on FormatException {
-      throw FetchDataException("Something went wrong", url);
+      throw FetchDataException(
+          "Something went wrong.\nServers are busy at this moment please try again.",
+          url);
     } on HandshakeException {
-      throw NoInternetConnectionException("No internet connection", url);
+      throw NoInternetConnectionException(
+          "No internet connection.\nPlease check your internet connection and try again.",
+          url);
     }
   }
 
@@ -118,13 +134,21 @@ class BaseClient {
 
       return _processResponse(response);
     } on SocketException {
-      throw SocketExceptionHandler('Socket connection error', url);
+      throw SocketExceptionHandler(
+          'Socket connection error.\nPlease check your internet connection and try again.',
+          url);
     } on TimeoutException {
-      throw RequestTimeoutException('Request timeout', url);
+      throw RequestTimeoutException(
+          'Request timeout.\nPlease check your internet connection and try again.',
+          url);
     } on FormatException {
-      throw FetchDataException("Something went wrong", url);
+      throw FetchDataException(
+          "Something went wrong.\nServers are busy at this moment please try again.",
+          url);
     } on HandshakeException {
-      throw NoInternetConnectionException("No internet connection", url);
+      throw NoInternetConnectionException(
+          "No internet connection.\nPlease check your internet connection and try again.",
+          url);
     }
   }
 
@@ -140,13 +164,21 @@ class BaseClient {
 
       return _processResponse(response);
     } on SocketException {
-      throw SocketExceptionHandler('Socket connection error', url);
+      throw SocketExceptionHandler(
+          'Socket connection error.\nPlease check your internet connection and try again.',
+          url);
     } on TimeoutException {
-      throw RequestTimeoutException('Request timeout', url);
+      throw RequestTimeoutException(
+          'Request timeout.\nPlease check your internet connection and try again.',
+          url);
     } on FormatException {
-      throw FetchDataException("Something went wrong", url);
+      throw FetchDataException(
+          "Something went wrong.\nServers are busy at this moment please try again.",
+          url);
     } on HandshakeException {
-      throw NoInternetConnectionException("No internet connection", url);
+      throw NoInternetConnectionException(
+          "No internet connection.\nPlease check your internet connection and try again.",
+          url);
     }
   }
 
@@ -162,13 +194,21 @@ class BaseClient {
 
       return _processResponse(response);
     } on SocketException {
-      throw SocketExceptionHandler('Socket connection error', url);
+      throw SocketExceptionHandler(
+          'Socket connection error.\nPlease check your internet connection and try again.',
+          url);
     } on TimeoutException {
-      throw RequestTimeoutException('Request timeout', url);
+      throw RequestTimeoutException(
+          'Request timeout.\nPlease check your internet connection and try again.',
+          url);
     } on FormatException {
-      throw FetchDataException("Something went wrong", url);
+      throw FetchDataException(
+          "Something went wrong.\nServers are busy at this moment please try again.",
+          url);
     } on HandshakeException {
-      throw NoInternetConnectionException("No internet connection", url);
+      throw NoInternetConnectionException(
+          "No internet connection.\nPlease check your internet connection and try again.",
+          url);
     }
   }
 

@@ -565,9 +565,9 @@ class _CallSampleState extends State<CallSample> {
                             //   size: 30,
                             //   color: Colors.grey,
                             // ),
-                            const SizedBox(
-                              width: 30,
-                            ),
+                            // const SizedBox(
+                            //   width: 30,
+                            // ),
                             InkWell(
                               onTap: _muteMic,
                               child: Icon(

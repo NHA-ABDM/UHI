@@ -1,8 +1,9 @@
 import 'dart:async';
-import 'dart:developer';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:uhi_flutter_app/common/src/get_pages.dart';
 import 'package:uhi_flutter_app/constants/src/strings.dart';
 import 'package:uhi_flutter_app/controller/login/src/access_token_controller.dart';
 import 'package:uhi_flutter_app/theme/theme.dart';
@@ -10,9 +11,9 @@ import 'package:uhi_flutter_app/utils/src/shared_preferences.dart';
 import 'package:uhi_flutter_app/view/view.dart';
 
 class SplashScreenPage extends StatefulWidget {
-  String? fcmToken;
-
-  SplashScreenPage({Key? key, this.fcmToken}) : super(key: key);
+  const SplashScreenPage({
+    Key? key,
+  }) : super(key: key);
 
   @override
   SplashScreenPageState createState() => SplashScreenPageState();
@@ -25,30 +26,22 @@ class SplashScreenPageState extends State<SplashScreenPage> {
       Get.put(ThemeModeController());
   final accessTokenController = Get.put(AccessTokenController());
   String? accessToken;
-  bool? getAutoLoginFlag;
+  bool getAutoLoginFlag = false;
+
   var width;
   var height;
 
   @override
   void initState() {
     super.initState();
-
-    //callApi();
     startTime();
-
     SharedPreferencesHelper.getAutoLoginFlag().then((value) => setState(() {
           setState(() {
             debugPrint(
                 "Printing the shared preference getAutoLoginFlag : $value");
-            getAutoLoginFlag = value;
+            getAutoLoginFlag = value ?? false;
           });
         }));
-
-    log("${widget.fcmToken}", name: "FCM TOKEN SPLASHSCREEN");
-  }
-
-  callApi() async {
-    await accessTokenController.postAccessTokenAPI();
   }
 
   startTime() async {
@@ -56,36 +49,78 @@ class SplashScreenPageState extends State<SplashScreenPage> {
     return Timer(_duration, authenticate);
   }
 
+  // Future<void> authenticate() async {
+  //   Navigator.of(context).pushReplacement(_createRoute());
+  // }
+
   Future<void> authenticate() async {
-    Navigator.of(context).pushReplacement(_createRoute());
+    FirebaseMessaging.instance
+        .getInitialMessage()
+        .then((RemoteMessage? message) async {
+      debugPrint('getInitialMessage message is ${message?.toMap()}');
+
+      String nextRoute = AppRoutes.baseLoginPage;
+      // if (_isLocalAuth) {
+      //   if (getAutoLoginFlag) {
+      //     nextRoute = AppRoutes.localAuthPage;
+      //   } else {
+      //     nextRoute = AppRoutes.baseLoginPage;
+      //   }
+      // } else {
+      //   if (getAutoLoginFlag) {
+      //     nextRoute = AppRoutes.homePage;
+      //   } else {
+      //     nextRoute = AppRoutes.baseLoginPage;
+      //   }
+      // }
+      if (getAutoLoginFlag) {
+        nextRoute = AppRoutes.homePage;
+      } else {
+        nextRoute = AppRoutes.baseLoginPage;
+      }
+
+      if (message != null) {
+        checkMessageTypeAndOpenPage(message, nextRoute: nextRoute);
+      } else {
+        Get.offAllNamed(nextRoute);
+      }
+    });
   }
 
-  Route _createRoute() {
-    return PageRouteBuilder(
-      settings: RouteSettings(
-          name: getAutoLoginFlag == true ? "/HomePage" : "/BaseLoginPage"),
-      pageBuilder: (context, animation, secondaryAnimation) =>
-          getAutoLoginFlag == true
-              ? HomePage(
-                  fcmToken: widget.fcmToken,
-                )
-              : BaseLoginPage(
-                  fcmToken: widget.fcmToken,
-                ),
-      transitionDuration: const Duration(milliseconds: 1400),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const begin = Offset(0.0, 1.0);
-        const end = Offset.zero;
-        const curve = Curves.ease;
-        var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-        return SlideTransition(
-          position: animation.drive(tween),
-          child: child,
-        );
-      },
-    );
-  }
+  // Route _createRoute() {
+  //   return PageRouteBuilder(
+  //     settings: _isLocalAuth
+  //         ? RouteSettings(
+  //             name: getAutoLoginFlag == true
+  //                 ? AppRoutes.localAuthPage
+  //                 : AppRoutes.baseLoginPage,
+  //           )
+  //         : RouteSettings(
+  //             name: getAutoLoginFlag == true
+  //                 ? AppRoutes.homePage
+  //                 : AppRoutes.baseLoginPage,
+  //           ),
+  //     pageBuilder: (context, animation, secondaryAnimation) => _isLocalAuth
+  //         ? getAutoLoginFlag == true
+  //             ? LocalAuthPage()
+  //             : BaseLoginPage()
+  //         : getAutoLoginFlag == true
+  //             ? HomePage()
+  //             : BaseLoginPage(),
+  //     transitionDuration: const Duration(milliseconds: 1400),
+  //     transitionsBuilder: (context, animation, secondaryAnimation, child) {
+  //       const begin = Offset(0.0, 1.0);
+  //       const end = Offset.zero;
+  //       const curve = Curves.ease;
+  //       var tween =
+  //           Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+  //       return SlideTransition(
+  //         position: animation.drive(tween),
+  //         child: child,
+  //       );
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {

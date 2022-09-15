@@ -11,8 +11,8 @@ import 'package:uhi_flutter_app/model/model.dart';
 // enum DataState { loading, complete }
 
 class LogoutController extends GetxController with ExceptionHandler {
-  ///LOGIN DETAILS
-  LogoutResponseModel? logoutResponseModel;
+  ///logout DETAILS
+  var logoutResponse;
 
   ///STATE
   var state = DataState.loading.obs;
@@ -25,25 +25,23 @@ class LogoutController extends GetxController with ExceptionHandler {
     super.onInit();
   }
 
-  Future<void> postConfirm({LogoutRequestModel? loginDetails}) async {
-    if (loginDetails == null) {
+  Future<void> postLogoutDetails({Object? logoutDetails}) async {
+    if (logoutDetails == null) {
       state.value = DataState.loading;
     }
 
-    await BaseClient(url: RequestUrls.postLoginInitAuth, body: loginDetails)
+    await BaseClient(url: RequestUrls.postLogoutDetails, body: logoutDetails)
         .post()
         .then(
       (value) {
         if (value == null) {
         } else {
-          LogoutResponseModel logoutResponseModel =
-              LogoutResponseModel.fromJson(value);
-          setLoginDetails(logoutResponse: logoutResponseModel);
+          setLogoutDetails(logoutResponseData: value);
         }
       },
     ).catchError(
       (onError) {
-        log("Post Login Details $onError ${onError.message}");
+        log("Post Logout Details $onError ${onError.message}");
 
         errorString = "${onError.message}";
 
@@ -54,19 +52,19 @@ class LogoutController extends GetxController with ExceptionHandler {
     state.value = DataState.complete;
   }
 
-  setLoginDetails({required LogoutResponseModel? logoutResponse}) {
-    if (logoutResponse == null) {
+  setLogoutDetails({required var logoutResponseData}) {
+    if (logoutResponseData == null) {
       return;
     }
 
-    logoutResponseModel = logoutResponse;
+    logoutResponse = logoutResponseData;
   }
 
   @override
   refresh() async {
     errorString = '';
 
-    ///POST login DETAILS
-    // postLoginDetails();
+    ///POST logout DETAILS
+    // postlogoutDetails();
   }
 }

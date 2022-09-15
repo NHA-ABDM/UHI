@@ -1,42 +1,53 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:cryptography/cryptography.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uhi_flutter_app/common/common.dart';
+import 'package:uhi_flutter_app/common/src/get_pages.dart';
 import 'package:uhi_flutter_app/constants/constants.dart';
 import 'package:uhi_flutter_app/constants/src/strings.dart';
 import 'package:uhi_flutter_app/controller/login/src/home_screen_controller.dart';
+import 'package:uhi_flutter_app/controller/login/src/logout_controller.dart';
 import 'package:uhi_flutter_app/model/response/src/booking_confirm_response_model.dart';
 import 'package:uhi_flutter_app/model/response/src/get_upcoming_appointments_response.dart';
 import 'package:uhi_flutter_app/model/response/src/get_user_details_response.dart';
+import 'package:uhi_flutter_app/observer/home_page_observer.dart';
+import 'package:uhi_flutter_app/observer/home_page_obsevable.dart';
 import 'package:uhi_flutter_app/theme/src/app_colors.dart';
 import 'package:uhi_flutter_app/theme/src/app_text_style.dart';
 import 'package:uhi_flutter_app/utils/src/shared_preferences.dart';
-import 'package:uhi_flutter_app/view/home/src/change_language_page.dart';
 import 'package:uhi_flutter_app/view/view.dart';
 import 'package:uhi_flutter_app/widgets/src/spacing.dart';
 
+import '../../../controller/controller.dart';
 import '../../../controller/login/src/post_fcm_token_controller.dart';
-import '../../../model/common/src/fcm_token_model.dart';
+import '../../../model/common/src/doctor_image_model.dart';
+import '../../../model/model.dart';
 import '../../discovery/src/book_a_teleconsultation_page.dart';
 
 class HomePage extends StatefulWidget {
-  String? fcmToken;
-  HomePage({Key? key, this.fcmToken}) : super(key: key);
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   State<HomePage> createState() => _DiscoverServicesPageState();
 }
 
-class _DiscoverServicesPageState extends State<HomePage> {
+class _DiscoverServicesPageState extends State<HomePage>
+    implements HomePageObserver {
   ///CONTROLLERS
   final postFcmTokenController = Get.put(PostFCMTokenController());
+  final postLogoutController = Get.put(LogoutController());
+  final _postSharedKeyController = Get.put(PostSharedKeyController());
+  final _getSharedKeyController = Get.put(GetSharedKeyController());
 
   var height;
   var isPortrait;
@@ -52,6 +63,8 @@ class _DiscoverServicesPageState extends State<HomePage> {
   String? ABHANumer;
   String? profilePhoto;
   String? userData;
+  List<String> _doctorImages = List.empty(growable: true);
+
   BookingConfirmResponseModel bookOnConfirmHistoryResponseModel =
       BookingConfirmResponseModel();
 
@@ -59,6 +72,10 @@ class _DiscoverServicesPageState extends State<HomePage> {
       BookingConfirmResponseModel();
 
   GetUserDetailsResponse? getUserDetailsResponseModel;
+  late HomeScreenObservable observable;
+
+  // Generate a key pair.
+  final encryptionAlgorithm = X25519();
 
   ///SIZE
   var width;
@@ -144,10 +161,18 @@ class _DiscoverServicesPageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    observable = HomeScreenObservable();
+    observable.register(this);
     getSharedPrefData();
     showProgressDialog();
     // callUserDataAPI();
-    //callFCMToken();
+    callFCMToken();
+  }
+
+  @override
+  void dispose() {
+    observable.unRegister(this);
+    super.dispose();
   }
 
   getSharedPrefData() {
@@ -157,6 +182,20 @@ class _DiscoverServicesPageState extends State<HomePage> {
             callUserDataAPI();
           });
         }));
+    SharedPreferencesHelper.getDoctorImages().then((value) => setState(() {
+          debugPrint("Printing the shared preference getDoctorImages : $value");
+          if (value != null && value.isNotEmpty) {
+            _doctorImages.addAll(value);
+          }
+        }));
+    // SharedPreferencesHelper.getPrivateKey().then((value) async {
+    //   if (value == null) {
+    //     SimpleKeyPair keyPair = await encryptionAlgorithm.newKeyPair();
+    //     String privateKeyBytes =
+    //         (await keyPair.extractPrivateKeyBytes()).toString();
+    //     SharedPreferencesHelper.setPrivateKey(privateKeyBytes);
+    //   }
+    // });
   }
 
   callUserDataAPI() async {
@@ -165,8 +204,11 @@ class _DiscoverServicesPageState extends State<HomePage> {
       await homeScreenController.getUserDataFromEUA(abhaAddress!);
       getUserDetailsResponseModel =
           homeScreenController.getUserDetailsResponseModel;
-      abhaAddress = homeScreenController.getUserDetailsResponseModel!.id!;
-      userData = jsonEncode(homeScreenController.getUserDetailsResponseModel);
+      hideProgressDialog();
+      if (getUserDetailsResponseModel != null) {
+        abhaAddress = homeScreenController.getUserDetailsResponseModel!.id!;
+        userData = jsonEncode(homeScreenController.getUserDetailsResponseModel);
+      }
     }
     if (userData == null) {
       showProgressDialog();
@@ -196,35 +238,80 @@ class _DiscoverServicesPageState extends State<HomePage> {
         imageNull = false;
       }
     }
-
+    postKeys();
     showProgressDialog();
-    getUpcomingAppointments();
+    getUpdatedAppointments();
   }
 
   callFCMToken() async {
-    await SharedPreferencesHelper.getFCMToken().then((value) => setState(() {
-          if (value == null || value.isEmpty) {
-            postFcmToken();
-          }
-        }));
+    // await SharedPreferencesHelper.getFCMToken().then((value) => setState(() {
+    //       if (value == null || value.isEmpty) {
+    //         postFcmToken();
+    //       }
+    //     }));
+    postFcmToken();
+  }
+
+  // ///SAVE FCM TOKEN API
+  // getKeys() async {
+  //   await _getSharedKeyController.getSharedKeyDetails(patientId: abhaAddress);
+
+  //   log("${json.encode(savePublicKeyModel)}", name: "SAVE KEYS MODEL");
+
+  // }
+
+  ///SAVE KEYS API
+  postKeys() async {
+    SimpleKeyPair keyPair = await encryptionAlgorithm.newKeyPair();
+    String privateKeyBytes =
+        (await keyPair.extractPrivateKeyBytes()).toString();
+    String publicKeyBytes = (await keyPair.extractPublicKey()).bytes.toString();
+
+    SavePublicKeyModel savePublicKeyModel = SavePublicKeyModel();
+    savePublicKeyModel.userName = abhaAddress;
+    savePublicKeyModel.privateKey = privateKeyBytes;
+    savePublicKeyModel.publicKey = publicKeyBytes;
+
+    log("${json.encode(savePublicKeyModel)}", name: "SAVE KEYS MODEL");
+
+    await _postSharedKeyController.postSharedKeyDetails(
+        sharedKeyDetails: savePublicKeyModel);
+
+    if (_postSharedKeyController.sharedKeyAckDetails != null) {
+      if (_postSharedKeyController.sharedKeyAckDetails != null ||
+          _postSharedKeyController.sharedKeyAckDetails.isNotEmpty) {
+        SavePublicKeyModel keys = SavePublicKeyModel.fromJson(
+            _postSharedKeyController.sharedKeyAckDetails);
+        if (keys.privateKey != null && keys.privateKey != "") {
+          SharedPreferencesHelper.setPrivateKey(keys.privateKey);
+        }
+        if (keys.publicKey != null && keys.publicKey != "") {
+          SharedPreferencesHelper.setPublicKey(keys.publicKey);
+        }
+      }
+    }
   }
 
   ///SAVE FCM TOKEN API
   postFcmToken() async {
-    FCMTokenModel fcmTokenModel = FCMTokenModel();
-    fcmTokenModel.userName = abhaAddress;
-    fcmTokenModel.token = widget.fcmToken;
-    fcmTokenModel.deviceId = await _getId();
-    fcmTokenModel.type = Platform.operatingSystem;
+    String? fcmToken = await FirebaseMessaging.instance.getToken();
+    if (fcmToken != null) {
+      FCMTokenModel fcmTokenModel = FCMTokenModel();
+      fcmTokenModel.userName = abhaAddress;
+      fcmTokenModel.token = fcmToken;
+      fcmTokenModel.deviceId = await _getId();
+      fcmTokenModel.type = Platform.operatingSystem;
 
-    log("${json.encode(fcmTokenModel)}", name: "FCM TOKEN MODEL");
+      log("${json.encode(fcmTokenModel)}", name: "FCM TOKEN MODEL");
 
-    await postFcmTokenController.postFCMTokenDetails(
-        fcmTokenDetails: fcmTokenModel);
-
-    if (postFcmTokenController.fcmTokenAckDetails["status"] == 200) {
-      SharedPreferencesHelper.setFCMToken(widget.fcmToken);
-      log("=========FCM TOKEN SAVED=========");
+      await postFcmTokenController.postFCMTokenDetails(
+          fcmTokenDetails: fcmTokenModel);
+      if (postFcmTokenController.fcmTokenAckDetails != null) {
+        if (postFcmTokenController.fcmTokenAckDetails["status"] == 200) {
+          SharedPreferencesHelper.setFCMToken(fcmToken);
+          log("=========FCM TOKEN SAVED=========");
+        }
+      }
     }
   }
 
@@ -292,7 +379,9 @@ class _DiscoverServicesPageState extends State<HomePage> {
     await homeScreenController.saveUserDataToEUA(getUserDetailsResponseModel!);
   }
 
-  getUpcomingAppointments() async {
+  getUpdatedAppointments() async {
+    upcomingAppointmentList.clear();
+    homeScreenController.refresh();
     await homeScreenController.getUpcomingAppointment(abhaAddress!);
     if (homeScreenController.upcomingAppointmentResponseModal.isNotEmpty) {
       for (int i = 0;
@@ -303,13 +392,17 @@ class _DiscoverServicesPageState extends State<HomePage> {
           String startDate = homeScreenController
               .upcomingAppointmentResponseModal[i]!
               .serviceFulfillmentStartTime!;
+          String endDate = homeScreenController
+              .upcomingAppointmentResponseModal[i]!.serviceFulfillmentEndTime!;
           var now = new DateTime.now();
           var formatter = new DateFormat('y-MM-ddTHH:mm');
           String formattedDate = formatter.format(now);
           DateTime currentDate =
               DateFormat("y-MM-ddTHH:mm").parse(formattedDate);
           DateTime tempStartDate = DateFormat("y-MM-ddTHH:mm").parse(startDate);
-          int duration = currentDate.difference(tempStartDate).inMinutes;
+          DateTime tempEndDate = DateFormat("y-MM-ddTHH:mm").parse(endDate);
+          int duration = currentDate.difference(tempEndDate).inMinutes;
+
           if (duration < 0) {
             if (homeScreenController
                     .upcomingAppointmentResponseModal[i]!.isServiceFulfilled ==
@@ -346,13 +439,37 @@ class _DiscoverServicesPageState extends State<HomePage> {
     hideProgressDialog();
   }
 
+  ///LOGOUT USER API
   logout() async {
+    showProgressDialog();
     Get.back();
-    SharedPreferencesHelper.setAutoLoginFlag(false);
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    await preferences.clear();
-    Get.offAll(() => BaseLoginPage());
+
+    FCMTokenModel fcmTokenModel = FCMTokenModel();
+    fcmTokenModel.userName = abhaAddress;
+    fcmTokenModel.deviceId = await _getId();
+
+    log("${json.encode(fcmTokenModel)}", name: "LOGOUT MODEL");
+
+    await postLogoutController.postLogoutDetails(logoutDetails: fcmTokenModel);
+
+    if (postLogoutController.logoutResponse["status"] == 200) {
+      hideProgressDialog();
+      SharedPreferencesHelper.setAutoLoginFlag(false);
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      await preferences.clear();
+      Get.offAll(() => BaseLoginPage());
+    } else {
+      hideProgressDialog();
+    }
   }
+
+  // logout() async {
+  //   Get.back();
+  //   SharedPreferencesHelper.setAutoLoginFlag(false);
+  //   SharedPreferences preferences = await SharedPreferences.getInstance();
+  //   await preferences.clear();
+  //   Get.offAll(() => BaseLoginPage());
+  // }
 
   Widget sideMenuDrawer() {
     return Drawer(
@@ -385,7 +502,7 @@ class _DiscoverServicesPageState extends State<HomePage> {
                   ],
                 ),
                 SizedBox(
-                  height: 5,
+                  height: 3,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -447,7 +564,7 @@ class _DiscoverServicesPageState extends State<HomePage> {
                         width: 120,
                         child: Center(
                           child: Text(
-                            AppStrings().editProfile,
+                            AppStrings().viewProfile,
                             style: AppTextStyle.textBoldStyle(
                                 color: AppColors.white, fontSize: 12),
                           ),
@@ -556,17 +673,17 @@ class _DiscoverServicesPageState extends State<HomePage> {
                           description: AppStrings().comingSoon);
                     },
                   ),
-                  ListTile(
-                    title: Text(
-                      AppStrings().language,
-                      style: AppTextStyle.textBoldStyle(
-                          color: AppColors.doctorNameColor, fontSize: 16),
-                    ),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Get.to(ChangeLanguagePage());
-                    },
-                  ),
+                  // ListTile(
+                  //   title: Text(
+                  //     AppStrings().labelChangeLanguage,
+                  //     style: AppTextStyle.textBoldStyle(
+                  //         color: AppColors.doctorNameColor, fontSize: 16),
+                  //   ),
+                  //   onTap: () {
+                  //     Navigator.pop(context);
+                  //     Get.to(ChangeLanguagePage());
+                  //   },
+                  // ),
                   ListTile(
                     title: Text(
                       AppStrings().setting,
@@ -884,6 +1001,8 @@ class _DiscoverServicesPageState extends State<HomePage> {
     int duration = 0;
     var tmpStartDate;
     var tmpEndDate;
+    Uint8List? doctorImage;
+
     if (historyAppointmentList.isNotEmpty) {
       tmpStartDate = historyAppointmentList[0]!.serviceFulfillmentStartTime!;
       appointmentStartDate =
@@ -902,10 +1021,20 @@ class _DiscoverServicesPageState extends State<HomePage> {
       doctorName = StringArray[1].replaceFirst(" ", "");
       hprId = StringArray[0];
 
-      DateTime tempStartDate = DateFormat("HH:mm").parse(appointmentStartTime);
-      DateTime tempEndDate = new DateFormat("HH:mm").parse(appointmentEndTime);
+      DateTime tempStartDate =
+          DateFormat("hh:mm a").parse(appointmentStartTime);
+      DateTime tempEndDate =
+          new DateFormat("hh:mm a").parse(appointmentEndTime);
       duration = tempEndDate.difference(tempStartDate).inMinutes;
       gender = historyAppointmentList[0]!.healthcareProfessionalGender!;
+      _doctorImages.forEach((element) {
+        DoctorImageModel image = DoctorImageModel.fromJson(jsonDecode(element));
+
+        if (image.doctorHprAddress ==
+            upcomingAppointmentList[0]?.healthcareProfessionalId) {
+          doctorImage = base64Decode(image.doctorImage ?? "");
+        }
+      });
     }
     return Container(
       padding: const EdgeInsets.only(top: 30, left: 20, right: 20, bottom: 20),
@@ -925,7 +1054,7 @@ class _DiscoverServicesPageState extends State<HomePage> {
               historyAppointmentList.isNotEmpty
                   ? GestureDetector(
                       onTap: () {
-                        Get.to(const AppointmentHistoryPage());
+                        Get.to(() => const AppointmentHistoryPage());
                       },
                       child: Text(
                         AppStrings().viewAll,
@@ -966,10 +1095,15 @@ class _DiscoverServicesPageState extends State<HomePage> {
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 image: DecorationImage(
-                                    image: Image.network(gender == "M"
-                                            ? AppStrings().maleDoctorImage
-                                            : AppStrings().femaleDoctorImage)
-                                        .image),
+                                  image: doctorImage != null &&
+                                          doctorImage!.isNotEmpty
+                                      ? Image.memory(doctorImage!).image
+                                      : Image.network(gender == "M"
+                                              ? AppStrings().maleDoctorImage
+                                              : AppStrings().femaleDoctorImage)
+                                          .image,
+                                  fit: BoxFit.fill,
+                                ),
                               ),
                             ),
                             Container(
@@ -1278,6 +1412,8 @@ class _DiscoverServicesPageState extends State<HomePage> {
     var tmpEndDate;
     String gender = "";
     //String? doctorProfileImage = "";
+    Uint8List? doctorImage;
+
     if (upcomingAppointmentList.isNotEmpty) {
       tmpStartDate = upcomingAppointmentList[0]!.serviceFulfillmentStartTime!;
       appointmentStartDate =
@@ -1296,10 +1432,21 @@ class _DiscoverServicesPageState extends State<HomePage> {
       doctorName = StringArray[1].replaceFirst(" ", "");
       hprId = StringArray[0];
 
-      DateTime tempStartDate = DateFormat("HH:mm").parse(appointmentStartTime);
-      DateTime tempEndDate = new DateFormat("HH:mm").parse(appointmentEndTime);
+      DateTime tempStartDate =
+          DateFormat("hh:mm a").parse(appointmentStartTime);
+      DateTime tempEndDate =
+          new DateFormat("hh:mm a").parse(appointmentEndTime);
       duration = tempEndDate.difference(tempStartDate).inMinutes;
       gender = upcomingAppointmentList[0]!.healthcareProfessionalGender!;
+
+      _doctorImages.forEach((element) {
+        DoctorImageModel image = DoctorImageModel.fromJson(jsonDecode(element));
+
+        if (image.doctorHprAddress ==
+            upcomingAppointmentList[0]?.healthcareProfessionalId) {
+          doctorImage = base64Decode(image.doctorImage ?? "");
+        }
+      });
     }
 
     return Container(
@@ -1319,8 +1466,14 @@ class _DiscoverServicesPageState extends State<HomePage> {
               ),
               upcomingAppointmentList.isNotEmpty
                   ? GestureDetector(
-                      onTap: () {
-                        Get.to(const UpcomingAppointmentPage());
+                      onTap: () async {
+                        final result =
+                            await Get.to(() => const UpcomingAppointmentPage());
+
+                        if (result != null && result == true) {
+                          showProgressDialog();
+                          getUpdatedAppointments();
+                        }
                       },
                       child: Text(
                         AppStrings().viewAll,
@@ -1351,23 +1504,23 @@ class _DiscoverServicesPageState extends State<HomePage> {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          Get.to(AppointmentStatusConfirmPage(
-                            bookingConfirmResponseModel:
-                                bookOnConfirmUpcomingResponseModel,
-                            startDateTime: upcomingAppointmentList[0]!
-                                .serviceFulfillmentStartTime!,
-                            endDateTime: upcomingAppointmentList[0]!
-                                .serviceFulfillmentEndTime!,
-                            doctorName: upcomingAppointmentList[0]!
-                                .healthcareProfessionalName!,
-                            consultationType: upcomingAppointmentList[0]!
-                                        .serviceFulfillmentType ==
-                                    DataStrings.teleconsultation
-                                ? DataStrings.teleconsultation
-                                : DataStrings.physicalConsultation,
-                            gender: gender,
-                            navigateToHomeAndRefresh: false,
-                          ));
+                          Get.to(() => AppointmentStatusConfirmPage(
+                                bookingConfirmResponseModel:
+                                    bookOnConfirmUpcomingResponseModel,
+                                startDateTime: upcomingAppointmentList[0]!
+                                    .serviceFulfillmentStartTime!,
+                                endDateTime: upcomingAppointmentList[0]!
+                                    .serviceFulfillmentEndTime!,
+                                doctorName: upcomingAppointmentList[0]!
+                                    .healthcareProfessionalName!,
+                                consultationType: upcomingAppointmentList[0]!
+                                            .serviceFulfillmentType ==
+                                        DataStrings.teleconsultation
+                                    ? DataStrings.teleconsultation
+                                    : DataStrings.physicalConsultation,
+                                gender: gender,
+                                navigateToHomeAndRefresh: false,
+                              ));
                         },
                         child: Padding(
                           padding: const EdgeInsets.only(left: 20.0),
@@ -1381,10 +1534,16 @@ class _DiscoverServicesPageState extends State<HomePage> {
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   image: DecorationImage(
-                                      image: Image.network(gender == "M"
-                                              ? AppStrings().maleDoctorImage
-                                              : AppStrings().femaleDoctorImage)
-                                          .image),
+                                    image: doctorImage != null &&
+                                            doctorImage!.isNotEmpty
+                                        ? Image.memory(doctorImage!).image
+                                        : Image.network(gender == "M"
+                                                ? AppStrings().maleDoctorImage
+                                                : AppStrings()
+                                                    .femaleDoctorImage)
+                                            .image,
+                                    fit: BoxFit.fill,
+                                  ),
                                 ),
                               ),
                               Container(
@@ -1590,10 +1749,17 @@ class _DiscoverServicesPageState extends State<HomePage> {
                                   color: AppColors.infoIconColor,
                                   actionText: AppStrings().cancel,
                                   onTap: () {
-                                    Get.to(CancelAppointment(
+                                    final result = Get.to(() => CancelAppointment(
+                                        isRescheduleAppointment: false,
+                                        upcomingAppointmentResponseModal:
+                                            upcomingAppointmentList[0],
                                         discoveryFulfillments:
                                             bookOnConfirmUpcomingResponseModel
                                                 .message!.order!.fulfillment));
+                                    if (result != null && result == true) {
+                                      showProgressDialog();
+                                      getUpdatedAppointments();
+                                    }
                                   }),
                             ),
                             Container(
@@ -1608,6 +1774,17 @@ class _DiscoverServicesPageState extends State<HomePage> {
                                   actionText: AppStrings().reschedule,
                                   onTap: () async {
                                     //rescheduleAppointment();
+                                    final result = Get.to(() => CancelAppointment(
+                                        isRescheduleAppointment: true,
+                                        upcomingAppointmentResponseModal:
+                                            upcomingAppointmentList[0],
+                                        discoveryFulfillments:
+                                            bookOnConfirmUpcomingResponseModel
+                                                .message!.order!.fulfillment));
+                                    if (result != null && result == true) {
+                                      showProgressDialog();
+                                      getUpdatedAppointments();
+                                    }
                                   }),
                             ),
                             Container(
@@ -1621,19 +1798,34 @@ class _DiscoverServicesPageState extends State<HomePage> {
                                   color: AppColors.infoIconColor,
                                   actionText: AppStrings().startChat,
                                   onTap: () async {
-                                    Get.to(() => ChatPage(
-                                          doctorHprId:
+                                    // Get.to(() => ChatPage(
+                                    //       doctorHprId:
+                                    //           upcomingAppointmentList[0]
+                                    //               ?.healthcareProfessionalId,
+                                    //       patientAbhaId:
+                                    //           upcomingAppointmentList[0]
+                                    //               ?.abhaId,
+                                    //       doctorName: doctorName,
+                                    //       doctorGender: gender,
+                                    //       providerUri:
+                                    //           upcomingAppointmentList[0]
+                                    //               ?.healthcareProviderUrl,
+                                    //     ));
+                                    Get.toNamed(AppRoutes.chatPage,
+                                        arguments: <String, dynamic>{
+                                          'doctorHprId':
                                               upcomingAppointmentList[0]
                                                   ?.healthcareProfessionalId,
-                                          patientAbhaId:
+                                          'patientAbhaId':
                                               upcomingAppointmentList[0]
                                                   ?.abhaId,
-                                          doctorName: doctorName,
-                                          doctorGender: gender,
-                                          providerUri:
+                                          'doctorName': doctorName,
+                                          'doctorGender': gender,
+                                          'providerUri':
                                               upcomingAppointmentList[0]
                                                   ?.healthcareProviderUrl,
-                                        ));
+                                          'allowSendMessage': true,
+                                        });
                                   }),
                             ),
                           ],
@@ -1674,5 +1866,11 @@ class _DiscoverServicesPageState extends State<HomePage> {
           isRescheduling: true,
           bookingConfirmResponseModel: bookOnConfirmUpcomingResponseModel,
         ));
+  }
+
+  @override
+  void updateAppointmentData() {
+    print("AppointmentData Updated");
+    getUpdatedAppointments();
   }
 }

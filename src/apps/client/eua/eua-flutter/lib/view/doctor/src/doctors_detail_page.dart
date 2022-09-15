@@ -30,6 +30,8 @@ import 'package:uhi_flutter_app/widgets/src/calendar_date_range_picker.dart';
 import 'package:uhi_flutter_app/widgets/src/doctor_details_view.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../observer/home_page_obsevable.dart';
+
 class DoctorsDetailPage extends StatefulWidget {
   Fulfillment discoveryFulfillments;
   DiscoveryItems? discoveryItems;
@@ -101,6 +103,8 @@ class _DiscoveryResultsPageState extends State<DoctorsDetailPage> {
 
   Timer? _timer;
 
+  bool _isRescheduling = false;
+
   // String? _slotsEndTime = DateFormat("y-MM-ddThh:mm:ss").format(DateTime.now());
 
   ///DATA VARIABLES
@@ -115,6 +119,7 @@ class _DiscoveryResultsPageState extends State<DoctorsDetailPage> {
         }));
     _selectedDate = getForm(DateTime.now());
     _consultationType = widget.consultationType;
+    _isRescheduling = widget.isRescheduling;
 
     if (mounted) {
       futureDiscoveryResponse = getDiscoveryResponse();
@@ -196,7 +201,7 @@ class _DiscoveryResultsPageState extends State<DoctorsDetailPage> {
     DoctorNameIntent intent = DoctorNameIntent();
     DoctorNameFulfillment fulfillment = DoctorNameFulfillment();
     DoctorNameAgent agent = DoctorNameAgent();
-    agent.id = widget.doctorAbhaId;
+    agent.cred = widget.doctorAbhaId;
 
     Start start = Start();
     Start end = Start();
@@ -244,11 +249,10 @@ class _DiscoveryResultsPageState extends State<DoctorsDetailPage> {
         timeSlotEndTime.timestamp = element.end?.time?.timestamp;
         timeSlotEnd.time = timeSlotEndTime;
 
-        timeSlotTags.abdmGovInSlot = element.tags?.slotId;
+        timeSlotTags.abdmGovInSlot = element.initTimeSlotTags?.slotId;
         timeSlotModel.start = timeSlotStart;
         timeSlotModel.end = timeSlotEnd;
         timeSlotModel.tags = timeSlotTags;
-
         _timeSlotList.add(timeSlotModel);
       }
     });
@@ -261,91 +265,145 @@ class _DiscoveryResultsPageState extends State<DoctorsDetailPage> {
     height = MediaQuery.of(context).size.height;
     isPortrait = MediaQuery.of(context).orientation;
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColors.white,
-        shadowColor: Colors.black.withOpacity(0.1),
-        leading: IconButton(
-          onPressed: () {
-            Get.back();
-          },
-          icon: Icon(
-            Icons.chevron_left_rounded,
-            color: AppColors.darkGrey323232,
-            size: 32,
-          ),
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(),
-        ),
-        titleSpacing: 0,
-        title: Text(
-          AppStrings().doctorDetails,
-          style:
-              AppTextStyle.textBoldStyle(color: AppColors.black, fontSize: 16),
-        ),
-      ),
-      body: buildWidgets(),
-      bottomSheet: GestureDetector(
-        onTap: () async {
-          log("${json.encode(_selectedTimeSlot)}", name: "TIME SLOT");
-          if (_selectedTimeSlot == "" || _selectedTimeSlot == null) {
-            DialogHelper.showErrorDialog(
-                title: AppStrings().errorString,
-                description: AppStrings().selectTimeSlot);
-          } else {
-            if (widget.isRescheduling) {
-              // Get.to(() => AppointmentStatusConfirmPage(
-              //       bookingConfirmResponseModel:
-              //           widget.bookingConfirmResponseModel,
-              //       consultationType: _consultationType,
-              //       navigateToHomeAndRefresh: true,
-              //     ));
-              print("Done");
-            } else {
-              final result = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                    settings:
-                        RouteSettings(name: "/AppointmentDetailsDetailPage"),
-                    builder: (context) => AppointmentDetailsPage(
-                          discoveryFulfillments: widget.discoveryFulfillments,
-                          doctorProviderUri: widget.doctorProviderUri,
-                          discoveryItems: widget.discoveryItems,
-                          discoveryProviders: widget.discoveryProviders,
-                          timeSlot: _selectedTimeSlot!,
-                          consultationType: _consultationType,
-                        )),
-              );
-              if (result != null && result == true) {
-                onRefresh();
-              }
+    return WillPopScope(
+      onWillPop: () async {
+        if (_isRescheduling) {
+          Get.until((route) {
+            if (Get.currentRoute == "/home_page" ||
+                Get.currentRoute == "/HomePage" ||
+                Get.currentRoute == "/" ||
+                Get.currentRoute == "")
+              return true;
+            else {
+              final HomeScreenObservable observable = HomeScreenObservable();
+              observable.notifyUpdateAppointmentData();
+              return false;
             }
-
-            // Get.to(() => AppointmentDetailsDetailPage(
-            //       discoveryFulfillments: widget.discoveryFulfillments,
-            //       doctorProviderUri: widget.doctorProviderUri,
-            //       discoveryItems: widget.discoveryItems,
-            //       discoveryProviders: widget.discoveryProviders,
-            //       timeSlot: _selectedTimeSlot!,
-            //       consultationType: _consultationType,
-            //     ));
-          }
-        },
-        child: Container(
-          margin: const EdgeInsets.all(20),
-          height: 50,
-          width: width * 0.89,
-          decoration: const BoxDecoration(
-            color: AppColors.amountColor,
-            borderRadius: BorderRadius.all(
-              Radius.circular(5),
+          });
+        } else {
+          Get.back();
+        }
+        return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: AppColors.white,
+          shadowColor: Colors.black.withOpacity(0.1),
+          leading: IconButton(
+            onPressed: () {
+              if (_isRescheduling) {
+                Get.until((route) {
+                  if (Get.currentRoute == "/home_page" ||
+                      Get.currentRoute == "/HomePage" ||
+                      Get.currentRoute == "/" ||
+                      Get.currentRoute == "")
+                    return true;
+                  else {
+                    final HomeScreenObservable observable =
+                        HomeScreenObservable();
+                    observable.notifyUpdateAppointmentData();
+                    return false;
+                  }
+                });
+              } else {
+                Get.back();
+              }
+            },
+            icon: Icon(
+              Icons.chevron_left_rounded,
+              color: AppColors.darkGrey323232,
+              size: 32,
             ),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
           ),
-          child: Center(
-            child: Text(
-              AppStrings().bookNow,
-              style: AppTextStyle.textSemiBoldStyle(
-                  color: AppColors.white, fontSize: 12),
+          titleSpacing: 0,
+          title: Text(
+            AppStrings().doctorDetails,
+            style: AppTextStyle.textBoldStyle(
+                color: AppColors.black, fontSize: 16),
+          ),
+        ),
+        body: buildWidgets(),
+        bottomSheet: GestureDetector(
+          onTap: () async {
+            log("${json.encode(_selectedTimeSlot)}", name: "TIME SLOT");
+            if (_selectedTimeSlot == "" || _selectedTimeSlot == null) {
+              DialogHelper.showErrorDialog(
+                  title: AppStrings().errorString,
+                  description: AppStrings().selectTimeSlot);
+            } else {
+              if (widget.isRescheduling) {
+                // Get.to(() => AppointmentStatusConfirmPage(
+                //       bookingConfirmResponseModel:
+                //           widget.bookingConfirmResponseModel,
+                //       consultationType: _consultationType,
+                //       navigateToHomeAndRefresh: true,
+                //     ));
+                print("Done");
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      settings:
+                          RouteSettings(name: "/AppointmentDetailsDetailPage"),
+                      builder: (context) => AppointmentDetailsPage(
+                            discoveryFulfillments: widget.discoveryFulfillments,
+                            doctorProviderUri: widget.doctorProviderUri,
+                            discoveryItems: widget.discoveryItems,
+                            discoveryProviders: widget.discoveryProviders,
+                            timeSlot: _selectedTimeSlot!,
+                            consultationType: _consultationType,
+                          )),
+                );
+                if (result != null && result == true) {
+                  onRefresh();
+                }
+              } else {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      settings:
+                          RouteSettings(name: "/AppointmentDetailsDetailPage"),
+                      builder: (context) => AppointmentDetailsPage(
+                            discoveryFulfillments: widget.discoveryFulfillments,
+                            doctorProviderUri: widget.doctorProviderUri,
+                            discoveryItems: widget.discoveryItems,
+                            discoveryProviders: widget.discoveryProviders,
+                            timeSlot: _selectedTimeSlot!,
+                            consultationType: _consultationType,
+                          )),
+                );
+                if (result != null && result == true) {
+                  onRefresh();
+                }
+              }
+
+              // Get.to(() => AppointmentDetailsDetailPage(
+              //       discoveryFulfillments: widget.discoveryFulfillments,
+              //       doctorProviderUri: widget.doctorProviderUri,
+              //       discoveryItems: widget.discoveryItems,
+              //       discoveryProviders: widget.discoveryProviders,
+              //       timeSlot: _selectedTimeSlot!,
+              //       consultationType: _consultationType,
+              //     ));
+            }
+          },
+          child: Container(
+            margin: const EdgeInsets.all(20),
+            height: 50,
+            width: width * 0.89,
+            decoration: const BoxDecoration(
+              color: AppColors.amountColor,
+              borderRadius: BorderRadius.all(
+                Radius.circular(5),
+              ),
+            ),
+            child: Center(
+              child: Text(
+                AppStrings().bookNow,
+                style: AppTextStyle.textSemiBoldStyle(
+                    color: AppColors.white, fontSize: 12),
+              ),
             ),
           ),
         ),
@@ -365,6 +423,8 @@ class _DiscoveryResultsPageState extends State<DoctorsDetailPage> {
         child: Column(
           children: [
             Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 DoctorDetailsView(
                   doctorName: widget.doctorName,
@@ -413,6 +473,8 @@ class _DiscoveryResultsPageState extends State<DoctorsDetailPage> {
                 //   ),
                 // ),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
                       padding: const EdgeInsets.fromLTRB(30, 0, 8, 3),
@@ -445,6 +507,8 @@ class _DiscoveryResultsPageState extends State<DoctorsDetailPage> {
                     datePicker();
                   },
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
                         margin: const EdgeInsets.fromLTRB(20, 0, 8, 10),
@@ -488,11 +552,27 @@ class _DiscoveryResultsPageState extends State<DoctorsDetailPage> {
                       case ConnectionState.done:
                         return loadingData.data != null
                             ? buildTimeSlots(loadingData.data)
-                            : Container();
+                            : Container(
+                                padding: EdgeInsets.fromLTRB(25, 0, 8, 10),
+                                child: Text(
+                                  AppStrings().timeSlotError,
+                                  style: AppTextStyle.textLightStyle(
+                                      color: AppColors.infoIconColor,
+                                      fontSize: 12),
+                                ),
+                              );
                       default:
                         return loadingData.data != null
                             ? buildTimeSlots(loadingData.data)
-                            : Container();
+                            : Container(
+                                padding: EdgeInsets.fromLTRB(25, 0, 8, 10),
+                                child: Text(
+                                  AppStrings().timeSlotError,
+                                  style: AppTextStyle.textLightStyle(
+                                      color: AppColors.infoIconColor,
+                                      fontSize: 12),
+                                ),
+                              );
                     }
                   },
                 ),
@@ -506,14 +586,16 @@ class _DiscoveryResultsPageState extends State<DoctorsDetailPage> {
 
   Widget buildTimeSlots(Object? data) {
     _discoveryResponse = data as DiscoveryResponseModel;
+
     setTimeSlots();
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _timeSlotList.length > 0
             ? Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 8, 10),
+                padding: const EdgeInsets.fromLTRB(25, 0, 8, 10),
                 child: Text(
                   AppStrings().chooseTimeSlot,
                   style: AppTextStyle.textLightStyle(
@@ -521,7 +603,7 @@ class _DiscoveryResultsPageState extends State<DoctorsDetailPage> {
                 ),
               )
             : Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 8, 10),
+                padding: const EdgeInsets.fromLTRB(25, 0, 8, 10),
                 child: Text(
                   AppStrings().noTimeSlot,
                   style: AppTextStyle.textLightStyle(
@@ -533,7 +615,7 @@ class _DiscoveryResultsPageState extends State<DoctorsDetailPage> {
             physics: const ClampingScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: 4.8,
+              childAspectRatio: 4.4,
               crossAxisSpacing: 4,
               mainAxisSpacing: 8,
             ),
@@ -547,35 +629,58 @@ class _DiscoveryResultsPageState extends State<DoctorsDetailPage> {
               String endTime = DateFormat("hh:mm a")
                   .format(DateTime.parse(timeSlotModel.end!.time!.timestamp!));
               return InkWell(
-                onTap: () {
-                  setState(() {
-                    _selectedTimeSlotIndex = index;
-                    _selectedTimeSlot = _timeSlotList[index];
-                  });
-                },
-                child: Center(
-                  child: Container(
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                        color: _selectedTimeSlotIndex == index
-                            ? AppColors.tileColors
-                            : AppColors.white,
-                        borderRadius: BorderRadius.circular(5),
-                        boxShadow: AppShadows.shadow2,
-                        border: Border.all(color: AppColors.tileColors)),
-                    child: Center(
-                      child: Text(
-                        startTime + " - " + endTime,
-                        style: _selectedTimeSlotIndex == index
-                            ? AppTextStyle.textSemiBoldStyle(
-                                color: AppColors.white, fontSize: 14)
-                            : AppTextStyle.textMediumStyle(
-                                color: AppColors.darkGrey323232, fontSize: 14),
+                  onTap: () {
+                    setState(() {
+                      _selectedTimeSlotIndex = index;
+                      _selectedTimeSlot = _timeSlotList[index];
+                    });
+                  },
+                  //   child: Container(
+                  //     padding: EdgeInsets.all(10),
+                  //     decoration: BoxDecoration(
+                  //         color: _selectedTimeSlotIndex == index
+                  //             ? AppColors.tileColors
+                  //             : AppColors.white,
+                  //         borderRadius: BorderRadius.circular(5),
+                  //         boxShadow: AppShadows.shadow2,
+                  //         border: Border.all(color: AppColors.tileColors)),
+                  //     child: Center(
+                  //       child: Text(
+                  //         startTime + " - " + endTime,
+                  //         style: _selectedTimeSlotIndex == index
+                  //             ? AppTextStyle.textSemiBoldStyle(
+                  //                 color: AppColors.white, fontSize: 14)
+                  //             : AppTextStyle.textMediumStyle(
+                  //                 color: AppColors.darkGrey323232, fontSize: 14),
+                  //         maxLines: 2,
+                  //         textAlign: TextAlign.center,
+                  //       ),
+                  //     ),
+                  //   ),
+                  // );
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                      decoration: BoxDecoration(
+                          color: _selectedTimeSlotIndex == index
+                              ? AppColors.tileColors
+                              : AppColors.white,
+                          borderRadius: BorderRadius.circular(5),
+                          boxShadow: AppShadows.shadow2,
+                          border: Border.all(color: AppColors.tileColors)),
+                      child: Center(
+                        child: Text(
+                          startTime + " - " + endTime,
+                          style: _selectedTimeSlotIndex == index
+                              ? AppTextStyle.textSemiBoldStyle(
+                                  color: AppColors.white, fontSize: 14)
+                              : AppTextStyle.textMediumStyle(
+                                  color: AppColors.darkGrey323232,
+                                  fontSize: 14),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              );
+                  ));
             }),
       ],
     );

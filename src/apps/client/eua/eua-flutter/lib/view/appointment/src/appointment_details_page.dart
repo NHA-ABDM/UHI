@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stomp_dart_client/stomp.dart';
+import 'package:uhi_flutter_app/constants/constants.dart';
 import 'package:uhi_flutter_app/constants/src/strings.dart';
 import 'package:uhi_flutter_app/controller/booking/post_booking_details_controller.dart';
 import 'package:uhi_flutter_app/controller/discovery/src/post_init_booking_details_controller.dart';
@@ -197,8 +198,13 @@ class _DiscoveryResultsPageState extends State<AppointmentDetailsPage> {
     DiscoveryPrice? price = DiscoveryPrice();
 
     Fulfillment? fulfillment = Fulfillment();
+    DiscoveryAgent agent = DiscoveryAgent();
+    agent.id = widget.discoveryFulfillments.agent?.id;
+    agent.name = widget.discoveryFulfillments.agent?.name;
+    agent.gender = widget.discoveryFulfillments.agent?.gender;
+    agent.tags = widget.discoveryFulfillments.agent?.tags;
 
-    fulfillment.agent = widget.discoveryFulfillments.agent;
+    fulfillment.agent = agent;
     fulfillment.id = widget.discoveryFulfillments.id;
     fulfillment.type = _consultationType;
 
@@ -243,13 +249,13 @@ class _DiscoveryResultsPageState extends State<AppointmentDetailsPage> {
     billing.name = getUserDetailsResponseModel.fullName;
     billing.email = getUserDetailsResponseModel.email;
     billing.phone = getUserDetailsResponseModel.mobile;
-    address.door = "21A";
-    address.name = "ABC Apartments";
-    address.locality = "Dwarka";
-    address.city = "New Delhi";
-    address.state = "New Delhi";
-    address.country = "India";
-    address.areaCode = "110011";
+    address.door = "";
+    address.name = getUserDetailsResponseModel.address;
+    address.locality = "";
+    address.city = getUserDetailsResponseModel.districtName;
+    address.state = getUserDetailsResponseModel.stateName;
+    address.country = getUserDetailsResponseModel.countryName;
+    address.areaCode = getUserDetailsResponseModel.pincode;
 
     billing.address = address;
     order.billing = billing;
@@ -257,7 +263,7 @@ class _DiscoveryResultsPageState extends State<AppointmentDetailsPage> {
     message.order = order;
     bookingInitRequestModel.message = message;
 
-    log("==> ${jsonEncode(bookingInitRequestModel)}");
+    log("==> Init request ${jsonEncode(bookingInitRequestModel)}");
 
     await _postInitBookingDetailsController.postInitBookingDetails(
         bookingInitRequestModel: bookingInitRequestModel);
@@ -440,7 +446,9 @@ class _DiscoveryResultsPageState extends State<AppointmentDetailsPage> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 0, 8, 10),
                     child: Text(
-                      AppStrings().selectedTimeForConsultation,
+                      _consultationType == DataStrings.teleconsultation
+                          ? AppStrings().selectedTimeForConsultation
+                          : AppStrings().selectedTimeForPhysicalConsultation,
                       style: AppTextStyle.textLightStyle(
                           color: AppColors.infoIconColor, fontSize: 12),
                     ),
@@ -487,7 +495,9 @@ class _DiscoveryResultsPageState extends State<AppointmentDetailsPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          AppStrings().teleconsultationFees,
+                          _consultationType == DataStrings.teleconsultation
+                              ? AppStrings().teleconsultationFees
+                              : AppStrings().physicalConsultationFees,
                           style: AppTextStyle.textLightStyle(
                               color: AppColors.infoIconColor, fontSize: 14),
                         ),
@@ -564,6 +574,7 @@ class _DiscoveryResultsPageState extends State<AppointmentDetailsPage> {
                           _initResponse?.message?.order?.fulfillment?.agent?.id,
                       bookingOnInitResponseModel: _initResponse,
                       consultationType: _consultationType!,
+                      doctorImage: widget.discoveryFulfillments.agent?.image,
                     ));
               },
               child: Container(

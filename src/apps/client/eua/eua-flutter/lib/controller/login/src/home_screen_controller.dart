@@ -91,6 +91,7 @@ class HomeScreenController extends GetxController with ExceptionHandler {
   @override
   refresh() async {
     errorString = '';
+    upcomingAppointmentResponseModal.clear();
   }
 
   Future<void> getUpcomingAppointment(String abhaId) async {

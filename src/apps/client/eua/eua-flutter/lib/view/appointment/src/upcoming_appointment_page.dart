@@ -1,12 +1,16 @@
 import 'dart:convert';
+import 'dart:developer';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:uhi_flutter_app/common/src/get_pages.dart';
 import 'package:uhi_flutter_app/constants/src/data_strings.dart';
 import 'package:uhi_flutter_app/constants/src/strings.dart';
 import 'package:uhi_flutter_app/controller/login/src/home_screen_controller.dart';
+import 'package:uhi_flutter_app/model/common/src/doctor_image_model.dart';
 import 'package:uhi_flutter_app/model/response/src/booking_confirm_response_model.dart';
 import 'package:uhi_flutter_app/model/response/src/get_upcoming_appointments_response.dart';
 import 'package:uhi_flutter_app/theme/theme.dart';
@@ -42,6 +46,7 @@ class _UpcomingAppointmentPageState extends State<UpcomingAppointmentPage> {
   String? abhaAddress;
 
   ///DATA VARIABLES
+  List<String> _doctorImages = List.empty(growable: true);
 
   void showProgressDialog() {
     setState(() {
@@ -67,9 +72,17 @@ class _UpcomingAppointmentPageState extends State<UpcomingAppointmentPage> {
             getUpcomingAppointments();
           });
         }));
+
+    SharedPreferencesHelper.getDoctorImages().then((value) => setState(() {
+          debugPrint("Printing the shared preference getDoctorImages : $value");
+          if (value != null && value.isNotEmpty) {
+            _doctorImages.addAll(value);
+          }
+        }));
   }
 
   getUpcomingAppointments() async {
+    upcomingAppointmentList.clear();
     await homeScreenController.getUpcomingAppointment(abhaAddress!);
     if (homeScreenController.upcomingAppointmentResponseModal.isNotEmpty) {
       for (int i = 0;
@@ -114,66 +127,67 @@ class _UpcomingAppointmentPageState extends State<UpcomingAppointmentPage> {
     height = MediaQuery.of(context).size.height;
     isPortrait = MediaQuery.of(context).orientation;
 
-    return Scaffold(
-        appBar: AppBar(
-          backgroundColor: AppColors.white,
-          shadowColor: Colors.black.withOpacity(0.1),
-          leading: IconButton(
-            onPressed: () {
-              Get.back();
-            },
-            icon: Icon(
-              Icons.chevron_left_rounded,
-              color: AppColors.darkGrey323232,
-              size: 32,
+    return WillPopScope(
+      onWillPop: () async {
+        Get.back(result: true);
+
+        return true;
+      },
+      child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: AppColors.white,
+            shadowColor: Colors.black.withOpacity(0.1),
+            leading: IconButton(
+              onPressed: () {
+                Get.back(result: true);
+              },
+              icon: Icon(
+                Icons.chevron_left_rounded,
+                color: AppColors.darkGrey323232,
+                size: 32,
+              ),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
             ),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
+            titleSpacing: 0,
+            title: Text(
+              AppStrings().upcomingAppointment,
+              style: AppTextStyle.textBoldStyle(
+                  color: AppColors.black, fontSize: 16),
+            ),
           ),
-          titleSpacing: 0,
-          title: Text(
-            AppStrings().upcomingAppointment,
-            style: AppTextStyle.textBoldStyle(
-                color: AppColors.black, fontSize: 16),
-          ),
-        ),
-        body: ModalProgressHUD(
-          inAsyncCall: _loading,
-          dismissible: false,
-          progressIndicator: const CircularProgressIndicator(
-            backgroundColor: AppColors.DARK_PURPLE,
-            valueColor: AlwaysStoppedAnimation<Color>(AppColors.amountColor),
-          ),
-          child: buildWidgets(),
-        ));
+          body: ModalProgressHUD(
+            inAsyncCall: _loading,
+            dismissible: false,
+            progressIndicator: const CircularProgressIndicator(
+              backgroundColor: AppColors.DARK_PURPLE,
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.amountColor),
+            ),
+            child: buildWidgets(),
+          )),
+    );
   }
 
   buildWidgets() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 16, 16, 16),
-      child: Container(
-        width: width,
-        height: height,
-        color: AppColors.backgroundWhiteColorFBFCFF,
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [buildDoctorsList()],
-          ),
-        ),
+    return Container(
+      width: width,
+      height: height,
+      color: AppColors.backgroundWhiteColorFBFCFF,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [buildDoctorsList()],
       ),
     );
   }
 
   buildDoctorsList() {
     return upcomingAppointmentList.isNotEmpty
-        ? Container(
-            margin: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-            width: width,
-            height: height * 0.81,
+        ? Expanded(
             child: ListView.separated(
+              shrinkWrap: true,
               itemCount: upcomingAppointmentList.length,
               physics: const ClampingScrollPhysics(),
+              padding: EdgeInsets.fromLTRB(8, 16, 8, 16),
               itemBuilder: (context, index) {
                 return buildNewDoctorTile(index);
               },
@@ -207,6 +221,17 @@ class _UpcomingAppointmentPageState extends State<UpcomingAppointmentPage> {
     var tmpStartDate;
     var tmpEndDate;
     String gender = "";
+    Uint8List? doctorImage;
+
+    _doctorImages.forEach((element) {
+      DoctorImageModel image = DoctorImageModel.fromJson(jsonDecode(element));
+
+      if (image.doctorHprAddress ==
+          upcomingAppointmentList[index]?.healthcareProfessionalId) {
+        doctorImage = base64Decode(image.doctorImage ?? "");
+      }
+    });
+
     if (upcomingAppointmentList.isNotEmpty) {
       gender = upcomingAppointmentList[index]!.healthcareProfessionalGender!;
       tmpStartDate =
@@ -228,8 +253,10 @@ class _UpcomingAppointmentPageState extends State<UpcomingAppointmentPage> {
       doctorName = StringArray[1].replaceFirst(" ", "");
       hprId = StringArray[0];
 
-      DateTime tempStartDate = DateFormat("HH:mm").parse(appointmentStartTime);
-      DateTime tempEndDate = new DateFormat("HH:mm").parse(appointmentEndTime);
+      DateTime tempStartDate =
+          DateFormat("y-MM-ddTHH:mm:ss").parse(tmpStartDate);
+      DateTime tempEndDate = DateFormat("y-MM-ddTHH:mm:ss").parse(tmpEndDate);
+
       duration = tempEndDate.difference(tempStartDate).inMinutes;
     }
     return Container(
@@ -279,10 +306,14 @@ class _UpcomingAppointmentPageState extends State<UpcomingAppointmentPage> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       image: DecorationImage(
-                          image: Image.network(gender == "M"
-                                  ? AppStrings().maleDoctorImage
-                                  : AppStrings().femaleDoctorImage)
-                              .image),
+                        image: doctorImage != null && doctorImage!.isNotEmpty
+                            ? Image.memory(doctorImage!).image
+                            : Image.network(gender == "M"
+                                    ? AppStrings().maleDoctorImage
+                                    : AppStrings().femaleDoctorImage)
+                                .image,
+                        fit: BoxFit.fill,
+                      ),
                     ),
                   ),
                   Container(
@@ -457,13 +488,21 @@ class _UpcomingAppointmentPageState extends State<UpcomingAppointmentPage> {
                       assetImage: 'assets/images/cross.png',
                       color: AppColors.infoIconColor,
                       actionText: AppStrings().cancel,
-                      onTap: () {
-                        Get.to(CancelAppointment(
+                      onTap: () async {
+                        final result = await Get.to(() => CancelAppointment(
+                            isRescheduleAppointment: false,
+                            upcomingAppointmentResponseModal:
+                                upcomingAppointmentList[index],
                             discoveryFulfillments:
                                 bookingConfirmResponseModel[index]
                                     .message!
                                     .order!
                                     .fulfillment));
+
+                        if (result != null && result == true) {
+                          showProgressDialog();
+                          getUpcomingAppointments();
+                        }
                       }),
                 ),
                 Container(
@@ -478,6 +517,15 @@ class _UpcomingAppointmentPageState extends State<UpcomingAppointmentPage> {
                       actionText: AppStrings().reschedule,
                       onTap: () async {
                         //rescheduleAppointment();
+                        Get.to(() => CancelAppointment(
+                            isRescheduleAppointment: true,
+                            upcomingAppointmentResponseModal:
+                                upcomingAppointmentList[index],
+                            discoveryFulfillments:
+                                bookingConfirmResponseModel[index]
+                                    .message!
+                                    .order!
+                                    .fulfillment));
                       }),
                 ),
                 Container(
@@ -491,16 +539,28 @@ class _UpcomingAppointmentPageState extends State<UpcomingAppointmentPage> {
                       color: AppColors.infoIconColor,
                       actionText: AppStrings().startChat,
                       onTap: () async {
-                        Get.to(() => ChatPage(
-                              doctorHprId: upcomingAppointmentList[index]
+                        // Get.to(() => ChatPage(
+                        //       doctorHprId: upcomingAppointmentList[index]
+                        //           ?.healthcareProfessionalId,
+                        //       patientAbhaId:
+                        //           upcomingAppointmentList[index]?.abhaId,
+                        //       doctorName: doctorName,
+                        //       doctorGender: gender,
+                        //       providerUri: upcomingAppointmentList[0]
+                        //           ?.healthcareProviderUrl,
+                        //     ));
+                        Get.toNamed(AppRoutes.chatPage,
+                            arguments: <String, dynamic>{
+                              'doctorHprId': upcomingAppointmentList[index]
                                   ?.healthcareProfessionalId,
-                              patientAbhaId:
+                              'patientAbhaId':
                                   upcomingAppointmentList[index]?.abhaId,
-                              doctorName: doctorName,
-                              doctorGender: gender,
-                              providerUri: upcomingAppointmentList[0]
+                              'doctorName': doctorName,
+                              'doctorGender': gender,
+                              'providerUri': upcomingAppointmentList[0]
                                   ?.healthcareProviderUrl,
-                            ));
+                              'allowSendMessage': true,
+                            });
                       }),
                 ),
               ],

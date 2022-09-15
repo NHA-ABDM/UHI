@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:easy_localization/easy_localization.dart';
-import '../../../constants/src/language_constant.dart';
 import '../../../constants/src/strings.dart';
 import '../../../theme/src/app_colors.dart';
 import '../../../theme/src/app_text_style.dart';
@@ -53,31 +52,47 @@ class _ChangeLanguagePageState extends State<ChangeLanguagePage> {
       children: [
         generateListItem(
             label: AppStrings().labelEnglish,
-            onPressed: () {
-              setLocale(const Locale('en'));
+            locale: "en",
+            onPressed: () async {
+              await setLocale(const Locale('en'));
             }),
         generateListItem(
             label: AppStrings().labelHindi,
-            onPressed: () {
-              setLocale(const Locale('hi'));
+            locale: "hi",
+            onPressed: () async {
+              await setLocale(const Locale('hi'));
             }),
       ],
     );
   }
 
-  generateListItem({required String label, required Function() onPressed}) {
+  generateListItem(
+      {required String label,
+      required String locale,
+      required Function() onPressed}) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0, right: 4),
-          child: ListTile(
-            title: Text(
-              label,
-              style: AppTextStyle.textNormalStyle(
-                  fontSize: 16, color: AppColors.testColor),
+        InkWell(
+          onTap: onPressed,
+          child: Container(
+            padding: const EdgeInsets.only(left: 8.0, right: 10),
+            child: Row(
+              children: [
+                Expanded(
+                  child: ListTile(
+                    title: Text(
+                      label,
+                      style: AppTextStyle.textNormalStyle(
+                          fontSize: 16, color: AppColors.testColor),
+                    ),
+                  ),
+                ),
+                Get.locale.toString() == locale
+                    ? Icon(Icons.check, size: 20)
+                    : Container(),
+              ],
             ),
-            onTap: onPressed,
           ),
         ),
         const Divider(

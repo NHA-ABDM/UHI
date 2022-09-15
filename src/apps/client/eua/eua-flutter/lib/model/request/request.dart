@@ -10,3 +10,5 @@ export 'src/login_init_request_model.dart';
 export 'src/login_verify_request_model.dart';
 export 'src/login_confirm_request_model.dart';
 export 'src/logout_request_model.dart';
+export 'src/save_public_key_model.dart';
+export 'src/cancel_appointment_request_model.dart';

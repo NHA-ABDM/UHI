@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -29,8 +30,7 @@ class _AppointmentHistoryPageState extends State<AppointmentHistoryPage> {
 
   final homeScreenController = Get.put(HomeScreenController());
   List<UpcomingAppointmentResponseModal?> appointmentHistoryList = [];
-  BookingConfirmResponseModel bookingConfirmResponseModel =
-      BookingConfirmResponseModel();
+  List<BookingConfirmResponseModel> bookingConfirmResponseModelList = [];
 
   ///SIZE
   var width;
@@ -93,7 +93,16 @@ class _AppointmentHistoryPageState extends State<AppointmentHistoryPage> {
           }
         }
       }
+      log("historyList:${json.encode(appointmentHistoryList)}");
+      for (int i = 0; i < appointmentHistoryList.length; i++) {
+        String? orderDetailUpComingMessage = appointmentHistoryList[i]!.message;
+
+        bookingConfirmResponseModelList.add(
+            BookingConfirmResponseModel.fromJson(
+                jsonDecode(orderDetailUpComingMessage!)));
+      }
     }
+
     hideProgressDialog();
   }
 
@@ -216,15 +225,17 @@ class _AppointmentHistoryPageState extends State<AppointmentHistoryPage> {
       doctorName = StringArray[1].replaceFirst(" ", "");
       hprId = StringArray[0];
 
-      DateTime tempStartDate = DateFormat("HH:mm").parse(appointmentStartTime);
-      DateTime tempEndDate = new DateFormat("HH:mm").parse(appointmentEndTime);
+      DateTime tempStartDate =
+          DateFormat("hh:mm a").parse(appointmentStartTime);
+      DateTime tempEndDate =
+          new DateFormat("hh:mm a").parse(appointmentEndTime);
       duration = tempEndDate.difference(tempStartDate).inMinutes;
 
-      String? orderDetailUpComingMessage =
-          appointmentHistoryList[index]!.message;
+      // String? orderDetailUpComingMessage =
+      //     appointmentHistoryList[index]!.message;
 
-      bookingConfirmResponseModel = BookingConfirmResponseModel.fromJson(
-          jsonDecode(orderDetailUpComingMessage!));
+      // bookingConfirmResponseModel = BookingConfirmResponseModel.fromJson(
+      //     jsonDecode(orderDetailUpComingMessage!));
     }
     return Container(
       decoration: BoxDecoration(
@@ -478,15 +489,19 @@ class _AppointmentHistoryPageState extends State<AppointmentHistoryPage> {
                             onTap: () async {
                               Get.to(BookAppointmentAgain(
                                 discoveryFulfillments:
-                                    bookingConfirmResponseModel
-                                        .message!.order!.fulfillment,
+                                    bookingConfirmResponseModelList[index]
+                                        .message!
+                                        .order!
+                                        .fulfillment,
                                 consultationType: appointmentHistoryList[index]!
                                             .serviceFulfillmentType ==
                                         DataStrings.teleconsultation
                                     ? DataStrings.teleconsultation
                                     : DataStrings.physicalConsultation,
-                                providerUri: bookingConfirmResponseModel
-                                    .context!.providerUrl!,
+                                providerUri:
+                                    bookingConfirmResponseModelList[index]
+                                        .context!
+                                        .providerUrl!,
                               ));
                             }),
                       ),

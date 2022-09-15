@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:uhi_flutter_app/model/common/src/context_model.dart';
 import 'package:uhi_flutter_app/model/response/src/discovery_response_model.dart';
 
@@ -108,16 +110,17 @@ class Fulfillment {
   Start? start;
   Start? end;
   InitTimeSlotTags? initTimeSlotTags;
-  Tags? tags;
+  // Tags? tags;
 
-  Fulfillment(
-      {this.id,
-      this.type,
-      this.agent,
-      this.start,
-      this.end,
-      this.initTimeSlotTags,
-      this.tags});
+  Fulfillment({
+    this.id,
+    this.type,
+    this.agent,
+    this.start,
+    this.end,
+    this.initTimeSlotTags,
+    // this.tags,
+  });
 
   Fulfillment.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -130,7 +133,7 @@ class Fulfillment {
     initTimeSlotTags = json['tags'] != null
         ? new InitTimeSlotTags.fromJson(json['tags'])
         : null;
-    tags = json['tags'] != null ? new Tags.fromJson(json['tags']) : null;
+    // tags = json['tags'] != null ? new Tags.fromJson(json['tags']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -149,9 +152,9 @@ class Fulfillment {
     if (this.initTimeSlotTags != null) {
       data['tags'] = this.initTimeSlotTags!.toJson();
     }
-    if (this.tags != null) {
-      data['tags'] = this.tags!.toJson();
-    }
+    // if (this.tags != null) {
+    //   data['tags'] = this.tags!.toJson();
+    // }
     return data;
   }
 }
@@ -192,16 +195,41 @@ class Time {
 
 class InitTimeSlotTags {
   String? abdmGovInSlotId;
+  String? slotId;
+  String? patientKey;
+  String? doctorKey;
 
-  InitTimeSlotTags({this.abdmGovInSlotId});
+  InitTimeSlotTags({
+    this.abdmGovInSlotId,
+    this.patientKey,
+    this.doctorKey,
+    this.slotId,
+  });
 
   InitTimeSlotTags.fromJson(Map<String, dynamic> json) {
     abdmGovInSlotId = json['@abdm/gov.in/slot_id'];
+    patientKey = json['@abdm/gov.in/patient_key'];
+    doctorKey = json['@abdm/gov.in/doctors_key'];
+    if (json['@abdm/gov.in/slot'] != null) {
+      slotId = json['@abdm/gov.in/slot'];
+    }
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['@abdm/gov.in/slot_id'] = this.abdmGovInSlotId;
+    if (this.abdmGovInSlotId != null) {
+      data['@abdm/gov.in/slot_id'] = this.abdmGovInSlotId;
+    }
+    if (this.patientKey != null) {
+      data['@abdm/gov.in/patient_key'] = this.patientKey;
+    }
+    if (this.doctorKey != null) {
+      data['@abdm/gov.in/doctors_key'] = this.doctorKey;
+    }
+    if (this.slotId != null) {
+      data['@abdm/gov.in/slot'] = this.slotId;
+    }
+
     return data;
   }
 }

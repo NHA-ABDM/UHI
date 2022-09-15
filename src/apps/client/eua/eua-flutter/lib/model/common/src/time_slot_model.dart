@@ -71,12 +71,12 @@ class TimeSlotTags {
   TimeSlotTags({this.abdmGovInSlot});
 
   TimeSlotTags.fromJson(Map<String, dynamic> json) {
-    abdmGovInSlot = json['@abdm/gov.in/slot'];
+    abdmGovInSlot = json['@abdm/gov.in/slot_id'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['@abdm/gov.in/slot'] = this.abdmGovInSlot;
+    data['@abdm/gov.in/slot_id'] = this.abdmGovInSlot;
     return data;
   }
 }

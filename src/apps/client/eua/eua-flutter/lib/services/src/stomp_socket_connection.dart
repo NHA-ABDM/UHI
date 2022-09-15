@@ -81,28 +81,41 @@ class StompSocketConnection {
           timer = Timer.periodic(Duration(seconds: 1), (timer) async {
             if (timer.tick == 10) {
               timer.cancel();
-              messageQueueNum = 0;
               onResponse?.call(responseModel);
               stompClient?.deactivate();
             }
           });
+          Map<String, dynamic> jsonData = json.decode(frame.body!);
 
-          if (messageQueueNum == 0) {
-            messageQueueNum++;
+          if (jsonData.containsKey('message')) {
             AcknowledgementResponseModel acknowledgementModel =
                 AcknowledgementResponseModel.fromJson(json.decode(frame.body!));
             if (acknowledgementModel.message?.ack?.status == "NACK") {
-              messageQueueNum = 0;
               onResponse?.call(responseModel);
               stompClient?.deactivate();
             }
-          } else if (messageQueueNum == 1) {
-            messageQueueNum++;
+          } else if (jsonData.containsKey('response')) {
             responseModel = ResponseModel.fromJson(json.decode(frame.body!));
             onResponse?.call(responseModel!);
-            messageQueueNum = 0;
             stompClient?.deactivate();
           }
+
+          // if (messageQueueNum == 0) {
+          //   messageQueueNum++;
+          //   AcknowledgementResponseModel acknowledgementModel =
+          //       AcknowledgementResponseModel.fromJson(json.decode(frame.body!));
+          //   if (acknowledgementModel.message?.ack?.status == "NACK") {
+          //     messageQueueNum = 0;
+          //     onResponse?.call(responseModel);
+          //     stompClient?.deactivate();
+          //   }
+          // } else if (messageQueueNum == 1) {
+          //   messageQueueNum++;
+          //   responseModel = ResponseModel.fromJson(json.decode(frame.body!));
+          //   onResponse?.call(responseModel!);
+          //   messageQueueNum = 0;
+          //   stompClient?.deactivate();
+          // }
         }
       },
     );

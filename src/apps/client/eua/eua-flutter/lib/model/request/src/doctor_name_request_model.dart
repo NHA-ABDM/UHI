@@ -145,12 +145,17 @@ class DoctorNameFulfillment {
 class DoctorNameAgent {
   String? name;
   String? id;
+  String? cred;
   Tags? tags;
-  DoctorNameAgent({this.name, this.id, this.tags});
+
+  DoctorNameAgent({this.name, this.id, this.cred, this.tags});
 
   DoctorNameAgent.fromJson(Map<String, dynamic> json) {
     if (json['name'] != null) {
       name = json['name'];
+    }
+    if (json['cred'] != null) {
+      cred = json['cred'];
     }
     if (json['id'] != null) {
       id = json['id'];
@@ -164,6 +169,9 @@ class DoctorNameAgent {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     if (this.name != null) {
       data['name'] = this.name;
+    }
+    if (this.cred != null) {
+      data['cred'] = this.cred;
     }
     if (this.id != null) {
       data['id'] = this.id;

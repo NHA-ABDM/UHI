@@ -46,7 +46,7 @@ dependencies:
   intl_phone_field: ^3.1.0
   pin_code_fields: ^7.4.0
   url_launcher: ^6.1.0
-  syncfusion_flutter_datepicker: '20.1.52'
+  syncfusion_flutter_datepicker: ^20.1.52
   super_tooltip: ^1.0.1
   multi_select_flutter: ^4.1.2
   geolocator: ^8.2.1
@@ -67,11 +67,15 @@ dependencies:
   provider: ^5.0.0
   rxdart: ^0.26.0
   flutter_webview_plugin: ^0.4.0
-  # image_picker: ^0.8.5+3
+  image_picker: ^0.8.4+9
   firebase_core: ^1.19.1
   firebase_messaging: ^11.4.4
   flutter_local_notifications: ^9.5.0
   firebase_crashlytics: ^2.8.4
+  local_auth: ^2.1.0
+  cryptography: ^2.0.5
+  photo_view: ^0.13.0
+  flutter_launcher_icons: ^0.10.0
 
 dev_dependencies:
   flutter_test:
@@ -130,3 +134,8 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/splash_logo.png"

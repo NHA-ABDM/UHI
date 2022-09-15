@@ -172,16 +172,16 @@ class _BookATeleconsultationPageState extends State<BookATeleconsultationPage> {
   }
 
   getLocation() async {
-    if (city != null) {
-      if (city != null && !_listOfCityDropdownValue.contains(city)) {
+    if (city != null && city!.isNotEmpty) {
+      if (!_listOfCityDropdownValue.contains(city)) {
         _listOfCityDropdownValue.add(city!);
         _cityDropdownValue = city!;
       }
       setState(() {});
     } else {
-      DialogHelper.showErrorDialog(
-          title: AppStrings().locationString,
-          description: AppStrings().locationErrorMsgString);
+      // DialogHelper.showErrorDialog(
+      //     title: AppStrings().locationString,
+      //     description: AppStrings().locationErrorMsgString);
     }
   }
 
@@ -296,7 +296,9 @@ class _BookATeleconsultationPageState extends State<BookATeleconsultationPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          AppStrings().howDoTeleconsultationWork,
+                          _consultationType == DataStrings.teleconsultation
+                              ? AppStrings().howDoTeleconsultationWork
+                              : AppStrings().howDoPhysicalConsultationWork,
                           style: AppTextStyle.textLightStyle(
                               color: AppColors.testColor, fontSize: 12),
                         ),

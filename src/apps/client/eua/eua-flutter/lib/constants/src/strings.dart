@@ -22,6 +22,8 @@ class AppStrings {
   String appointmentStatusCompleted = 'appointmentStatusCompleted'.tr();
   String teleconsultationAppointmentConfirm =
       'teleconsultationAppointmentConfirm'.tr();
+  String physicalConsultationAppointmentConfirm =
+      'physicalConsultationAppointmentConfirm'.tr();
   String videoCall = 'videoCall'.tr();
   String audioCall = 'audioCall'.tr();
   String startChat = 'startChat'.tr();
@@ -40,6 +42,7 @@ class AppStrings {
   String bookNow = 'bookNow'.tr();
   String chooseTimeSlot = 'chooseTimeSlot'.tr();
   String noTimeSlot = 'noTimeSlot'.tr();
+  String timeSlotError = 'timeSlotError'.tr();
   String showTime = 'showTime'.tr();
   String showTimeSlot = 'showTimeSlot'.tr();
   String preferredTimeSlotWindow = 'preferredTimeSlotWindow'.tr();
@@ -83,6 +86,7 @@ class AppStrings {
   String viewDetails = 'viewDetails'.tr();
   String bookAgain = 'bookAgain'.tr();
   String editProfile = 'editProfile'.tr();
+  String viewProfile = 'viewProfile'.tr();
   String switchAccount = 'switchAccount'.tr();
   String setting = 'setting'.tr();
   String helpCenter = 'helpCenter'.tr();
@@ -124,6 +128,7 @@ class AppStrings {
   //BOOK A TELECONSULTATION PAGE
   String bookATeleconsultation = 'bookATeleconsultation'.tr();
   String howDoTeleconsultationWork = 'howDoTeleconsultationWork'.tr();
+  String howDoPhysicalConsultationWork = 'howDoPhysicalConsultationWork'.tr();
   String searchDoctor = 'searchDoctor'.tr();
   String completePayment = 'completePayment'.tr();
   String startConsultation = 'startConsultation'.tr();
@@ -221,9 +226,15 @@ class AppStrings {
   String updateAppointmentCaps = 'updateAppointmentCaps'.tr();
   String upcomingAppointment = 'upcomingAppointment'.tr();
   String cancelAppointment = 'cancelAppointment'.tr();
+  String rescheduleAppointment = 'rescheduleAppointment'.tr();
   String cancelAppointmentCaps = 'cancelAppointmentCaps'.tr();
+  String rescheduleAppointmentCaps = 'rescheduleAppointmentCaps'.tr();
   String cancelAppointmentConfirmation = 'cancelAppointmentConfirmation'.tr();
+  String rescheduleAppointmentConfirmation =
+      'rescheduleAppointmentConfirmation'.tr();
   String selectedTimeForConsultation = 'selectedTimeForConsultation'.tr();
+  String selectedTimeForPhysicalConsultation =
+      'selectedTimeForPhysicalConsultation'.tr();
   String sendAMessagetodoctor = 'sendAMessagetodoctor'.tr();
   String doctorSendMessage = 'doctorSendMessage'.tr();
   String canJoinTheCallPrior = 'canJoinTheCallPrior'.tr();
@@ -233,6 +244,7 @@ class AppStrings {
   String bookAgainCaps = 'bookAgainCaps'.tr();
   String billingDetails = 'billingDetails'.tr();
   String teleconsultationFees = 'teleconsultationFees'.tr();
+  String physicalConsultationFees = 'physicalConsultationFees'.tr();
   String bookingFees = 'bookingFees'.tr();
   String totalPayables = 'totalPayables'.tr();
   String payNow = 'payNow'.tr();
@@ -272,4 +284,14 @@ class AppStrings {
   String labelChangeLanguage = 'labelChangeLanguage'.tr();
   String labelEnglish = 'labelEnglish'.tr();
   String labelHindi = 'labelHindi'.tr();
+
+  String labelSettingsAndPreferences = 'labelSettingsAndPreferences'.tr();
+  String labelSecurity = 'labelSecurity'.tr();
+  String labelLocalAuthentication = 'labelLocalAuthentication'.tr();
+  String Others = 'Others'.tr();
+  String errorUnableSelectMedia = 'errorUnableSelectMedia'.tr();
+  String camera = 'camera'.tr();
+  String gallery = 'gallery'.tr();
+  String alert = 'alert'.tr();
+  String emptyOTP = 'emptyOTP'.tr();
 }

@@ -11,6 +11,10 @@ class SharedPreferencesHelper {
   static const String _autoLogin = 'autoLoginKey';
   static const String _city = 'cityKey';
   static const String _fcmToken = 'fcmToken';
+  static const String _localAuth = 'localAuth';
+  static const String _encryptionPrivateKey = 'encryptionPrivateKey';
+  static const String _encryptionPublicKey = 'encryptionPublicKey';
+  static const String _doctorImages = 'doctorImages';
 
   static Future<String?> getAccessToken() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -90,5 +94,45 @@ class SharedPreferencesHelper {
   static void setFCMToken(String? value) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString(_fcmToken, value ?? "");
+  }
+
+  static Future<bool?> getLocalAuth() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_localAuth);
+  }
+
+  static void setLocalAuth(bool? value) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool(_localAuth, value!);
+  }
+
+  static Future<String?> getPrivateKey() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_encryptionPrivateKey);
+  }
+
+  static void setPrivateKey(String? value) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString(_encryptionPrivateKey, value ?? "");
+  }
+
+  static Future<String?> getPublicKey() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_encryptionPublicKey);
+  }
+
+  static void setPublicKey(String? value) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString(_encryptionPublicKey, value ?? "");
+  }
+
+  static Future<List<String>?> getDoctorImages() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getStringList(_doctorImages);
+  }
+
+  static void setDoctorImages(List<String> value) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setStringList(_doctorImages, value);
   }
 }

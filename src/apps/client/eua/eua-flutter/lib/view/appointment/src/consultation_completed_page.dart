@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:uhi_flutter_app/common/src/get_pages.dart';
 import 'package:uhi_flutter_app/constants/src/strings.dart';
 import 'package:uhi_flutter_app/model/response/src/booking_confirm_response_model.dart';
 import 'package:uhi_flutter_app/utils/src/shared_preferences.dart';
@@ -89,12 +90,12 @@ class _ConsultationCompletedPageState extends State<ConsultationCompletedPage> {
           children: [
             confirmStatusView(),
             Spacing(isWidth: false, size: 8),
-            Center(
-              child: Text(
-                AppStrings().teleconsultationAppointmentConfirm,
-                style: AppTextStyle.appointmentConfirmedLightTextStyle(),
-              ),
-            ),
+            // Center(
+            //   child: Text(
+            //     AppStrings().teleconsultationAppointmentConfirm,
+            //     style: AppTextStyle.appointmentConfirmedLightTextStyle(),
+            //   ),
+            // ),
             //Spacing(size: 20, isWidth: false),
             doctorCardView(),
 
@@ -333,14 +334,25 @@ class _ConsultationCompletedPageState extends State<ConsultationCompletedPage> {
                           .appointmentConfirmDoctorActionsEnabledTextColor,
                       actionText: AppStrings().startChat,
                       onTap: () {
-                        Get.to(() => ChatPage(
-                              doctorHprId: hprId.trim(),
-                              patientAbhaId: userAbhaAddress,
-                              doctorName: doctorName,
-                              doctorGender: gender,
-                              providerUri: _bookingConfirmResponseModel!
-                                  .context!.providerUrl,
-                            ));
+                        // Get.to(() => ChatPage(
+                        //       doctorHprId: hprId.trim(),
+                        //       patientAbhaId: userAbhaAddress,
+                        //       doctorName: doctorName,
+                        //       doctorGender: gender,
+                        //       providerUri: _bookingConfirmResponseModel!
+                        //           .context!.providerUrl,
+                        //     ));
+                        Get.toNamed(AppRoutes.chatPage,
+                            arguments: <String, dynamic>{
+                              'doctorHprId': hprId.trim(),
+                              'patientAbhaId': userAbhaAddress,
+                              'doctorName': doctorName,
+                              'doctorGender': gender,
+                              'providerUri': _bookingConfirmResponseModel
+                                      ?.context?.providerUrl ??
+                                  "",
+                              'allowSendMessage': false,
+                            });
                       }),
                 ),
               ],

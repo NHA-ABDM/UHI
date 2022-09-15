@@ -7,3 +7,4 @@ export 'home/home.dart';
 export 'payment/payment.dart';
 export 'splashscreen/splashscreen.dart';
 export 'user/user.dart';
+export 'localauth/localauth.dart';

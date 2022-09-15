@@ -78,7 +78,9 @@ class _DiscoveryResultsPageState extends State<DiscoveryResultsPage> {
   String? _consultationType;
 
   DiscoveryResponseModel? _discoveryResponse;
-  Future<DiscoveryResponseModel?>? futureDiscoveryResponse;
+  List<DiscoveryResponseModel?> _listOfDiscoveryResponse =
+      List.empty(growable: true);
+  Future<List<DiscoveryResponseModel?>>? futureDiscoveryResponse;
   StompSocketConnection stompSocketConnection = StompSocketConnection();
 
   bool showName = true;
@@ -87,7 +89,7 @@ class _DiscoveryResultsPageState extends State<DiscoveryResultsPage> {
   bool showSortOptions = false;
   SortBy? selectedSortValue;
   bool _loading = false;
-  List<Fulfillment>? fulfillments = [];
+  List<Fulfillment>? _fulfillments = [];
   List<DiscoveryItems>? discoveryItems = [];
   DiscoveryMessage? message;
 
@@ -131,13 +133,21 @@ class _DiscoveryResultsPageState extends State<DiscoveryResultsPage> {
 
   @override
   void dispose() {
+    _fulfillments?.clear();
+    _listOfDiscoveryResponse.clear();
     stompSocketConnection.disconnect();
     _timer?.cancel();
     super.dispose();
   }
 
-  Future<DiscoveryResponseModel?> getDiscoveryResponse() async {
+  Future<List<DiscoveryResponseModel?>> getDiscoveryResponse() async {
+    _fulfillments?.clear();
+    _listOfDiscoveryResponse.clear();
+
     DiscoveryResponseModel? discoveryResponseModel;
+    List<DiscoveryResponseModel?> listOfDiscoveryResponse =
+        List.empty(growable: true);
+
     _timer =
         await Timer.periodic(Duration(milliseconds: 100), (timer) async {});
 
@@ -150,14 +160,25 @@ class _DiscoveryResultsPageState extends State<DiscoveryResultsPage> {
       } else {
         discoveryResponseModel =
             DiscoveryResponseModel.fromJson(json.decode(response.response!));
-        _timer?.cancel();
-        log("${json.encode(discoveryResponseModel)}", name: "RESPONSE");
+        // _timer?.cancel();
+        if (discoveryResponseModel != null ||
+            discoveryResponseModel?.message != null) {
+          listOfDiscoveryResponse.add(discoveryResponseModel);
+          listOfDiscoveryResponse = listOfDiscoveryResponse.toSet().toList();
+        }
+        log("${json.encode(listOfDiscoveryResponse)}", name: "RESPONSE");
+        discoveryResponseModel = null;
       }
     };
 
-    // stompSocketConnection.disconnect();
-
-    // await Future.delayed(Duration(milliseconds: duration));
+    if (discoveryResponseModel == null ||
+        discoveryResponseModel?.message == null) {
+      await Timer.periodic(Duration(seconds: 1), (timer) async {
+        if (timer.tick == 3) {
+          _timer?.cancel();
+        }
+      });
+    }
 
     while (_timer!.isActive) {
       // log("${_timer?.tick}");
@@ -166,7 +187,7 @@ class _DiscoveryResultsPageState extends State<DiscoveryResultsPage> {
 
     stompSocketConnection.disconnect();
 
-    return discoveryResponseModel;
+    return listOfDiscoveryResponse;
   }
 
   Future<void> onRefresh() async {
@@ -399,10 +420,18 @@ class _DiscoveryResultsPageState extends State<DiscoveryResultsPage> {
                         value: SortBy.yearsOfExperience,
                         label: AppStrings().experienceFilter,
                         onTap: (SortBy? value) {
-                          fulfillments?.sort(
-                              (a, b) => a.agent!.tags!.experience!.compareTo(
-                                    b.agent!.tags!.experience!,
-                                  ));
+                          _fulfillments?.sort((a, b) {
+                            double tmpA = double.parse(
+                                a.agent!.tags!.experience! == ""
+                                    ? '0'
+                                    : a.agent!.tags!.experience!);
+                            double tmpB = double.parse(
+                                b.agent!.tags!.experience! == ""
+                                    ? '0'
+                                    : b.agent!.tags!.experience!);
+                            // log("${tmpA}   ${tmpB}");
+                            return tmpA.compareTo(tmpB);
+                          });
                           setState(() {
                             selectedSortValue = value;
                           });
@@ -422,10 +451,17 @@ class _DiscoveryResultsPageState extends State<DiscoveryResultsPage> {
                         value: SortBy.price,
                         label: AppStrings().priceFilter,
                         onTap: (SortBy? value) {
-                          fulfillments?.sort((a, b) =>
-                              a.agent!.tags!.firstConsultation!.compareTo(
-                                b.agent!.tags!.firstConsultation!,
-                              ));
+                          _fulfillments?.sort((a, b) {
+                            double tmpA = double.parse(
+                                a.agent!.tags!.firstConsultation! == ""
+                                    ? '0'
+                                    : a.agent!.tags!.firstConsultation!);
+                            double tmpB = double.parse(
+                                b.agent!.tags!.firstConsultation! == ""
+                                    ? '0'
+                                    : b.agent!.tags!.firstConsultation!);
+                            return tmpA.compareTo(tmpB);
+                          });
                           setState(() {
                             selectedSortValue = value;
                           });
@@ -517,69 +553,125 @@ class _DiscoveryResultsPageState extends State<DiscoveryResultsPage> {
   }
 
   buildWidgets(Object? data) {
-    _discoveryResponse = data as DiscoveryResponseModel;
-    fulfillments = _discoveryResponse?.message?.catalog?.fulfillments;
-    message = _discoveryResponse?.message;
+    if (_listOfDiscoveryResponse.isEmpty) {
+      data = data as List;
+      // _discoveryResponse = data as DiscoveryResponseModel;
+      // fulfillments = _discoveryResponse?.message?.catalog?.fulfillments;
 
-    return RefreshIndicator(
-      onRefresh: onRefresh,
-      child: Container(
-        width: width,
-        height: height,
-        color: AppColors.backgroundWhiteColorFBFCFF,
-        // padding: const EdgeInsets.fromLTRB(8, 16, 16, 16),
-        child: Column(
-          children: [
-            buildDoctorsList(),
-          ],
-        ),
-      ),
-    );
-  }
+      data.forEach((element) {
+        element = element as DiscoveryResponseModel;
+        if (element.message != null) {
+          _listOfDiscoveryResponse.add(element);
+        }
+      });
 
-  buildDoctorsList() {
-    return fulfillments!.isNotEmpty
-        ? Expanded(
-            child: ListView.separated(
-              itemCount: fulfillments!.length,
-              physics: const AlwaysScrollableScrollPhysics(),
-              itemBuilder: (context, index) {
-                return buildNewDoctorTile(index);
-              },
-              separatorBuilder: (context, index) {
-                return const SizedBox(
-                  height: 20,
-                );
-              },
-              padding: EdgeInsets.fromLTRB(15, 15, 15, 80),
+      _listOfDiscoveryResponse = _listOfDiscoveryResponse.toSet().toList();
+
+      _listOfDiscoveryResponse.forEach((element) {
+        if (element?.message?.catalog?.fulfillments != null) {
+          _fulfillments?.addAll(
+              element?.message?.catalog?.fulfillments as Iterable<Fulfillment>);
+        }
+      });
+
+      _fulfillments = _fulfillments?.toSet().toList();
+
+      // message = _discoveryResponse?.message;
+    }
+
+    return _fulfillments != null && _fulfillments!.isNotEmpty
+        ? RefreshIndicator(
+            onRefresh: onRefresh,
+            child: Container(
+              width: width,
+              height: height,
+              color: AppColors.backgroundWhiteColorFBFCFF,
+              // padding: const EdgeInsets.fromLTRB(8, 16, 16, 16),
+              child: Column(
+                children: [
+                  buildDoctorsList(),
+                ],
+              ),
             ),
           )
-        : Expanded(
-            child: Container(
-              child: Center(
-                child: Text(
-                  AppStrings().noDoctorAvailable,
-                  style: TextStyle(
-                      fontFamily: "Poppins",
-                      fontStyle: FontStyle.normal,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 16.0),
-                  textAlign: TextAlign.center,
+        : RefreshIndicator(
+            onRefresh: onRefresh,
+            child: Stack(
+              children: [
+                ListView(),
+                Container(
+                  padding: EdgeInsets.all(15),
+                  child: Center(
+                    child: Text(
+                      AppStrings().noDoctorAvailable,
+                      style: TextStyle(
+                          fontFamily: "Poppins",
+                          fontStyle: FontStyle.normal,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16.0),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
           );
   }
 
+  buildDoctorsList() {
+    return Expanded(
+      child: ListView.separated(
+        itemCount: _fulfillments!.length,
+        physics: const AlwaysScrollableScrollPhysics(),
+        itemBuilder: (context, index) {
+          return buildNewDoctorTile(index);
+        },
+        separatorBuilder: (context, index) {
+          return const SizedBox(
+            height: 20,
+          );
+        },
+        padding: EdgeInsets.fromLTRB(15, 15, 15, 80),
+      ),
+    );
+    // : Expanded(
+    //     child: Container(
+    //       child: Center(
+    //         child: Text(
+    //           AppStrings().noDoctorAvailable,
+    //           style: TextStyle(
+    //               fontFamily: "Poppins",
+    //               fontStyle: FontStyle.normal,
+    //               fontWeight: FontWeight.w500,
+    //               fontSize: 16.0),
+    //           textAlign: TextAlign.center,
+    //         ),
+    //       ),
+    //     ),
+    //   );
+  }
+
   buildNewDoctorTile(int index) {
+    String? providerUri;
     // String? priceValue;
     // List<DiscoveryItems> item = [];
-    Fulfillment discoveryFulfillments = fulfillments![index];
+    Fulfillment discoveryFulfillments = _fulfillments![index];
     // if (discoveryItems![index].price!.value != null) {
     //   if (discoveryFulfillments.id == discoveryItems![index].fulfillmentId) {
     //     item.add(discoveryItems![index]);
     //   }
     // }
+    _listOfDiscoveryResponse.forEach(
+      (discoveryResponse) {
+        discoveryResponse?.message?.catalog?.fulfillments
+            ?.forEach((fullfillment) {
+          if (fullfillment.agent?.id == _fulfillments?[index].agent?.id) {
+            providerUri = discoveryResponse.context?.providerUrl;
+          }
+        });
+      },
+    );
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -665,8 +757,11 @@ class _DiscoveryResultsPageState extends State<DiscoveryResultsPage> {
                           //     .catalog!.providers![0],
                           doctorAbhaId: discoveryFulfillments.agent!.id!,
                           doctorName: discoveryFulfillments.agent!.name!,
-                          doctorProviderUri:
-                              _discoveryResponse?.context?.providerUrl ?? "",
+                          // doctorProviderUri: _listOfDiscoveryResponse[index]
+                          //         ?.context
+                          //         ?.providerUrl ??
+                          //     "",
+                          doctorProviderUri: providerUri ?? "",
                           discoveryFulfillments: discoveryFulfillments,
                           consultationType: _consultationType!,
                           isRescheduling: false,

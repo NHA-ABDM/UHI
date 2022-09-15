@@ -66,6 +66,7 @@ class PostChatMessageController extends GetxController with ExceptionHandler {
   @override
   refresh() async {
     errorString = '';
+    chatMessageAckDetails = null;
 
     ///POST chatMessage DETAILS
     // postchatMessageDetails();

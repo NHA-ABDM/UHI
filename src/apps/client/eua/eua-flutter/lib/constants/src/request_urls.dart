@@ -55,6 +55,9 @@ class RequestUrls {
   ///APPOINTMENT STATUS API URL
   static String postAppointmentStatus = "${euaService}status";
 
+  ///CANCEL APPOINTMENT API URL
+  static String postCancelAppointment = "${euaService}cancel";
+
   ///GET URLS
   ///Common GET URL for all APIs
   static String getDetails = "${euaService}on_search";
@@ -75,11 +78,20 @@ class RequestUrls {
   ///SAVE FCM TOKEN URL
   static String postFCMToken = "${bookingService}saveToken";
 
+  ///LOGOUT USER URL
+  static String postLogoutDetails = "${bookingService}logout";
+
   ///MESSAGE API URL
   static String postChatMessage = "${bookingService}message";
 
   ///MESSAGE HISTORY API URL
   static String getChatMessages = "${bookingService}getMessages";
+
+  ///SAVE SHARED KEY API URL
+  static String postSharedKey = "${bookingService}saveKey";
+
+  ///GET SHARED KEY API URL
+  static String getSharedKey = "${bookingService}getKey/";
 
   ///**************** LOGIN SERVICE ****************///
   ///LOGIN URL

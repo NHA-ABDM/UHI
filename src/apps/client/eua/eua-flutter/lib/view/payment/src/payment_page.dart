@@ -3,6 +3,7 @@ import 'dart:developer' as developer;
 import 'dart:io';
 import 'dart:math';
 
+import 'package:cryptography/cryptography.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,7 +15,9 @@ import 'package:uhi_flutter_app/common/src/snackbar_message.dart';
 import 'package:uhi_flutter_app/constants/constants.dart';
 import 'package:uhi_flutter_app/constants/src/strings.dart';
 import 'package:uhi_flutter_app/controller/booking/post_booking_details_controller.dart';
+import 'package:uhi_flutter_app/controller/controller.dart';
 import 'package:uhi_flutter_app/model/common/src/context_model.dart';
+import 'package:uhi_flutter_app/model/model.dart';
 import 'package:uhi_flutter_app/model/request/src/booking_init_request_model.dart';
 import 'package:uhi_flutter_app/model/request/src/booking_on_confirm_request_model.dart';
 import 'package:uhi_flutter_app/model/response/src/booking_confirm_response_model.dart';
@@ -38,6 +41,7 @@ class PaymentPage extends StatefulWidget {
   String? doctorsUPIaddress;
   BookingOnInitResponseModel? bookingOnInitResponseModel;
   String consultationType;
+  String? doctorImage;
 
   // BookingConfirmResponseModel? bookingConfirmResponseModel;
   PaymentPage({
@@ -46,6 +50,7 @@ class PaymentPage extends StatefulWidget {
     this.doctorsUPIaddress,
     this.bookingOnInitResponseModel,
     required this.consultationType,
+    this.doctorImage,
     // this.bookingConfirmResponseModel,
   }) : super(key: key);
 
@@ -70,6 +75,13 @@ class _PaymentPageState extends State<PaymentPage> {
   bool isBtnPressed = false;
 
   String? _consultationType;
+  String? _publicKey;
+  String? _doctorImage;
+
+  // Generate a key pair.
+  final encryptionAlgorithm = X25519();
+
+  UpiTransactionResponse? _upiTransactionResponse;
 
   @override
   void initState() {
@@ -81,6 +93,12 @@ class _PaymentPageState extends State<PaymentPage> {
             abhaAddress = value;
           });
         }));
+
+    SharedPreferencesHelper.getPublicKey().then((value) async {
+      if (value != null) {
+        _publicKey = value;
+      }
+    });
     Future.delayed(Duration(milliseconds: 0), () async {
       _apps = await UpiPay.getInstalledUpiApplications(
           statusType: UpiApplicationDiscoveryAppStatusType.all);
@@ -88,6 +106,7 @@ class _PaymentPageState extends State<PaymentPage> {
     });
 
     _consultationType = widget.consultationType;
+    _doctorImage = widget.doctorImage;
   }
 
   @override
@@ -114,12 +133,14 @@ class _PaymentPageState extends State<PaymentPage> {
           stompSocketConnection.disconnect();
         }
       } else {
+        developer.log("${json.encode(response)}");
+
         bookingConfirmResponseModel = BookingConfirmResponseModel.fromJson(
             json.decode(response.response!));
-        debugPrint("${json.encode(bookingConfirmResponseModel)}");
+        developer.log("${json.encode(bookingConfirmResponseModel)}");
         if (bookingConfirmResponseModel != null) {
           _confirmResponse = bookingConfirmResponseModel;
-          developer.log("${_confirmResponse?.message?.order?.state}");
+          // developer.log("${_confirmResponse?.message?.order?.state}");
           if (_confirmResponse?.message?.order?.state == "FAILED") {
             DialogHelper.showErrorDialog(
                 title: AppStrings().failureString,
@@ -135,6 +156,7 @@ class _PaymentPageState extends State<PaymentPage> {
                   bookingConfirmResponseModel: _confirmResponse,
                   consultationType: _consultationType,
                   navigateToHomeAndRefresh: true,
+                  doctorImage: _doctorImage,
                 ));
             setState(() {
               isLoadingIndicator = false;
@@ -162,6 +184,12 @@ class _PaymentPageState extends State<PaymentPage> {
 
   postConfirmAPI() async {
     String? userData;
+
+    // Get a public key for our peer.
+    // final remoteKeyPair = await encryptionAlgorithm.newKeyPair();
+    // final remotePublicKey = await remoteKeyPair.extractPublicKey();
+
+    // developer.log("$remotePublicKey", name: "PUBLIC KEY");
 
     await SharedPreferencesHelper.getUserData().then((value) => setState(() {
           setState(() {
@@ -211,6 +239,8 @@ class _PaymentPageState extends State<PaymentPage> {
     DiscoveryPrice price = DiscoveryPrice();
 
     Fulfillment fulfillment = Fulfillment();
+    InitTimeSlotTags initTimeSlotTags = InitTimeSlotTags();
+
     Billing? billing = Billing();
     Quote? quote = Quote();
     Payment? payment = Payment();
@@ -252,8 +282,11 @@ class _PaymentPageState extends State<PaymentPage> {
         _bookingOnInitResponseModel?.message?.order?.fulfillment?.type;
     fulfillment.id =
         _bookingOnInitResponseModel?.message?.order?.fulfillment?.id;
-    fulfillment.initTimeSlotTags = _bookingOnInitResponseModel
-        ?.message?.order?.fulfillment?.initTimeSlotTags;
+
+    initTimeSlotTags.abdmGovInSlotId = _bookingOnInitResponseModel
+        ?.message?.order?.fulfillment?.initTimeSlotTags?.abdmGovInSlotId;
+    initTimeSlotTags.patientKey = "${_publicKey}";
+    fulfillment.initTimeSlotTags = initTimeSlotTags;
 
     customer.id = "";
     // customer.cred = "vi.s@sbx";
@@ -262,13 +295,13 @@ class _PaymentPageState extends State<PaymentPage> {
     billing.name = getUserDetailsResponseModel.fullName;
     billing.email = getUserDetailsResponseModel.email;
     billing.phone = getUserDetailsResponseModel.mobile;
-    address.door = "21A";
-    address.name = "ABC Apartments";
-    address.locality = "Dwarka";
-    address.city = "New Delhi";
-    address.state = "New Delhi";
-    address.country = "India";
-    address.areaCode = "110011";
+    address.door = "";
+    address.name = getUserDetailsResponseModel.address;
+    address.locality = "";
+    address.city = getUserDetailsResponseModel.districtName;
+    address.state = getUserDetailsResponseModel.stateName;
+    address.country = getUserDetailsResponseModel.countryName;
+    address.areaCode = getUserDetailsResponseModel.pincode;
     billing.address = address;
 
     breakupPrice.title = "Consultation";
@@ -276,17 +309,17 @@ class _PaymentPageState extends State<PaymentPage> {
 
     breakupCGST.title = "CGST @ 5%";
     priceCGST.currency = "INR";
-    priceCGST.value = "50";
+    priceCGST.value = "0";
     breakupCGST.price = priceCGST;
 
     breakupSGST.title = "SGST @ 5%";
     priceSGST.currency = "INR";
-    priceSGST.value = "50";
+    priceSGST.value = "0";
     breakupSGST.price = priceSGST;
 
     breakupReg.title = "Registration";
     priceReg.currency = "INR";
-    priceReg.value = "400";
+    priceReg.value = "0";
     breakupReg.price = priceReg;
 
     price.currency =
@@ -297,14 +330,20 @@ class _PaymentPageState extends State<PaymentPage> {
     quote.price = price;
     quote.breakup = [breakupPrice, breakupCGST, breakupSGST, breakupReg];
 
-    params.amount = "1500";
+    // params.amount = "1500";
+    params.amount =
+        _bookingOnInitResponseModel?.message?.order?.item?.price?.value;
     params.mode = "UPI";
-    params.vpa = "sana.bhatt@upi";
-    params.transactionId = "abc128-riocn83920";
+    params.vpa = _bookingOnInitResponseModel
+        ?.message?.order?.fulfillment?.agent?.tags?.upiId;
+    params.transactionId = _upiTransactionResponse?.txnId ?? "";
     payment.uri =
         "https://api.bpp.com/pay?amt=1500&txn_id=ksh87yriuro34iyr3p4&mode=upi&vpa=sana.bhatt@upi";
     payment.tlMethod = "http/get";
-    payment.status = "PAID";
+    payment.status =
+        _upiTransactionResponse?.status == UpiTransactionStatus.success
+            ? "PAID"
+            : "PAID";
     payment.type = "ON-ORDER";
     payment.params = params;
 
@@ -396,8 +435,8 @@ class _PaymentPageState extends State<PaymentPage> {
                           ],
                         ),
                         Spacing(isWidth: false, size: 8),
-                        getCenterTextWidget(text: AppStrings().installedApps),
-                        Spacing(isWidth: false, size: 8),
+                        // getCenterTextWidget(text: AppStrings().installedApps),
+                        // Spacing(isWidth: false, size: 8),
                         // Row(
                         //   children: [
                         //     Expanded(
@@ -413,44 +452,44 @@ class _PaymentPageState extends State<PaymentPage> {
                         // ),
                         Platform.isAndroid ? _androidApps() : _iosApps(),
                         Spacing(isWidth: false, size: 8),
-                        getCenterTextWidget(text: AppStrings().orText),
-                        Spacing(isWidth: false, size: 8),
-                        Text(
-                          AppStrings().UPIId,
-                          style: AppTextStyle.textLightStyle(
-                              color: AppColors.testColor, fontSize: 12),
-                        ),
-                        Spacing(isWidth: false, size: 4),
-                        TextField(
-                          expands: false,
-                          decoration: InputDecoration(
-                              isDense: true,
-                              focusedBorder: const OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color:
-                                        AppColors.paymentButtonBackgroundColor,
-                                    width: 0.5),
-                                borderRadius: BorderRadius.zero,
-                              ),
-                              enabledBorder: const OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: AppColors.doctorExperienceColor,
-                                    width: 0.5),
-                                borderRadius: BorderRadius.zero,
-                              ),
-                              errorBorder: const OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: Colors.red, width: 0.5),
-                                borderRadius: BorderRadius.zero,
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 12),
-                              filled: false,
-                              hintStyle: AppTextStyle.textLightStyle(
-                                  color: AppColors.testColor, fontSize: 14),
-                              hintText: AppStrings().UPIAddress,
-                              fillColor: Colors.white70),
-                        ),
+                        // getCenterTextWidget(text: AppStrings().orText),
+                        // Spacing(isWidth: false, size: 8),
+                        // Text(
+                        //   AppStrings().UPIId,
+                        //   style: AppTextStyle.textLightStyle(
+                        //       color: AppColors.testColor, fontSize: 12),
+                        // ),
+                        // Spacing(isWidth: false, size: 4),
+                        // TextField(
+                        //   expands: false,
+                        //   decoration: InputDecoration(
+                        //       isDense: true,
+                        //       focusedBorder: const OutlineInputBorder(
+                        //         borderSide: BorderSide(
+                        //             color:
+                        //                 AppColors.paymentButtonBackgroundColor,
+                        //             width: 0.5),
+                        //         borderRadius: BorderRadius.zero,
+                        //       ),
+                        //       enabledBorder: const OutlineInputBorder(
+                        //         borderSide: BorderSide(
+                        //             color: AppColors.doctorExperienceColor,
+                        //             width: 0.5),
+                        //         borderRadius: BorderRadius.zero,
+                        //       ),
+                        //       errorBorder: const OutlineInputBorder(
+                        //         borderSide:
+                        //             BorderSide(color: Colors.red, width: 0.5),
+                        //         borderRadius: BorderRadius.zero,
+                        //       ),
+                        //       contentPadding: const EdgeInsets.symmetric(
+                        //           horizontal: 12, vertical: 12),
+                        //       filled: false,
+                        //       hintStyle: AppTextStyle.textLightStyle(
+                        //           color: AppColors.testColor, fontSize: 14),
+                        //       hintText: AppStrings().UPIAddress,
+                        //       fillColor: Colors.white70),
+                        // ),
                         Spacing(isWidth: false, size: 8),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
@@ -539,19 +578,21 @@ class _PaymentPageState extends State<PaymentPage> {
     });
     final transactionRef = Random.secure().nextInt(1 << 32).toString();
     print("Starting transaction with id $transactionRef");
-    final a = await UpiPay.initiateTransaction(
+    _upiTransactionResponse = await UpiPay.initiateTransaction(
       // amount: widget.teleconsultationFees!,
       amount: "2.00",
       app: applicationMeta.upiApplication,
       receiverName: 'UHI',
       //receiverUpiAddress: widget.doctorsUPIaddress!,
-      receiverUpiAddress: "swanandmarathe89-1@okhdfcbank",
+      receiverUpiAddress: _bookingOnInitResponseModel
+              ?.message?.order?.fulfillment?.agent?.tags?.upiId ??
+          "",
       transactionRef: transactionRef,
       transactionNote: 'UPI Payment',
       // merchantCode: '7372',
     );
 
-    print(a);
+    print(_upiTransactionResponse);
   }
 
   Widget _iosApps() {

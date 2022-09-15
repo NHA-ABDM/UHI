@@ -1,20 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:cryptography/cryptography.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:mime/mime.dart';
-import 'package:open_file/open_file.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:stomp_dart_client/stomp.dart';
 import 'package:stomp_dart_client/stomp_config.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
@@ -22,7 +18,6 @@ import 'package:uhi_flutter_app/common/common.dart';
 import 'package:uhi_flutter_app/constants/constants.dart';
 import 'package:uhi_flutter_app/controller/chat/src/get_chat_messages_controller.dart';
 import 'package:uhi_flutter_app/controller/chat/src/post_chat_message_controller.dart';
-import 'package:uhi_flutter_app/controller/controller.dart';
 import 'package:uhi_flutter_app/model/common/src/chat_message_dhp_model.dart';
 import 'package:uhi_flutter_app/model/common/src/chat_message_model.dart';
 import 'package:uhi_flutter_app/model/model.dart';
@@ -33,20 +28,27 @@ import 'package:uhi_flutter_app/utils/src/shared_preferences.dart';
 import 'package:uhi_flutter_app/utils/utils.dart';
 import 'package:uuid/uuid.dart';
 
-class ChatPage extends StatefulWidget {
-  String? doctorHprId;
-  String? patientAbhaId;
-  String? doctorName;
-  String? doctorGender;
-  String? providerUri;
+import '../../../common/src/get_pages.dart';
+import '../../../controller/controller.dart';
 
-  ChatPage({
+class ChatPage extends StatefulWidget {
+  // String? doctorHprId;
+  // String? patientAbhaId;
+  // String? doctorName;
+  // String? doctorGender;
+  // String? providerUri;
+
+  // ChatPage({
+  //   key,
+  //   this.doctorHprId,
+  //   this.patientAbhaId,
+  //   this.doctorName,
+  //   this.doctorGender,
+  //   this.providerUri,
+  // }) : super(key: key);
+
+  const ChatPage({
     key,
-    this.doctorHprId,
-    this.patientAbhaId,
-    this.doctorName,
-    this.doctorGender,
-    this.providerUri,
   }) : super(key: key);
 
   @override
@@ -61,6 +63,7 @@ class _ChatPageState extends State<ChatPage> {
   final _chatMsgTextEditingController = TextEditingController();
   final _postChatMessageController = Get.put(PostChatMessageController());
   final _getChatMessageController = Get.put(GetChatMessagesController());
+  final _getSharedKeyController = Get.put(GetSharedKeyController());
   final _messagesScrollController = ScrollController(keepScrollOffset: true);
 
   ///SCREEN WIDTH
@@ -81,22 +84,48 @@ class _ChatPageState extends State<ChatPage> {
   String? _doctorName = "";
   String? _doctorGender = "";
   String? _providerUri = "";
+  bool _allowSendMessage = true;
+
   // List<ChatMessageDhpModel> _messagesList = List.empty(growable: true);
   List<ChatMessageModel> _messagesList = List.empty(growable: true);
   Future<List<ChatMessageModel>?>? futureListOfMessages;
   bool isLoading = false;
   Timer? _timer;
+  GetSharedKeyResponseModel? _getSharedKeyResponse;
+
+  ///Encryption
+  SecretKey? _sharedSecretKey;
+  SecretBox? _secretBox;
+  String? _privateKey;
+
+  // Generate a key pair.
+  final encryptionAlgorithm = X25519();
+
+  ///FILE SHARING
+  String? _fileName;
+  String? base64EncodeFile;
+  String? selectedBase64EncodeFile;
+
+  ///Encryption algorithm
+  final algorithm = AesCtr.with256bits(macAlgorithm: Hmac.sha256());
 
   @override
   void initState() {
     super.initState();
     // _loadMessages();
 
-    _doctorHprId = widget.doctorHprId;
-    _patientAbhaId = widget.patientAbhaId;
-    _doctorName = widget.doctorName;
-    _doctorGender = widget.doctorGender;
-    _providerUri = widget.providerUri;
+    SharedPreferencesHelper.getPrivateKey().then((value) => setState(() {
+          setState(() {
+            _privateKey = value;
+          });
+        }));
+
+    _doctorHprId = Get.arguments['doctorHprId'];
+    _patientAbhaId = Get.arguments['patientAbhaId'];
+    _doctorName = Get.arguments['doctorName'];
+    _doctorGender = Get.arguments['doctorGender'];
+    _providerUri = Get.arguments['providerUri'];
+    _allowSendMessage = Get.arguments['allowSendMessage'] ?? true;
 
     if (mounted) {
       futureListOfMessages = getChatMessages();
@@ -131,13 +160,100 @@ class _ChatPageState extends State<ChatPage> {
   Future<List<ChatMessageModel>?> getChatMessages() async {
     List<ChatMessageModel>? listOfMsgs = List.empty(growable: true);
 
-    await _getChatMessageController.getChatMessages(
-        sender: _patientAbhaId, receiver: _doctorHprId);
+    await _getSharedKeyController.getSharedKeyDetails(
+        doctorId: _doctorHprId, patientId: _patientAbhaId);
 
-    if (_getChatMessageController.chatMessages != null &&
-        _getChatMessageController.chatMessages!.isNotEmpty) {
-      listOfMsgs.addAll(_getChatMessageController.chatMessages!);
-      await connectToStomp();
+    if (_getSharedKeyController.sharedKeyDetails == null ||
+        _getSharedKeyController.sharedKeyDetails.isEmpty) {
+    } else {
+      _getSharedKeyResponse = GetSharedKeyResponseModel.fromJson(
+          _getSharedKeyController.sharedKeyDetails[0]);
+
+      if (_getSharedKeyResponse?.publicKey != null &&
+          _getSharedKeyResponse?.publicKey != "") {
+        List<int> publicKeyBytes =
+            (jsonDecode(_getSharedKeyResponse!.publicKey!) as List)
+                .map((e) => int.parse(e.toString()))
+                .toList();
+
+        List<int> privateKeyBytes = (jsonDecode(_privateKey!) as List)
+            .map((e) => int.parse(e.toString()))
+            .toList();
+
+        log("$privateKeyBytes", name: "PRIVATE KEY");
+        // _sharedSecretKey = SecretKey(bytes);
+
+        // final keyPair = await encryptionAlgorithm.newKeyPair();
+        final doctorPublicKey =
+            SimplePublicKey(publicKeyBytes, type: KeyPairType.x25519);
+
+        final keyPair = SimpleKeyPairData(privateKeyBytes,
+            publicKey: doctorPublicKey, type: KeyPairType.x25519);
+
+        _sharedSecretKey = await encryptionAlgorithm.sharedSecretKey(
+            keyPair: keyPair, remotePublicKey: doctorPublicKey);
+
+        log("${await _sharedSecretKey?.extractBytes()}", name: "SECRET KEY");
+      }
+
+      await _getChatMessageController.getChatMessages(
+          sender: _patientAbhaId, receiver: _doctorHprId);
+
+      if (_getChatMessageController.chatMessages != null &&
+          _getChatMessageController.chatMessages!.isNotEmpty) {
+        List<ChatMessageModel> tmpList = List.empty(growable: true);
+        try {
+          _getChatMessageController.chatMessages?.forEach((element) async {
+            ChatMessageModel chatMessageModel = ChatMessageModel();
+            if (element.contentType != null && element.contentType == 'text') {
+              String? message;
+              if (element.contentValue != null &&
+                  element.contentValue!.contains('cipher_text')) {
+                message = await _decryptMessage(
+                  message: element.contentValue!,
+                );
+              } else {
+                message = element.contentValue ?? '';
+              }
+              chatMessageModel.contentValue = message;
+            }
+            if (element.contentType != null && element.contentType == 'media') {
+              chatMessageModel.contentValue = '';
+              chatMessageModel.contentUrl = element.contentUrl;
+            }
+
+            // String? message;
+            // bool isJson = checkIfJson(element.contentValue ?? "");
+
+            // if (isJson) {
+            //   message = await _decryptMessage(message: element.contentValue!);
+            // } else {
+            //   message = element.contentValue;
+            // }
+
+            chatMessageModel.sender = element.sender;
+            chatMessageModel.receiver = element.receiver;
+            chatMessageModel.consumerUrl = element.consumerUrl;
+            chatMessageModel.providerUrl = element.providerUrl;
+            chatMessageModel.time = element.time;
+            chatMessageModel.contentId = element.contentId;
+            chatMessageModel.contentType = element.contentType;
+            // chatMessageModel.contentValue = message;
+
+            log("${jsonEncode(chatMessageModel)}", name: "LIST");
+
+            tmpList.add(chatMessageModel);
+          });
+        } catch (e) {
+          DialogHelper.showErrorDialog(
+              description:
+                  "Unable to decrypt messages.\nSomething went wrong.");
+        }
+        log("${jsonEncode(tmpList)}", name: "LIST");
+        await Future.delayed(Duration(milliseconds: 800));
+        listOfMsgs.addAll(tmpList);
+        await connectToStomp();
+      }
     }
 
     return listOfMsgs;
@@ -192,22 +308,36 @@ class _ChatPageState extends State<ChatPage> {
     print("connected");
     await stompClient?.subscribe(
       destination: '/msg/queue/specific-user',
-      callback: (frame) {
+      callback: (frame) async {
         if (frame.body != null) {
           log("${frame.body}", name: "FRAME BODY");
           ChatMessageDhpModel chatMessageModel =
               ChatMessageDhpModel.fromJson(json.decode(frame.body!));
-          ChatMessageModel chatMessage = ChatMessageModel();
-          chatMessage.sender =
-              chatMessageModel.message?.intent?.chat?.sender?.person?.cred;
-          chatMessage.receiver =
-              chatMessageModel.message?.intent?.chat?.receiver?.person?.cred;
-          chatMessage.time =
-              chatMessageModel.message?.intent?.chat?.time?.timestamp;
-          chatMessage.contentId =
-              chatMessageModel.message?.intent?.chat?.content?.contentId;
-          chatMessage.contentValue =
-              chatMessageModel.message?.intent?.chat?.content?.contentValue;
+          //ChatMessageModel chatMessage = ChatMessageModel();
+          ChatMessageModel chatMessage =
+              await getChatMessageObject(chatMessageModel);
+          // chatMessage.sender =
+          //     chatMessageModel.message?.intent?.chat?.sender?.person?.cred;
+          // chatMessage.receiver =
+          //     chatMessageModel.message?.intent?.chat?.receiver?.person?.cred;
+          // chatMessage.time =
+          //     chatMessageModel.message?.intent?.chat?.time?.timestamp;
+          // chatMessage.contentId =
+          //     chatMessageModel.message?.intent?.chat?.content?.contentId;
+
+          // bool isJson = checkIfJson(
+          //     chatMessageModel.message?.intent?.chat?.content?.contentValue ??
+          //         "");
+
+          // if (isJson) {
+          //   chatMessage.contentValue = await _decryptMessage(
+          //       message: chatMessageModel
+          //               .message?.intent?.chat?.content?.contentValue ??
+          //           "");
+          // } else {
+          //   chatMessage.contentValue =
+          //       chatMessageModel.message?.intent?.chat?.content?.contentValue;
+          // }
 
           _messagesList.add(chatMessage);
           _messagesList.sort((b, a) =>
@@ -220,12 +350,67 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
+  bool checkIfJson(String message) {
+    try {
+      jsonDecode(message);
+      return true;
+    } on FormatException catch (e) {
+      return false;
+    }
+  }
+
+  Future<ChatMessageModel> getChatMessageObject(
+      ChatMessageDhpModel chatMessageModel) async {
+    ChatMessageModel chatMessage = ChatMessageModel();
+    chatMessage.sender =
+        chatMessageModel.message?.intent?.chat?.sender?.person?.cred;
+    chatMessage.receiver =
+        chatMessageModel.message?.intent?.chat?.receiver?.person?.cred;
+    chatMessage.time = chatMessageModel.message?.intent?.chat?.time?.timestamp;
+    chatMessage.contentId =
+        chatMessageModel.message?.intent?.chat?.content?.contentId;
+    chatMessage.contentType =
+        chatMessageModel.message?.intent?.chat?.content?.contentType;
+    if (chatMessage.contentType != null && chatMessage.contentType == 'text') {
+      String? contentValue =
+          chatMessageModel.message?.intent?.chat?.content?.contentValue;
+      if (contentValue != null && contentValue.contains('cipher_text')) {
+        try {
+          chatMessage.contentValue = await _decryptMessage(
+            message:
+                chatMessageModel.message?.intent?.chat?.content?.contentValue ??
+                    "",
+          );
+        } catch (e) {
+          DialogHelper.showErrorDialog(
+              description:
+                  "Unable to decrypt messages.\nSomething went wrong.");
+        }
+      } else {
+        chatMessage.contentValue = contentValue;
+      }
+    }
+    if (chatMessage.contentType != null && chatMessage.contentType == 'media') {
+      String? contentValue =
+          chatMessageModel.message?.intent?.chat?.content?.contentValue;
+      chatMessage.contentValue = '';
+      if (contentValue != null && contentValue.isNotEmpty) {
+        chatMessage.contentUrl =
+            chatMessageModel.message?.intent?.chat?.content?.contentValue;
+      } else {
+        chatMessage.contentUrl =
+            chatMessageModel.message?.intent?.chat?.content?.contentUrl;
+      }
+    }
+    return chatMessage;
+  }
+
   ///CHAT MESSAGE API
   postMessageAPI() async {
     _uniqueId = Uuid().v1();
     _postChatMessageController.refresh();
     var userData;
-
+    String? encryptedMessage;
     await SharedPreferencesHelper.getUserData().then((value) => setState(() {
           setState(() {
             debugPrint("Printing the shared preference userData : $value");
@@ -264,9 +449,41 @@ class _ChatPageState extends State<ChatPage> {
     time.timestamp = DateFormat("y-MM-ddTHH:mm:ss").format(DateTime.now());
 
     content.contentId = _uniqueId; //Uuid
-    content.contentValue = _chatMsgTextEditingController.text.isNotEmpty
-        ? _chatMsgTextEditingController.text.trim()
-        : "";
+    if (base64EncodeFile != null && base64EncodeFile!.isNotEmpty) {
+      content.contentValue = base64EncodeFile;
+      content.contentType = 'media';
+      content.contentFilename = _fileName ?? 'img';
+    } else {
+      try {
+        encryptedMessage = await _encryptMessage(
+          message: _chatMsgTextEditingController.text.isNotEmpty
+              ? _chatMsgTextEditingController.text.trim()
+              : "",
+        );
+      } catch (e) {
+        setState(() {
+          isLoading = false;
+        });
+        DialogHelper.showErrorDialog(
+            description: "Something went wrong.\nMessage not sent.");
+        return;
+      }
+
+      ///Encrypted message
+      content.contentValue = "$encryptedMessage";
+      content.contentType = 'text';
+    }
+
+    // String? encryptedMessage = await _encryptMessage(
+    //     message: _chatMsgTextEditingController.text.isNotEmpty
+    //         ? _chatMsgTextEditingController.text.trim()
+    //         : "");
+
+    // ///Encrypted message
+    // content.contentValue = "$encryptedMessage";
+    // // content.contentValue = _chatMsgTextEditingController.text.isNotEmpty
+    // //     ? _chatMsgTextEditingController.text.trim()
+    // //     : "";
 
     personSender.cred = _patientAbhaId; //Sender hpr/abha id
     personSender.name = getUserDetailsResponseModel.fullName;
@@ -299,18 +516,32 @@ class _ChatPageState extends State<ChatPage> {
     if (_postChatMessageController
             .chatMessageAckDetails?.message?.ack?.status ==
         "ACK") {
-      ChatMessageModel chatMessage = ChatMessageModel();
+      ChatMessageModel chatMessage =
+          await getChatMessageObject(chatMessageModel);
+      //ChatMessageModel chatMessage = ChatMessageModel();
 
-      chatMessage.sender =
-          chatMessageModel.message?.intent?.chat?.sender?.person?.cred;
-      chatMessage.receiver =
-          chatMessageModel.message?.intent?.chat?.receiver?.person?.cred;
-      chatMessage.time =
-          chatMessageModel.message?.intent?.chat?.time?.timestamp;
-      chatMessage.contentId =
-          chatMessageModel.message?.intent?.chat?.content?.contentId;
-      chatMessage.contentValue =
-          chatMessageModel.message?.intent?.chat?.content?.contentValue;
+      // chatMessage.sender =
+      //     chatMessageModel.message?.intent?.chat?.sender?.person?.cred;
+      // chatMessage.receiver =
+      //     chatMessageModel.message?.intent?.chat?.receiver?.person?.cred;
+      // chatMessage.time =
+      //     chatMessageModel.message?.intent?.chat?.time?.timestamp;
+      // chatMessage.contentId =
+      //     chatMessageModel.message?.intent?.chat?.content?.contentId;
+
+      // bool isJson = checkIfJson(
+      //     chatMessageModel.message?.intent?.chat?.content?.contentValue ?? "");
+
+      // if (isJson) {
+      //   chatMessage.contentValue = await _decryptMessage(
+      //       message:
+      //           chatMessageModel.message?.intent?.chat?.content?.contentValue ??
+      //               "");
+      // } else {
+      //   chatMessage.contentValue =
+      //       chatMessageModel.message?.intent?.chat?.content?.contentValue;
+      // }
+
       _messagesList.add(chatMessage);
       _messagesList.sort(
           (b, a) => DateTime.parse(a.time!).compareTo(DateTime.parse(b.time!)));
@@ -318,6 +549,9 @@ class _ChatPageState extends State<ChatPage> {
       _scrollToBottom();
 
       setState(() {
+        selectedBase64EncodeFile = base64EncodeFile;
+        _fileName = null;
+        base64EncodeFile = null;
         isLoading = false;
       });
     } else if (_postChatMessageController
@@ -325,16 +559,22 @@ class _ChatPageState extends State<ChatPage> {
         "NACK") {
       setState(() {
         isLoading = false;
+        _fileName = null;
+        base64EncodeFile = null;
       });
       DialogHelper.showErrorDialog(description: "Message not sent.");
     } else if (_postChatMessageController.errorString.isNotEmpty) {
       setState(() {
         isLoading = false;
+        _fileName = null;
+        base64EncodeFile = null;
       });
       DialogHelper.showErrorDialog(description: "Message not sent.");
     } else {
       setState(() {
         isLoading = false;
+        _fileName = null;
+        base64EncodeFile = null;
       });
       DialogHelper.showErrorDialog(description: "Message not sent.");
     }
@@ -350,255 +590,178 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
+  Future<String?> _encryptMessage({required String message}) async {
+    ///Message we want to encrypt
+    final utfEncodedMessage = utf8.encode(message);
+
+    ///Encrypt
+    _secretBox = await algorithm.encrypt(
+      utfEncodedMessage,
+      secretKey: _sharedSecretKey!,
+    );
+
+    ChatMessageEncryptionModel chatMessageEncryptionModel =
+        ChatMessageEncryptionModel();
+    chatMessageEncryptionModel.cipherText = _secretBox?.cipherText;
+    chatMessageEncryptionModel.nonce = _secretBox?.nonce;
+    chatMessageEncryptionModel.macBytes = _secretBox?.mac.bytes;
+
+    return "${jsonEncode(chatMessageEncryptionModel)}";
+  }
+
+  Future<String?> _decryptMessage({required String message}) async {
+    String decryptedMessage;
+    List<int> encodedText;
+
+    ChatMessageEncryptionModel chatMessageEncryptionModel =
+        ChatMessageEncryptionModel.fromJson(jsonDecode(message));
+
+    SecretBox secretBox = SecretBox(chatMessageEncryptionModel.cipherText!,
+        nonce: chatMessageEncryptionModel.nonce!,
+        mac: Mac(chatMessageEncryptionModel.macBytes!));
+
+    ///Decrypt
+    encodedText = await algorithm.decrypt(
+      secretBox,
+      secretKey: _sharedSecretKey!,
+    );
+
+    decryptedMessage = utf8.decode(encodedText);
+
+    return decryptedMessage;
+  }
+
   @override
   Widget build(BuildContext context) {
     width = MediaQuery.of(context).size.width;
     height = MediaQuery.of(context).size.height;
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        centerTitle: true,
-        leading: IconButton(
-          onPressed: () {
-            Get.back();
-          },
-          icon: Icon(
-            Icons.chevron_left_rounded,
-            color: AppColors.darkGrey323232,
-            size: 32,
+    return WillPopScope(
+      onWillPop: () async {
+        debugPrint('onWillPop Previous route is ${Get.previousRoute}');
+        if (Get.previousRoute == AppRoutes.splashPage) {
+          Get.offAllNamed(AppRoutes.homePage);
+        } else {
+          Get.back();
+        }
+        return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          centerTitle: true,
+          leading: IconButton(
+            onPressed: () {
+              debugPrint('Previous route is ${Get.previousRoute}');
+              if (Get.previousRoute == AppRoutes.splashPage) {
+                Get.offAllNamed(AppRoutes.homePage);
+              } else {
+                Get.back();
+              }
+            },
+            icon: Icon(
+              Icons.chevron_left_rounded,
+              color: AppColors.darkGrey323232,
+              size: 32,
+            ),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
           ),
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(),
-        ),
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            CircleAvatar(
-              radius: 20,
-              backgroundImage: Image.network(_doctorGender == "M"
-                      ? AppStrings().maleDoctorImage
-                      : AppStrings().femaleDoctorImage)
-                  .image,
-              // backgroundImage: Image.network(
-              //   AppStrings.femaleDoctorImage,
-              //   fit: BoxFit.fill,
-              // ).image,
-            ),
-            const SizedBox(
-              width: 10,
-            ),
-            Expanded(
-              child: Text(
-                _doctorName ?? "Doctor",
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 18,
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              CircleAvatar(
+                radius: 20,
+                backgroundImage: Image.network(_doctorGender == "M"
+                        ? AppStrings().maleDoctorImage
+                        : AppStrings().femaleDoctorImage)
+                    .image,
+                // backgroundImage: Image.network(
+                //   AppStrings.femaleDoctorImage,
+                //   fit: BoxFit.fill,
+                // ).image,
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              Expanded(
+                child: Text(
+                  _doctorName ?? "Doctor",
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 18,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
+        ),
+        body: FutureBuilder(
+          future: futureListOfMessages,
+          builder: (context, loadingData) {
+            switch (loadingData.connectionState) {
+              case ConnectionState.waiting:
+                return CommonLoadingIndicator();
+
+              case ConnectionState.active:
+                return Text(AppStrings().loadingData);
+
+              case ConnectionState.done:
+                return loadingData.data != null
+                    ? buildWidgets(loadingData.data as List<ChatMessageModel>)
+                    : RefreshIndicator(
+                        onRefresh: onRefresh,
+                        child: Stack(
+                          children: [
+                            ListView(),
+                            Container(
+                              padding: EdgeInsets.all(15),
+                              child: Center(
+                                child: Text(
+                                  AppStrings().serverBusyErrorMsg,
+                                  style: TextStyle(
+                                      fontFamily: "Poppins",
+                                      fontStyle: FontStyle.normal,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 16.0),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+              default:
+                return loadingData.data != null
+                    ? buildWidgets(loadingData.data as List<ChatMessageModel>)
+                    : RefreshIndicator(
+                        onRefresh: onRefresh,
+                        child: Stack(
+                          children: [
+                            ListView(),
+                            Container(
+                              padding: EdgeInsets.all(15),
+                              child: Center(
+                                child: Text(
+                                  AppStrings().serverBusyErrorMsg,
+                                  style: TextStyle(
+                                      fontFamily: "Poppins",
+                                      fontStyle: FontStyle.normal,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 16.0),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+            }
+          },
         ),
       ),
-      body: FutureBuilder(
-        future: futureListOfMessages,
-        builder: (context, loadingData) {
-          switch (loadingData.connectionState) {
-            case ConnectionState.waiting:
-              return CommonLoadingIndicator();
-
-            case ConnectionState.active:
-              return Text(AppStrings().loadingData);
-
-            case ConnectionState.done:
-              return loadingData.data != null
-                  ? buildWidgets(loadingData.data as List<ChatMessageModel>)
-                  : RefreshIndicator(
-                      onRefresh: onRefresh,
-                      child: Stack(
-                        children: [
-                          ListView(),
-                          Container(
-                            padding: EdgeInsets.all(15),
-                            child: Center(
-                              child: Text(
-                                AppStrings().serverBusyErrorMsg,
-                                style: TextStyle(
-                                    fontFamily: "Poppins",
-                                    fontStyle: FontStyle.normal,
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 16.0),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-            default:
-              return loadingData.data != null
-                  ? buildWidgets(loadingData.data as List<ChatMessageModel>)
-                  : RefreshIndicator(
-                      onRefresh: onRefresh,
-                      child: Stack(
-                        children: [
-                          ListView(),
-                          Container(
-                            padding: EdgeInsets.all(15),
-                            child: Center(
-                              child: Text(
-                                AppStrings().serverBusyErrorMsg,
-                                style: TextStyle(
-                                    fontFamily: "Poppins",
-                                    fontStyle: FontStyle.normal,
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 16.0),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-          }
-        },
-      ),
-
-      // body: Container(
-      //   width: width,
-      //   height: height,
-      //   child: Column(
-      //     mainAxisAlignment: MainAxisAlignment.start,
-      //     crossAxisAlignment: CrossAxisAlignment.start,
-      //     children: [
-      //       ///MESSAGES
-      //       Expanded(
-      //         child: ListView.builder(
-      //           // itemCount: 5,
-      //           itemCount: _messagesList.length,
-      //           padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
-      //           itemBuilder: (context, index) {
-      //             // if (index == 0) {
-      //             //   return buildSenderMessage(text: "Hello Doctor!");
-      //             // } else if (index == 1) {
-      //             //   return buildReceiverMessage(
-      //             //       text: "Hello Dear, How may I help you?");
-      //             // } else if (index == 2) {
-      //             //   return buildSenderMessage(
-      //             //       text: "I am Suffering from, chest pain and mild fever");
-      //             // } else if (index == 3) {
-      //             //   return buildReceiverMessage(
-      //             //       text: "Since when you are Having this problem?");
-      //             // } else {
-      //             //   return Container();
-      //             // }
-      //             log("${_messagesList[index].message?.intent?.chat?.sender?.person?.cred}",
-      //                 name: "MESSAGE");
-
-      //             if (_messagesList[index]
-      //                     .message
-      //                     ?.intent
-      //                     ?.chat
-      //                     ?.sender
-      //                     ?.person
-      //                     ?.cred ==
-      //                 _patientAbhaId) {
-      //               return buildSenderMessage(
-      //                   text: _messagesList[index]
-      //                           .message
-      //                           ?.intent
-      //                           ?.chat
-      //                           ?.content
-      //                           ?.contentValue ??
-      //                       "");
-      //             } else if (_messagesList[index]
-      //                     .message
-      //                     ?.intent
-      //                     ?.chat
-      //                     ?.receiver
-      //                     ?.person
-      //                     ?.cred ==
-      //                 _patientAbhaId) {
-      //               return buildReceiverMessage(
-      //                   text: _messagesList[index]
-      //                           .message
-      //                           ?.intent
-      //                           ?.chat
-      //                           ?.content
-      //                           ?.contentValue ??
-      //                       "");
-      //             } else {
-      //               return Container();
-      //             }
-      //           },
-      //         ),
-      //       ),
-
-      //       ///TYPE A MESSAGE
-      //       Container(
-      //         width: width,
-      //         height: height * 0.08,
-      //         padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
-      //         decoration: const BoxDecoration(
-      //           color: Colors.white,
-      //           boxShadow: [
-      //             BoxShadow(
-      //               offset: Offset(0, 10),
-      //               blurRadius: 20,
-      //               color: Color(0x1B1C204D),
-      //             )
-      //           ],
-      //         ),
-      //         child: Row(
-      //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      //           crossAxisAlignment: CrossAxisAlignment.center,
-      //           children: [
-      //             Expanded(
-      //               child: TextField(
-      //                 controller: _chatMsgTextEditingController,
-      //                 decoration: InputDecoration(
-      //                   hintText: "Write Message",
-      //                   border: InputBorder.none,
-      //                 ),
-      //               ),
-      //             ),
-      //             GestureDetector(
-      //               onTap: () {
-      //                 setState(() {
-      //                   isLoading = true;
-      //                 });
-      //                 postMessageAPI();
-      //               },
-      //               child: Container(
-      //                 width: width * 0.14,
-      //                 child: Center(
-      //                     child: isLoading
-      //                         ? SizedBox(
-      //                             width: 15,
-      //                             height: 15,
-      //                             child: CircularProgressIndicator(
-      //                               color: AppColors.primaryLightBlue007BFF,
-      //                               value: 20,
-      //                             ),
-      //                           )
-      //                         : Text(
-      //                             "Send",
-      //                             style: TextStyle(
-      //                               color: Color(0xFF334856),
-      //                               fontSize: 16,
-      //                               fontWeight: FontWeight.bold,
-      //                             ),
-      //                           )),
-      //               )
-      //             ),
-      //           ],
-      //         ),
-      //       ),
-      //     ],
-      //   ),
-      // ),
     );
   }
 
@@ -607,6 +770,7 @@ class _ChatPageState extends State<ChatPage> {
       _messagesList.addAll(data);
       _messagesList.sort(
           (b, a) => DateTime.parse(a.time!).compareTo(DateTime.parse(b.time!)));
+
       // _messagesList.reversed;
       // _scrollToBottom();
       log("${json.encode(_messagesList)}", name: "MESSAGES");
@@ -631,101 +795,158 @@ class _ChatPageState extends State<ChatPage> {
               controller: _messagesScrollController,
               physics: ClampingScrollPhysics(),
               itemBuilder: (context, index) {
-                // if (index == 0) {
-                //   return buildSenderMessage(text: "Hello Doctor!");
-                // } else if (index == 1) {
-                //   return buildReceiverMessage(
-                //       text: "Hello Dear, How may I help you?");
-                // } else if (index == 2) {
+                // if (_messagesList[index].sender == _patientAbhaId) {
                 //   return buildSenderMessage(
-                //       text: "I am Suffering from, chest pain and mild fever");
-                // } else if (index == 3) {
+                //       text: _messagesList[index].contentValue ?? "");
+                // } else if (_messagesList[index].receiver == _patientAbhaId) {
                 //   return buildReceiverMessage(
-                //       text: "Since when you are Having this problem?");
+                //       text: _messagesList[index].contentValue ?? "");
                 // } else {
                 //   return Container();
                 // }
-                // log("${_messagesList[index].contentValue}", name: "MESSAGE");
-
                 if (_messagesList[index].sender == _patientAbhaId) {
-                  return buildSenderMessage(
-                      text: _messagesList[index].contentValue ?? "");
+                  return buildSenderMessageNew(
+                      chatMessageModel: _messagesList[index]);
                 } else if (_messagesList[index].receiver == _patientAbhaId) {
-                  return buildReceiverMessage(
-                      text: _messagesList[index].contentValue ?? "");
+                  return buildReceiverMessageNew(
+                      chatMessageModel: _messagesList[index]);
                 } else {
                   return Container();
                 }
               },
             ),
           ),
-
-          ///TYPE A MESSAGE
-          // Container(
-          //   width: width,
-          //   height: height * 0.08,
-          //   padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
-          //   decoration: const BoxDecoration(
-          //     color: Colors.white,
-          //     boxShadow: [
-          //       BoxShadow(
-          //         offset: Offset(0, 10),
-          //         blurRadius: 20,
-          //         color: Color(0x1B1C204D),
-          //       )
-          //     ],
-          //   ),
-          //   child: Row(
-          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //     crossAxisAlignment: CrossAxisAlignment.center,
-          //     children: [
-          //       Expanded(
-          //         child: TextField(
-          //           controller: _chatMsgTextEditingController,
-          //           maxLines: 4,
-          //           decoration: InputDecoration(
-          //             hintText: "Write Message",
-          //             border: InputBorder.none,
-          //           ),
-          //         ),
-          //       ),
-          //       GestureDetector(
-          //         onTap: isLoading
-          //             ? null
-          //             : () {
-          //                 setState(() {
-          //                   isLoading = true;
-          //                 });
-          //                 postMessageAPI();
-          //               },
-          //         child: Container(
-          //           width: width * 0.14,
-          //           child: Center(
-          //               child: isLoading
-          //                   ? SizedBox(
-          //                       width: 15,
-          //                       height: 15,
-          //                       child: CircularProgressIndicator(
-          //                         color: AppColors.primaryLightBlue007BFF,
-          //                         value: 20,
-          //                       ),
-          //                     )
-          //                   : Text(
-          //                       "Send",
-          //                       style: TextStyle(
-          //                         color: Color(0xFF334856),
-          //                         fontSize: 16,
-          //                         fontWeight: FontWeight.bold,
-          //                       ),
-          //                     )),
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // ),
-          generateBottomWidget()
+          _allowSendMessage ? generateBottomWidget() : Container(),
         ],
       ),
+    );
+  }
+
+  buildReceiverMessageNew({required ChatMessageModel chatMessageModel}) {
+    debugPrint(
+        "buildReceiverMessageNew contentUrl:${chatMessageModel.contentUrl}");
+    debugPrint(
+        "buildReceiverMessageNew contentValue:${chatMessageModel.contentValue}");
+    debugPrint(
+        "buildReceiverMessageNew contentType:${chatMessageModel.contentType}");
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          constraints:
+              BoxConstraints(minWidth: width * 0.12, maxWidth: width * 0.7),
+          margin: const EdgeInsets.only(top: 10),
+          padding: const EdgeInsets.all(15),
+          decoration: BoxDecoration(
+              color: const Color(0xFF264488),
+              borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(16),
+                  topLeft: Radius.circular(16),
+                  //bottomLeft: Radius.circular(16),
+                  bottomRight: Radius.circular(16))),
+          child: chatMessageModel.contentType == 'text'
+              ? Text(
+                  chatMessageModel.contentValue ?? '',
+                  style: AppTextStyle.textSemiBoldStyle(
+                      color: AppColors.white, fontSize: 15),
+                )
+              : chatMessageModel.contentType == 'media'
+                  ? GestureDetector(
+                      onTap: () {
+                        String? mediaUrl =
+                            (chatMessageModel.contentValue == null ||
+                                    chatMessageModel.contentValue!.isEmpty)
+                                ? chatMessageModel.contentUrl
+                                : chatMessageModel.contentValue;
+                        print("Receiver Image clicked");
+                        Get.toNamed(AppRoutes.showSelectedMediaPage,
+                            arguments: {
+                              'media': '',
+                              'mediaUrl': mediaUrl,
+                              'isUpload': false
+                            });
+                      },
+                      child: buildMediaWidget(
+                          mediaUrl: (chatMessageModel.contentValue == null ||
+                                  chatMessageModel.contentValue!.isEmpty)
+                              ? chatMessageModel.contentUrl
+                              : chatMessageModel.contentValue))
+                  : Container(),
+        ),
+      ],
+    );
+  }
+
+  buildSenderMessageNew({required ChatMessageModel chatMessageModel}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Container(
+          constraints:
+              BoxConstraints(minWidth: width * 0.12, maxWidth: width * 0.7),
+          margin: const EdgeInsets.only(top: 10),
+          padding: const EdgeInsets.all(15),
+          decoration: BoxDecoration(
+              color: const Color(0xFFE9ECF3),
+              borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(16),
+                  topLeft: Radius.circular(16),
+                  bottomLeft: Radius.circular(16))),
+          child: chatMessageModel.contentType == 'text'
+              ? Text(
+                  chatMessageModel.contentValue ?? '',
+                  style: AppTextStyle.textSemiBoldStyle(
+                      color: Color(0xFF264488), fontSize: 15),
+                )
+              : chatMessageModel.contentType == 'media'
+                  ? GestureDetector(
+                      onTap: () {
+                        String? mediaUrl =
+                            (chatMessageModel.contentValue == null ||
+                                    chatMessageModel.contentValue!.isEmpty)
+                                ? chatMessageModel.contentUrl
+                                : chatMessageModel.contentValue;
+                        print("Sender Image clicked");
+                        Get.toNamed(AppRoutes.showSelectedMediaPage,
+                            arguments: {
+                              'media': selectedBase64EncodeFile,
+                              'mediaUrl': mediaUrl,
+                              'isUpload': false
+                            });
+                      },
+                      child: buildMediaWidget(
+                          mediaUrl: (chatMessageModel.contentValue == null ||
+                                  chatMessageModel.contentValue!.isEmpty)
+                              ? chatMessageModel.contentUrl
+                              : chatMessageModel.contentValue),
+                    )
+                  : Container(),
+        ),
+      ],
+    );
+  }
+
+  buildMediaWidget({required String? mediaUrl}) {
+    Uint8List? base64DecodedFile;
+    if (mediaUrl != null && !mediaUrl.contains("http")) {
+      base64DecodedFile = base64Decode(mediaUrl);
+    }
+    return Container(
+      constraints: BoxConstraints(
+          minHeight: 150,
+          maxHeight: 250,
+          minWidth: width * 0.12,
+          maxWidth: width * 0.7),
+      child: base64DecodedFile == null
+          ? Image.network(
+              mediaUrl!,
+              errorBuilder: (context, obj, stackTrace) {
+                return Image.asset('assets/images/dummy_image.jpeg');
+              },
+            )
+          : Image.memory(base64DecodedFile),
     );
   }
 
@@ -733,7 +954,65 @@ class _ChatPageState extends State<ChatPage> {
     return Container(
       padding: const EdgeInsets.fromLTRB(10, 5, 0, 5),
       color: AppColors.tileColors,
-      child: Row(
+      child:
+          // Row(
+          //   crossAxisAlignment: CrossAxisAlignment.center,
+          //   children: [
+          //     Expanded(
+          //       child: Container(
+          //         decoration: BoxDecoration(
+          //           color: AppColors.white,
+          //           borderRadius: BorderRadius.circular(10),
+          //           boxShadow: const [
+          //             BoxShadow(
+          //               offset: Offset(0, 10),
+          //               blurRadius: 20,
+          //               color: Color(0x1B1C204D),
+          //             )
+          //           ],
+          //         ),
+          //         child: TextField(
+          //           controller: _chatMsgTextEditingController,
+          //           maxLines: 3,
+          //           minLines: 1,
+          //           decoration: const InputDecoration(
+          //               hintText: "Write Message",
+          //               border: InputBorder.none,
+          //               contentPadding: EdgeInsets.only(left: 8, right: 8)),
+          //         ),
+          //       ),
+          //     ),
+          //     Center(
+          //       child: isLoading
+          //           ? Container(
+          //               padding: const EdgeInsets.all(8),
+          //               width: 48,
+          //               height: 48,
+          //               child: CircularProgressIndicator(
+          //                 color: AppColors.white,
+          //               ),
+          //             )
+          //           : IconButton(
+          //               onPressed: () {
+          //                 if (_chatMsgTextEditingController.text
+          //                     .trim()
+          //                     .isNotEmpty) {
+          //                   setState(() {
+          //                     isLoading = true;
+          //                   });
+          //                   postMessageAPI();
+          //                 }
+          //               },
+          //               icon: Icon(
+          //                 Icons.send,
+          //                 color: AppColors.white,
+          //                 size: 32,
+          //               ),
+          //             ),
+          //     ),
+          //   ],
+          // ),
+          Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
@@ -749,14 +1028,31 @@ class _ChatPageState extends State<ChatPage> {
                   )
                 ],
               ),
-              child: TextField(
-                controller: _chatMsgTextEditingController,
-                maxLines: 3,
-                minLines: 1,
-                decoration: const InputDecoration(
-                    hintText: "Write Message",
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.only(left: 8, right: 8)),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _chatMsgTextEditingController,
+                      maxLines: 3,
+                      minLines: 1,
+                      maxLength: 4096,
+                      decoration: const InputDecoration(
+                        hintText: "Write a message",
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.only(left: 8),
+                        counterText: '',
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: _handleAttachmentPressed,
+                    icon: const Icon(
+                      Icons.attach_file,
+                      color: AppColors.tileColors,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -773,8 +1069,11 @@ class _ChatPageState extends State<ChatPage> {
                 : IconButton(
                     onPressed: () {
                       if (_chatMsgTextEditingController.text
-                          .trim()
-                          .isNotEmpty) {
+                              .trim()
+                              .isNotEmpty ||
+                          (base64EncodeFile != null &&
+                              _fileName != null &&
+                              _fileName!.isNotEmpty)) {
                         setState(() {
                           isLoading = true;
                         });
@@ -788,24 +1087,134 @@ class _ChatPageState extends State<ChatPage> {
                     ),
                   )
             /*TextButton(
-                  onPressed: () {
-                    if (_chatMsgTextEditingController.text.trim().isNotEmpty) {
-                      setState(() {
-                        isLoading = true;
-                      });
-                      postMessageAPI();
-                    } else {
-                    }
-                  },
-                  child: Text(AppStrings().btnSend,
-                      style: AppTextStyle.textBoldStyle(
-                          color: AppColors.white, fontSize: 16)),
-                )*/
+              onPressed: () {
+                if (_chatMsgTextEditingController.text.trim().isNotEmpty) {
+                  setState(() {
+                    isLoading = true;
+                  });
+                  postMessageAPI();
+                } else {
+                }
+              },
+              child: Text(AppStrings().btnSend,
+                  style: AppTextStyle.textBoldStyle(
+                      color: AppColors.white, fontSize: 16)),
+            )*/
             ,
           ),
         ],
       ),
     );
+  }
+
+  void _handleAttachmentPressed() {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) => SafeArea(child: StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  _handleImageSelection(source: ImageSource.camera);
+                  Navigator.of(context).pop();
+                },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircleAvatar(
+                      radius: 30,
+                      backgroundColor: AppColors.amountColor,
+                      child: Icon(
+                        Icons.camera,
+                        color: AppColors.white,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                      AppStrings().camera,
+                      style: AppTextStyle.textMediumStyle(
+                          fontSize: 16, color: AppColors.titleTextColor),
+                    )
+                  ],
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  _handleImageSelection(source: ImageSource.gallery);
+                  Navigator.of(context).pop();
+                },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircleAvatar(
+                      radius: 30,
+                      backgroundColor: AppColors.amountColor,
+                      child: Icon(
+                        Icons.folder,
+                        color: AppColors.white,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                      AppStrings().gallery,
+                      style: AppTextStyle.textMediumStyle(
+                          fontSize: 16, color: AppColors.titleTextColor),
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      })),
+    );
+  }
+
+  void _handleImageSelection({required ImageSource source}) async {
+    final result = await ImagePicker().pickImage(
+      imageQuality: 70,
+      maxWidth: 1440,
+      source: source,
+    );
+    if (result != null) {
+      final bytes = await result.readAsBytes();
+      final image = await decodeImageFromList(bytes);
+      base64EncodeFile = base64Encode(bytes);
+      _fileName = result.name;
+      bool isUpload = await Get.toNamed(AppRoutes.showSelectedMediaPage,
+          arguments: {
+            'media': base64EncodeFile,
+            'mediaUrl': '',
+            'isUpload': true
+          });
+      if (isUpload) {
+        if (_chatMsgTextEditingController.text.trim().isNotEmpty ||
+            (base64EncodeFile != null &&
+                _fileName != null &&
+                _fileName!.isNotEmpty)) {
+          setState(() {
+            isLoading = true;
+          });
+          postMessageAPI();
+        } else {}
+      } else {
+        setState(() {
+          base64EncodeFile = null;
+          _fileName = null;
+        });
+      }
+      // await OpenFile.open(result.path);
+    } else {
+      Get.snackbar(AppStrings().alert, AppStrings().errorUnableSelectMedia);
+    }
   }
 
   buildReceiverMessage({required String text}) {
@@ -864,211 +1273,4 @@ class _ChatPageState extends State<ChatPage> {
       ],
     );
   }
-
-  // @override
-  // Widget build(BuildContext context) => Scaffold(
-  //       body: Chat(
-  //         messages: _messages,
-  //         onAttachmentPressed: null, //_handleAtachmentPressed,
-  //         onMessageTap: _handleMessageTap,
-  //         onPreviewDataFetched: _handlePreviewDataFetched,
-  //         onSendPressed: _handleSendPressed,
-  //         showUserAvatars: true,
-  //         showUserNames: true,
-  //         user: _user,
-  //         customDateHeaderText: _handleCustomDateHeaderText,
-  //       ),
-  //     );
-
-  // void _addMessage(types.Message message) {
-  //   setState(() {
-  //     _messages.insert(0, message);
-  //   });
-  // }
-
-  // void _handleAtachmentPressed() {
-  //   showModalBottomSheet<void>(
-  //     context: context,
-  //     builder: (BuildContext context) => SafeArea(
-  //       child: SizedBox(
-  //         height: 144,
-  //         child: Column(
-  //           crossAxisAlignment: CrossAxisAlignment.stretch,
-  //           children: <Widget>[
-  //             TextButton(
-  //               onPressed: () {
-  //                 Navigator.pop(context);
-  //                 // _handleImageSelection();
-  //               },
-  //               child: const Align(
-  //                 alignment: AlignmentDirectional.centerStart,
-  //                 child: Text('Photo'),
-  //               ),
-  //             ),
-  //             TextButton(
-  //               onPressed: () {
-  //                 Navigator.pop(context);
-  //                 _handleFileSelection();
-  //               },
-  //               child: const Align(
-  //                 alignment: AlignmentDirectional.centerStart,
-  //                 child: Text('File'),
-  //               ),
-  //             ),
-  //             TextButton(
-  //               onPressed: () => Navigator.pop(context),
-  //               child: const Align(
-  //                 alignment: AlignmentDirectional.centerStart,
-  //                 child: Text('Cancel'),
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  // void _handleFileSelection() async {
-  //   final result = await FilePicker.platform.pickFiles(
-  //     type: FileType.any,
-  //   );
-
-  //   if (result != null && result.files.single.path != null) {
-  //     final message = types.FileMessage(
-  //       author: _user,
-  //       createdAt: DateTime.now().millisecondsSinceEpoch,
-  //       id: const Uuid().v4(),
-  //       mimeType: lookupMimeType(result.files.single.path!),
-  //       name: result.files.single.name,
-  //       size: result.files.single.size,
-  //       uri: result.files.single.path!,
-  //     );
-
-  //     _addMessage(message);
-  //   }
-  // }
-
-  // void _handleImageSelection() async {
-  //   final result = await ImagePicker().pickImage(
-  //     imageQuality: 70,
-  //     maxWidth: 1440,
-  //     source: ImageSource.gallery,
-  //   );
-
-  //   if (result != null) {
-  //     final bytes = await result.readAsBytes();
-  //     final image = await decodeImageFromList(bytes);
-
-  //     final message = types.ImageMessage(
-  //       author: _user,
-  //       createdAt: DateTime.now().millisecondsSinceEpoch,
-  //       height: image.height.toDouble(),
-  //       id: const Uuid().v4(),
-  //       name: result.name,
-  //       size: bytes.length,
-  //       uri: result.path,
-  //       width: image.width.toDouble(),
-  //     );
-
-  //     _addMessage(message);
-  //   }
-  // }
-
-  // void _handleMessageTap(BuildContext _, types.Message message) async {
-  //   if (message is types.FileMessage) {
-  //     var localPath = message.uri;
-
-  //     if (message.uri.startsWith('http')) {
-  //       try {
-  //         final index =
-  //             _messages.indexWhere((element) => element.id == message.id);
-  //         final updatedMessage =
-  //             (_messages[index] as types.FileMessage).copyWith(
-  //           isLoading: true,
-  //         );
-
-  //         setState(() {
-  //           _messages[index] = updatedMessage;
-  //         });
-
-  //         final client = http.Client();
-  //         final  = await client.get(Uri.parse(message.uri));
-  //         final bytes = .bodyBytes;
-  //         final documentsDir = (await getApplicationDocumentsDirectory()).path;
-  //         localPath = '$documentsDir/${message.name}';
-
-  //         if (!File(localPath).existsSync()) {
-  //           final file = File(localPath);
-  //           await file.writeAsBytes(bytes);
-  //         }
-  //       } finally {
-  //         final index =
-  //             _messages.indexWhere((element) => element.id == message.id);
-  //         final updatedMessage =
-  //             (_messages[index] as types.FileMessage).copyWith(
-  //           isLoading: null,
-  //         );
-
-  //         setState(() {
-  //           _messages[index] = updatedMessage;
-  //         });
-  //       }
-  //     }
-
-  //     await OpenFile.open(localPath);
-  //   }
-  // }
-
-  // void _handlePreviewDataFetched(
-  //   types.TextMessage message,
-  //   types.PreviewData previewData,
-  // ) {
-  //   final index = _messages.indexWhere((element) => element.id == message.id);
-  //   final updatedMessage = (_messages[index] as types.TextMessage).copyWith(
-  //     previewData: previewData,
-  //   );
-
-  //   setState(() {
-  //     _messages[index] = updatedMessage;
-  //   });
-  // }
-
-  // void _handleSendPressed(types.PartialText message) {
-  //   final textMessage = types.TextMessage(
-  //     author: _user,
-  //     createdAt: DateTime.now().millisecondsSinceEpoch,
-  //     id: const Uuid().v4(),
-  //     text: message.text,
-  //   );
-
-  //   _addMessage(textMessage);
-  // }
-
-  // void _loadMessages() async {
-  //   final response = await rootBundle.loadString('assets/messages.json');
-  //   final messages = (jsonDecode(response) as List)
-  //       .map((e) => types.Message.fromJson(e as Map<String, dynamic>))
-  //       .toList();
-
-  //   setState(() {
-  //     _messages = messages;
-  //   });
-  // }
-
-  // String _handleCustomDateHeaderText(DateTime dateTime) {
-  //   String date = '';
-  //   final now = DateTime.now();
-  //   final today = DateTime(now.year, now.month, now.day);
-  //   final yesterday = DateTime(now.year, now.month, now.day - 1);
-  //   final aDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
-  //   if (aDate == today) {
-  //     date = 'Today, ' + DateFormat('hh:mm aa').format(dateTime);
-  //   } else if (aDate == yesterday) {
-  //     date = 'Yesterday, ' + DateFormat('hh:mm aa').format(dateTime);
-  //   } else {
-  //     date = DateFormat('MMM dd, hh:mm aa').format(dateTime);
-  //   }
-  //   return date;
-  // }
 }
