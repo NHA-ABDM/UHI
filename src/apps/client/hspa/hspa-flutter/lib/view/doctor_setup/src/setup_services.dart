@@ -7,6 +7,7 @@ import 'package:hspa_app/widgets/src/vertical_spacing.dart';
 import 'package:hspa_app/widgets/widgets.dart';
 
 import '../../../constants/src/doctor_setup_values.dart';
+import '../../../constants/src/get_pages.dart';
 import '../../../constants/src/strings.dart';
 import '../../../theme/src/app_colors.dart';
 import '../../../theme/src/app_text_style.dart';
@@ -54,6 +55,15 @@ class _SetUpServicesPageState extends State<SetUpServicesPage> {
           _doctorProfile?.displayName ?? '',
           style:
               AppTextStyle.textBoldStyle(color: AppColors.black, fontSize: 18),
+        ),
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: AppColors.black,
+          ),
+          onPressed: () {
+            Get.back();
+          },
         ),
       ),
       body: buildBody(),
@@ -136,8 +146,12 @@ class _SetUpServicesPageState extends State<SetUpServicesPage> {
                   if(consultType.length == 2){
                     displayString = AppStrings().labelBoth;
                   }
-                  Get.to(() => DayTimeSelectionPage(consultType: displayString,),
-                    transition: Utility.pageTransition,);
+                  /*Get.to(() => DayTimeSelectionPage(consultType: displayString,),
+                    transition: Utility.pageTransition,);*/
+                  Get.toNamed(AppRoutes.dayTimeSelectionPage, arguments: <String, dynamic>{
+                    'consultType' : displayString,
+                    'isExisting': false,
+                  });
                 }
               }),
             ],

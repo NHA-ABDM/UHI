@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hspa_app/constants/src/get_pages.dart';
 import 'package:hspa_app/utils/src/validator.dart';
 import 'package:hspa_app/view/dashboard/src/dashboard_page.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
@@ -27,17 +28,25 @@ import 'complete_provider_profile_page.dart';
 import 'select_hpr_id_page.dart';
 
 class OTPAuthenticationPage extends StatefulWidget {
-  OTPAuthenticationPage({Key? key, required this.fromUserRole, required this.mobileNumber, required this.transactionId}) : super(key: key);
+  const OTPAuthenticationPage({Key? key}) : super(key: key);
+
+/*  OTPAuthenticationPage({Key? key, required this.fromUserRole, required this.mobileNumber, required this.transactionId}) : super(key: key);
 
   final bool fromUserRole;
   final String mobileNumber;
-  String transactionId;
+  String transactionId;*/
 
   @override
   State<OTPAuthenticationPage> createState() => _OTPAuthenticationPageState();
 }
 
 class _OTPAuthenticationPageState extends State<OTPAuthenticationPage> {
+
+  /// Arguments
+  late final bool fromUserRole;
+  late final String mobileNumber;
+  late String transactionId;
+
   late AuthenticationController _authenticationController;
   bool isLoading = false;
   String otp = "";
@@ -46,6 +55,12 @@ class _OTPAuthenticationPageState extends State<OTPAuthenticationPage> {
 
   @override
   void initState() {
+
+    /// Get Arguments
+    fromUserRole = Get.arguments['fromUserRole'];
+    mobileNumber = Get.arguments['mobileNumber'];
+    transactionId = Get.arguments['transactionId'];
+
     _authenticationController = AuthenticationController();
     super.initState();
   }
@@ -90,7 +105,7 @@ class _OTPAuthenticationPageState extends State<OTPAuthenticationPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-                widget.fromUserRole ? '${AppStrings().otpAuthLabel} (+91) ${widget.mobileNumber}' : AppStrings().enterOtpLabel
+                fromUserRole ? '${AppStrings().otpAuthLabel} (+91) ${mobileNumber}' : AppStrings().enterOtpLabel
                 , style: AppTextStyle.textSemiBoldStyle(fontSize: 14, color: AppColors.titleTextColor)),
             VerticalSpacing( size: 24,),
 
@@ -133,7 +148,7 @@ class _OTPAuthenticationPageState extends State<OTPAuthenticationPage> {
 
             VerticalSpacing( size: 36,),
             SquareRoundedButtonWithIcon(text: AppStrings().btnContinue, assetImage: AssetImages.arrowLongRight, onPressed: () async{
-              /*if (widget.fromUserRole) {
+              /*if (fromUserRole) {
                     Get.offAll(const DoctorProfilePage());
                   }*/
 
@@ -169,7 +184,7 @@ class _OTPAuthenticationPageState extends State<OTPAuthenticationPage> {
   }
 
   Future<void> handleAPI() async{
-    if(widget.fromUserRole) {
+    if(fromUserRole) {
       setState(() {
         isLoading = true;
       });
@@ -177,7 +192,7 @@ class _OTPAuthenticationPageState extends State<OTPAuthenticationPage> {
       try {
         String? accessToken = Preferences.getString(key: AppStrings.accessToken);
         if(accessToken != null) {
-          ValidateOTPResponse? validateOTPResponse = await _authenticationController.verifyMobileOtp(transactionId: widget.transactionId, otp: otp, accessToken: accessToken);
+          ValidateOTPResponse? validateOTPResponse = await _authenticationController.verifyMobileOtp(transactionId: transactionId, otp: otp, accessToken: accessToken);
 
           if(validateOTPResponse != null){
             if(validateOTPResponse.mobileLinkedHpIdDTO != null && validateOTPResponse.mobileLinkedHpIdDTO!.isNotEmpty){
@@ -188,7 +203,8 @@ class _OTPAuthenticationPageState extends State<OTPAuthenticationPage> {
                   isLoading = false;
                 });
 
-                Get.to(() => SelectHprIdPage(validateOTPResponse: validateOTPResponse,));
+                // Get.to(() => SelectHprIdPage(validateOTPResponse: validateOTPResponse,));
+                Get.toNamed(AppRoutes.selectHprIdPage, arguments: {'validateOTPResponse': validateOTPResponse});
               }
             }
           } else {
@@ -209,8 +225,9 @@ class _OTPAuthenticationPageState extends State<OTPAuthenticationPage> {
         debugPrint('Verify mobile otp API exception is ${e.toString()}');
       }
     } else {
-      Get.to(() => const DoctorProfilePage(),
-        transition: Utility.pageTransition,);
+      /*Get.to(() => const DoctorProfilePage(),
+        transition: Utility.pageTransition,);*/
+      Get.toNamed(AppRoutes.doctorProfilePage);
     }
   }
 
@@ -219,14 +236,14 @@ class _OTPAuthenticationPageState extends State<OTPAuthenticationPage> {
       isLoading = true;
     });
     String? accessToken = Preferences.getString(key: AppStrings.accessToken);
-    String? transactionId = await _authenticationController.sendMobileOtp(mobileNumber: widget.mobileNumber, accessToken: accessToken!);
+    String? transactionId = await _authenticationController.sendMobileOtp(mobileNumber: mobileNumber, accessToken: accessToken!);
     setState(() {
       isLoading = false;
     });
 
     if(transactionId != null) {
       _otpTextController.text = '';
-      widget.transactionId = transactionId;
+      transactionId = transactionId;
     }
   }
 
@@ -287,30 +304,41 @@ class _OTPAuthenticationPageState extends State<OTPAuthenticationPage> {
   }
 
   checkDoctorProfilePresent(HPRIDProfileResponse hprIdProfileResponse) async {
-    ProviderListResponse? providerListResponse = await _authenticationController
-        .getProviderDetails(identifier: hprIdProfileResponse.hprId!);
-    if (providerListResponse != null) {
-      if (providerListResponse.results != null &&
-          providerListResponse.results!.isNotEmpty) {
-        setState(() {
-          isLoading = false;
-        });
-        DoctorProfile? profile = await DoctorProfile.getSavedProfile();
-        if (profile != null && profile.firstConsultation == null) {
-          Get.to(() => const DoctorProfilePage(),
-            transition: Utility.pageTransition,);
+    try {
+      ProviderListResponse? providerListResponse = await _authenticationController
+          .getProviderDetails(identifier: hprIdProfileResponse.hprId!);
+      if (providerListResponse != null) {
+        if (providerListResponse.results != null &&
+            providerListResponse.results!.isNotEmpty) {
+          setState(() {
+            isLoading = false;
+          });
+          DoctorProfile? profile = await DoctorProfile.getSavedProfile();
+          if (profile != null && profile.firstConsultation == null) {
+            /*Get.to(() => const DoctorProfilePage(),
+            transition: Utility.pageTransition,);*/
+            Get.toNamed(AppRoutes.doctorProfilePage);
+          } else {
+            /*Get.offAll(() => const DashboardPage(),
+            transition: Utility.pageTransition,);*/
+            Get.offAllNamed(AppRoutes.dashboardPage);
+          }
         } else {
-          Get.offAll(() => const DashboardPage(),
-            transition: Utility.pageTransition,);
-        }
-      } else {
-        setState(() {
-          isLoading = false;
-        });
+          setState(() {
+            isLoading = false;
+          });
 
-        Get.to(() => CompleteProviderProfilePage(hprIdProfileResponse: hprIdProfileResponse),
-          transition: Utility.pageTransition,);
+          /*Get.to(() => CompleteProviderProfilePage(hprIdProfileResponse: hprIdProfileResponse),
+          transition: Utility.pageTransition,);*/
+          Get.toNamed(AppRoutes.completeProviderProfilePage,
+              arguments: {'hprIdProfileResponse': hprIdProfileResponse});
+        }
       }
+    } catch (e) {
+      debugPrint('check provider profile API exception is ${e.toString()}');
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 }

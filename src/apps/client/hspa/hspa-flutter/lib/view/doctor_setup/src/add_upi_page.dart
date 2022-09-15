@@ -6,6 +6,7 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import '../../../common/src/dialog_helper.dart';
 import '../../../constants/src/asset_images.dart';
 import '../../../constants/src/doctor_setup_values.dart';
+import '../../../constants/src/get_pages.dart';
 import '../../../constants/src/provider_attributes.dart';
 import '../../../constants/src/strings.dart';
 import '../../../controller/src/doctor_setup_controller.dart';
@@ -24,14 +25,20 @@ import '../../dashboard/src/dashboard_page.dart';
 enum Payment {afterConsultation, beforeConsultation, withInWeek}
 
 class AddUpiPage extends StatefulWidget {
-  const AddUpiPage({Key? key, required this.consultType}) : super(key: key);
-  final String consultType;
+  const AddUpiPage({Key? key}) : super(key: key);
+
+  /*const AddUpiPage({Key? key, required this.consultType}) : super(key: key);
+  final String consultType;*/
 
   @override
   State<AddUpiPage> createState() => _AddUpiPageState();
 }
 
 class _AddUpiPageState extends State<AddUpiPage> {
+
+  /// Arguments
+  late final String consultType;
+
   TextEditingController upiIdController = TextEditingController();
   Payment paymentGroupValue = Payment.afterConsultation;
   bool isLoading = false;
@@ -47,6 +54,9 @@ class _AddUpiPageState extends State<AddUpiPage> {
 
   @override
   initState () {
+    /// Get Arguments
+    consultType = Get.arguments['consultType'];
+
     super.initState();
   }
   @override
@@ -60,7 +70,7 @@ class _AddUpiPageState extends State<AddUpiPage> {
           shadowColor: Colors.black.withOpacity(0.1),
           titleSpacing: 0,
           title: Text(
-            widget.consultType,
+            consultType,
             style:
             AppTextStyle.textBoldStyle(color: AppColors.black, fontSize: 18),
           ),
@@ -179,8 +189,7 @@ class _AddUpiPageState extends State<AddUpiPage> {
                   foregroundColor: AppColors.white,
                   borderColor: AppColors.tileColors,
                   onPressed: (){
-                    setState(() {
-                    });
+                    Get.offAllNamed(AppRoutes.doctorProfilePage);
                   }),
               VerticalSpacing(),
               SquareRoundedButtonWithIcon(text: AppStrings().btnContinue, assetImage: AssetImages.arrowLongRight, onPressed: (){
@@ -209,6 +218,7 @@ class _AddUpiPageState extends State<AddUpiPage> {
         consultType: AppStrings(.labelTeleconsultation,),
         transition: Utility.pageTransition,
       );*/
+      //Get.toNamed(AppRoutes.takeUploadPhotoPage, arguments: {'consultType': AppStrings().labelTeleconsultation});
       setProviderSettings();
     } else {
       setState(() {
@@ -312,8 +322,9 @@ class _AddUpiPageState extends State<AddUpiPage> {
         setState(() {
           isLoading = false;
         });
-        Get.offAll(() => const DashboardPage(),
-          transition: Utility.pageTransition,);
+        /*Get.offAll(() => const DashboardPage(),
+          transition: Utility.pageTransition,);*/
+        Get.offAllNamed(AppRoutes.dashboardPage);
       } else {
         DialogHelper.showErrorDialog(title: AppStrings().alert, description: AppStrings().errorProviderUUIDNotFound);
       }

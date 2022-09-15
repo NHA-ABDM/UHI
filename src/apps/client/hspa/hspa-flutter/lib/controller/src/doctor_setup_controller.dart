@@ -95,8 +95,14 @@ class DoctorSetUpController extends GetxController with ExceptionHandler {
         debugPrint('Add Provider attribute error $onError');
 
         errorString = onError.toString();
-
-        handleError(onError, isShowDialog: true, isShowSnackbar: false);
+        debugPrint('BadRequestException -> ${onError is BadRequestException}');
+        debugPrint('FetchDataException -> ${onError is FetchDataException}');
+        debugPrint('ApiNotRespondingException -> ${onError is ApiNotRespondingException}');
+        debugPrint('UnAuthorizedException -> ${onError is UnAuthorizedException}');
+        debugPrint('ForbiddenException -> ${onError is ForbiddenException}');
+        debugPrint('SocketConnectionError -> ${onError is SocketConnectionError}');
+        debugPrint('NoInternetConnectionException -> ${onError is NoInternetConnectionException}');
+        //handleError(onError, isShowDialog: true, isShowSnackbar: false);
       },
     );
     return addAppointmentSlotResponse;

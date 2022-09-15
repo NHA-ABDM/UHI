@@ -2,12 +2,14 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hspa_app/constants/src/get_pages.dart';
 import 'package:hspa_app/model/src/doctor_profile.dart';
 import 'package:hspa_app/widgets/src/square_rounded_button_with_icon.dart';
 import 'package:hspa_app/widgets/src/spacing.dart';
 import '../../../constants/src/asset_images.dart';
 import '../../../constants/src/doctor_setup_values.dart';
 import '../../../constants/src/strings.dart';
+import '../../../settings/src/preferences.dart';
 import '../../../theme/src/app_colors.dart';
 import '../../../theme/src/app_text_style.dart';
 import '../../../utils/src/utility.dart';
@@ -38,13 +40,13 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
         backgroundColor: AppColors.tileColors,
         shadowColor: AppColors.tileColors,
         elevation: 0,
-        titleSpacing: 0,
+        titleSpacing: 24,
         title: Text(
           AppStrings().profileAppBarTitle,
           style:
               AppTextStyle.textBoldStyle(color: AppColors.white, fontSize: 18),
         ),
-        leading: IconButton(
+        /*leading: IconButton(
           icon: Icon(
             Icons.arrow_back,
             color: AppColors.white,
@@ -52,7 +54,31 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
           onPressed: () {
             Get.back();
           },
-        ),
+        ),*/
+        actions: [
+          IconButton(
+            onPressed: () {
+              DoctorProfile.emptyDoctorProfile();
+              DoctorSetupValues doctorSetUpValues = DoctorSetupValues();
+              doctorSetUpValues.clear();
+
+              /// Removing local auth as we are logging out user
+              Preferences.saveBool(key: AppStrings.isLocalAuth, value: false);
+              Preferences.saveString(
+                  key: AppStrings.encryptionPrivateKey, value: null);
+              Get.offAllNamed(AppRoutes.userRolePage);
+            },
+            icon: RotatedBox(
+              quarterTurns: 3,
+              child: Image.asset(
+                AssetImages.logout,
+                height: 24,
+                width: 24,
+                color: Colors.white,
+              ),
+            ),
+          )
+        ],
       ),
       body: buildBody(),
     );
@@ -167,8 +193,9 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
             SquareRoundedButtonWithIcon(text: AppStrings().btnNext, assetImage: AssetImages.arrowLongRight, onPressed: (){
               DoctorSetupValues doctorSetUpValues = DoctorSetupValues();
               doctorSetUpValues.clear();
-              Get.to(const SetUpServicesPage(),
-                transition: Utility.pageTransition,);
+              /*Get.to(const SetUpServicesPage(),
+                transition: Utility.pageTransition,);*/
+              Get.toNamed(AppRoutes.setUpServicesPage);
             }),
             Spacing(isWidth: false, size: 24,),
           ],

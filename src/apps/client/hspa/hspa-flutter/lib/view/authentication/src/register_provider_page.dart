@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:hspa_app/constants/src/provider_attributes.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 import '../../../constants/src/asset_images.dart';
+import '../../../constants/src/get_pages.dart';
 import '../../../constants/src/strings.dart';
 import '../../../controller/src/register_provider_controller.dart';
 import '../../../model/response/src/register_provider_response.dart';
@@ -102,8 +104,14 @@ class _RegisterProviderPageState extends State<RegisterProviderPage> {
                       controller: firstNameController,
                       keyboardType: TextInputType.name,
                       labelText: AppStrings().labelName, validate: (String? value) {
-                        if(value!.trim().isEmpty) {
+                        if(value!.isEmpty) {
                           return AppStrings().errorEnterName;
+                        } else if(value.startsWith(' ')) {
+                          return AppStrings().errorNameShouldStartWithCharactersOnly;
+                        } else if(value.trim().contains('  ')) {
+                          return AppStrings().errorShouldContainSingleSpaceBetweenName;
+                        } else if(!Validator.nameRegex.hasMatch(value)) {
+                          return AppStrings().errorEnterValidName;
                         }
                         return null;
                     },),
@@ -119,7 +127,11 @@ class _RegisterProviderPageState extends State<RegisterProviderPage> {
                       return Validator.validateHprAddress(value);
                     },),
                     VerticalSpacing(),
-                    getInputTextWidget(controller: hprIdController, labelText: AppStrings().labelHPRId, keyboardType: TextInputType.text, maxLength: 14, validate: (String? value) {
+                    getInputTextWidget(controller: hprIdController, labelText: AppStrings().labelHPRId, keyboardType: TextInputType.text, maxLength: 14,
+                      inputFormatters: <TextInputFormatter>[
+                        FilteringTextInputFormatter.digitsOnly
+                      ],
+                      validate: (String? value) {
                       return Validator.validateHprId(value);
                     },),
 
@@ -170,9 +182,21 @@ class _RegisterProviderPageState extends State<RegisterProviderPage> {
                       return Validator.validateAge(value);
                     },),
                     VerticalSpacing(),
-                    getInputTextWidget(controller: educationController, labelText: AppStrings().labelEducationWithHint, validate: (String? value) {
-                      if(value!.trim().isEmpty) {
+                    getInputTextWidget(controller: educationController, labelText: AppStrings().labelEducationWithHint,
+                      inputFormatters: <TextInputFormatter>[
+                        FilteringTextInputFormatter.deny(' , ,', replacementString: ' ,'),
+                        FilteringTextInputFormatter.deny(',,', replacementString: ','),
+                        FilteringTextInputFormatter.deny('  ', replacementString: ' ')
+                      ],
+                      validate: (String? value) {
+                      if(value!.isEmpty) {
                         return AppStrings().errorEnterEducation;
+                      } else if(value.startsWith(' ') || value.startsWith(',')) {
+                        return AppStrings().errorShouldStartWithCharactersOnly(type: AppStrings().labelEducation);
+                      } else if(!Validator.stringWithCommaRegex.hasMatch(value)) {
+                        return AppStrings().errorEnterValidEducation;
+                      } else if(value.trim().endsWith(' ,') || value.trim().endsWith(',')) {
+                        return AppStrings().errorRemoveCommaAtLast;
                       }
                       return null;
                     },),
@@ -182,15 +206,31 @@ class _RegisterProviderPageState extends State<RegisterProviderPage> {
                     },),
                     VerticalSpacing(),
                     getInputTextWidget(controller: specialityController, labelText: AppStrings().labelSpeciality, validate: (String? value) {
-                      if(value!.trim().isEmpty) {
+                      if(value!.isEmpty) {
                         return AppStrings().errorEnterSpeciality;
+                      } else if(value.startsWith(' ')) {
+                        return AppStrings().errorShouldStartWithCharactersOnly(type: AppStrings().labelSpeciality);
+                      } else if(!Validator.nameRegex.hasMatch(value)) {
+                        return AppStrings().errorEnterValidSpeciality;
                       }
                       return null;
                     },),
                     VerticalSpacing(),
-                    getInputTextWidget(controller: languagesController, labelText: AppStrings().labelLanguagesWithHint, textInputAction: TextInputAction.done, validate: (String? value) {
-                      if(value!.trim().isEmpty) {
+                    getInputTextWidget(controller: languagesController, labelText: AppStrings().labelLanguagesWithHint, textInputAction: TextInputAction.done,
+                      inputFormatters: <TextInputFormatter>[
+                        FilteringTextInputFormatter.deny(' , ,', replacementString: ' ,'),
+                        FilteringTextInputFormatter.deny(',,', replacementString: ','),
+                        FilteringTextInputFormatter.deny('  ', replacementString: ' ')
+                      ],
+                      validate: (String? value) {
+                      if(value!.isEmpty) {
                         return AppStrings().errorEnterLanguagesKnown;
+                      } else if(value.startsWith(' ') || value.startsWith(',')) {
+                        return AppStrings().errorShouldStartWithCharactersOnly(type: AppStrings().labelLanguages);
+                      } else if(!Validator.stringWithCommaRegex.hasMatch(value)) {
+                        return AppStrings().errorEnterValidLanguages;
+                      } else if(value.trim().endsWith(' ,') || value.trim().endsWith(',')) {
+                        return AppStrings().errorRemoveCommaAtLast;
                       }
                       return null;
                     },),
@@ -210,7 +250,13 @@ class _RegisterProviderPageState extends State<RegisterProviderPage> {
                   if(_selectedGender == null) {
                     Get.snackbar(AppStrings().alert, AppStrings().errorSelectGender);
                   } else {
-                    handleRegisterProviderAPI();
+                    int? age = int.tryParse(ageController.text.trim());
+                    int? experience = int.tryParse(experienceController.text.trim());
+                    if(age != null && experience != null && experience > age) {
+                      Get.snackbar(AppStrings().alert, AppStrings().errorExperienceShouldLessThanAge);
+                    } else {
+                      handleRegisterProviderAPI();
+                    }
                   }
                 } else {
                   setState(() {
@@ -233,6 +279,7 @@ class _RegisterProviderPageState extends State<RegisterProviderPage> {
     TextInputType keyboardType = TextInputType.text,
     required String? Function(String?) validate,
     int? maxLength,
+    List<TextInputFormatter>? inputFormatters
   }){
     return TextFormField(
       controller: controller,
@@ -249,6 +296,7 @@ class _RegisterProviderPageState extends State<RegisterProviderPage> {
       ),
       keyboardType: keyboardType,
       validator: validate,
+      inputFormatters: inputFormatters,
     );
   }
 
@@ -268,11 +316,13 @@ class _RegisterProviderPageState extends State<RegisterProviderPage> {
       if(registerProviderResponse != null && registerProviderResponse.uuid != null) {
         DoctorProfile? profile = await DoctorProfile.getSavedProfile();
         if (profile != null && profile.firstConsultation == null) {
-          Get.to(() => const DoctorProfilePage(),
-            transition: Utility.pageTransition,);
+          /*Get.to(() => const DoctorProfilePage(),
+            transition: Utility.pageTransition,);*/
+          Get.offAllNamed(AppRoutes.doctorProfilePage);
         } else {
-          Get.offAll(() => const DashboardPage(),
-            transition: Utility.pageTransition,);
+          /*Get.offAll(() => const DashboardPage(),
+            transition: Utility.pageTransition,);*/
+          Get.offAllNamed(AppRoutes.dashboardPage);
         }
       }
 

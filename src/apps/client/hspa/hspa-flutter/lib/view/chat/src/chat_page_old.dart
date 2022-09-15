@@ -14,14 +14,14 @@ import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
-class ChatPage extends StatefulWidget {
-  const ChatPage({key}) : super(key: key);
+class ChatPageOld extends StatefulWidget {
+  const ChatPageOld({key}) : super(key: key);
 
   @override
-  State<ChatPage> createState() => _ChatPageState();
+  State<ChatPageOld> createState() => _ChatPageOldState();
 }
 
-class _ChatPageState extends State<ChatPage> {
+class _ChatPageOldState extends State<ChatPageOld> {
   List<types.Message> _messages = [];
   final _user = const types.User(id: '82091008-a484-4a89-ae75-a22bf8d6f3ac');
 

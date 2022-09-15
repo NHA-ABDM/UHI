@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hspa_app/constants/src/get_pages.dart';
 import 'package:hspa_app/widgets/src/vertical_spacing.dart';
 
 import '../../common/common.dart';
@@ -131,7 +132,7 @@ class AppointmentsView extends StatelessWidget {
                                         .patient?.person?.display;
                                     String? patientGender = providerAppointment
                                         .patient?.person?.gender;
-                                    Get.to(
+                                    /*Get.to(
                                       () => ChatPage(
                                         doctorHprId: doctorHprId,
                                         patientAbhaId: patientABHAId,
@@ -140,7 +141,14 @@ class AppointmentsView extends StatelessWidget {
                                         allowSendMessage: true,
                                       ),
                                       transition: Utility.pageTransition,
-                                    );
+                                    );*/
+                                    Get.toNamed(AppRoutes.chatPage, arguments: {
+                                      'doctorHprId': doctorHprId,
+                                      'patientAbhaId': patientABHAId,
+                                      'patientName': patientName,
+                                      'patientGender': patientGender,
+                                      'allowSendMessage': true
+                                    });
                                   },
                                   visualDensity: VisualDensity.compact,
                                   icon: Image.asset(
@@ -166,11 +174,12 @@ class AppointmentsView extends StatelessWidget {
                                     onPressed: () {
                                       /*Get.to(() => CallSample(host: '34.224.99.221'),
                                 transition: Utility.pageTransition,);*/
-                                      Get.to(
+                                      /*Get.to(
                                         () => const CallSample(
                                             host: '121.242.73.119'),
                                         transition: Utility.pageTransition,
-                                      );
+                                      );*/
+                                      Get.toNamed(AppRoutes.callSample, arguments: {'host': '121.242.73.119'});
                                     },
                                     visualDensity: VisualDensity.compact,
                                     icon: Image.asset(
@@ -201,7 +210,7 @@ class AppointmentsView extends StatelessWidget {
                               color: AppColors.infoIconColor,
                               actionText: AppStrings().labelViewDetails,
                               onTap: () {
-                                Get.to(
+                                /*Get.to(
                                     () => AppointmentDetailsPage(
                                           isTeleconsultation:
                                               isTeleconsultation,
@@ -209,7 +218,14 @@ class AppointmentsView extends StatelessWidget {
                                               providerAppointment,
                                           isPrevious: isPrevious,
                                         ),
-                                    transition: Utility.pageTransition);
+                                    transition: Utility.pageTransition);*/
+                                Get.toNamed(AppRoutes.appointmentDetailsPage,
+                                    arguments: <String, dynamic>{
+                                      'isTeleconsultation': isTeleconsultation,
+                                      'providerAppointment':
+                                          providerAppointment,
+                                      'isPrevious': isPrevious,
+                                    });
                               }),
                         ),
                         //Spacing(isWidth: true),
@@ -226,11 +242,13 @@ class AppointmentsView extends StatelessWidget {
                                 color: AppColors.infoIconColor,
                                 actionText: AppStrings().labelCancel,
                                 onTap: () async {
-                                  bool isCancelled = await Get.to(
+                                  bool isCancelled = /*await Get.to(
                                       () => CancelAppointmentPage(
                                           providerAppointment:
                                               providerAppointment),
-                                      transition: Utility.pageTransition);
+                                      transition: Utility.pageTransition);*/
+                                  await Get.toNamed(AppRoutes.cancelAppointmentPage, arguments: {'providerAppointment':
+                                  providerAppointment});
                                   if (isCancelled) {
                                     cancelAppointment();
                                   }

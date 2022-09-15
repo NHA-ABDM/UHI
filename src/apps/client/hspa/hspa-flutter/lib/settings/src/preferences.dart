@@ -11,7 +11,15 @@ class Preferences {
     preferences?.setString(key, value ?? '');
   }
 
+  static void saveBool({required String key, required bool? value}) {
+    preferences?.setBool(key, value ?? false);
+  }
+
   static String? getString({required String key}) {
     return preferences?.getString(key);
+  }
+
+  static bool? getBool({required String key}) {
+    return preferences?.getBool(key);
   }
 }

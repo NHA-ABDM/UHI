@@ -4,6 +4,7 @@ import 'package:hspa_app/constants/src/asset_images.dart';
 import 'package:hspa_app/widgets/src/square_rounded_button_with_icon.dart';
 import 'package:hspa_app/widgets/widgets.dart';
 
+import '../../../constants/src/get_pages.dart';
 import '../../../constants/src/strings.dart';
 import '../../../constants/src/web_urls.dart';
 import '../../../theme/src/app_colors.dart';
@@ -86,9 +87,10 @@ class ProfileNotFoundPage extends StatelessWidget {
                     onPressed: (){
                       /*Get.to(() => const SignUpPage(),
                         transition: Utility.pageTransition,);*/
-                      //WebUrls.launchWebUrl(webUrl: WebUrls.hprBetaUrl);
-                      Get.to(() => const RegisterProviderPage(),
-                        transition: Utility.pageTransition,);
+                      WebUrls.launchWebUrl(webUrl: WebUrls.hprRegistrationUrl);
+                      /*Get.to(() => const RegisterProviderPage(),
+                        transition: Utility.pageTransition,);*/
+                      //Get.toNamed(AppRoutes.registerProviderPage);
                     }
                 ),
                 Spacing(isWidth: false, size: 36,)

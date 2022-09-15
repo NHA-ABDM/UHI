@@ -20,14 +20,20 @@ import '../../../widgets/src/new_confirmation_dialog.dart';
 import '../../../widgets/src/square_rounded_button_with_icon.dart';
 
 class RescheduleAppointmentPage extends StatefulWidget {
-  const RescheduleAppointmentPage({Key? key, required this.appointment}) : super(key: key);
-  final ProviderAppointments appointment;
+  const RescheduleAppointmentPage({Key? key}) : super(key: key);
+
+  /*const RescheduleAppointmentPage({Key? key, required this.appointment}) : super(key: key);
+  final ProviderAppointments appointment;*/
 
   @override
   State<RescheduleAppointmentPage> createState() => _RescheduleAppointmentPageState();
 }
 
 class _RescheduleAppointmentPageState extends State<RescheduleAppointmentPage> {
+
+  /// Arguments
+  late final ProviderAppointments appointment;
+
   String? _selectedDate;
   late DateTime initialDateTime;
   int? _selectedTimeSlotIndex;
@@ -38,9 +44,13 @@ class _RescheduleAppointmentPageState extends State<RescheduleAppointmentPage> {
 
   @override
   void initState() {
+
+    /// Get Arguments
+    appointment = Get.arguments['appointment'];
+
     _appointmentsController = AppointmentsController();
 
-    appointmentDateTime = DateTime.parse(widget.appointment.timeSlot!.startDate!.split('.').first);
+    appointmentDateTime = DateTime.parse(appointment.timeSlot!.startDate!.split('.').first);
     initialDateTime = appointmentDateTime;
     _selectedDate = formatter.format(appointmentDateTime);
 
@@ -255,12 +265,12 @@ class _RescheduleAppointmentPageState extends State<RescheduleAppointmentPage> {
       DateTime startDate = DateTime(appointmentDateTime.year, appointmentDateTime.month, appointmentDateTime.day, 00, 00, 00);
       DateTime endDate = DateTime(appointmentDateTime.year, appointmentDateTime.month, appointmentDateTime.day, 23, 59, 59);
       debugPrint('Start date is ${DateFormat('yyyy-MM-ddTHH:mm:ss').format(startDate)} and end date is ${endDate.toString()}');
-      await _appointmentsController.getProviderAppointmentSlots(startDate: DateFormat('yyyy-MM-ddTHH:mm:ss').format(startDate), endDate: DateFormat('yyyy-MM-ddTHH:mm:ss').format(endDate), provider: doctorProfile!.uuid!, appointType: ProviderAttributesLocal.teleconsultation, appointment: widget.appointment);
+      await _appointmentsController.getProviderAppointmentSlots(startDate: DateFormat('yyyy-MM-ddTHH:mm:ss').format(startDate), endDate: DateFormat('yyyy-MM-ddTHH:mm:ss').format(endDate), provider: doctorProfile!.uuid!, appointType: ProviderAttributesLocal.teleconsultation, appointment: appointment);
 
       /// Below logic is to check selected slot by provider at the first time so that we can show it as selected in list
       if(_appointmentsController.filteredListProviderAppointmentSlots.isNotEmpty) {
         for (ProviderAppointmentSlots slots in _appointmentsController.filteredListProviderAppointmentSlots) {
-          if(widget.appointment.timeSlot!.uuid == slots.uuid){
+          if(appointment.timeSlot!.uuid == slots.uuid){
             _selectedTimeSlotIndex = _appointmentsController.filteredListProviderAppointmentSlots.indexOf(slots);
           }
         }

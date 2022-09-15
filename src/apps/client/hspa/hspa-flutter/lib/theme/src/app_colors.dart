@@ -49,6 +49,8 @@ class AppColors {
   static const Color requestedStatusColor = Color(0xFFFF9900);
   static const Color senderBackColor = Color(0xFFF3F3F3);
   static const Color senderTextColor = Color(0xFF525252);
+  static const Color paymentReceivedTextColor = Color(0xFF00CE2D);
+  static const Color paymentPendingTextColor = Color(0xFFFF8D07);
 
   //Login page colors
   static const Color mobileNumberTextColor = Color(0xFF343434);

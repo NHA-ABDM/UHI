@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:hspa_app/constants/src/get_pages.dart';
 import 'package:hspa_app/utils/src/validator.dart';
 
 import '../../../constants/src/asset_images.dart';
@@ -14,14 +16,19 @@ import '../../../widgets/src/vertical_spacing.dart';
 import 'add_upi_page.dart';
 
 class FeesPage extends StatefulWidget {
-  const FeesPage({Key? key, required this.consultType}) : super(key: key);
-  final String consultType;
+  const FeesPage({Key? key}) : super(key: key);
+
+  /*const FeesPage({Key? key, required this.consultType}) : super(key: key);
+  final String consultType;*/
 
   @override
   State<FeesPage> createState() => _FeesPageState();
 }
 
 class _FeesPageState extends State<FeesPage> {
+
+  /// Arguments
+  late final String consultType;
 
   TextEditingController firstConsultController = TextEditingController();
   TextEditingController followUpController = TextEditingController();
@@ -31,6 +38,13 @@ class _FeesPageState extends State<FeesPage> {
   TextEditingController psLabReportConsultController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   AutovalidateMode _autoValidateMode = AutovalidateMode.disabled;
+
+  @override
+  void initState() {
+    /// Get Arguments
+    consultType = Get.arguments['consultType'];
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -52,7 +66,7 @@ class _FeesPageState extends State<FeesPage> {
         shadowColor: Colors.black.withOpacity(0.1),
         titleSpacing: 0,
         title: Text(
-          widget.consultType,
+          consultType,
           style:
           AppTextStyle.textBoldStyle(color: AppColors.black, fontSize: 18),
         ),
@@ -98,9 +112,9 @@ class _FeesPageState extends State<FeesPage> {
                       style: AppTextStyle.textSemiBoldStyle(
                           fontSize: 18, color: AppColors.titleTextColor),
                     ),
-                    if(widget.consultType == AppStrings().labelTeleconsultation || widget.consultType == AppStrings().labelBoth)
+                    if(consultType == AppStrings().labelTeleconsultation || consultType == AppStrings().labelBoth)
                       getTeleconsultationInputFields(),
-                    if(widget.consultType == AppStrings().labelPhysicalConsultation || widget.consultType == AppStrings().labelBoth)
+                    if(consultType == AppStrings().labelPhysicalConsultation || consultType == AppStrings().labelBoth)
                     getPhysicalTeleconsultationInputFields(),
                   ],
                 ),
@@ -157,6 +171,10 @@ class _FeesPageState extends State<FeesPage> {
           focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: AppColors.titleTextColor))
       ),
       keyboardType: keyboardType,
+      inputFormatters: <TextInputFormatter>[
+        //FilteringTextInputFormatter.digitsOnly,
+        FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))
+      ],
       validator: (String? value) {
         return Validator.validateFees(value);
       },
@@ -166,18 +184,19 @@ class _FeesPageState extends State<FeesPage> {
   void validateAndGoNext() {
     if(_formKey.currentState!.validate()) {
       DoctorSetupValues doctorSetupValues = DoctorSetupValues();
-      if(widget.consultType == AppStrings().labelTeleconsultation || widget.consultType == AppStrings().labelBoth) {
+      if(consultType == AppStrings().labelTeleconsultation || consultType == AppStrings().labelBoth) {
         doctorSetupValues.firstConsultation = firstConsultController.text.trim();
         doctorSetupValues.followUp = followUpController.text.trim();
         doctorSetupValues.labReportConsultation = labReportConsultController.text.trim();
       }
-      if(widget.consultType == AppStrings().labelPhysicalConsultation || widget.consultType == AppStrings().labelBoth) {
+      if(consultType == AppStrings().labelPhysicalConsultation || consultType == AppStrings().labelBoth) {
         doctorSetupValues.psFirstConsultation = psFirstConsultController.text.trim();
         doctorSetupValues.psFollowUp = psFollowUpController.text.trim();
         doctorSetupValues.psLabReportConsultation = psLabReportConsultController.text.trim();
       }
-      Get.to(() => AddUpiPage(consultType: widget.consultType,),
-        transition: Utility.pageTransition,);
+      /*Get.to(() => AddUpiPage(consultType: consultType,),
+        transition: Utility.pageTransition,);*/
+      Get.toNamed(AppRoutes.addUpiPage, arguments: {'consultType': consultType});
     } else {
       setState(() {
         _autoValidateMode = AutovalidateMode.always;
@@ -187,13 +206,13 @@ class _FeesPageState extends State<FeesPage> {
 
   getTeleconsultationInputFields() {
     return Padding(
-      padding: widget.consultType == AppStrings().labelBoth ?
+      padding: consultType == AppStrings().labelBoth ?
       const EdgeInsets.symmetric(horizontal: 8) : EdgeInsets.zero,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if(widget.consultType == AppStrings().labelBoth)
+          if(consultType == AppStrings().labelBoth)
             Container(
               margin: const EdgeInsets.only(top: 20),
               child: Text(
@@ -213,7 +232,7 @@ class _FeesPageState extends State<FeesPage> {
           getInputTextWidget(
               controller: labReportConsultController,
               labelText: AppStrings().labelLabReportConsultation,
-              textInputAction: widget.consultType == AppStrings().labelBoth ? TextInputAction.next : TextInputAction.done),
+              textInputAction: consultType == AppStrings().labelBoth ? TextInputAction.next : TextInputAction.done),
 
         ],
       ),
@@ -223,13 +242,13 @@ class _FeesPageState extends State<FeesPage> {
 
   getPhysicalTeleconsultationInputFields() {
     return Padding(
-      padding: widget.consultType == AppStrings().labelBoth ?
+      padding: consultType == AppStrings().labelBoth ?
       const EdgeInsets.symmetric(horizontal: 8) : EdgeInsets.zero,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if(widget.consultType == AppStrings().labelBoth)
+          if(consultType == AppStrings().labelBoth)
             Container(
               margin: const EdgeInsets.only(top: 20),
               child: Text(

@@ -42,9 +42,9 @@ class AuthenticationController extends GetxController with ExceptionHandler {
       },
     ).catchError(
       (onError) {
-        debugPrint('GET Provider Details error is ${onError.message}');
+        debugPrint('GET Provider Details error is ${onError.toString()}');
 
-        errorString = "${onError.message}";
+        errorString = onError.toString();
 
         handleError(onError, isShowDialog: true, isShowSnackbar: false);
       },
@@ -75,8 +75,8 @@ class AuthenticationController extends GetxController with ExceptionHandler {
       String? upiId;
       String? receivePayment;
       String? signature;
-      bool? isTeleconsultation;
-      bool? isPhysicalConsultation;
+      bool? isTeleconsultation = false;
+      bool? isPhysicalConsultation = false;
       for (provider_response.Attributes attributes in results.attributes!) {
         debugPrint(
             'Attributes are ${attributes.attributeType!.display} -> ${attributes.value} --> ${attributes.uuid}');

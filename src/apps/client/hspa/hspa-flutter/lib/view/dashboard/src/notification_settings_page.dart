@@ -22,6 +22,11 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   bool ratingsValue = false;
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.appBackgroundColor,

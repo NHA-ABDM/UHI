@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:cryptography/cryptography.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:encrypt/encrypt.dart';
 import 'package:encrypt/encrypt_io.dart';
@@ -9,6 +11,8 @@ import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pointycastle/asymmetric/api.dart';
+
+import '../../model/src/chat_message_encryption_model.dart';
 
 class Utility {
 
@@ -49,6 +53,37 @@ class Utility {
     DateFormat format = DateFormat('hh:mm aa');
     displayDate = format.format(startDateTime);
     return displayDate;
+  }
+
+  static String getChatDisplayDateTime({required DateTime startDateTime}){
+
+    DateTime now = DateTime.now();
+    DateTime justNow = DateTime.now().subtract(const Duration(minutes: 1));
+    DateTime localDateTime = startDateTime.toLocal();
+
+    if (!localDateTime.difference(justNow).isNegative) {
+      return 'Just now';
+    }
+
+    String roughTimeString = DateFormat('jm').format(startDateTime);
+    if (localDateTime.day == now.day && localDateTime.month == now.month && localDateTime.year == now.year) {
+      return roughTimeString;
+    }
+
+    DateTime yesterday = now.subtract(const Duration(days: 1));
+
+    if (localDateTime.day == yesterday.day && localDateTime.month == yesterday.month && localDateTime.year == yesterday.year) {
+      return 'Yesterday, ' + roughTimeString;
+    }
+
+    if (now.difference(localDateTime).inDays < 4) {
+      String weekday = DateFormat('EEEE').format(localDateTime);
+
+      return '$weekday, $roughTimeString';
+    }
+
+    return '${DateFormat('MMM dd yyyy').format(startDateTime)}, $roughTimeString';
+
   }
 
   static String getAPIRequestDateFormatString(DateTime date) {
@@ -92,5 +127,86 @@ class Utility {
     double width = ((MediaQuery.of(context).size.width / 2) - (radius / 1.1));
     debugPrint('Right alignment is $width');
     return width;
+  }
+
+  static Future<SecretKey?> getSecretKey({required String publicKey, required String privateKey}) async{
+    SecretKey? _sharedSecretKey;
+    final encryptionAlgorithm = X25519();
+    List<int> publicKeyBytes =
+    (jsonDecode(publicKey) as List)
+        .map((e) => int.parse(e.toString()))
+        .toList();
+
+    List<int> privateKeyBytes = (jsonDecode(privateKey) as List)
+        .map((e) => int.parse(e.toString()))
+        .toList();
+
+    debugPrint('Private key is $privateKeyBytes');
+
+    final doctorPublicKey =
+    SimplePublicKey(publicKeyBytes, type: KeyPairType.x25519);
+
+    final keyPair = SimpleKeyPairData(privateKeyBytes,
+        publicKey: doctorPublicKey, type: KeyPairType.x25519);
+
+    _sharedSecretKey = await encryptionAlgorithm.sharedSecretKey(
+        keyPair: keyPair, remotePublicKey: doctorPublicKey);
+
+    return _sharedSecretKey;
+  }
+
+  static Future<String?> encryptMessage({required String message, required SecretKey secretKey}) async {
+    SecretBox? _secretBox;
+    ///Encryption algorithm
+    final algorithm = AesCtr.with256bits(macAlgorithm: Hmac.sha256());
+    ///Message we want to encrypt
+    final utfEncodedMessage = utf8.encode(message);
+
+    ///Encrypt
+    _secretBox = await algorithm.encrypt(
+      utfEncodedMessage,
+      secretKey: secretKey,
+    );
+
+    ChatMessageEncryptionModel chatMessageEncryptionModel =
+    ChatMessageEncryptionModel();
+    chatMessageEncryptionModel.cipherText = _secretBox.cipherText;
+    chatMessageEncryptionModel.nonce = _secretBox.nonce;
+    chatMessageEncryptionModel.macBytes = _secretBox.mac.bytes;
+
+    return jsonEncode(chatMessageEncryptionModel);
+  }
+
+  static Future<String?> decryptMessage({required String? message, required SecretKey secretKey}) async {
+    debugPrint('Message to decrypt is $message');
+
+
+    ///Encryption algorithm
+    final algorithm = AesCtr.with256bits(macAlgorithm: Hmac.sha256());
+    String? decryptedMessage;
+    List<int> decodedText;
+
+    try{
+      if(message != null) {
+        ChatMessageEncryptionModel chatMessageEncryptionModel =
+        ChatMessageEncryptionModel.fromJson(jsonDecode(message));
+
+        SecretBox secretBox = SecretBox(chatMessageEncryptionModel.cipherText!,
+            nonce: chatMessageEncryptionModel.nonce!,
+            mac: Mac(chatMessageEncryptionModel.macBytes!));
+
+        ///Decrypt
+        decodedText = await algorithm.decrypt(
+          secretBox,
+          secretKey: secretKey,
+        );
+
+        decryptedMessage = utf8.decode(decodedText);
+      }
+    } catch (e) {
+      debugPrint('Decrypt exception is $e');
+    }
+
+    return decryptedMessage;
   }
 }

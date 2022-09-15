@@ -12,15 +12,21 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 class CallSample extends StatefulWidget {
   static String tag = 'call_sample';
-  final String host;
 
-  const CallSample({Key? key, required this.host}) : super(key: key);
+  const CallSample({Key? key}) : super(key: key);
+/*  final String host;
+
+  const CallSample({Key? key, required this.host}) : super(key: key);*/
 
   @override
   _CallSampleState createState() => _CallSampleState();
 }
 
 class _CallSampleState extends State<CallSample> {
+
+  /// Arguments
+  late final String host;
+
   Signaling? _signaling;
   List<dynamic> _peers = [];
   String? _selfId;
@@ -32,6 +38,7 @@ class _CallSampleState extends State<CallSample> {
 
   bool _waitAccept = false;
   bool isMute = false;
+  bool isSpeaker = true;
 
   // ignore: unused_element
   _CallSampleState();
@@ -40,6 +47,10 @@ class _CallSampleState extends State<CallSample> {
 
   @override
   initState() {
+
+    /// Get Arguments
+    host = Get.arguments['host'];
+
     Wakelock.enable();
     super.initState();
     initRenderers();
@@ -61,7 +72,7 @@ class _CallSampleState extends State<CallSample> {
   }
 
   void _connect() async {
-    _signaling ??= Signaling(widget.host)..connect();
+    _signaling ??= Signaling(host)..connect();
     _signaling?.onSignalingStateChange = (SignalingState state) {
       switch (state) {
         case SignalingState.connectionClosed:
@@ -124,6 +135,8 @@ class _CallSampleState extends State<CallSample> {
         setState(() {
           _selfId = event['self'];
           _peers = event['peers'];
+          /// this will remove the user own entry and we can show proper indexing in list view
+          _peers.removeWhere((element) => element['id'] == _selfId);
           if (event.containsKey('roomId')) {
             roomId = event['roomId'];
           }
@@ -443,6 +456,18 @@ class _CallSampleState extends State<CallSample> {
     );
   }*/
 
+  _speaker() {
+      for(MediaStreamTrack audioTrack in  _remoteRenderer.srcObject!.getAudioTracks()) {
+        debugPrint('In audioTrack ${audioTrack.enabled} --> ${audioTrack.label} ---> ${audioTrack.kind} ---> ${audioTrack.muted} ---> ${audioTrack.toString()}');
+      }
+    setState(() {
+      isSpeaker = !isSpeaker;
+    });
+    _remoteRenderer.srcObject
+        ?.getAudioTracks()[0]
+        .enableSpeakerphone(isSpeaker);
+  }
+
   @override
   Widget build(BuildContext context) {
     width = MediaQuery.of(context).size.width;
@@ -554,6 +579,16 @@ class _CallSampleState extends State<CallSample> {
                           size: 30,
                           color: Colors.grey,
                         ),*/
+                        InkWell(
+                          onTap: () {
+                            _speaker();
+                          },
+                          child: Icon(
+                            isSpeaker ? Icons.volume_up : Icons.headphones,
+                            size: 30,
+                            color: Colors.white,
+                          ),
+                        ),
                       ],
                     ),
                   ),

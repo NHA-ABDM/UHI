@@ -3,6 +3,8 @@ class ChatMessageModel {
   String? sender;
   String? receiver;
   String? contentValue;
+  String? contentType;
+  String? contentUrl;
   String? time;
   String? consumerUrl;
   String? providerUrl;
@@ -12,6 +14,8 @@ class ChatMessageModel {
       this.sender,
       this.receiver,
       this.contentValue,
+      this.contentType,
+      this.contentUrl,
       this.time,
       this.consumerUrl,
       this.providerUrl});
@@ -21,6 +25,8 @@ class ChatMessageModel {
     sender = json['sender'];
     receiver = json['receiver'];
     contentValue = json['contentValue'];
+    contentType = json['contentType'];
+    contentUrl = json['contentUrl'];
     time = json['time'];
     consumerUrl = json['consumerUrl'];
     providerUrl = json['providerUrl'];
@@ -32,6 +38,8 @@ class ChatMessageModel {
     data['sender'] = sender;
     data['receiver'] = receiver;
     data['contentValue'] = contentValue;
+    data['contentType'] = contentType;
+    data['contentUrl'] = contentUrl;
     data['time'] = time;
     data['consumerUrl'] = consumerUrl;
     data['providerUrl'] = providerUrl;

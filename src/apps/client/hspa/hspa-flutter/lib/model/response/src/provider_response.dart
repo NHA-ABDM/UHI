@@ -298,8 +298,8 @@ class Attributes {
 class AuditInfo {
   PreferredName? creator;
   String? dateCreated;
-  String? changedBy;
-  DateTime? dateChanged;
+  ChangedBy? changedBy;
+  String? dateChanged;
 
   AuditInfo({this.creator, this.dateCreated, this.changedBy, this.dateChanged});
 
@@ -308,7 +308,7 @@ class AuditInfo {
         ? PreferredName.fromJson(json['creator'])
         : null;
     dateCreated = json['dateCreated'];
-    changedBy = json['changedBy'];
+    changedBy = json['changedBy'] != null ? ChangedBy.fromJson(json['changedBy']) : null;
     dateChanged = json['dateChanged'];
   }
 
@@ -320,6 +320,35 @@ class AuditInfo {
     data['dateCreated'] = dateCreated;
     data['changedBy'] = changedBy;
     data['dateChanged'] = dateChanged;
+    return data;
+  }
+}
+
+class ChangedBy {
+  String? uuid;
+  String? display;
+  List<Links>? links;
+
+  ChangedBy({this.uuid, this.display, this.links});
+
+  ChangedBy.fromJson(Map<String, dynamic> json) {
+    uuid = json['uuid'];
+    display = json['display'];
+    if (json['links'] != null) {
+      links = <Links>[];
+      json['links'].forEach((v) {
+        links!.add(Links.fromJson(v));
+      });
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['uuid'] = uuid;
+    data['display'] = display;
+    if (links != null) {
+      data['links'] = links!.map((v) => v.toJson()).toList();
+    }
     return data;
   }
 }

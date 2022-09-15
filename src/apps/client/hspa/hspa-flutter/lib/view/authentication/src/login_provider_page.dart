@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hspa_app/constants/src/asset_images.dart';
-import 'package:hspa_app/utils/src/validator.dart';
+import '../../../constants/src/asset_images.dart';
+import '../../../constants/src/get_pages.dart';
+import '../../../utils/src/validator.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 import '../../../constants/src/strings.dart';
+import '../../../constants/src/web_urls.dart';
 import '../../../controller/src/auth_controller.dart';
 import '../../../model/response/src/provider_response.dart';
 import '../../../model/src/doctor_profile.dart';
@@ -19,20 +21,34 @@ import '../../profile/src/profile_not_found_page.dart';
 import 'register_provider_page.dart';
 
 class LoginProviderPage extends StatefulWidget {
-  const LoginProviderPage({Key? key, required this.fromRolePage}) : super(key: key);
+  const LoginProviderPage({Key? key}) : super(key: key);
 
-  final bool fromRolePage;
+/*  const LoginProviderPage({Key? key, required this.fromRolePage}) : super(key: key);
+
+  final bool fromRolePage;*/
 
   @override
   State<LoginProviderPage> createState() => _LoginProviderPageState();
 }
 
 class _LoginProviderPageState extends State<LoginProviderPage> {
+
+  /// Arguments
+  late final bool fromRolePage;
+
   late double width;
   final TextEditingController _hprAddressController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   AutovalidateMode _autoValidateMode = AutovalidateMode.disabled;
+
+  @override
+  void initState() {
+    /// Get Arguments
+    fromRolePage = Get.arguments['fromRolePage'];
+
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -78,7 +94,7 @@ class _LoginProviderPageState extends State<LoginProviderPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                widget.fromRolePage ? AppStrings().enterHprAddressLabel : AppStrings().willSedOTPLabel,
+                fromRolePage ? AppStrings().enterHprAddressLabel : AppStrings().willSedOTPLabel,
                 style: AppTextStyle.textSemiBoldStyle(
                   fontSize: 14,
                   color: AppColors.titleTextColor,
@@ -113,9 +129,9 @@ class _LoginProviderPageState extends State<LoginProviderPage> {
               }),
 
               VerticalSpacing( size: 24,),
-              if(widget.fromRolePage) Text(AppStrings().dontHaveHPIDLabel, style: AppTextStyle.textMediumStyle(fontSize: 14, color: AppColors.textColor)),
+              if(fromRolePage) Text(AppStrings().dontHaveHPIDLabel, style: AppTextStyle.textMediumStyle(fontSize: 14, color: AppColors.textColor)),
               VerticalSpacing( size: 8,),
-              if(widget.fromRolePage) SquareRoundedButtonWithIcon(
+              if(fromRolePage) SquareRoundedButtonWithIcon(
                   text: AppStrings().btnRegister,
                   assetImage: AssetImages.pageEdit,
                   backgroundColor: Colors.white,
@@ -126,8 +142,9 @@ class _LoginProviderPageState extends State<LoginProviderPage> {
                     /*Get.to(() => const SignUpPage(),
                       transition: Utility.pageTransition,);*/
                     //WebUrls.launchWebUrl(webUrl: WebUrls.hprSandboxUrl);
-                    Get.to(() => const RegisterProviderPage(),
-                      transition: Utility.pageTransition,);
+                    /*Get.to(() => const RegisterProviderPage(),
+                      transition: Utility.pageTransition,);*/
+                    Get.toNamed(AppRoutes.registerProviderPage);
                   }
               ),
             ],
@@ -138,7 +155,7 @@ class _LoginProviderPageState extends State<LoginProviderPage> {
   }
 
   Future<void> handleAPI() async{
-    if(widget.fromRolePage) {
+    if(fromRolePage) {
       setState(() {
         _isLoading = true;
       });
@@ -154,16 +171,19 @@ class _LoginProviderPageState extends State<LoginProviderPage> {
           if(providerListResponse.results != null && providerListResponse.results!.isNotEmpty) {
             DoctorProfile? profile = await DoctorProfile.getSavedProfile();
             if (profile != null && profile.firstConsultation == null) {
-              Get.to(() => const DoctorProfilePage(),
-                transition: Utility.pageTransition,);
+              /*Get.to(() => const DoctorProfilePage(),
+                transition: Utility.pageTransition,);*/
+              Get.offAllNamed(AppRoutes.doctorProfilePage);
             } else {
-              Get.offAll(() => const DashboardPage(),
-                transition: Utility.pageTransition,);
+              /*Get.offAll(() => const DashboardPage(),
+                transition: Utility.pageTransition,);*/
+              Get.offAllNamed(AppRoutes.dashboardPage);
             }
           } else {
             DoctorProfile.emptyDoctorProfile();
-            bool isRefresh = await Get.to(() => const ProfileNotFoundPage(),
-              transition: Utility.pageTransition,);
+            bool isRefresh = await /*Get.to(() => const ProfileNotFoundPage(),
+              transition: Utility.pageTransition,);*/
+            Get.toNamed(AppRoutes.profileNotFoundPage);
             if(isRefresh){
               setState(() {
                 _hprAddressController.text = '';
@@ -177,8 +197,9 @@ class _LoginProviderPageState extends State<LoginProviderPage> {
         debugPrint('Get Provider details API exception is ${e.toString()}');
       }
     } else {
-      Get.to(() => const DoctorProfilePage(),
-        transition: Utility.pageTransition,);
+      /*Get.to(() => const DoctorProfilePage(),
+        transition: Utility.pageTransition,);*/
+      Get.toNamed(AppRoutes.doctorProfilePage);
     }
   }
 }

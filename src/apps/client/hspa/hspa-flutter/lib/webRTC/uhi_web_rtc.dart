@@ -2,6 +2,7 @@ import 'dart:core';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hspa_app/constants/src/get_pages.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -75,9 +76,11 @@ class _UHIWebRTCState extends State<UHIWebRTC> {
       if (value != null) {
         if (value == DialogDemoAction.connect) {
           _prefs.setString('server', _server);
-          Get.to(() => _datachannel
+          /*Get.to(() => _datachannel
               ? DataChannelSample(host: _server)
-              : CallSample(host: _server));
+              : CallSample(host: _server));*/
+
+          Get.toNamed(_datachannel ? AppRoutes.callSample : AppRoutes.callSample, arguments: {'host': _server});
           // Navigator.push(
           //     context,
           //     MaterialPageRoute(

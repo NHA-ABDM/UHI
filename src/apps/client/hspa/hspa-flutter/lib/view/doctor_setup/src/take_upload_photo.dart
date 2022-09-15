@@ -12,6 +12,7 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import '../../../common/src/dialog_helper.dart';
 import '../../../constants/src/asset_images.dart';
 import '../../../constants/src/doctor_setup_values.dart';
+import '../../../constants/src/get_pages.dart';
 import '../../../constants/src/strings.dart';
 import '../../../controller/src/doctor_setup_controller.dart';
 import '../../../model/response/src/add_appointment_time_slot_response.dart';
@@ -26,15 +27,21 @@ import 'package:dotted_border/dotted_border.dart';
 import '../../dashboard/src/dashboard_page.dart';
 
 class TakeUploadPhotoPage extends StatefulWidget {
-  const TakeUploadPhotoPage({Key? key, required this.consultType})
+  const TakeUploadPhotoPage({Key? key}) : super(key: key);
+
+  /*const TakeUploadPhotoPage({Key? key, required this.consultType})
       : super(key: key);
-  final String consultType;
+  final String consultType;*/
 
   @override
   State<TakeUploadPhotoPage> createState() => _TakeUploadPhotoPageState();
 }
 
 class _TakeUploadPhotoPageState extends State<TakeUploadPhotoPage> {
+
+  /// Arguments
+  late final String consultType;
+
   late DoctorSetUpController _doctorSetUpController;
   late double progressValue;
   XFile? pickedFile;
@@ -43,6 +50,9 @@ class _TakeUploadPhotoPageState extends State<TakeUploadPhotoPage> {
 
   @override
   void initState() {
+    /// Get Arguments
+    consultType = Get.arguments['consultType'];
+
     progressValue = 0.85;
     _doctorSetUpController = DoctorSetUpController();
     super.initState();
@@ -59,7 +69,7 @@ class _TakeUploadPhotoPageState extends State<TakeUploadPhotoPage> {
           shadowColor: Colors.black.withOpacity(0.1),
           titleSpacing: 0,
           title: Text(
-            widget.consultType,
+            consultType,
             style:
                 AppTextStyle.textBoldStyle(color: AppColors.black, fontSize: 18),
           ),
@@ -395,8 +405,9 @@ class _TakeUploadPhotoPageState extends State<TakeUploadPhotoPage> {
         setState(() {
           isLoading = false;
         });
-        Get.offAll(() => const DashboardPage(),
-          transition: Utility.pageTransition,);
+        /*Get.offAll(() => const DashboardPage(),
+          transition: Utility.pageTransition,);*/
+        Get.offAllNamed(AppRoutes.dashboardPage);
       } else {
         DialogHelper.showErrorDialog(title: AppStrings().alert, description: AppStrings().errorProviderUUIDNotFound);
       }

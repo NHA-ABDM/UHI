@@ -6,6 +6,8 @@ import 'package:hspa_app/constants/src/appointment_status.dart';
 import 'package:hspa_app/services/services.dart';
 
 import '../../constants/src/request_urls.dart';
+import '../../model/request/src/cancel_appointment_request.dart';
+import '../../model/response/src/acknowledgement_response_model.dart';
 import '../../model/response/src/appointment_details_response.dart';
 import '../../model/response/src/appointment_slots_response.dart';
 import '../../model/response/src/cancel_appointment_response.dart';
@@ -159,7 +161,7 @@ class AppointmentsController extends GetxController with ExceptionHandler{
     CancelAppointmentResponse? attributeResponse = await BaseClient(
       url: '${RequestUrls.getProviderAppointments}/$appointmentUUID',
       body: requestBody,
-    ).post()
+    ).put()
         .then(
           (value) async {
         if (value == null) {
@@ -183,6 +185,44 @@ class AppointmentsController extends GetxController with ExceptionHandler{
       },
     );
     return attributeResponse;
+  }
+
+  Future<AcknowledgementMessage?> cancelProviderAppointmentWrapper(
+      {required String appointmentUUID,
+        required CancelAppointmentRequestModel cancelAppointmentRequestModel}) async {
+
+    debugPrint('cancel appointment wrapper request body is ${cancelAppointmentRequestModel.toJson()}');
+    AcknowledgementMessage? acknowledgementMessage = await BaseClient(
+      url: RequestUrls.cancelProviderAppointment,
+      body: cancelAppointmentRequestModel.toJson(),
+    ).post()
+        .then(
+          (value) async {
+        if (value == null) {
+          return null;
+        } else {
+          String? response = value;
+          if (response != null) {
+            Map<String, dynamic> jsonMap = json.decode(response);
+            AcknowledgementMessage? acknowledgementMessage;
+            if (jsonMap.containsKey('message')) {
+              acknowledgementMessage = AcknowledgementMessage.fromJson(jsonMap['message']);
+            }
+            debugPrint(
+                'Cancel appointment wrapper response parsed successfully ${acknowledgementMessage?.ack?.status}');
+            return acknowledgementMessage;
+          }
+          return null;
+        }
+      },
+    ).catchError(
+          (onError) {
+        debugPrint('Cancel appointment wrapper error $onError');
+        errorString = onError.toString();
+        handleError(onError, isShowDialog: true, isShowSnackbar: false);
+      },
+    );
+    return acknowledgementMessage;
   }
 
   Future<AppointmentDetailsResponse?> getAppointmentDetails(

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class WaitingRoomScreen extends StatefulWidget {
+  const WaitingRoomScreen({Key? key}) : super(key: key);
+
   @override
   State<WaitingRoomScreen> createState() => _WaitingRoomScreenState();
 }

@@ -1,26 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hspa_app/constants/src/get_pages.dart';
 
 import '../../../constants/src/strings.dart';
 import '../../../model/src/appointments.dart';
 import '../../../theme/src/app_colors.dart';
 import '../../../theme/src/app_text_style.dart';
-import '../../../utils/src/utility.dart';
 import '../../../widgets/src/spacing.dart';
 import '../../../widgets/src/square_rounded_button.dart';
 import '../../../widgets/src/vertical_spacing.dart';
-import 'consultation_completed_page.dart';
 
 class AppointmentOngoingPage extends StatefulWidget {
-  const AppointmentOngoingPage({Key? key, required this.appointment, required this.isTeleconsultation}) : super(key: key);
+  const AppointmentOngoingPage({Key? key}) : super(key: key);
+
+/*  const AppointmentOngoingPage({Key? key, required this.appointment, required this.isTeleconsultation}) : super(key: key);
   final Appointments appointment;
-  final bool isTeleconsultation;
+  final bool isTeleconsultation;*/
 
   @override
   State<AppointmentOngoingPage> createState() => _AppointmentOngoingPageState();
 }
 
 class _AppointmentOngoingPageState extends State<AppointmentOngoingPage> {
+
+  /// Arguments
+  late final Appointments appointment;
+  late final bool isTeleconsultation;
+
+  @override
+  void initState() {
+    /// Get Arguments
+    appointment = Get.arguments['appointment'];
+    isTeleconsultation = Get.arguments['isTeleconsultation'];
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,7 +69,7 @@ class _AppointmentOngoingPageState extends State<AppointmentOngoingPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Text('Your appointment with ${widget.appointment.name} is ongoing.', style: AppTextStyle.textSemiBoldStyle(fontSize: 18, color: AppColors.titleTextColor),),
+          Text('Your appointment with ${appointment.name} is ongoing.', style: AppTextStyle.textSemiBoldStyle(fontSize: 18, color: AppColors.titleTextColor),),
           VerticalSpacing(size: 16,),
           Card(
             elevation: 8,
@@ -76,13 +90,13 @@ class _AppointmentOngoingPageState extends State<AppointmentOngoingPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            widget.appointment.name,
+                            appointment.name,
                             style: AppTextStyle.textSemiBoldStyle(
                                 color: AppColors.testColor, fontSize: 16),
                           ),
                           Spacing(),
                           Text(
-                            widget.appointment.appointmentDate,
+                            appointment.appointmentDate,
                             style: AppTextStyle
                                 .textNormalStyle(
                                 color: AppColors.testColor, fontSize: 16),
@@ -95,13 +109,13 @@ class _AppointmentOngoingPageState extends State<AppointmentOngoingPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            widget.appointment.visitType,
+                            appointment.visitType,
                             style: AppTextStyle.textNormalStyle(
                                 color: AppColors.testColor, fontSize: 12),
                           ),
                           Spacing(),
                           Text(
-                            widget.appointment.appointmentTime,
+                            appointment.appointmentTime,
                             style: AppTextStyle
                                 .textNormalStyle(
                                 color: AppColors.testColor, fontSize: 12),
@@ -123,12 +137,16 @@ class _AppointmentOngoingPageState extends State<AppointmentOngoingPage> {
                   text: AppStrings().btnEndConsultation,
                   textStyle: AppTextStyle.textBoldStyle(fontSize: 14, color: AppColors.white),
                   onPressed: (){
-                    Get.to(() => ConsultationCompletedPage(
-                      appointment: widget.appointment,
-                      isTeleconsultation: widget.isTeleconsultation,
+                    /*Get.to(() => ConsultationCompletedPage(
+                      appointment: appointment,
+                      isTeleconsultation: isTeleconsultation,
                     ),
                       transition: Utility.pageTransition,
-                    );
+                    );*/
+                    Get.toNamed(AppRoutes.consultationCompletedPage,
+                        arguments: {'appointment': appointment,
+                      'isTeleconsultation': isTeleconsultation,
+                    });
                   }),
             ),
           ),

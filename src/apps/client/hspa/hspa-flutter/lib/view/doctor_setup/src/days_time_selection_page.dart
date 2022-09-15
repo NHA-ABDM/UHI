@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hspa_app/constants/src/get_pages.dart';
 import 'package:hspa_app/constants/src/provider_attributes.dart';
 import 'package:hspa_app/view/doctor_setup/src/fees_page.dart';
 import 'package:intl/intl.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
+import '../../../common/src/dialog_helper.dart';
 import '../../../constants/src/asset_images.dart';
 import '../../../constants/src/doctor_setup_values.dart';
 import '../../../constants/src/strings.dart';
@@ -17,22 +19,29 @@ import '../../../theme/src/app_text_style.dart';
 import '../../../utils/src/utility.dart';
 import '../../../widgets/src/alert_dialog_with_single_action.dart';
 import '../../../widgets/src/calendar_date_range_picker.dart';
+import '../../../widgets/src/new_confirmation_dialog.dart';
 import '../../../widgets/src/spacing.dart';
 import '../../../widgets/src/square_rounded_button_with_icon.dart';
 import '../../../widgets/src/vertical_spacing.dart';
 
 class DayTimeSelectionPage extends StatefulWidget {
-  const DayTimeSelectionPage(
+  const DayTimeSelectionPage({Key? key}) : super(key: key);
+
+/*  const DayTimeSelectionPage(
       {Key? key, required this.consultType, this.isExisting = false})
       : super(key: key);
   final String consultType;
-  final bool isExisting;
+  final bool isExisting;*/
 
   @override
   State<DayTimeSelectionPage> createState() => _DayTimeSelectionPageState();
 }
 
 class _DayTimeSelectionPageState extends State<DayTimeSelectionPage> {
+
+  late final String consultType;
+  bool isExisting = false;
+
   bool isLoading = false;
   List<Days> days = <Days>[];
   TimeOfDay? startTime;
@@ -60,6 +69,13 @@ class _DayTimeSelectionPageState extends State<DayTimeSelectionPage> {
 
   @override
   void initState() {
+
+    /// Get arguments
+    consultType = Get.arguments['consultType'];
+    if(Get.arguments['isExisting'] != null) {
+      isExisting = Get.arguments['isExisting'];
+    }
+
     startDate = DateTime.now();
     endDate = DateTime.now().add(const Duration(days: 6));
     _selectedDateRange =
@@ -80,30 +96,36 @@ class _DayTimeSelectionPageState extends State<DayTimeSelectionPage> {
 
   @override
   Widget build(BuildContext context) {
-    return ModalProgressHUD(
-      inAsyncCall: isLoading,
-      child: Scaffold(
-        backgroundColor: AppColors.appBackgroundColor,
-        appBar: AppBar(
+    return WillPopScope(
+      onWillPop: () async{
+        Get.back(result: false);
+        return true;
+      },
+      child: ModalProgressHUD(
+        inAsyncCall: isLoading,
+        child: Scaffold(
           backgroundColor: AppColors.appBackgroundColor,
-          shadowColor: Colors.black.withOpacity(0.1),
-          titleSpacing: 0,
-          title: Text(
-            widget.consultType,
-            style: AppTextStyle.textBoldStyle(
-                color: AppColors.black, fontSize: 18),
-          ),
-          leading: IconButton(
-            icon: Icon(
-              Icons.arrow_back,
-              color: AppColors.black,
+          appBar: AppBar(
+            backgroundColor: AppColors.appBackgroundColor,
+            shadowColor: Colors.black.withOpacity(0.1),
+            titleSpacing: 0,
+            title: Text(
+              consultType,
+              style: AppTextStyle.textBoldStyle(
+                  color: AppColors.black, fontSize: 18),
             ),
-            onPressed: () {
-              Get.back();
-            },
+            leading: IconButton(
+              icon: Icon(
+                Icons.arrow_back,
+                color: AppColors.black,
+              ),
+              onPressed: () {
+                Get.back(result: false);
+              },
+            ),
           ),
+          body: buildBody(),
         ),
-        body: buildBody(),
       ),
     );
   }
@@ -120,7 +142,7 @@ class _DayTimeSelectionPageState extends State<DayTimeSelectionPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (!widget.isExisting)
+                    if (!isExisting)
                       const LinearProgressIndicator(
                         backgroundColor: AppColors.progressBarBackColor,
                         valueColor: AlwaysStoppedAnimation<Color>(
@@ -129,7 +151,7 @@ class _DayTimeSelectionPageState extends State<DayTimeSelectionPage> {
                         value: 0.40,
                         minHeight: 8,
                       ),
-                    if (!widget.isExisting)
+                    if (!isExisting)
                       VerticalSpacing(
                         size: 20,
                       ),
@@ -335,9 +357,9 @@ class _DayTimeSelectionPageState extends State<DayTimeSelectionPage> {
                       contentPadding: EdgeInsets.zero,
                       visualDensity: VisualDensity.compact,
                       onChanged: (bool? value) {
-                        setState(() {
+                        /*setState(() {
                           isFixed = value ?? isFixed;
-                        });
+                        });*/
                       },
                     ),
                     if (isFixed) showFixedView()
@@ -353,7 +375,7 @@ class _DayTimeSelectionPageState extends State<DayTimeSelectionPage> {
                 size: 16,
               ),
               SquareRoundedButtonWithIcon(
-                  text: widget.isExisting
+                  text: isExisting
                       ? AppStrings().btnSubmit
                       : AppStrings().btnNext,
                   assetImage: AssetImages.arrowLongRight,
@@ -404,15 +426,17 @@ class _DayTimeSelectionPageState extends State<DayTimeSelectionPage> {
                           doctorSetupValues.isFixed = isFixed;
                           doctorSetupValues.fixedDurationSlot =
                               int.parse(fixedTimeController.text.trim());
-                          if (widget.isExisting) {
-                            handleAppointmentSlotsAPI(doctorSetupValues);
+                          if (isExisting) {
+                            showAlreadySlotsDiscardDialog(doctorSetupValues);
+                            //handleAppointmentSlotsAPI(doctorSetupValues);
                           } else {
-                            Get.to(
+                            /*Get.to(
                               () => FeesPage(
-                                consultType: widget.consultType,
+                                consultType: consultType,
                               ),
                               transition: Utility.pageTransition,
-                            );
+                            );*/
+                            Get.toNamed(AppRoutes.feesPage, arguments: {'consultType': consultType});
                           }
                         } else {
                           Get.snackbar(
@@ -594,11 +618,12 @@ class _DayTimeSelectionPageState extends State<DayTimeSelectionPage> {
       lastDate: endDate,
       minDateTime: DateTime.now(),
       onDateSubmit: (startDate, endDate) {
-        if (startDate != null && endDate != null) {
+        if (startDate != null) {
+          endDate ??= startDate;
           setState(() {
             this.startDate = startDate;
             this.endDate =
-                DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
+                DateTime(endDate!.year, endDate.month, endDate.day, 23, 59, 59);
             _selectedDateRange =
                 '${formatter.format(startDate)} - ${formatter.format(endDate)}';
           });
@@ -680,51 +705,57 @@ class _DayTimeSelectionPageState extends State<DayTimeSelectionPage> {
     debugPrint(
         'date time slot value length is ${doctorSetupValues.dateTimeSlot}');
     if (doctorSetupValues.dateTimeSlot.isNotEmpty) {
-      setState(() {
-        isLoading = true;
-      });
+      bool isConnected = await Utility.isInternetAvailable();
+      if (isConnected) {
+        setState(() {
+          isLoading = true;
+        });
 
-      DoctorProfile? doctorProfile = await DoctorProfile.getSavedProfile();
-      String providerUuid = doctorProfile?.uuid ?? '';
-      DoctorSetUpController doctorSetUpController = DoctorSetUpController();
+        DoctorProfile? doctorProfile = await DoctorProfile.getSavedProfile();
+        String providerUuid = doctorProfile?.uuid ?? '';
+        DoctorSetUpController doctorSetUpController = DoctorSetUpController();
 
-      /// Fetching service types so that we can create appointment slots for selected service type only
-      List<String> serviceType = <String>[];
-      if (widget.consultType == AppStrings().labelTeleconsultation) {
-        serviceType.add(ProviderAttributesLocal.teleconsultation);
+        /// Fetching service types so that we can create appointment slots for selected service type only
+        List<String> serviceType = <String>[];
+        if (consultType == AppStrings().labelTeleconsultation) {
+          serviceType.add(ProviderAttributesLocal.teleconsultation);
+        } else {
+          serviceType.add(ProviderAttributesLocal.physicalConsultation);
+        }
+
+        for (DateTime dateTime in doctorSetupValues.dateTimeSlot) {
+          String startDate = Utility.getAPIRequestDateFormatString(dateTime);
+          String endDate = Utility.getAPIRequestDateFormatString(dateTime
+              .add(Duration(minutes: doctorSetupValues.fixedDurationSlot!)));
+          AddAppointmentTimeSlotResponse? addAppointmentSlotResponse =
+          await doctorSetUpController.addProviderAppointmentTimeSlots(
+              startDate: startDate,
+              endDate: endDate,
+              providerUUID: providerUuid,
+              types: serviceType);
+          debugPrint(
+              'addAppointmentSlotResponse is ${addAppointmentSlotResponse
+                  ?.uuid}');
+        }
+
+        setState(() {
+          isLoading = false;
+        });
+
+        AlertDialogWithSingleAction(
+          context: context,
+          title: AppStrings().appointmentSlotsCreated,
+          showIcon: true,
+          iconAssetImage: AssetImages.appointments,
+          onCloseTap: () {
+            Navigator.of(context).pop();
+            Get.back(result: true);
+          },
+          submitButtonText: AppStrings().close,
+        ).showAlertDialog();
       } else {
-        serviceType.add(ProviderAttributesLocal.physicalConsultation);
+        DialogHelper.showErrorDialog(description: 'No internet connection');
       }
-
-      for (DateTime dateTime in doctorSetupValues.dateTimeSlot) {
-        String startDate = Utility.getAPIRequestDateFormatString(dateTime);
-        String endDate = Utility.getAPIRequestDateFormatString(dateTime
-            .add(Duration(minutes: doctorSetupValues.fixedDurationSlot!)));
-        AddAppointmentTimeSlotResponse? addAppointmentSlotResponse =
-            await doctorSetUpController.addProviderAppointmentTimeSlots(
-                startDate: startDate,
-                endDate: endDate,
-                providerUUID: providerUuid,
-                types: serviceType);
-        debugPrint(
-            'addAppointmentSlotResponse is ${addAppointmentSlotResponse?.uuid}');
-      }
-
-      setState(() {
-        isLoading = false;
-      });
-
-      AlertDialogWithSingleAction(
-        context: context,
-        title: AppStrings().appointmentSlotsCreated,
-        showIcon: true,
-        iconAssetImage: AssetImages.appointments,
-        onCloseTap: () {
-          Navigator.of(context).pop();
-          Get.back();
-        },
-        submitButtonText: AppStrings().close,
-      ).showAlertDialog();
     }
   }
 
@@ -755,6 +786,24 @@ class _DayTimeSelectionPageState extends State<DayTimeSelectionPage> {
     }
 
     return difference;
+  }
+
+  void showAlreadySlotsDiscardDialog(DoctorSetupValues doctorSetupValues) {
+    NewConfirmationDialog(
+        context: context,
+        title: AppStrings().alert,
+        titleTextStyle:
+            AppTextStyle.textBoldStyle(color: AppColors.black, fontSize: 18),
+        showSubtitle: false,
+        description: AppStrings().noteAlreadyAddedSlotsDiscarded,
+        submitButtonText: AppStrings().confirm,
+        onCancelTap: () {
+          Navigator.pop(context);
+        },
+        onSubmitTap: () {
+          Navigator.of(context).pop();
+          handleAppointmentSlotsAPI(doctorSetupValues);
+        }).showAlertDialog();
   }
 }
 

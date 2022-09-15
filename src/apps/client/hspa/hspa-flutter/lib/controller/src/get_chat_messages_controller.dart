@@ -27,6 +27,7 @@ class GetChatMessagesController extends GetxController with ExceptionHandler {
   }
 
   Future<void> getChatMessages({String? sender, String? receiver}) async {
+    debugPrint('In getChatMessages  $sender and $receiver');
     await BaseClient(url: "${RequestUrls.getChatMessages}/$sender/$receiver")
         .get(decode: true)
         .then(

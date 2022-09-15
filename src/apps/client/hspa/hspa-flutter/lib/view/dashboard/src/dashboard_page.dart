@@ -1,26 +1,24 @@
 import 'dart:convert';
 
+import 'package:cryptography/cryptography.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hspa_app/constants/src/asset_images.dart';
 import 'package:hspa_app/constants/src/doctor_setup_values.dart';
+import 'package:hspa_app/constants/src/get_pages.dart';
 import 'package:hspa_app/constants/src/provider_attributes.dart';
 import 'package:hspa_app/controller/src/dashboard_controller.dart';
-import 'package:hspa_app/view/dashboard/src/update_consultation_details_page.dart';
+import 'package:hspa_app/settings/src/preferences.dart';
 import 'package:hspa_app/widgets/src/vertical_spacing.dart';
 
 import '../../../common/common.dart';
 import '../../../constants/src/strings.dart';
 import '../../../model/request/src/provider_service_type.dart';
+import '../../../model/request/src/save_public_key_model.dart';
 import '../../../model/src/doctor_profile.dart';
 import '../../../theme/src/app_colors.dart';
 import '../../../theme/src/app_text_style.dart';
 import '../../../utils/src/utility.dart';
-import '../../profile/src/edit_profile_page.dart';
-import '../../role/src/user_role_page.dart';
-import 'change_language_page.dart';
-import 'consultation_details.dart';
-import 'notification_settings_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({Key? key}) : super(key: key);
@@ -34,18 +32,24 @@ class _DashboardPageState extends State<DashboardPage> {
   List<ProviderServiceTypes> listProviderServiceTypes =
       <ProviderServiceTypes>[];
   late DashboardController _dashboardController;
+  /// Generate a key pair.
+  final encryptionAlgorithm = X25519();
 
   @override
   void initState() {
     _dashboardController = DashboardController();
     _dashboardController.saveFirebaseToken();
+    // _dashboardController.saveSharedKey();
+    _dashboardController.savePrivatePublicKeys();
     getDoctorProfile();
+    //getAndSavePrivateKey();
     super.initState();
   }
 
   Future<void> getDoctorProfile() async {
     _profile = await DoctorProfile.getSavedProfile();
     if (_profile != null) {
+      listProviderServiceTypes.clear();
       setState(() {
         debugPrint('Display name is ${_profile?.displayName}');
 
@@ -201,15 +205,13 @@ class _DashboardPageState extends State<DashboardPage> {
                               : null;
                         }),
                         onTap: () {
-                          Get.to(
-                            () => ConsultationDetailsPage(
-                              consultType: providerServiceType.displayName!,
-                              isTeleconsultation: providerServiceType.uuid ==
-                                  ProviderAttributesLocal.teleconsultation,
-                              providerServiceTypes: providerServiceType,
-                            ),
-                            transition: Utility.pageTransition,
-                          );
+                          Get.toNamed(AppRoutes.consultationDetailsPage,
+                              arguments: <String, dynamic>{
+                            'consultType':providerServiceType.displayName!,
+                            'isTeleconsultation':providerServiceType.uuid ==
+                                ProviderAttributesLocal.teleconsultation,
+                            'providerServiceTypes':providerServiceType,
+                              });
                         },
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(8, 16, 8, 12),
@@ -265,12 +267,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     label: AppStrings().labelTeleconsultation,
                     onPressed: () {
                       Navigator.pop(context);
-                      Get.to(
-                        () => const UpdateConsultationDetailsPage(
-                          isTeleconsultation: true,
-                        ),
-                        transition: Utility.pageTransition,
-                      );
+                      Get.toNamed(AppRoutes.updateConsultationDetailsPage, arguments: <String, dynamic>{
+                        'isTeleconsultation': true,
+                      });
                     }),
               if (_profile != null && _profile!.isPhysicalConsultation!)
                 generateDrawerListItem(
@@ -278,12 +277,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     label: AppStrings().labelPhysicalConsultation,
                     onPressed: () {
                       Navigator.pop(context);
-                      Get.to(
-                        () => const UpdateConsultationDetailsPage(
-                          isTeleconsultation: false,
-                        ),
-                        transition: Utility.pageTransition,
-                      );
+                      Get.toNamed(AppRoutes.updateConsultationDetailsPage, arguments: <String, dynamic>{
+                        'isTeleconsultation': false,
+                      });
                     }),
               generateDrawerListItem(
                   assetImage: AssetImages.helpSupport,
@@ -300,14 +296,13 @@ class _DashboardPageState extends State<DashboardPage> {
                     Navigator.pop(context);
                   }),
               generateDrawerListItem(
-                  assetImage: AssetImages.notification,
-                  label: AppStrings().labelNotificationSettings,
-                  onPressed: () {
+                  assetImage: '',
+                  icon: Icons.settings,
+                  label: AppStrings().labelSettings,
+                  onPressed: () async{
                     Navigator.pop(context);
-                    Get.to(
-                      () => const NotificationSettingsPage(),
-                      transition: Utility.pageTransition,
-                    );
+                    await Get.toNamed(AppRoutes.settingsPage);
+                    getDoctorProfile();
                   }),
               generateDrawerListItem(
                   assetImage: AssetImages.termsAndPolicy,
@@ -316,35 +311,30 @@ class _DashboardPageState extends State<DashboardPage> {
                     DialogHelper.showComingSoonView();
                     Navigator.pop(context);
                   }),
-              generateDrawerListItem(
+              /*generateDrawerListItem(
                   assetImage: AssetImages.edit,
                   label: AppStrings().labelChangeLanguage,
-                  onPressed: () {
+                  onPressed: () async{
                     Navigator.pop(context);
-                    Get.to(
-                      () => const ChangeLanguagePage(),
-                      transition: Utility.pageTransition,
-                    );
-                  }),
+                    await Get.toNamed(AppRoutes.changeLanguagePage, arguments: {'isChange': true});
+                    /// We have called get doctor profile again as list view text labels are not updating with selected language
+                    getDoctorProfile();
+                  }),*/
               generateDrawerListItem(
                   assetImage: AssetImages.logout,
                   label: AppStrings().labelLogout,
                   onPressed: () {
                     Navigator.pop(context);
+                    _dashboardController.logoutUser();
                     DoctorProfile.emptyDoctorProfile();
                     DoctorSetupValues doctorSetUpValues = DoctorSetupValues();
                     doctorSetUpValues.clear();
-                    Get.offAll(
-                      () => const UserRolePage(),
-                      transition: Utility.pageTransition,
-                    );
+
+                    /// Removing local auth as we are logging out user
+                    Preferences.saveBool(key: AppStrings.isLocalAuth, value: false);
+                    Preferences.saveString(key: AppStrings.encryptionPrivateKey, value: null);
+                    Get.offAllNamed(AppRoutes.userRolePage);
                   }),
-              /*generateDrawerListItem(assetImage: AssetImages.physicalConsultation, label: AppStrings(.labelWaitingRoom, onPressed: () {
-                Navigator.pop(context);
-                // Get.to() => const WaitingRoomPage());
-                Get.to(() => CallSample(host: '34.224.99.221'),
-                  transition: Utility.pageTransition,);
-              }),*/
             ],
           ),
         ),
@@ -398,10 +388,8 @@ class _DashboardPageState extends State<DashboardPage> {
                   child: GestureDetector(
                     onTap: () {
                       Navigator.pop(context);
-                      Get.to(
-                        () => const EditProfilePage(),
-                        transition: Utility.pageTransition,
-                      );
+                      //Get.toNamed(AppRoutes.editProfilePage);
+                      DialogHelper.showComingSoonView();
                     },
                     child: CircleAvatar(
                       backgroundColor: Colors.white,
@@ -449,7 +437,8 @@ class _DashboardPageState extends State<DashboardPage> {
   generateDrawerListItem(
       {required String assetImage,
       required String label,
-      required Function() onPressed}) {
+      required Function() onPressed,
+      IconData? icon}) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -461,11 +450,13 @@ class _DashboardPageState extends State<DashboardPage> {
           }),
           onTap: onPressed,
           child: ListTile(
-            leading: Image.asset(
-              assetImage,
-              height: 36,
-              width: 36,
-            ),
+            leading: icon != null
+                ? Icon(icon, size: 36, color: AppColors.tileColors,)
+                : Image.asset(
+                    assetImage,
+                    height: 36,
+                    width: 36,
+                  ),
             title: Text(
               label,
               style: AppTextStyle.textNormalStyle(
@@ -482,4 +473,15 @@ class _DashboardPageState extends State<DashboardPage> {
       ],
     );
   }
+
+  void getAndSavePrivateKey() async{
+    String? privateKey = Preferences.getString(key: AppStrings.encryptionPrivateKey);
+    if(privateKey == null) {
+      SimpleKeyPair keyPair = await encryptionAlgorithm.newKeyPair();
+      String privateKeyBytes =
+      (await keyPair.extractPrivateKeyBytes()).toString();
+      Preferences.saveString(key: AppStrings.encryptionPrivateKey, value: privateKeyBytes);
+    }
+  }
+
 }

@@ -309,10 +309,150 @@ class AppStrings {
   String errorInvalidExperience = 'errorInvalidExperience'.tr();
   String errorNoHprLinkedToMobile = 'errorNoHprLinkedToMobile'.tr();
   String btnSend = 'btnSend'.tr();
+  String labelAuthenticating = 'labelAuthenticating'.tr();
+  String labelLocalAuthentication = 'labelLocalAuthentication'.tr();
+  String labelSettings = 'labelSettings'.tr();
+  String labelSettingsAndPreferences = 'labelSettingsAndPreferences'.tr();
+  String labelSecurity = 'labelSecurity'.tr();
+  String labelChosenLanguage({required String selectedLanguage}) => 'labelChosenLanguage'.tr(args: [selectedLanguage]);
+  String errorUnableSelectMedia = 'errorUnableSelectMedia'.tr();
+  String accountStatement = 'accountStatement'.tr();
+  String errorNoAccountStatements = 'errorNoAccountStatements'.tr();
+  String paymentReceived = 'paymentReceived'.tr();
+  String paymentPending = 'paymentPending'.tr();
+  String errorExperienceShouldLessThanAge = 'errorExperienceShouldLessThanAge'.tr();
+  String errorEnterValidName = 'errorEnterValidName'.tr();
+  String noteAlreadyAddedSlotsDiscarded = 'noteAlreadyAddedSlotsDiscarded'.tr();
+  String errorEnterValidEducation = 'errorEnterValidEducation'.tr();
+  String errorEnterValidSpeciality = 'errorEnterValidSpeciality'.tr();
+  String errorEnterValidLanguages = 'errorEnterValidLanguages'.tr();
+  String errorNameShouldStartWithCharactersOnly = 'errorNameShouldStartWithCharactersOnly'.tr();
+  String errorShouldContainSingleSpaceBetweenName = 'errorShouldContainSingleSpaceBetweenName'.tr();
+  String errorShouldNotContainSpace = 'errorShouldNotContainSpace'.tr();
+  String errorShouldStartWithCharactersOnly({required String type}) => 'errorShouldStartWithCharactersOnly'.tr(args: [type]);
+  String errorRemoveCommaAtLast = 'errorRemoveCommaAtLast'.tr();
+  String labelLoginForFirstTime = 'labelLoginForFirstTime'.tr();
+  String labelSchedule = 'labelSchedule'.tr();
+  String btnOk = 'btnOk'.tr();
+  String labelSearchLanguage = 'labelSearchLanguage'.tr();
+  String labelSelectQualification = 'labelSelectQualification'.tr();
+  String labelSearchQualification = 'labelSearchQualification'.tr();
+  String labelSelectSpeciality = 'labelSelectSpeciality'.tr();
+  String labelSearchSpeciality = 'labelSearchSpeciality'.tr();
+  String slotDuration({required String value}) => 'slotDuration'.tr(args: [value]);
+  String labelNotBooked = 'labelNotBooked'.tr();
+  String labelBooked = 'labelBooked'.tr();
+  String errorEnterValidMobile = 'errorEnterValidMobile'.tr();
 
   /// Preferences
   static String chatUserName = 'chat_user_name';
   static String doctorProfile = 'doctor_profile';
   static String accessToken = 'access_token';
+  static String isLocalAuth = 'is_local_auth';
+  static const String encryptionPrivateKey = 'encryptionPrivateKey';
 
+  static List<String> educations = <String>[
+    'MBBS',
+    'BDS',
+    'BAMS',
+    'BHMS',
+    'BUMS',
+    'BYNS',
+    'MD',
+    'MS',
+    'DNB',
+    'M.Ch'
+  ];
+
+  static List<String> specialities = <String>[
+    'MD - Anaesthesiology',
+    'MD - Biochemistry',
+    'MD - Community Health',
+    'MD - Dermatology',
+    'MD - Family Medicine',
+    'MD - Forensic Medicine',
+    'MD - General Medicine',
+    'Microbiology - Microbiology',
+    'MD - Paediatrics',
+    'MD - Palliative Medicine',
+    'MD - Pathology',
+    'MD - Skin and Venereal diseases',
+    'MD - Pharmacology',
+    'MD - Physical Medicine and Rehabilitation',
+    'MD - Physiology',
+    'MD - Preventive and Social Medicine',
+    'MD - Psychiatry',
+    'MD - Radio-Diagnosis',
+    'MD - Radio-Therapy',
+    'MD - Tuberculosis and Respiratory diseases',
+    'MD - Emergency and Critical care',
+    'MD - Nuclear Medicine',
+    'MD - Transfusion Medicine',
+    'MD - Tropical Medicine',
+    'MS - Ear, Nose and Throat',
+    'MS - General Surgery',
+    'MS - Ophthalmology',
+    'MS - Orthopaedics',
+    'MS - Obstetrics and Gynaecology',
+    'MS - Dermatology, Venerology and Leprosy',
+    'DNB - Anaesthesiology',
+    'DNB - Anatomy',
+    'DNB - Biochemistry',
+    'DNB - Dermatology',
+    'DNB - Emergency Medicine',
+    'DNB - Family Medicine',
+    'DNB - Field Epidemiology',
+    'DNB - Forensic Medicine',
+    'DNB - General Medicine',
+    'DNB - General Surgery',
+    'DNB - Health Administration',
+    'DNB - Ophthalmology',
+    'DNB - Psychiatry',
+    'DNB - Radio-Diagnosis',
+    'DNB - Radio-Therapy',
+    'DNB - Orthopaedic Surgery',
+    'DNB - Oto-Rhino Laryngology',
+    'DNB - Paediatrics',
+    'DNB - Pathology',
+    'DNB - Pharmacology',
+    'DNB - Physical Medicine and Rehabilitation',
+    'DNB - Physiology',
+    'DNB - Immunohematology and transfusion medicine',
+    'DNB - Maternal and Child Health',
+    'DNB - Nuclear Medicine',
+    'DNB - Obstetric and Gynecology',
+    'DNB - Respiratory diseases',
+    'DNB - Rural Surgery',
+    'DNB - Social and Preventive Medicine',
+    'D.M. - Psychiatry',
+    'D.M. - Cardiac-Anaesthesiology',
+    'D.M. - Cardiology',
+    'D.M. - Haematology',
+    'D.M. - Pharmacology',
+    'D.M. - Anaesthesiology, Pain Medicine and Critical Care',
+    'D.M. - Endocrinology',
+    'D.M. - Gastroenterology',
+    'D.M. - Medicine and Microbiology',
+    'D.M. - Onco-Anesthesiology and Palliative Medicine',
+    'D.M. - Cardiology',
+    'D.M. - Pulmonary and Sleep disorders',
+    'D.M. - Obstetrics and Gynecology',
+    'D.M. - Nuclear Medicine',
+    'D.M. - Cardiac-Radiology',
+    'D.M. - Paediatrics',
+    'D.M. - Nephrology',
+    'D.M. - Neuro-Anaesthesiology and Critical Care',
+    'D.M. - Neurology',
+    'M.Ch - Surgery',
+    'M.Ch - Cardiothoracic and Vascular Surgery',
+    'M.Ch - Gastrointestinal Surgery',
+    'M.Ch - Obstetrics and Gynaecology',
+    'M.Ch - ENT',
+    'M.Ch - Neuro Surgery',
+    'M.Ch - Pediatric Surgery',
+    'M.Ch - Plastic and Reconstructive Surgery',
+    'M.Ch - Surgical Oncology',
+    'M.Ch - Surgery Trauma Centre',
+    'M.Ch - Urology',
+  ];
 }

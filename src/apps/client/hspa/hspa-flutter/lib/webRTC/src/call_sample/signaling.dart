@@ -358,8 +358,9 @@ class Signaling {
 
   Future<MediaStream> createStream(String media, bool userScreen) async {
     final Map<String, dynamic> mediaConstraints = {
-      'audio': userScreen ? false : true,
-      'video': userScreen
+      // 'audio': userScreen ? false : true,
+      'audio': true,
+      /*'video': userScreen
           ? true
           : {
               'mandatory': {
@@ -370,7 +371,16 @@ class Signaling {
               },
               'facingMode': 'user',
               'optional': [],
-            }
+            }*/
+      'video' : {
+        'mandatory': {
+          "width": {"min": 320, "max": 1024},
+          "height": {"min": 240, "max": 768},
+          'minFrameRate': '10',
+        },
+        'facingMode': 'user',
+        'optional': [],
+      }
     };
 
     MediaStream stream = userScreen

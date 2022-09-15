@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:hspa_app/constants/src/asset_images.dart';
-import 'package:hspa_app/model/response/src/access_token_response.dart';
-import 'package:hspa_app/settings/src/preferences.dart';
-import 'package:hspa_app/utils/src/validator.dart';
+import '../../../constants/src/asset_images.dart';
+import '../../../constants/src/get_pages.dart';
+import '../../../model/response/src/access_token_response.dart';
+import '../../../settings/src/preferences.dart';
+import '../../../utils/src/validator.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:intl_phone_field/phone_number.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
@@ -21,20 +23,34 @@ import 'otp_auth_page.dart';
 import 'register_provider_page.dart';
 
 class MobileNumberAuthPage extends StatefulWidget {
-  const MobileNumberAuthPage({Key? key, required this.fromRolePage}) : super(key: key);
+  const MobileNumberAuthPage({Key? key}) : super(key: key);
 
-  final bool fromRolePage;
+/*  const MobileNumberAuthPage({Key? key, required this.fromRolePage}) : super(key: key);
+
+  final bool fromRolePage;*/
 
   @override
   State<MobileNumberAuthPage> createState() => _MobileNumberAuthPageState();
 }
 
 class _MobileNumberAuthPageState extends State<MobileNumberAuthPage> {
+
+  /// Arguments
+  late final bool fromRolePage;
+
   late double width;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   AutovalidateMode _autoValidateMode = AutovalidateMode.disabled;
   String mobileNumber = '';
+
+  @override
+  void initState() {
+    /// Get Arguments
+    fromRolePage = Get.arguments['fromRolePage'];
+
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -79,7 +95,7 @@ class _MobileNumberAuthPageState extends State<MobileNumberAuthPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                widget.fromRolePage ? AppStrings().enterMobileNumberLabel : AppStrings().willSedOTPLabel,
+                fromRolePage ? AppStrings().enterMobileNumberLabel : AppStrings().willSedOTPLabel,
                   style: AppTextStyle.textSemiBoldStyle(
                       fontSize: 14,
                       color: AppColors.titleTextColor,
@@ -99,6 +115,7 @@ class _MobileNumberAuthPageState extends State<MobileNumberAuthPage> {
                   countries: const ['IN'],
                   style: AppTextStyle.textMediumStyle(fontSize: 16, color: AppColors.titleTextColor),
                   disableLengthCheck: true,
+                  invalidNumberMessage: AppStrings().errorEnterValidMobile,
                   validator: (PhoneNumber? number) {
                     return Validator.validateMobileNumber(number!.number);
                   },
@@ -106,13 +123,16 @@ class _MobileNumberAuthPageState extends State<MobileNumberAuthPage> {
                     mobileNumber = phone.number;
                   },
                   autovalidateMode: _autoValidateMode,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly
+                  ],
                 ),
               ),
               VerticalSpacing(size: 24,),
               SquareRoundedButtonWithIcon(text: AppStrings().btnContinue, assetImage: AssetImages.arrowLongRight, onPressed: () {
                 if(_formKey.currentState!.validate() && mobileNumber.length == 10) {
                   /*Get.to(() =>
-                      OTPAuthenticationPage(fromUserRole: widget.fromRolePage,),
+                      OTPAuthenticationPage(fromUserRole: fromRolePage,),
                     transition: Utility.pageTransition,);*/
                   handleApi();
                 } else {
@@ -126,9 +146,9 @@ class _MobileNumberAuthPageState extends State<MobileNumberAuthPage> {
               }),
 
               VerticalSpacing( size: 24,),
-              if(widget.fromRolePage) Text(AppStrings().dontHaveHPIDLabel, style: AppTextStyle.textMediumStyle(fontSize: 14, color: AppColors.textColor)),
+              if(fromRolePage) Text(AppStrings().dontHaveHPIDLabel, style: AppTextStyle.textMediumStyle(fontSize: 14, color: AppColors.textColor)),
               VerticalSpacing( size: 8,),
-              if(widget.fromRolePage) SquareRoundedButtonWithIcon(
+              if(fromRolePage) SquareRoundedButtonWithIcon(
                   text: AppStrings().btnRegister,
                   assetImage: AssetImages.pageEdit,
                   backgroundColor: Colors.white,
@@ -138,9 +158,10 @@ class _MobileNumberAuthPageState extends State<MobileNumberAuthPage> {
                   onPressed: () {
                     /*Get.to(() => const SignUpPage(),
                       transition: Utility.pageTransition,);*/
-                    //WebUrls.launchWebUrl(webUrl: WebUrls.hprBetaUrl);
-                    Get.to(() => const RegisterProviderPage(),
-                      transition: Utility.pageTransition,);
+                    WebUrls.launchWebUrl(webUrl: WebUrls.hprRegistrationUrl);
+                    /*Get.to(() => const RegisterProviderPage(),
+                      transition: Utility.pageTransition,);*/
+                    //Get.toNamed(AppRoutes.registerProviderPage);
                   }
               ),
             ],
@@ -151,7 +172,7 @@ class _MobileNumberAuthPageState extends State<MobileNumberAuthPage> {
   }
 
   Future<void> handleApi() async{
-    if(widget.fromRolePage) {
+    if(fromRolePage) {
       setState(() {
         _isLoading = true;
       });
@@ -167,13 +188,16 @@ class _MobileNumberAuthPageState extends State<MobileNumberAuthPage> {
           });
 
           if(transactionId != null) {
-            Get.to(() =>
+            /*Get.to(() =>
                 OTPAuthenticationPage(
-                  fromUserRole: widget.fromRolePage,
+                  fromUserRole: fromRolePage,
                   mobileNumber: mobileNumber,
                   transactionId: transactionId,
                 ),
-              transition: Utility.pageTransition,);
+              transition: Utility.pageTransition,);*/
+            Get.toNamed(AppRoutes.otpAuthenticationPage, arguments: {'fromUserRole': fromRolePage,
+              'mobileNumber': mobileNumber,
+              'transactionId': transactionId,});
           }
         } else {
           setState(() {

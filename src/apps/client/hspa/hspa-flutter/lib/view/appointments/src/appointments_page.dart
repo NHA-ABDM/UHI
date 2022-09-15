@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hspa_app/constants/src/appointment_status.dart';
 import 'package:hspa_app/constants/src/asset_images.dart';
+import 'package:hspa_app/constants/src/get_pages.dart';
 import 'package:hspa_app/constants/src/strings.dart';
 import 'package:hspa_app/model/response/src/provider_appointments_response.dart';
 import 'package:hspa_app/model/src/doctor_profile.dart';
@@ -24,15 +25,21 @@ import 'today_appointment_page.dart';
 import 'upcoming_appointments_page.dart';
 
 class AppointmentsPage extends StatefulWidget {
-  const AppointmentsPage({Key? key, required this.isTeleconsultation, required this.providerServiceTypes}) : super(key: key);
+  const AppointmentsPage({Key? key}) : super(key: key);
+
+/*  const AppointmentsPage({Key? key, required this.isTeleconsultation, required this.providerServiceTypes}) : super(key: key);
   final bool isTeleconsultation;
-  final ProviderServiceTypes providerServiceTypes;
+  final ProviderServiceTypes providerServiceTypes;*/
 
   @override
   State<AppointmentsPage> createState() => AppointmentsPageState();
 }
 
 class AppointmentsPageState extends State<AppointmentsPage> with SingleTickerProviderStateMixin{
+
+  /// Arguments
+  late final bool isTeleconsultation;
+  late final ProviderServiceTypes providerServiceTypes;
 
   List<Appointments> listAppointments = <Appointments>[];
   List<AppointmentReschedule> listAppointmentReschedule = <AppointmentReschedule>[];
@@ -50,6 +57,10 @@ class AppointmentsPageState extends State<AppointmentsPage> with SingleTickerPro
 
   @override
   void initState() {
+
+    /// Get Arguments
+    isTeleconsultation = Get.arguments['isTeleconsultation'];
+    providerServiceTypes = Get.arguments['providerServiceTypes'];
 
     _controller = TabController(vsync: this, length: 3);
     _controller.addListener(_handleTabSelection);
@@ -126,9 +137,9 @@ class AppointmentsPageState extends State<AppointmentsPage> with SingleTickerPro
       controller: _controller,
       children: [
         //generateAllTabView(),
-        TodayAppointmentPage(appointmentsController: _appointmentsController, isTeleconsultation: widget.isTeleconsultation,),
-        UpcomingAppointmentsPage(appointmentsController: _appointmentsController, isTeleconsultation: widget.isTeleconsultation,),
-        PreviousAppointmentsPage(appointmentsController: _appointmentsController, isTeleconsultation: widget.isTeleconsultation,),
+        TodayAppointmentPage(appointmentsController: _appointmentsController, isTeleconsultation: isTeleconsultation,),
+        UpcomingAppointmentsPage(appointmentsController: _appointmentsController, isTeleconsultation: isTeleconsultation,),
+        PreviousAppointmentsPage(appointmentsController: _appointmentsController, isTeleconsultation: isTeleconsultation,),
       ],
     );
   }
@@ -220,9 +231,9 @@ class AppointmentsPageState extends State<AppointmentsPage> with SingleTickerPro
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: Row(
-                      mainAxisAlignment: widget.isTeleconsultation ? MainAxisAlignment.end : MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: isTeleconsultation ? MainAxisAlignment.end : MainAxisAlignment.spaceBetween,
                       children: [
-                        if(!widget.isTeleconsultation)
+                        if(!isTeleconsultation)
                           SquareRoundedButton(
                             text: AppStrings().btnStartConsultation,
                             textStyle: AppTextStyle.textBoldStyle(color: AppColors.white, fontSize: 14),
@@ -238,7 +249,7 @@ class AppointmentsPageState extends State<AppointmentsPage> with SingleTickerPro
                           width: 24,
                           ),
                         ),
-                        if(widget.isTeleconsultation)
+                        if(isTeleconsultation)
                         IconButton(
                           onPressed: () {},
                           visualDensity: VisualDensity.compact,
@@ -249,7 +260,7 @@ class AppointmentsPageState extends State<AppointmentsPage> with SingleTickerPro
                           ),
                         ),
 
-                        if(widget.isTeleconsultation)
+                        if(isTeleconsultation)
                         IconButton(
                           onPressed: () {},
                           visualDensity: VisualDensity.compact,
@@ -282,7 +293,7 @@ class AppointmentsPageState extends State<AppointmentsPage> with SingleTickerPro
                       color: AppColors.infoIconColor,
                       actionText: AppStrings().labelViewDetails,
                       onTap: () {
-                        //Get.to(AppointmentDetailsPage(appointment: listAppointments[index], isTeleconsultation: widget.isTeleconsultation,));
+                        //Get.to(AppointmentDetailsPage(appointment: listAppointments[index], isTeleconsultation: isTeleconsultation,));
                       }),
                   //Spacing(isWidth: true),
                   Container(
@@ -601,11 +612,15 @@ class AppointmentsPageState extends State<AppointmentsPage> with SingleTickerPro
                     child: GestureDetector(
                       onTap: (){
                         Navigator.of(context).pop();
-                        Get.to(AppointmentOngoingPage(
+                        /*Get.to(AppointmentOngoingPage(
                           appointment: appointment,
-                          isTeleconsultation: widget.isTeleconsultation,),
+                          isTeleconsultation: isTeleconsultation,),
                           transition: Utility.pageTransition,
-                        );
+                        );*/
+                        Get.toNamed(AppRoutes.appointmentOngoingPage, arguments: <String, dynamic>{
+                          'appointment': appointment,
+                          'isTeleconsultation': isTeleconsultation
+                        });
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -648,7 +663,7 @@ class AppointmentsPageState extends State<AppointmentsPage> with SingleTickerPro
         isLoading = true;
       });
       DoctorProfile? doctorProfile = await DoctorProfile.getSavedProfile();
-        await _appointmentsController.getProviderAppointments(fromDate: null, toDate: null, provider: doctorProfile!.uuid!, appointType: widget.providerServiceTypes.uuid!);
+        await _appointmentsController.getProviderAppointments(fromDate: null, toDate: null, provider: doctorProfile!.uuid!, appointType: providerServiceTypes.uuid!);
       setState(() {
         isLoading = false;
       });
@@ -733,9 +748,9 @@ class AppointmentsPageState extends State<AppointmentsPage> with SingleTickerPro
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: Row(
-                      mainAxisAlignment: widget.isTeleconsultation ? MainAxisAlignment.end : MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: isTeleconsultation ? MainAxisAlignment.end : MainAxisAlignment.spaceBetween,
                       children: [
-                        if(!widget.isTeleconsultation)
+                        if(!isTeleconsultation)
                           SquareRoundedButton(
                             text: AppStrings().btnStartConsultation,
                             textStyle: AppTextStyle.textBoldStyle(color: AppColors.white, fontSize: 14),
@@ -751,7 +766,7 @@ class AppointmentsPageState extends State<AppointmentsPage> with SingleTickerPro
                             width: 24,
                           ),
                         ),
-                        if(widget.isTeleconsultation)
+                        if(isTeleconsultation)
                           IconButton(
                             onPressed: () {},
                             visualDensity: VisualDensity.compact,
@@ -762,7 +777,7 @@ class AppointmentsPageState extends State<AppointmentsPage> with SingleTickerPro
                             ),
                           ),
 
-                        if(widget.isTeleconsultation)
+                        if(isTeleconsultation)
                           IconButton(
                             onPressed: () {},
                             visualDensity: VisualDensity.compact,
@@ -795,7 +810,7 @@ class AppointmentsPageState extends State<AppointmentsPage> with SingleTickerPro
                       color: AppColors.infoIconColor,
                       actionText: AppStrings().labelViewDetails,
                       onTap: () {
-                        //Get.to(AppointmentDetailsPage(appointment: listAppointments[index], isTeleconsultation: widget.isTeleconsultation,));
+                        //Get.to(AppointmentDetailsPage(appointment: listAppointments[index], isTeleconsultation: isTeleconsultation,));
                       }),
                   //Spacing(isWidth: true),
                   Container(
@@ -821,8 +836,9 @@ class AppointmentsPageState extends State<AppointmentsPage> with SingleTickerPro
                           .infoIconColor,
                       actionText: AppStrings().labelReschedule,
                       onTap: () {
-                        Get.to(() => RescheduleAppointmentPage(appointment: providerAppointment),
-                          transition: Utility.pageTransition,);
+                        /*Get.to(() => RescheduleAppointmentPage(appointment: providerAppointment),
+                          transition: Utility.pageTransition,);*/
+                        Get.toNamed(AppRoutes.rescheduleAppointmentPage, arguments: {'appointment': providerAppointment});
                       }),
                 ],
               ),

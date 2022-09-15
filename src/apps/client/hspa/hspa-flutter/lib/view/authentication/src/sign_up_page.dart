@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hspa_app/constants/src/asset_images.dart';
+import 'package:hspa_app/constants/src/get_pages.dart';
 import 'package:hspa_app/widgets/widgets.dart';
 
 import '../../../constants/src/strings.dart';
@@ -66,8 +67,9 @@ class _SignUpPageState extends State<SignUpPage> {
           size: 24,
         ),
         Expanded(child: buildUserRoleWidget(assetIcon: AssetImages.aadhaar, userRole: AppStrings().btnAadhaar, onPressed: () {
-          Get.to(() => const SignUpWithAadhaarPage(),
-            transition: Utility.pageTransition,);
+          /*Get.to(() => const SignUpWithAadhaarPage(),
+            transition: Utility.pageTransition,);*/
+          Get.toNamed(AppRoutes.signUpWithAadhaarPage);
         }),),
         Row(
           children:  [

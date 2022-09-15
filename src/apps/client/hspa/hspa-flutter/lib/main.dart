@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:cryptography/cryptography.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -7,12 +9,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
+import 'package:hspa_app/controller/src/dashboard_controller.dart';
+import 'package:hspa_app/model/src/doctor_profile.dart';
 import 'package:hspa_app/theme/src/app_colors.dart';
+import 'package:hspa_app/utils/src/utility.dart';
 
+import 'constants/src/get_pages.dart';
 import 'constants/src/language_constant.dart';
+import 'constants/src/strings.dart';
 import 'firebase_options.dart';
 import 'settings/src/preferences.dart';
-import 'view/splash_screen/src/splashscreen_page.dart';
 
 class MyHttpOverrides extends HttpOverrides {
   @override
@@ -124,25 +130,10 @@ class MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    checkLocalAuth();
     _getDeviceToken();
     initializeSettings();
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      debugPrint('Remote message is ${message.toMap()}');
-      RemoteNotification? notification = message.notification;
-      AndroidNotification? android = message.notification?.android;
-      if (notification != null && android != null) {
-        flutterLocalNotificationsPlugin.show(
-            notification.hashCode,
-            notification.title,
-            notification.body,
-            NotificationDetails(
-              android: AndroidNotificationDetails(channel.id, channel.name,
-                  color: AppColors.tileColors,
-                  playSound: true,
-                  icon: '@mipmap/ic_launcher'),
-            ));
-      }
-    });
+    listenNotifications();
   }
 
   initializeSettings() async{
@@ -164,17 +155,25 @@ class MyAppState extends State<MyApp> {
   void selectNotification(String? payload) async {
     if (payload != null) {
       debugPrint('notification payload: $payload');
+      Map<String, dynamic> messageMap =  json.decode(payload);
+      RemoteMessage message = RemoteMessage.fromMap(messageMap);
+      checkMessageTypeAndOpenPage(message);
     }
-    /*await Navigator.push(
-      context,
-      MaterialPageRoute<void>(builder: (context) => SecondScreen(payload)),
-    );*/
+  }
+
+  String initialRoute = AppRoutes.splashPage;
+
+  void checkLocalAuth() {
+    bool? isAuth = Preferences.getBool(key: AppStrings.isLocalAuth);
+    if(isAuth != null && isAuth) {
+      initialRoute = AppRoutes.localAuthPage;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'UHI HSPA',
+      title: 'HSPA',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
           splashColor: Colors.transparent,
@@ -183,7 +182,97 @@ class MyAppState extends State<MyApp> {
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,
-      home: const SplashScreenPage(),
+      // home: const SplashScreenPage(),
+      initialRoute: initialRoute,
+      getPages: appRoutes(),
     );
+  }
+
+  Future<void> handleAndShowNotification(RemoteMessage message) async{
+
+    DoctorProfile? doctorProfile = await DoctorProfile.getSavedProfile();
+    if(doctorProfile != null) {
+      
+      Map<String, dynamic> data = message.data;
+      if(data.containsKey('type') && data['type'] == 'chat') {
+        String? receiverabhaAddress = data['ReceiverabhaAddress'];
+        String? senderabhaAddress = data['SenderabhaAddress'];
+
+        if(receiverabhaAddress != null && receiverabhaAddress == doctorProfile.hprAddress) {
+          String appRoute = Get.currentRoute;
+          debugPrint('Current open route is $appRoute');
+          if(appRoute == AppRoutes.chatPage) {
+
+            String? doctorHprId = Get.arguments['doctorHprId'];
+            String? patientAbhaId = Get.arguments['patientAbhaId'];
+
+            if(doctorHprId == receiverabhaAddress && patientAbhaId == senderabhaAddress) {
+              debugPrint('Chat window between user is already open');
+            } else {
+              showNotification(message);
+            }
+          } else {
+            showNotification(message);
+          }
+        }
+      } else {
+        showNotification(message);
+      }
+    }
+  }
+
+  void showNotification(RemoteMessage message) async{
+
+    Map<String, dynamic> data = message.data;
+    String? chatMessage;
+    if(data.containsKey('type') && data['type'] == 'chat') {
+      String? publicKey = data['sharedKey'];
+      String? privateKey = Preferences.getString(key: AppStrings.encryptionPrivateKey);
+      if(publicKey != null && privateKey != null) {
+        SecretKey? secretKey = await Utility.getSecretKey(
+            publicKey: publicKey, privateKey: privateKey);
+
+        if(secretKey != null) {
+          chatMessage = await Utility.decryptMessage(message: message.notification?.body, secretKey: secretKey);
+        }
+      }
+    }
+
+    RemoteNotification? notification = message.notification;
+    AndroidNotification? android = message.notification?.android;
+
+    if (notification != null && android != null) {
+      flutterLocalNotificationsPlugin.show(
+          notification.hashCode,
+          notification.title,
+          chatMessage ?? notification.body,
+          NotificationDetails(
+            android: AndroidNotificationDetails(channel.id, channel.name,
+                color: AppColors.tileColors,
+                playSound: true,
+                icon: '@mipmap/ic_launcher'),
+          ),
+        payload: json.encode(message.toMap())
+      );
+    }
+  }
+
+  void listenNotifications() {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      debugPrint('onMessage message is ${message.toMap()}');
+      handleAndShowNotification(message);
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage? message) {
+      debugPrint('onMessageOpenedApp message is ${message?.toMap()}');
+      checkMessageTypeAndOpenPage(message);
+    });
+
+    FirebaseMessaging.instance.onTokenRefresh.listen((event) async{
+      debugPrint('onTokenRefresh event is $event');
+      /*DashboardController controller = DashboardController();
+      controller.saveFirebaseToken();*/
+    });
+
   }
 }

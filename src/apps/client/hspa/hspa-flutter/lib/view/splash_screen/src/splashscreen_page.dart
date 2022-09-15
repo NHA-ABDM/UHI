@@ -1,8 +1,11 @@
 import 'dart:async';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hspa_app/constants/src/get_pages.dart';
 import 'package:hspa_app/model/src/doctor_profile.dart';
+import 'package:hspa_app/settings/src/preferences.dart';
 import 'package:hspa_app/view/dashboard/src/dashboard_page.dart';
 
 import '../../../constants/src/asset_images.dart';
@@ -34,13 +37,25 @@ class SplashScreenPageState extends State<SplashScreenPage> {
   }
 
   Future<void> authenticate() async {
-    Widget screenToOpen = const UserRolePage();
-    DoctorProfile? profile = await DoctorProfile.getSavedProfile();
-    if(profile != null && profile.uuid != null) {
-      screenToOpen = const DashboardPage();
-    }
-    Navigator.of(context).pushReplacement(_createRoute(screenToOpen : screenToOpen));
-    // Get.offAll(_createRoute(screenToOpen: UserRolePage()));
+    FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage? message) async{
+      debugPrint('getInitialMessage message is ${message?.toMap()}');
+
+      String nextRoute = AppRoutes.userRolePage;
+      DoctorProfile? profile = await DoctorProfile.getSavedProfile();
+      if(profile != null && profile.uuid != null) {
+        if(profile.firstConsultation == null) {
+          nextRoute = AppRoutes.doctorProfilePage;
+        } else {
+          nextRoute = AppRoutes.dashboardPage;
+        }
+      }
+
+      if(message != null){
+        checkMessageTypeAndOpenPage(message, nextRoute: nextRoute);
+      } else {
+        Get.offAllNamed(nextRoute);
+      }
+    });
   }
 
   Route _createRoute({required Widget screenToOpen}) {

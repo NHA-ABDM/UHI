@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hspa_app/constants/src/get_pages.dart';
 
 import '../../../common/src/dialog_helper.dart';
 import '../../../constants/src/strings.dart';
@@ -9,14 +10,24 @@ import '../../../utils/src/utility.dart';
 import '../../doctor_setup/src/days_time_selection_page.dart';
 
 class UpdateConsultationDetailsPage extends StatefulWidget {
-  const UpdateConsultationDetailsPage({Key? key, required this.isTeleconsultation}) : super(key: key);
-  final bool isTeleconsultation;
+  const UpdateConsultationDetailsPage({Key? key}) : super(key: key);
+
+  /*const UpdateConsultationDetailsPage({Key? key, required this.isTeleconsultation}) : super(key: key);
+  final bool isTeleconsultation;*/
 
   @override
   State<UpdateConsultationDetailsPage> createState() => _UpdateConsultationDetailsPageState();
 }
 
 class _UpdateConsultationDetailsPageState extends State<UpdateConsultationDetailsPage> {
+  late final bool isTeleconsultation;
+
+  @override
+  void initState() {
+    isTeleconsultation = Get.arguments['isTeleconsultation']!;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,7 +37,7 @@ class _UpdateConsultationDetailsPageState extends State<UpdateConsultationDetail
         shadowColor: Colors.black.withOpacity(0.1),
         titleSpacing: 0,
         title: Text(
-          widget.isTeleconsultation ? AppStrings().labelTeleconsultation : AppStrings().labelPhysicalConsultation,
+          isTeleconsultation ? AppStrings().labelTeleconsultation : AppStrings().labelPhysicalConsultation,
           style:
           AppTextStyle.textBoldStyle(color: AppColors.black, fontSize: 16),
         ),
@@ -49,13 +60,19 @@ class _UpdateConsultationDetailsPageState extends State<UpdateConsultationDetail
         shrinkWrap: true,
         children: [
           generateListItem(label: AppStrings().labelEditAvailability, onPressed: (){
-            Get.to(() => DayTimeSelectionPage(
-              consultType: widget.isTeleconsultation
+            /*Get.to(() => DayTimeSelectionPage(
+              consultType: isTeleconsultation
                   ? AppStrings().labelTeleconsultation
                   : AppStrings().labelPhysicalConsultation,
               isExisting: true,
             ),
-              transition: Utility.pageTransition,);
+              transition: Utility.pageTransition,);*/
+            Get.toNamed(AppRoutes.calendarWithSlotsPage, arguments: <String, dynamic>{
+              'consultType' : isTeleconsultation
+                  ? AppStrings().labelTeleconsultation
+                  : AppStrings().labelPhysicalConsultation,
+              'isExisting': true,
+            });
           }),
           generateListItem(label: AppStrings().labelEditFees, onPressed: (){
             DialogHelper.showComingSoonView();

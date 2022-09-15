@@ -16,9 +16,11 @@ import '../../../widgets/src/vertical_spacing.dart';
 import 'package:dotted_border/dotted_border.dart';
 
 class SharePhysicalPrescriptionPage extends StatefulWidget {
-  const SharePhysicalPrescriptionPage({Key? key, required this.appointment})
+  const SharePhysicalPrescriptionPage({Key? key}) : super(key: key);
+
+  /*const SharePhysicalPrescriptionPage({Key? key, required this.appointment})
       : super(key: key);
-  final Appointments appointment;
+  final Appointments appointment;*/
 
   @override
   State<SharePhysicalPrescriptionPage> createState() =>
@@ -29,6 +31,17 @@ class _SharePhysicalPrescriptionPageState
     extends State<SharePhysicalPrescriptionPage> {
   XFile? pickedFile;
   final ImagePicker _picker = ImagePicker();
+
+  /// Arguments
+  late final Appointments appointment;
+
+  @override
+  void initState() {
+    /// Get Arguments
+    appointment = Get.arguments['appointment'];
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

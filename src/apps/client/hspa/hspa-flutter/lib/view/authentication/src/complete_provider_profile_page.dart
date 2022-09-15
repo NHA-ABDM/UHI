@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:hspa_app/constants/src/language_constant.dart';
 import 'package:hspa_app/constants/src/provider_attributes.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
 
 import '../../../constants/src/asset_images.dart';
+import '../../../constants/src/get_pages.dart';
 import '../../../constants/src/strings.dart';
 import '../../../controller/src/register_provider_controller.dart';
 import '../../../model/response/src/hpr_id_profile_response.dart';
@@ -22,14 +26,20 @@ import '../../profile/src/doctor_profile_page.dart';
 enum Gender {male, female}
 
 class CompleteProviderProfilePage extends StatefulWidget {
-  const CompleteProviderProfilePage({Key? key, required this.hprIdProfileResponse}) : super(key: key);
-  final HPRIDProfileResponse hprIdProfileResponse;
+  const CompleteProviderProfilePage({Key? key}) : super(key: key);
+
+  /*const CompleteProviderProfilePage({Key? key, required this.hprIdProfileResponse}) : super(key: key);
+  final HPRIDProfileResponse hprIdProfileResponse;*/
 
   @override
   State<CompleteProviderProfilePage> createState() => _CompleteProviderProfilePageState();
 }
 
 class _CompleteProviderProfilePageState extends State<CompleteProviderProfilePage> {
+
+  /// Arguments
+  late final HPRIDProfileResponse hprIdProfileResponse;
+
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
   TextEditingController ageController = TextEditingController();
@@ -45,17 +55,26 @@ class _CompleteProviderProfilePageState extends State<CompleteProviderProfilePag
   bool _isLoading = false;
   bool _enableSelectGender = false;
 
+  List<Object?> selectedLanguages = <Object?>[];
+  List<Object?> selectedSpecialities = <Object?>[];
+  List<Object?> selectedEducations = <Object?>[];
+  final FocusNode _languagesFocusNode = FocusNode();
+  final FocusNode _specialityFocusNode = FocusNode();
+  final FocusNode _educationFocusNode = FocusNode();
+
   @override
   void initState() {
+    /// Get Arguments
+    hprIdProfileResponse = Get.arguments['hprIdProfileResponse'];
     setUpExistingProviderData();
     super.initState();
   }
 
   setUpExistingProviderData(){
 
-    int yearOfBirth = int.parse(widget.hprIdProfileResponse.yearOfBirth!);
-    int monthOfBirth = int.parse(widget.hprIdProfileResponse.monthOfBirth ?? '12');
-    int dayOfBirth = int.parse(widget.hprIdProfileResponse.dayOfBirth ?? '31');
+    int yearOfBirth = int.parse(hprIdProfileResponse.yearOfBirth!);
+    int monthOfBirth = int.parse(hprIdProfileResponse.monthOfBirth ?? '12');
+    int dayOfBirth = int.parse(hprIdProfileResponse.dayOfBirth ?? '31');
 
     DateTime birthDate = DateTime(yearOfBirth, monthOfBirth, dayOfBirth);
 
@@ -67,15 +86,15 @@ class _CompleteProviderProfilePageState extends State<CompleteProviderProfilePag
       age--;
     }
 
-    firstNameController.text = widget.hprIdProfileResponse.name!;
+    firstNameController.text = hprIdProfileResponse.name!;
     ageController.text = age.toString();
-    hprAddressController.text = widget.hprIdProfileResponse.hprId!;
-    hprIdController.text = widget.hprIdProfileResponse.hprIdNumber!;
+    hprAddressController.text = hprIdProfileResponse.hprId!;
+    hprIdController.text = hprIdProfileResponse.hprIdNumber!;
 
     /// Set Gender value
-    if(widget.hprIdProfileResponse.gender != null) {
+    if(hprIdProfileResponse.gender != null) {
       _selectedGender =
-      widget.hprIdProfileResponse.gender!.toUpperCase() == 'M' ? Gender.male : Gender.female;
+      hprIdProfileResponse.gender!.toUpperCase() == 'M' ? Gender.male : Gender.female;
     } else {
       _selectedGender = null;
       _enableSelectGender = true;
@@ -93,6 +112,9 @@ class _CompleteProviderProfilePageState extends State<CompleteProviderProfilePag
     experienceController.dispose();
     languagesController.dispose();
     specialityController.dispose();
+    _languagesFocusNode.dispose();
+    _specialityFocusNode.dispose();
+    _educationFocusNode.dispose();
     super.dispose();
   }
 
@@ -138,12 +160,20 @@ class _CompleteProviderProfilePageState extends State<CompleteProviderProfilePag
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(AppStrings().labelLoginForFirstTime, textAlign: TextAlign.start,style: AppTextStyle.textMediumStyle(fontSize: 16, color: AppColors.black)),
+                    VerticalSpacing(size: 20,),
                     getInputTextWidget(
                       controller: firstNameController,
                       keyboardType: TextInputType.name,
                       labelText: AppStrings().labelName, validate: (String? value) {
-                      if(value!.trim().isEmpty) {
+                      if(value!.isEmpty) {
                         return AppStrings().errorEnterName;
+                      } else if(value.startsWith(' ')) {
+                        return AppStrings().errorNameShouldStartWithCharactersOnly;
+                      } else if(value.trim().contains('  ')) {
+                        return AppStrings().errorShouldContainSingleSpaceBetweenName;
+                      } else if(!Validator.nameRegex.hasMatch(value)) {
+                        return AppStrings().errorEnterValidName;
                       }
                       return null;
                     },),
@@ -211,19 +241,55 @@ class _CompleteProviderProfilePageState extends State<CompleteProviderProfilePag
                       return Validator.validateAge(value);
                     },),
                     VerticalSpacing(),
-                    getInputTextWidget(controller: educationController, labelText: AppStrings().labelEducationWithHint, enable: true, validate: (String? value) {
-                      if(value!.trim().isEmpty) {
-                        return AppStrings().errorEnterEducation;
-                      }
-                      return null;
+                    getInputTextWidget(controller: educationController, labelText: AppStrings().labelEducationWithHint, enable: true,
+                      inputFormatters: <TextInputFormatter>[
+                        FilteringTextInputFormatter.deny(' , ,', replacementString: ' ,'),
+                        FilteringTextInputFormatter.deny(',,', replacementString: ','),
+                        FilteringTextInputFormatter.deny('  ', replacementString: ' ')
+                      ],
+                      readOnly: true,
+                      focusNode: _educationFocusNode,
+                      onTap: () {
+                        _showMultiSelectWidget(context,
+                            title: AppStrings().labelSelectQualification,
+                            searchHint: AppStrings().labelSearchQualification,
+                            itemList: AppStrings.educations,
+                            controller: educationController,
+                            selectedItems: selectedEducations,
+                          onConfirm: (List<dynamic> values) {
+                            setState(() {
+                              String items = '';
+                              values.map((e) => items += '$e, ').toList();
+                              if(items.length > 2) {
+                                items = items.substring(0, items.length - 2);
+                              }
+                              educationController.text = items.trim();
+                              selectedEducations = values;
+                            });
+                          }
+                        );
+                        _educationFocusNode.unfocus();
+                      },
+                      hintTextColor: AppColors.titleTextColor,
+                      validate: (String? value) {
+                        if(value!.isEmpty) {
+                          return AppStrings().errorEnterEducation;
+                        } /*else if(value.startsWith(' ') || value.startsWith(',')) {
+                          return AppStrings().errorShouldStartWithCharactersOnly(type: AppStrings().labelEducation);
+                        } else if(!Validator.stringWithCommaRegex.hasMatch(value)) {
+                          return AppStrings().errorEnterValidEducation;
+                        } else if(value.trim().endsWith(' ,') || value.trim().endsWith(',')) {
+                          return AppStrings().errorRemoveCommaAtLast;
+                        }*/
+                        return null;
                     },),
                     VerticalSpacing(),
                     getInputTextWidget(controller: experienceController, labelText: AppStrings().labelExperience, enable: true, keyboardType: TextInputType.number, validate: (String? value) {
                       String? validatedString = Validator.validateExperience(value);
                       if(validatedString == null && ageController.text.trim().isNotEmpty){
-                        int? age = int.tryParse(ageController.text.trim());
+                        double? age = double.tryParse(ageController.text.trim());
                         if(age != null) {
-                          if(age < int.parse(experienceController.text.trim())) {
+                          if(age < double.parse(experienceController.text.trim())) {
                             return AppStrings().errorInvalidExperience;
                           }
                         }
@@ -231,19 +297,102 @@ class _CompleteProviderProfilePageState extends State<CompleteProviderProfilePag
                       return validatedString;
                     },),
                     VerticalSpacing(),
-                    getInputTextWidget(controller: specialityController, labelText: AppStrings().labelSpeciality, enable: true, validate: (String? value) {
-                      if(value!.trim().isEmpty) {
+                    getInputTextWidget(controller: specialityController, labelText: AppStrings().labelSpeciality, enable: true,
+                      readOnly: true,
+                      focusNode: _specialityFocusNode,
+                      onTap: () {
+                        _showMultiSelectWidget(context,
+                            title: AppStrings().labelSelectSpeciality,
+                            searchHint: AppStrings().labelSearchSpeciality,
+                            itemList: AppStrings.specialities,
+                            controller: specialityController,
+                            selectedItems: selectedSpecialities,
+                            onConfirm: (List<dynamic> values) {
+                              setState(() {
+                                String items = '';
+                                values.map((e) => items += '$e, ').toList();
+                                if(items.length > 2) {
+                                  items = items.substring(0, items.length - 2);
+                                }
+                                specialityController.text = items.trim();
+                                selectedSpecialities = values;
+                              });
+                            }
+                        );
+                        _specialityFocusNode.unfocus();
+                      },
+                      hintTextColor: AppColors.titleTextColor,
+                      validate: (String? value) {
+                      if(value!.isEmpty) {
                         return AppStrings().errorEnterSpeciality;
-                      }
+                      } /*else if(value.startsWith(' ')) {
+                        return AppStrings().errorShouldStartWithCharactersOnly(type: AppStrings().labelSpeciality);
+                      } else if(!Validator.nameRegex.hasMatch(value)) {
+                        return AppStrings().errorEnterValidSpeciality;
+                      }*/
                       return null;
                     },),
                     VerticalSpacing(),
-                    getInputTextWidget(controller: languagesController, labelText: AppStrings().labelLanguagesWithHint, enable: true, textInputAction: TextInputAction.done, validate: (String? value) {
-                      if(value!.trim().isEmpty) {
-                        return AppStrings().errorEnterLanguagesKnown;
-                      }
-                      return null;
-                    },),
+                    /*getInputTextWidget(controller: languagesController, labelText: AppStrings().labelLanguagesWithHint, enable: true, textInputAction: TextInputAction.done,
+                      inputFormatters: <TextInputFormatter>[
+                        FilteringTextInputFormatter.deny(' , ,', replacementString: ' ,'),
+                        FilteringTextInputFormatter.deny(',,', replacementString: ','),
+                        FilteringTextInputFormatter.deny('  ', replacementString: ' ')
+                      ],
+                      validate: (String? value) {
+                        if(value!.isEmpty) {
+                          return AppStrings().errorEnterLanguagesKnown;
+                        } else if(value.startsWith(' ') || value.startsWith(',')) {
+                          return AppStrings().errorShouldStartWithCharactersOnly(type: AppStrings().labelLanguages);
+                        } else if(!Validator.stringWithCommaRegex.hasMatch(value)) {
+                          return AppStrings().errorEnterValidLanguages;
+                        } else if(value.trim().endsWith(' ,') || value.trim().endsWith(',')) {
+                          return AppStrings().errorRemoveCommaAtLast;
+                        }
+                        return null;
+                    },),*/
+                    getInputTextWidget(controller: languagesController, labelText: AppStrings().labelLanguagesWithHint, enable: true, textInputAction: TextInputAction.done,
+                      focusNode: _languagesFocusNode,
+                      readOnly: true,
+                      onTap: () {
+                        _showMultiSelectWidget(context,
+                            title: AppStrings().labelSelectLanguage,
+                            itemList: LanguageConstant.indianLanguages,
+                          controller: languagesController,
+                          selectedItems: selectedLanguages,
+                          searchHint: AppStrings().labelSearchLanguage,
+                            onConfirm: (List<dynamic> values) {
+                              setState(() {
+                                String items = '';
+                                values.map((e) => items += '$e, ').toList();
+                                if(items.length > 2) {
+                                  items = items.substring(0, items.length - 2);
+                                }
+                                languagesController.text = items.trim();
+                                selectedLanguages = values;
+                              });
+                            }
+                        );
+                        _languagesFocusNode.unfocus();
+                      },
+                      hintTextColor: AppColors.titleTextColor,
+                      inputFormatters: <TextInputFormatter>[
+                        FilteringTextInputFormatter.deny(' , ,', replacementString: ' ,'),
+                        FilteringTextInputFormatter.deny(',,', replacementString: ','),
+                        FilteringTextInputFormatter.deny('  ', replacementString: ' ')
+                      ],
+                      validate: (String? value) {
+                        if(value!.isEmpty) {
+                          return AppStrings().errorEnterLanguagesKnown;
+                        } /*else if(value.startsWith(' ') || value.startsWith(',')) {
+                          return AppStrings().errorShouldStartWithCharactersOnly(type: AppStrings().labelLanguages);
+                        } else if(!Validator.stringWithCommaRegex.hasMatch(value)) {
+                          return AppStrings().errorEnterValidLanguages;
+                        } else if(value.trim().endsWith(' ,') || value.trim().endsWith(',')) {
+                          return AppStrings().errorRemoveCommaAtLast;
+                        }*/
+                        return null;
+                      },),
 
                   ],
                 ),
@@ -284,16 +433,25 @@ class _CompleteProviderProfilePageState extends State<CompleteProviderProfilePag
     TextInputType keyboardType = TextInputType.text,
     required String? Function(String?) validate,
     int? maxLength,
-    bool enable = false
+    bool enable = false,
+  List<TextInputFormatter>? inputFormatters,
+    Function()? onTap,
+    bool readOnly = false,
+    FocusNode? focusNode
   }){
     return TextFormField(
+      focusNode: focusNode,
       controller: controller,
       cursorColor: AppColors.titleTextColor,
       textInputAction: textInputAction,
       autovalidateMode: _autoValidateMode,
+      minLines: 1,
+      maxLines: 5,
       maxLength: maxLength,
-      style: AppTextStyle.textNormalStyle(fontSize: 16, color: enable ? textColor : hintTextColor),
+      style: AppTextStyle.textNormalStyle(fontSize: 14, color: enable ? textColor : hintTextColor),
       enabled: enable,
+      onTap: onTap,
+      readOnly: readOnly,
       decoration: InputDecoration(
           labelText: labelText,
           enabled: enable,
@@ -303,6 +461,7 @@ class _CompleteProviderProfilePageState extends State<CompleteProviderProfilePag
       ),
       keyboardType: keyboardType,
       validator: validate,
+      inputFormatters: inputFormatters,
     );
   }
 
@@ -323,11 +482,13 @@ class _CompleteProviderProfilePageState extends State<CompleteProviderProfilePag
       if(registerProviderResponse != null && registerProviderResponse.uuid != null) {
         DoctorProfile? profile = await DoctorProfile.getSavedProfile();
         if (profile != null && profile.firstConsultation == null) {
-          Get.to(() => const DoctorProfilePage(),
-            transition: Utility.pageTransition,);
+          /*Get.to(() => const DoctorProfilePage(),
+            transition: Utility.pageTransition,);*/
+          Get.toNamed(AppRoutes.doctorProfilePage);
         } else {
-          Get.offAll(() => const DashboardPage(),
-            transition: Utility.pageTransition,);
+          /*Get.offAll(() => const DashboardPage(),
+            transition: Utility.pageTransition,);*/
+          Get.offAllNamed(AppRoutes.dashboardPage);
         }
       }
 
@@ -353,7 +514,7 @@ class _CompleteProviderProfilePageState extends State<CompleteProviderProfilePag
     attributes.addAll([
       {
         "attributeType": ProviderAttributesLocal.profilePhotoAttribute,
-        "value": widget.hprIdProfileResponse.profilePhoto,
+        "value": hprIdProfileResponse.profilePhoto,
       },
       {
         "attributeType": ProviderAttributesLocal.educationAttribute,
@@ -397,5 +558,102 @@ class _CompleteProviderProfilePageState extends State<CompleteProviderProfilePag
     };
 
     return providerMap;
+  }
+
+  void _showMultiSelectWidget(
+      BuildContext context,
+      {String title = 'Select',
+        String searchHint = 'Search',
+        required List<dynamic> itemList,
+        required List<Object?> selectedItems,
+        required TextEditingController controller,
+        required Function(List<dynamic>)? onConfirm,
+        double childSize = 0.8
+      }) async {
+    await showModalBottomSheet(
+      isScrollControlled: true, // required for min/max child size
+      context: context,
+      isDismissible: false,
+      builder: (ctx) {
+        return  MultiSelectBottomSheet(
+          searchable: true,
+          title: Text(title, style: AppTextStyle.textMediumStyle(fontSize: 18, color: AppColors.tileColors),),
+          cancelText: Text(AppStrings().btnCancel, style: AppTextStyle.textMediumStyle(fontSize: 16, color: AppColors.tileColors),),
+          confirmText: Text(AppStrings().btnOk, style: AppTextStyle.textMediumStyle(fontSize: 16, color: AppColors.tileColors),),
+          searchIcon: const Icon(Icons.search, color: AppColors.tileColors,),
+          checkColor: AppColors.white,
+          selectedColor: AppColors.tileColors,
+          searchHint: searchHint,
+          items: itemList
+              .map((e) => MultiSelectItem(e, e))
+              .toList(),
+          initialValue: selectedItems,
+          onConfirm: onConfirm,
+          /*(values) {
+            debugPrint('Selected list ${values.toString()}');
+            setState(() {
+              String items = '';
+              values.map((e) => items += '$e, ').toList();
+              if(items.length > 2) {
+                items = items.substring(0, items.length - 2);
+              }
+              controller.text = items.trim();
+              selectedItems = values;
+            });
+          },*/
+          maxChildSize: childSize,
+          initialChildSize: childSize,
+        );
+      },
+    );
+  }
+
+  /// Shows Alert Dialog to show list of languages
+  void _selectLanguages(BuildContext context) async {
+    await showDialog(
+      context: context,
+      builder: (ctx) {
+        return MultiSelectDialog(
+          searchable: true,
+          title: Text(
+            AppStrings().labelSelectLanguage,
+            style: AppTextStyle.textMediumStyle(
+                fontSize: 18, color: AppColors.tileColors),
+          ),
+          cancelText: Text(
+            AppStrings().btnCancel,
+            style: AppTextStyle.textMediumStyle(
+                fontSize: 16, color: AppColors.tileColors),
+          ),
+          confirmText: Text(
+            AppStrings().btnOk,
+            style: AppTextStyle.textMediumStyle(
+                fontSize: 16, color: AppColors.tileColors),
+          ),
+          searchIcon: const Icon(
+            Icons.search,
+            color: AppColors.tileColors,
+          ),
+          searchHint: AppStrings().labelSelectLanguage,
+          items: LanguageConstant.indianLanguages
+              .map((e) => MultiSelectItem(e, e))
+              .toList(),
+          listType: MultiSelectListType.LIST,
+          onConfirm: (values) {
+            debugPrint('Selected languages are ${values.toString()}');
+            setState(() {
+              String languages = '';
+              values.map((e) => languages += '$e, ').toList();
+              if (languages.length > 2) {
+                languages = languages.substring(0, languages.length - 2);
+              }
+              debugPrint(' languages are $languages');
+              languagesController.text = languages.trim();
+              selectedLanguages = values;
+            });
+          }, initialValue: selectedLanguages,
+        );
+      },
+    );
   }
 }

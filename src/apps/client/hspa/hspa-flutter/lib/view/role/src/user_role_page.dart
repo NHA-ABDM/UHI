@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hspa_app/common/common.dart';
+import 'package:hspa_app/constants/src/get_pages.dart';
 import 'package:hspa_app/constants/src/strings.dart';
 import 'package:hspa_app/theme/src/app_colors.dart';
 import 'package:hspa_app/widgets/src/spacing.dart';
@@ -131,11 +132,13 @@ class _UserRolePageState extends State<UserRolePage> {
                 if(isUpcoming) {
                   DialogHelper.showComingSoonView();
                 } else {
-                  Get.to(() => const LoginProviderPage(fromRolePage: true,),
-                    transition: Utility.pageTransition,);
+                  /*Get.to(() => const LoginProviderPage(fromRolePage: true,),
+                    transition: Utility.pageTransition,);*/
+                  //Get.toNamed(AppRoutes.loginProviderPage, arguments: {'fromRolePage': true});
 
                   /*Get.to(() => const MobileNumberAuthPage(fromRolePage: true,),
                   transition: Utility.pageTransition,);*/
+                  Get.toNamed(AppRoutes.mobileNumberAuthPage, arguments: {'fromRolePage': true});
 
                 }
               }),

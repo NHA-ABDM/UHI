@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 import '../../../constants/src/asset_images.dart';
+import '../../../constants/src/get_pages.dart';
 import '../../../constants/src/strings.dart';
 import '../../../controller/src/auth_controller.dart';
 import '../../../model/response/src/hpr_id_profile_response.dart';
@@ -20,8 +21,10 @@ import '../../profile/src/doctor_profile_page.dart';
 import 'complete_provider_profile_page.dart';
 
 class SelectHprIdPage extends StatefulWidget {
-  const SelectHprIdPage({Key? key, required this.validateOTPResponse}) : super(key: key);
-  final ValidateOTPResponse validateOTPResponse;
+  const SelectHprIdPage({Key? key}) : super(key: key);
+
+  /*const SelectHprIdPage({Key? key, required this.validateOTPResponse}) : super(key: key);
+  final ValidateOTPResponse validateOTPResponse;*/
 
   @override
   State<SelectHprIdPage> createState() => _SelectHprIdPageState();
@@ -29,12 +32,19 @@ class SelectHprIdPage extends StatefulWidget {
 
 class _SelectHprIdPageState extends State<SelectHprIdPage> {
 
+  /// Arguments
+  late final ValidateOTPResponse validateOTPResponse;
+
   late AuthenticationController _authenticationController;
   String? _selectedHprId;
   bool _isLoading = false;
 
   @override
   void initState() {
+
+    /// Get Arguments
+    validateOTPResponse = Get.arguments['validateOTPResponse'];
+
     _authenticationController = AuthenticationController();
     super.initState();
   }
@@ -87,9 +97,9 @@ class _SelectHprIdPageState extends State<SelectHprIdPage> {
               child: ListView.separated(
                 separatorBuilder: (BuildContext context, int index) => VerticalSpacing(),
                 shrinkWrap: true,
-                  itemCount: widget.validateOTPResponse.mobileLinkedHpIdDTO!.length,
+                  itemCount: validateOTPResponse.mobileLinkedHpIdDTO!.length,
                   itemBuilder: (BuildContext context, int index) {
-                  MobileLinkedHpIdDTO dto = widget.validateOTPResponse.mobileLinkedHpIdDTO![index];
+                  MobileLinkedHpIdDTO dto = validateOTPResponse.mobileLinkedHpIdDTO![index];
                     return Container(
                       decoration: BoxDecoration(
                         border: Border.all(
@@ -136,7 +146,7 @@ class _SelectHprIdPageState extends State<SelectHprIdPage> {
     setState(() {
       _isLoading = true;
     });
-    await getAuthTokenForHprId(hprIdNumber: _selectedHprId!, transactionId: widget.validateOTPResponse.txnId!);
+    await getAuthTokenForHprId(hprIdNumber: _selectedHprId!, transactionId: validateOTPResponse.txnId!);
   }
 
 
@@ -207,19 +217,22 @@ class _SelectHprIdPageState extends State<SelectHprIdPage> {
         });
         DoctorProfile? profile = await DoctorProfile.getSavedProfile();
         if (profile != null && profile.firstConsultation == null) {
-          Get.to(() => const DoctorProfilePage(),
-            transition: Utility.pageTransition,);
+          /*Get.to(() => const DoctorProfilePage(),
+            transition: Utility.pageTransition,);*/
+          Get.toNamed(AppRoutes.doctorProfilePage);
         } else {
-          Get.offAll(() => const DashboardPage(),
-            transition: Utility.pageTransition,);
+          /*Get.offAll(() => const DashboardPage(),
+            transition: Utility.pageTransition,);*/
+          Get.offAllNamed(AppRoutes.dashboardPage);
         }
       } else {
         setState(() {
           _isLoading = false;
         });
 
-        Get.to(() => CompleteProviderProfilePage(hprIdProfileResponse: hprIdProfileResponse),
-          transition: Utility.pageTransition,);
+        /*Get.to(() => CompleteProviderProfilePage(hprIdProfileResponse: hprIdProfileResponse),
+          transition: Utility.pageTransition,);*/
+        Get.toNamed(AppRoutes.completeProviderProfilePage, arguments: {'hprIdProfileResponse': hprIdProfileResponse});
       }
     }
   }

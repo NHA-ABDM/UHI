@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hspa_app/constants/src/asset_images.dart';
+import 'package:hspa_app/constants/src/get_pages.dart';
 import 'package:hspa_app/utils/src/validator.dart';
 import 'package:hspa_app/widgets/src/square_rounded_button_with_icon.dart';
 import 'package:hspa_app/widgets/widgets.dart';
@@ -143,8 +144,9 @@ class _SignUpWithAadhaarPageState extends State<SignUpWithAadhaarPage> {
               VerticalSpacing(size: 36,),
               SquareRoundedButtonWithIcon(text: AppStrings().btnContinue, assetImage: AssetImages.arrowLongRight, onPressed: (){
                 if(formKey.currentState!.validate()){
-                  Get.to(() => const AadhaarOTPAuthenticationPage(),
-                    transition: Utility.pageTransition,);
+                  /*Get.to(() => const AadhaarOTPAuthenticationPage(),
+                    transition: Utility.pageTransition,);*/
+                  Get.toNamed(AppRoutes.aadhaarOTPAuthenticationPage);
                 } else {
                   setState(() {
                     _autoValidateMode = AutovalidateMode.always;

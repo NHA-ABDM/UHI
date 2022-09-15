@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cryptography/cryptography.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -9,8 +10,11 @@ import 'package:get/get.dart';
 import 'package:hspa_app/services/services.dart';
 
 import '../../constants/src/request_urls.dart';
+import '../../constants/src/strings.dart';
+import '../../model/request/src/save_public_key_model.dart';
 import '../../model/response/src/appointment_slots_response.dart';
 import '../../model/src/doctor_profile.dart';
+import '../../settings/src/preferences.dart';
 
 class DashboardController extends GetxController with ExceptionHandler {
   ///ERROR STRING
@@ -146,8 +150,123 @@ class DashboardController extends GetxController with ExceptionHandler {
       },
     ).catchError(
       (onError) {
-        debugPrint('Add Provider attribute error $onError');
+        debugPrint('Save firebase token error $onError');
       },
     );
+  }
+
+  /// Logout user and delete device firebase token
+  Future<void> logoutUser() async{
+    DoctorProfile? profile = await DoctorProfile.getSavedProfile();
+    String? deviceId = await _getDeviceId();
+
+    if(deviceId != null && profile != null){
+      String hprAddress = profile.hprAddress!;
+      await _deleteDeviceFirebaseToken(deviceId: deviceId, hprAddress: hprAddress);
+    }
+  }
+
+  Future<void> _deleteDeviceFirebaseToken({
+        required String deviceId,
+        required String hprAddress}) async {
+    Map<String, dynamic> requestBody = {
+      'deviceId': deviceId,
+      'userName': hprAddress
+    };
+    debugPrint('Delete firebase token request body is $requestBody');
+    await BaseClient(
+      url: RequestUrls.deleteFirebaseToken,
+      body: requestBody,
+    ).post().then(
+          (value) async {
+        if (value != null) {
+          debugPrint('Delete firebase token API response is $value');
+        }
+      },
+    ).catchError(
+          (onError) {
+        debugPrint('Delete firebase token API error $onError');
+      },
+    );
+  }
+
+
+  ///SAVE SHARED KEY API
+  Future<void> saveSharedKey() async {
+    final encryptionAlgorithm = X25519();
+    // Get a public key for our peer.
+    final remoteKeyPair = await encryptionAlgorithm.newKeyPair();
+    final remotePublicKey = await remoteKeyPair.extractPublicKey();
+
+
+    DoctorProfile? _profile = await DoctorProfile.getSavedProfile();
+    if (_profile != null) {
+      Map<String, dynamic> requestBody = {
+        'publicKey': remotePublicKey.bytes.toString(),
+        'userName': _profile.hprAddress
+      };
+      debugPrint('Save public key request body is $requestBody');
+      debugPrint('Save public key request url is ${RequestUrls.savePublicKey}');
+      await BaseClient(
+        url: RequestUrls.savePublicKey,
+        body: requestBody,
+      ).post().then(
+            (value) async {
+          if (value != null) {
+            debugPrint('Save public key API response is $value');
+          }
+        },
+      ).catchError(
+            (onError) {
+          debugPrint('Save public key API error $onError');
+        },
+      );
+    }
+  }///SAVE SHARED KEY API
+
+  Future<void> savePrivatePublicKeys() async {
+
+    String? privateKey = Preferences.getString(
+        key: AppStrings.encryptionPrivateKey);
+    debugPrint('Shared preference private key is $privateKey');
+    if (privateKey == null || privateKey.isEmpty) {
+    final encryptionAlgorithm = X25519();
+    // Get a public key for our peer.
+    final remoteKeyPair = await encryptionAlgorithm.newKeyPair();
+    final remotePublicKey = await remoteKeyPair.extractPublicKey();
+    String privateKeyBytes =
+    (await remoteKeyPair.extractPrivateKeyBytes()).toString();
+
+    DoctorProfile? _profile = await DoctorProfile.getSavedProfile();
+    if (_profile != null) {
+      Map<String, dynamic> requestBody = {
+        'publicKey': remotePublicKey.bytes.toString(),
+        'userName': _profile.hprAddress,
+        'privateKey': privateKeyBytes
+      };
+      debugPrint('Save private public key request body is $requestBody');
+      debugPrint('Save private public key request url is ${RequestUrls
+          .savePrivatePublicKey}');
+      await BaseClient(
+        url: RequestUrls.savePrivatePublicKey,
+        body: requestBody,
+      ).post().then(
+            (value) async {
+          if (value != null) {
+            debugPrint('Save private public key API response is $value');
+            Map<String, dynamic> responseMap = json.decode(value);
+            if(responseMap.containsKey('privateKey')){
+              privateKey = responseMap['privateKey'];
+              Preferences.saveString(key: AppStrings.encryptionPrivateKey, value: privateKey);
+            }
+          }
+        },
+      ).catchError(
+            (onError) {
+          debugPrint('Save private public key API error $onError');
+        },
+      );
+    }
+  }
   }
 }

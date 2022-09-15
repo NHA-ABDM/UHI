@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';import 'package:get/get.dart';
 import 'package:hspa_app/constants/src/asset_images.dart';
+import 'package:hspa_app/constants/src/get_pages.dart';
 import 'package:hspa_app/widgets/src/vertical_spacing.dart';
 
 import '../../../constants/src/strings.dart';
@@ -11,15 +12,30 @@ import '../../../widgets/src/spacing.dart';
 import 'share_physical_prescription_page.dart';
 
 class ConsultationCompletedPage extends StatefulWidget {
-  const ConsultationCompletedPage({Key? key, required this.appointment, required this.isTeleconsultation}) : super(key: key);
+  const ConsultationCompletedPage({Key? key}) : super(key: key);
+
+/*  const ConsultationCompletedPage({Key? key, required this.appointment, required this.isTeleconsultation}) : super(key: key);
   final Appointments appointment;
-  final bool isTeleconsultation;
+  final bool isTeleconsultation;*/
   
   @override
   State<ConsultationCompletedPage> createState() => _ConsultationCompletedPageState();
 }
 
 class _ConsultationCompletedPageState extends State<ConsultationCompletedPage> {
+
+  /// Arguments
+  late final Appointments appointment;
+  late final bool isTeleconsultation;
+
+  @override
+  void initState() {
+    /// Get arguments
+    appointment = Get.arguments['appointment'];
+    isTeleconsultation = Get.arguments['isTeleconsultation'];
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,7 +45,7 @@ class _ConsultationCompletedPageState extends State<ConsultationCompletedPage> {
         shadowColor: Colors.black.withOpacity(0.1),
         titleSpacing: 0,
         title: Text(
-          widget.isTeleconsultation ? AppStrings().labelTeleconsultationAppointment : AppStrings().labelPhysicalConsultationAppointment,
+          isTeleconsultation ? AppStrings().labelTeleconsultationAppointment : AppStrings().labelPhysicalConsultationAppointment,
           style: AppTextStyle.textBoldStyle(
               color: AppColors.black, fontSize: 18),
         ),
@@ -59,9 +75,9 @@ class _ConsultationCompletedPageState extends State<ConsultationCompletedPage> {
             Container(
               padding: const EdgeInsets.only(left: 12.0, right: 4),
               child: Text(
-                widget.isTeleconsultation ?
-                '${AppStrings().labelTeleconsultationCompleted} ${widget.appointment.name}'
-                    : '${AppStrings().labelPhysicalConsultationCompleted} ${widget.appointment.name}',
+                isTeleconsultation ?
+                '${AppStrings().labelTeleconsultationCompleted} ${appointment.name}'
+                    : '${AppStrings().labelPhysicalConsultationCompleted} ${appointment.name}',
                 style: AppTextStyle.textNormalStyle(fontSize: 12, color: AppColors.testColor),
               ),
             ),
@@ -139,14 +155,14 @@ class _ConsultationCompletedPageState extends State<ConsultationCompletedPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.appointment.name,
+                          appointment.name,
                           style: AppTextStyle
                               .textSemiBoldStyle(
                               fontSize: 16,
                               color: AppColors.testColor),
                         ),
                         Text(
-                          widget.appointment.visitType,
+                          appointment.visitType,
                           style: AppTextStyle
                               .textNormalStyle(
                               color: AppColors.testColor, fontSize: 12),
@@ -162,13 +178,13 @@ class _ConsultationCompletedPageState extends State<ConsultationCompletedPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        widget.appointment.appointmentDate,
+                        appointment.appointmentDate,
                         style: AppTextStyle.textSemiBoldStyle(
                             fontSize: 18, color: AppColors.testColor),
                       ),
                       Spacing(),
                       Text(
-                        widget.appointment.appointmentTime,
+                        appointment.appointmentTime,
                         style: AppTextStyle.textSemiBoldStyle(
                             fontSize: 18, color: AppColors.testColor),
                       ),
@@ -194,9 +210,10 @@ class _ConsultationCompletedPageState extends State<ConsultationCompletedPage> {
                     color: AppColors.tileColors,
                     actionText: AppStrings().btnSharePrescription,
                     onTap: () {
-                      if(!widget.isTeleconsultation){
-                        Get.to(() => SharePhysicalPrescriptionPage(appointment: widget.appointment,),
-                          transition: Utility.pageTransition,);
+                      if(!isTeleconsultation){
+                        /*Get.to(() => SharePhysicalPrescriptionPage(appointment: appointment,),
+                          transition: Utility.pageTransition,);*/
+                        Get.toNamed(AppRoutes.sharePhysicalPrescriptionPage, arguments: {'appointment': appointment});
                       }
                     }),
               ],

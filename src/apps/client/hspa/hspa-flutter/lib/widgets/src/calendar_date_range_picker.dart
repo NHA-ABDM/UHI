@@ -32,15 +32,16 @@ class CalendarDateRangePicker {
       this.minDateTime,
       this.maxDateTime,
       this.onDateSubmit,
-      this.lastDate});
+      this.lastDate}) {
+    startDate = initialDate ?? DateTime.now();
+    endDate = lastDate ?? DateTime.now();
+  }
 
   sfDatePicker() {
     ///ASSIGNING TO VARIABLES
     width = MediaQuery.of(context).size.width;
     height = MediaQuery.of(context).size.height;
-    if (isDateRange == null) {
-      isDateRange = true;
-    }
+    isDateRange ??= true;
 
     showDialog(
       context: context,
@@ -143,6 +144,7 @@ class CalendarDateRangePicker {
                       ),
                       onSelectionChanged:
                           (dateRangePickerSelectionChangedArgs) {
+                        debugPrint('dateRangePickerSelectionChangedArgs ${dateRangePickerSelectionChangedArgs.value}');
                         if (isDateRange!) {
                           PickerDateRange pickerDateRange =
                               dateRangePickerSelectionChangedArgs.value;

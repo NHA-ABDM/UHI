@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hspa_app/constants/src/get_pages.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
 import '../../../constants/src/asset_images.dart';
@@ -88,8 +89,9 @@ class _AadhaarOTPAuthenticationPageState extends State<AadhaarOTPAuthenticationP
 
             VerticalSpacing( size: 36,),
             SquareRoundedButtonWithIcon(text: AppStrings().btnContinue, assetImage: AssetImages.arrowLongRight, onPressed: () {
-              Get.to(() => const MobileNumberAuthPage(fromRolePage: false,),
-                transition: Utility.pageTransition,);
+              /*Get.to(() => const MobileNumberAuthPage(fromRolePage: false,),
+                transition: Utility.pageTransition,);*/
+              Get.toNamed(AppRoutes.mobileNumberAuthPage, arguments: {'fromRolePage': false});
             }),
             VerticalSpacing( size: 24,),
             Row(

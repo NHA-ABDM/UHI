@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hspa_app/constants/src/get_pages.dart';
 import 'package:intl/intl.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
@@ -18,7 +19,9 @@ import '../../../widgets/src/vertical_spacing.dart';
 import '../../chat/src/chat_page.dart';
 
 class AppointmentDetailsPage extends StatefulWidget {
-  const AppointmentDetailsPage({
+  const AppointmentDetailsPage({Key? key}) : super(key: key);
+
+/*  const AppointmentDetailsPage({
     Key? key,
     required this.isTeleconsultation,
     required this.providerAppointment,
@@ -26,7 +29,7 @@ class AppointmentDetailsPage extends StatefulWidget {
   }) : super(key: key);
   final ProviderAppointments providerAppointment;
   final bool isTeleconsultation;
-  final bool isPrevious;
+  final bool isPrevious;*/
 
   @override
   State<AppointmentDetailsPage> createState() => _AppointmentDetailsPageState();
@@ -38,13 +41,24 @@ class _AppointmentDetailsPageState extends State<AppointmentDetailsPage> {
   late DateFormat _dateFormat;
   bool _isLoading = false;
 
+  /// Arguments
+  late final ProviderAppointments providerAppointment;
+  late final bool isTeleconsultation;
+  late final bool isPrevious;
+
   @override
   void initState() {
+
+    /// Get Arguments
+    providerAppointment = Get.arguments['providerAppointment'];
+    isTeleconsultation = Get.arguments['isTeleconsultation'];
+    isPrevious = Get.arguments['isPrevious'];
+
     _dateFormat = DateFormat('dd MMMM, hh:mm aa');
     listAppointmentUpdates.add(AppointmentUpdates(
         updateDateTime: DateTime.parse(
-            widget.providerAppointment.timeSlot!.startDate!.split('.').first),
-        updateDetails: widget.providerAppointment.status!));
+            providerAppointment.timeSlot!.startDate!.split('.').first),
+        updateDetails: providerAppointment.status!));
     // listAppointmentUpdates.add(AppointmentUpdates(updateDateTime: DateTime(2022, 4, 13, 16, 10), updateDetails: 'Reschedule Requested'));
     // listAppointmentUpdates.add(AppointmentUpdates(updateDateTime: DateTime(2022, 4, 13, 17, 20), updateDetails: 'Reschedule Accepted'));
     // listAppointmentUpdates.add(AppointmentUpdates(updateDateTime: DateTime(2022, 4, 13, 17, 30), updateDetails: 'Appointment Status', status: 'In Progress'));
@@ -114,7 +128,7 @@ class _AppointmentDetailsPageState extends State<AppointmentDetailsPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              widget.providerAppointment.patient!.person!
+                              providerAppointment.patient!.person!
                                   .display!,
                               style: AppTextStyle.textSemiBoldStyle(
                                   color: AppColors.testColor, fontSize: 16),
@@ -122,8 +136,7 @@ class _AppointmentDetailsPageState extends State<AppointmentDetailsPage> {
                             Spacing(),
                             Text(
                               Utility.getAppointmentDisplayDate(
-                                  date: DateTime.parse(widget
-                                      .providerAppointment
+                                  date: DateTime.parse(providerAppointment
                                       .timeSlot!
                                       .startDate!)),
                               style: AppTextStyle.textNormalStyle(
@@ -139,19 +152,18 @@ class _AppointmentDetailsPageState extends State<AppointmentDetailsPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              widget.providerAppointment.reason ?? '',
+                              providerAppointment.reason ?? '',
                               style: AppTextStyle.textNormalStyle(
                                   color: AppColors.testColor, fontSize: 12),
                             ),
                             Spacing(),
                             Text(
                               Utility.getAppointmentDisplayTimeRange(
-                                  startDateTime: DateTime.parse(widget
-                                      .providerAppointment.timeSlot!.startDate!
+                                  startDateTime: DateTime.parse(
+                                      providerAppointment.timeSlot!.startDate!
                                       .split('.')
                                       .first),
-                                  endDateTime: DateTime.parse(widget
-                                      .providerAppointment.timeSlot!.endDate!
+                                  endDateTime: DateTime.parse(providerAppointment.timeSlot!.endDate!
                                       .split('.')
                                       .first)),
                               style: AppTextStyle.textNormalStyle(
@@ -171,28 +183,32 @@ class _AppointmentDetailsPageState extends State<AppointmentDetailsPage> {
                                       await DoctorProfile.getSavedProfile();
                                   String? doctorHprId =
                                       doctorProfile?.hprAddress;
-                                  String? patientABHAId = widget
-                                      .providerAppointment.patient?.abhaAddress;
-                                  String? patientName = widget
-                                      .providerAppointment
+                                  String? patientABHAId = providerAppointment.patient?.abhaAddress;
+                                  String? patientName = providerAppointment
                                       .patient
                                       ?.person
                                       ?.display;
-                                  String? patientGender = widget
-                                      .providerAppointment
+                                  String? patientGender = providerAppointment
                                       .patient
                                       ?.person
                                       ?.gender;
-                                  Get.to(
+                                  /*Get.to(
                                     () => ChatPage(
                                       doctorHprId: doctorHprId,
                                       patientAbhaId: patientABHAId,
                                       patientName: patientName,
                                       patientGender: patientGender,
-                                      allowSendMessage: !widget.isPrevious,
+                                      allowSendMessage: !isPrevious,
                                     ),
                                     transition: Utility.pageTransition,
-                                  );
+                                  );*/
+                                  Get.toNamed(AppRoutes.chatPage, arguments: {
+                                    'doctorHprId': doctorHprId,
+                                    'patientAbhaId': patientABHAId,
+                                    'patientName': patientName,
+                                    'patientGender': patientGender,
+                                    'allowSendMessage': !isPrevious
+                                  });
                                 },
                                 visualDensity: VisualDensity.compact,
                                 icon: Image.asset(
@@ -201,7 +217,7 @@ class _AppointmentDetailsPageState extends State<AppointmentDetailsPage> {
                                   width: 24,
                                 ),
                               ),
-                              if (widget.isTeleconsultation)
+                              if (isTeleconsultation)
                                 IconButton(
                                   onPressed: () {},
                                   visualDensity: VisualDensity.compact,
@@ -211,9 +227,11 @@ class _AppointmentDetailsPageState extends State<AppointmentDetailsPage> {
                                     width: 24,
                                   ),
                                 ),
-                              if (widget.isTeleconsultation)
+                              if (isTeleconsultation && !isPrevious)
                                 IconButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Get.toNamed(AppRoutes.callSample, arguments: {'host': '121.242.73.119'});
+                                  },
                                   visualDensity: VisualDensity.compact,
                                   icon: Image.asset(
                                     AssetImages.video,
@@ -351,10 +369,10 @@ class _AppointmentDetailsPageState extends State<AppointmentDetailsPage> {
       AppointmentsController appointmentsController = AppointmentsController();
       AppointmentDetailsResponse? appointmentDetailsResponse =
           await appointmentsController.getAppointmentDetails(
-              appointmentUUID: widget.providerAppointment.uuid!);
+              appointmentUUID: providerAppointment.uuid!);
 
       debugPrint(
-          'Get appointment details exception is ${appointmentDetailsResponse?.results}');
+          'Get appointment details response is ${appointmentDetailsResponse?.results}');
 
       setState(() {
         _isLoading = false;

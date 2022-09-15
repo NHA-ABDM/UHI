@@ -4,15 +4,18 @@ import '../../constants/src/strings.dart';
 
 class Validator {
 
+  static RegExp nameRegex = RegExp(r'^[a-zA-Z ]+$');
+  static RegExp stringWithCommaRegex = RegExp(r'^[a-zA-Z ,]+$');
+
   static String? validateMobileNumber(String? number){
     debugPrint('Mobile number entered is $number');
     if(number != null){
       if(number.isEmpty) {
         return AppStrings().errorEnterMobileNumber;
       } if(number.trim().length != 10){
-        return AppStrings().invalidMobile;
+        return AppStrings().errorEnterValidMobile;
       } else if(int.tryParse(number.trim()) == null){
-        return AppStrings().invalidMobile;
+        return AppStrings().errorEnterValidMobile;
       } else {
         return null;
       }
@@ -55,7 +58,7 @@ class Validator {
     if(hprAddress != null){
       if(hprAddress.isEmpty){
         return AppStrings().errorEnterHprAddress;
-      }  else if (!RegExp(r"^[A-Za-z0-9._%+-]+@hpr.(abdm|ndhm|sbx)$").hasMatch(hprAddress.trim())) {
+      } else if (!RegExp(r"^[A-Za-z0-9._%+-]+@hpr.(abdm|ndhm|sbx)$").hasMatch(hprAddress)) {
         return AppStrings().errorInvalidHprAddress;
       } else {
         return null;
@@ -116,6 +119,8 @@ class Validator {
     if(age != null){
       if(age.isEmpty) {
         return AppStrings().errorProvideAge;
+      } else if (age.startsWith(' ') || age.trim().contains(' ')) {
+        return AppStrings().errorShouldNotContainSpace;
       } else if (double.tryParse(age.trim()) == null) {
         return AppStrings().errorProvideValidAge;
       } else if (double.parse(age.trim()) <= 0) {

@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../constants/src/appointment_status.dart';
 import '../../../constants/src/asset_images.dart';
+import '../../../constants/src/request_urls.dart';
 import '../../../constants/src/strings.dart';
 import '../../../controller/src/appointments_controller.dart';
+import '../../../model/request/src/cancel_appointment_request.dart';
+import '../../../model/response/src/acknowledgement_response_model.dart';
 import '../../../model/response/src/cancel_appointment_response.dart';
 import '../../../model/response/src/provider_appointments_response.dart';
+import '../../../model/src/chat_message_dhp_model.dart';
+import '../../../model/src/context_model.dart';
 import '../../../theme/src/app_colors.dart';
 import '../../../theme/src/app_text_style.dart';
 import '../../../utils/src/utility.dart';
@@ -17,8 +23,10 @@ import '../../../widgets/src/square_rounded_button_with_icon.dart';
 import '../../../widgets/src/vertical_spacing.dart';
 
 class CancelAppointmentPage extends StatefulWidget {
-  const CancelAppointmentPage({Key? key, required this.providerAppointment}) : super(key: key);
-  final ProviderAppointments providerAppointment;
+  const CancelAppointmentPage({Key? key}) : super(key: key);
+
+/*  const CancelAppointmentPage({Key? key, required this.providerAppointment}) : super(key: key);
+  final ProviderAppointments providerAppointment;*/
 
   @override
   State<CancelAppointmentPage> createState() => _CancelAppointmentPageState();
@@ -26,10 +34,20 @@ class CancelAppointmentPage extends StatefulWidget {
 
 class _CancelAppointmentPageState extends State<CancelAppointmentPage> {
 
+  /// Arguments
+  late final ProviderAppointments providerAppointment;
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   AutovalidateMode _autoValidateMode = AutovalidateMode.disabled;
   final TextEditingController _reasonTextController = TextEditingController();
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    /// Get arguments
+    providerAppointment = Get.arguments['providerAppointment'];
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -104,13 +122,13 @@ class _CancelAppointmentPageState extends State<CancelAppointmentPage> {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      widget.providerAppointment.patient!.person!.display!,
+                                      providerAppointment.patient!.person!.display!,
                                       style: AppTextStyle.textSemiBoldStyle(
                                           color: AppColors.testColor, fontSize: 16),
                                     ),
                                     Spacing(),
                                     Text(
-                                      Utility.getAppointmentDisplayDate(date: DateTime.parse(widget.providerAppointment.timeSlot!.startDate!)),
+                                      Utility.getAppointmentDisplayDate(date: DateTime.parse(providerAppointment.timeSlot!.startDate!)),
                                       style: AppTextStyle
                                           .textNormalStyle(
                                           color: AppColors.testColor, fontSize: 16),
@@ -123,13 +141,13 @@ class _CancelAppointmentPageState extends State<CancelAppointmentPage> {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      widget.providerAppointment.reason ?? '',
+                                      providerAppointment.reason ?? '',
                                       style: AppTextStyle.textNormalStyle(
                                           color: AppColors.testColor, fontSize: 12),
                                     ),
                                     Spacing(),
                                     Text(
-                                      Utility.getAppointmentDisplayTimeRange(startDateTime: DateTime.parse(widget.providerAppointment.timeSlot!.startDate!.split('.').first), endDateTime: DateTime.parse(widget.providerAppointment.timeSlot!.endDate!.split('.').first)),
+                                      Utility.getAppointmentDisplayTimeRange(startDateTime: DateTime.parse(providerAppointment.timeSlot!.startDate!.split('.').first), endDateTime: DateTime.parse(providerAppointment.timeSlot!.endDate!.split('.').first)),
                                       style: AppTextStyle
                                           .textNormalStyle(
                                           color: AppColors.testColor, fontSize: 12),
@@ -179,16 +197,24 @@ class _CancelAppointmentPageState extends State<CancelAppointmentPage> {
 
               String cancelReason = _reasonTextController.text.trim();
               AppointmentsController appointmentsController = AppointmentsController();
-              CancelAppointmentResponse? cancelAppointmentResponse = await appointmentsController.cancelProviderAppointment(appointmentUUID: widget.providerAppointment.uuid!, status: AppointmentStatus.cancelled, cancelReason: cancelReason);
 
-              if(cancelAppointmentResponse != null) {
-                bool? status = await appointmentsController.purgeCanceledAppointmentSlot(appointmentUUID: widget.providerAppointment.uuid!);
-              }
+              /// Get cancel request body
+              CancelAppointmentRequestModel requestBody = await getCancelAppointmentRequestBody();
+
+              /// This is for cancel appointment from both EUA and HSPA backend and from open mrs also
+              AcknowledgementMessage? acknowledgementMessage = await appointmentsController.cancelProviderAppointmentWrapper(appointmentUUID: providerAppointment.uuid!, cancelAppointmentRequestModel: requestBody);
+
+              /// This is for cancel appointment from open mrs only
+              //CancelAppointmentResponse? cancelAppointmentResponse = await appointmentsController.cancelProviderAppointment(appointmentUUID: providerAppointment.uuid!, status: AppointmentStatus.cancelled, cancelReason: cancelReason);
+
+              /*if(cancelAppointmentResponse != null) {
+                bool? status = await appointmentsController.purgeCanceledAppointmentSlot(appointmentUUID: providerAppointment.uuid!);
+              }*/
 
               setState(() {
                 _isLoading = false;
               });
-              if(cancelAppointmentResponse != null) {
+              if(acknowledgementMessage != null && acknowledgementMessage.ack?.status != null && acknowledgementMessage.ack?.status == 'ACK') {
                 AlertDialogWithSingleAction(context: context,
                   title: AppStrings().labelCancelAlertTitle,
                   showIcon: true,
@@ -206,5 +232,47 @@ class _CancelAppointmentPageState extends State<CancelAppointmentPage> {
         ],
       ),
     );
+  }
+
+  Future<CancelAppointmentRequestModel> getCancelAppointmentRequestBody() async{
+    String _uniqueId = const Uuid().v1();
+
+    ContextModel contextModel = ContextModel();
+    contextModel.domain = "nic2004:85111";
+    contextModel.city = "std:080";
+    contextModel.country = "IND";
+    contextModel.action = "cancel";
+    contextModel.coreVersion = "0.7.1";
+    contextModel.messageId = _uniqueId;
+    contextModel.consumerId = "eua-nha";
+    //contextModel.consumerUri = RequestUrls.cancelConsumerUriSandbox;
+    //contextModel.providerUrl = _providerUri;
+    contextModel.timestamp = DateTime.now().toLocal().toUtc().toIso8601String();
+    contextModel.transactionId = _uniqueId;
+
+
+    CancelAppointmentRequestTags tags = CancelAppointmentRequestTags();
+    tags.tagMap = <String, dynamic>{};
+    tags.tagMap!.addAll({
+      '@abdm/gov.in/cancelledby' : 'doctor',
+      '@abdm/gov.in/cancelReason' : _reasonTextController.text.trim()
+    });
+
+    CancelAppointmentRequestFulfillment cancelAppointmentRequestFulfillment = CancelAppointmentRequestFulfillment();
+    cancelAppointmentRequestFulfillment.tags = tags;
+
+    CancelAppointmentRequestOrder cancelAppointmentRequestOrder = CancelAppointmentRequestOrder();
+    cancelAppointmentRequestOrder.id = providerAppointment.uuid!;
+    cancelAppointmentRequestOrder.state = AppointmentStatus.cancelled;
+    cancelAppointmentRequestOrder.fulfillment = cancelAppointmentRequestFulfillment;
+
+    CancelAppointmentRequestMessage cancelAppointmentRequestMessage = CancelAppointmentRequestMessage();
+    cancelAppointmentRequestMessage.order = cancelAppointmentRequestOrder;
+
+    CancelAppointmentRequestModel cancelAppointmentRequestModel = CancelAppointmentRequestModel();
+    cancelAppointmentRequestModel.context = contextModel;
+    cancelAppointmentRequestModel.message =cancelAppointmentRequestMessage;
+
+    return cancelAppointmentRequestModel;
   }
 }

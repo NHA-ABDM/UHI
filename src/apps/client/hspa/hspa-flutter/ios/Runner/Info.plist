@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -31,6 +33,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>To capture and upload signature image</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>UHI wants to access to Face id to authenticate</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>To record audio</string>
 	<key>NSPhotoLibraryUsageDescription</key>
@@ -52,7 +56,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
 </dict>
 </plist>

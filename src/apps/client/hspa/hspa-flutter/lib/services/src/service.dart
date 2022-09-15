@@ -95,6 +95,34 @@ class BaseClient {
     }
   }
 
+  //PUT request to server
+  Future<dynamic> put({bool decode = false}) async {
+    bool isConnected = await Utility.isInternetAvailable();
+    if(isConnected) {
+      try {
+        var response = await client
+            .put(
+          Uri.parse(url!),
+          headers: headers,
+          body: jsonEncode(body),
+        );
+        //.timeout(const Duration(seconds: timeOutDuration));
+
+        return _processResponse(response, decode: decode);
+      } on SocketException {
+        throw SocketConnectionError('Socket connection error', url);
+      } on TimeoutException {
+        throw RequestTimeoutException('Request timeout', url);
+      } on FormatException {
+        throw FetchDataException("Something went wrong", url);
+      } on HandshakeException {
+        throw NoInternetConnectionException("No internet connection", url);
+      }
+    } else {
+      throw NoInternetConnectionException("No internet connection", url);
+    }
+  }
+
   //Get request to server
   Future<dynamic> delete({bool decode = false}) async {
     debugPrint('Calling API ${Uri.parse(url!)}');

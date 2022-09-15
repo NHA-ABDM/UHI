@@ -8,14 +8,27 @@ import '../../../theme/src/app_colors.dart';
 import '../../../theme/src/app_text_style.dart';
 
 class ChangeLanguagePage extends StatefulWidget {
-  const ChangeLanguagePage({Key? key, this.isChange = true}) : super(key: key);
-  final bool isChange;
-
+  const ChangeLanguagePage({Key? key}) : super(key: key);
   @override
   State<ChangeLanguagePage> createState() => _ChangeLanguagePageState();
 }
 
 class _ChangeLanguagePageState extends State<ChangeLanguagePage> {
+
+  /// Arguments
+  bool isChange = true;
+  late Locale? selectedLocale;
+
+  @override
+  void initState() {
+    /// Get Arguments
+    if(Get.arguments['isChange'] != null) {
+      isChange = Get.arguments['isChange'];
+    }
+    selectedLocale = Get.locale;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,7 +38,7 @@ class _ChangeLanguagePageState extends State<ChangeLanguagePage> {
         shadowColor: Colors.black.withOpacity(0.1),
         titleSpacing: 0,
         title: Text(
-          widget.isChange ? AppStrings().labelChangeLanguage : AppStrings().labelSelectLanguage,
+          isChange ? AppStrings().labelChangeLanguage : AppStrings().labelSelectLanguage,
           style:
           AppTextStyle.textBoldStyle(color: AppColors.black, fontSize: 16),
         ),
@@ -48,16 +61,22 @@ class _ChangeLanguagePageState extends State<ChangeLanguagePage> {
       shrinkWrap: true,
       children: [
         generateListItem(label: AppStrings().labelEnglish, onPressed: (){
-          setLocale(const Locale('en'));
-        }),
+          if(selectedLocale != LanguageConstant.supportedLanguages[0]) {
+            selectedLocale = LanguageConstant.supportedLanguages[0];
+            setLocale(LanguageConstant.supportedLanguages[0]);
+          }
+        }, locale : LanguageConstant.supportedLanguages[0]),
         generateListItem(label: AppStrings().labelHindi, onPressed: (){
-          setLocale(const Locale('hi'));
-        }),
+          if(selectedLocale != LanguageConstant.supportedLanguages[1]) {
+            setLocale(LanguageConstant.supportedLanguages[1]);
+            selectedLocale = LanguageConstant.supportedLanguages[1];
+          }
+        }, locale: LanguageConstant.supportedLanguages[1]),
       ],
     );
   }
 
-  generateListItem({required String label, required Function() onPressed}){
+  generateListItem({required String label, required Function() onPressed, required Locale locale}){
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -66,6 +85,15 @@ class _ChangeLanguagePageState extends State<ChangeLanguagePage> {
           child: ListTile(
             title: Text(label, style: AppTextStyle.textNormalStyle(fontSize: 16, color: AppColors.testColor),),
             onTap: onPressed,
+            trailing: selectedLocale == null
+                ? const SizedBox()
+                : selectedLocale!.languageCode == locale.languageCode
+                    ? const Icon(
+                        Icons.check,
+                        color: AppColors.tileColors,
+                        size: 32,
+                      )
+                    : const SizedBox(),
           ),
         ),
         const Divider(color: AppColors.drawerDividerColor, thickness: 1, height: 1,),
