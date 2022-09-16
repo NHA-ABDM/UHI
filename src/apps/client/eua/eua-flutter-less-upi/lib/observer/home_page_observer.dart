@@ -1,0 +1,3 @@
+class HomePageObserver {
+  void updateAppointmentData() {}
+}
