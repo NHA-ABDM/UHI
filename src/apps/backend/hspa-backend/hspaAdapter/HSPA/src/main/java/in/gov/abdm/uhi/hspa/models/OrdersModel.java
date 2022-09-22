@@ -1,18 +1,12 @@
 package in.gov.abdm.uhi.hspa.models;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-
 import in.gov.abdm.uhi.hspa.utils.ConstantsUtils;
 import lombok.Data;
+
+import javax.persistence.*;
 
 @Entity
 @Table(schema = ConstantsUtils.HSPA_SCHEMA_NAME, name = "Orders")
@@ -79,7 +73,9 @@ public class OrdersModel {
     @Column(name = "slot_id")
     private String slotId;
 
-  
+    @Column(name = "transId")
+    private String transId;
+    
     @Column(name = "healthIdNumber")
     private String abhaId;
     

@@ -5,6 +5,7 @@ import in.gov.abdm.uhi.common.dto.Error;
 import in.gov.abdm.uhi.common.dto.*;
 import in.gov.abdm.uhi.hspa.models.IntermediateProviderModel;
 import in.gov.abdm.uhi.hspa.service.ServiceInterface.IService;
+import in.gov.abdm.uhi.hspa.utils.ConstantsUtils;
 import in.gov.abdm.uhi.hspa.utils.IntermediateBuilderUtils;
 import in.gov.abdm.uhi.hspa.utils.ProtocolBuilderUtils;
 import org.apache.logging.log4j.LogManager;
@@ -21,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 public class SearchService implements IService {
@@ -74,10 +74,13 @@ public class SearchService implements IService {
         Request objRequest = new Request();
         Response ack = generateAck();
         try {
-            LOGGER.info("Processing::Search::Request::" + request);
+            LOGGER.info("Processing::Search::Request:: {}", request);
             objRequest = new ObjectMapper().readValue(request, Request.class);
             String typeFulfillment = objRequest.getMessage().getIntent().getFulfillment().getType();
-            if(typeFulfillment.equalsIgnoreCase("Teleconsultation") || typeFulfillment.equalsIgnoreCase("PhysicalConsultation")) {
+            logMessageId(objRequest);
+            if(typeFulfillment.equalsIgnoreCase(ConstantsUtils.TELECONSULTATION) || typeFulfillment.equalsIgnoreCase(ConstantsUtils.PHYSICAL_CONSULTATION) || typeFulfillment.equalsIgnoreCase(ConstantsUtils.GROUP_CONSULTATION)) {
+                setTeleconsultationInCaseOfGroupConsultation(typeFulfillment, objRequest);
+
                 Request finalObjRequest = objRequest;
                 run(objRequest, request)
                         .flatMap(this::transformObject)
@@ -90,31 +93,43 @@ public class SearchService implements IService {
                 return Mono.just(new Response());
             }
         } catch (Exception ex) {
-            LOGGER.error("Search Proccessor::error::onErrorResume::" + ex);
+            LOGGER.error("Search Proccessor::error::onErrorResume:: {}", ex, ex);
             ack = generateNack(ex);
         }
 
         return Mono.just(ack);
     }
 
+    private void logMessageId(Request objRequest) {
+        String messageId = objRequest.getContext().getMessageId();
+        LOGGER.info(ConstantsUtils.REQUESTER_MESSAGE_ID_IS, messageId);
+    }
+
+    private void setTeleconsultationInCaseOfGroupConsultation(String typeFulfillment, Request objRequest) {
+        if(typeFulfillment.equalsIgnoreCase(ConstantsUtils.GROUP_CONSULTATION)) {
+            objRequest.getMessage().getIntent().getFulfillment().setType(ConstantsUtils.TELECONSULTATION);
+        }
+    }
+
     private Mono<List<IntermediateProviderModel>> transformObject(String result) {
 
-        LOGGER.info("Processing::Search::TransformObject" + result);
+        LOGGER.info("Processing::Search::TransformObject {}", result);
+
         List<IntermediateProviderModel> collection = new ArrayList<>();
         try {
 
             collection = IntermediateBuilderUtils.BuildIntermediateObj(result);
 
         } catch (Exception ex) {
-            LOGGER.error("Search Service Transform Object::error::" + ex);
+            LOGGER.error("Search Service Transform Object::error:: {}" , ex, ex);
         }
         return Mono.just(collection);
-
     }
+
 
     private Mono<Catalog> generateCatalog(List<IntermediateProviderModel> collection, Request request) {
 
-        LOGGER.info("Processing::Search::CatalogGeneration" + collection);
+        LOGGER.info("Processing::Search::CatalogGeneration {}" , collection);
         Catalog catalog = new Catalog();
 
         try {
@@ -123,7 +138,7 @@ public class SearchService implements IService {
 
         } catch (Exception ex) {
 
-            LOGGER.error("Search Service Generate Catalog::error::" + ex);
+            LOGGER.error("Search Service Generate Catalog::error:: {}" , ex, ex);
         }
         return Mono.just(catalog);
 
@@ -131,25 +146,25 @@ public class SearchService implements IService {
 
     private List<IntermediateProviderModel> filterListByAttributes(List<IntermediateProviderModel> collection, Request request) {
 
-        LOGGER.info("Processing::Search::FilterListByAttribute" + collection);
+        LOGGER.info("Processing::Search::FilterListByAttribute {}" , collection);
 
         Map<String, String> filters = IntermediateBuilderUtils.BuildSearchParametersIntent(request);
         List<IntermediateProviderModel> filteredList = collection;
         try {
             if (filters.get("languages") != null) {
-                filteredList = filteredList.stream().filter(imd -> imd.getLanguages().toLowerCase().contains(filters.get("languages"))).collect(Collectors.toList());
+                filteredList = filteredList.stream().filter(imd -> imd.getLanguages().toLowerCase().contains(filters.get("languages"))).toList();
             }
             if (filters.get("speciality") != null) {
-                filteredList = filteredList.stream().filter(imd -> imd.getSpeciality().equalsIgnoreCase(filters.get("speciality"))).collect(Collectors.toList());
+                filteredList = filteredList.stream().filter(imd -> imd.getSpeciality().equalsIgnoreCase(filters.get("speciality"))).toList();
             }
             if (filters.get("type") != null && filters.get("type").equalsIgnoreCase("PhysicalConsultation")) {
-                filteredList = filteredList.stream().filter(imd -> imd.getIs_physical_consultation().equals("true")).collect(Collectors.toList());
+                filteredList = filteredList.stream().filter(imd -> imd.getIs_physical_consultation().equals("true")).toList();
             }
             if (filters.get("type") != null && filters.get("type").equalsIgnoreCase("TeleConsultation")) {
-                filteredList = filteredList.stream().filter(imd -> imd.getIs_teleconsultation().equals("true")).collect(Collectors.toList());
+                filteredList = filteredList.stream().filter(imd -> imd.getIs_teleconsultation().equals("true")).toList();
             }
         } catch (Exception ex) {
-            LOGGER.error("Search Service Filter by Attribute::error::" + ex);
+            LOGGER.error("Search Service Filter by Attribute::error:: {}", ex, ex);
         }
         return filteredList;
 
@@ -170,7 +185,7 @@ public class SearchService implements IService {
         onSearchRequest.setContext(context);
         onSearchRequest.getContext().setAction("on_search");
 
-        LOGGER.info("Processing::Search::CallOnSearch" + onSearchRequest);
+        LOGGER.info("Processing::Search::CallOnSearch {}", onSearchRequest);
         WebClient on_webclient = WebClient.create();
 
         return on_webclient.post()
@@ -180,7 +195,7 @@ public class SearchService implements IService {
                 .bodyToMono(String.class)
                 .retry(3)
                 .onErrorResume(error -> {
-                    LOGGER.error("Unable to call gateway :error::onErrorResume::" + error);
+                    LOGGER.error("Unable to call gateway :error::onErrorResume:: {}" , error, error);
                     return Mono.empty();
                 });
     }
@@ -198,19 +213,19 @@ public class SearchService implements IService {
                 .exchangeToMono(clientResponse -> clientResponse.bodyToMono(String.class))
                 .retry(3)
                 .onErrorResume(error -> {
-                    LOGGER.error("External API::error::onErrorResume::" + error);
+                    LOGGER.error("External API::error::onErrorResume:: {}" , error, error);
                     return Mono.empty();
                 });
 
     }
 
     private String buildSearchString(Map<String, String> params) {
-        String searchString = "?v=full&q=";//custom:uuid,display,identifier,person:(uuid,display,gender,age),attributes:(uuid,display,value,attributeType:(uuid,display)));
+        String searchString = "?v=full&q=";
         String value = "";
-        if (params.get("hprid") == null || Objects.equals(params.get("hprid"), "")) {
+        if (params.get(ConstantsUtils.HPRID) == null || Objects.equals(params.get(ConstantsUtils.HPRID), "")) {
             value = params.getOrDefault("name", "");
         } else {
-            value = params.getOrDefault("hprid", "");
+            value = params.getOrDefault(ConstantsUtils.HPRID, "");
         }
         return searchString + value;
     }
@@ -218,7 +233,7 @@ public class SearchService implements IService {
     @Override
     public Mono<String> logResponse(String result) {
 
-        LOGGER.info("OnSearch::Log::Response::" + result);
+        LOGGER.info("OnSearch::Log::Response:: {}", result);
         return Mono.just(result);
     }
 }

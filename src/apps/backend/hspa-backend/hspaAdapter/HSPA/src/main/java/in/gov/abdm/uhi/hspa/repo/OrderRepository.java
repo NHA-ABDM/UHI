@@ -1,11 +1,11 @@
 package in.gov.abdm.uhi.hspa.repo;
 
 
-import java.util.List;
-
+import in.gov.abdm.uhi.hspa.models.OrdersModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import in.gov.abdm.uhi.hspa.models.OrdersModel;
+
+import java.util.List;
 
 @Repository
 public interface OrderRepository extends JpaRepository<OrdersModel, Long>{
@@ -17,5 +17,8 @@ public interface OrderRepository extends JpaRepository<OrdersModel, Long>{
 	List<OrdersModel> findByHealthcareProfessionalIdOrderByServiceFulfillmentStartTime(String hprid);
 	List<OrdersModel> findByAbhaIdOrderByServiceFulfillmentStartTime(String abhaid);
 	List<OrdersModel> findByAppointmentId(String appointmentid);
+	List<OrdersModel> findByHealthcareProfessionalIdAndServiceFulfillmentTypeOrderByServiceFulfillmentStartTime(
+			String hprid, String aType);
+	List<OrdersModel> findByTransId(String transid);
 
 }

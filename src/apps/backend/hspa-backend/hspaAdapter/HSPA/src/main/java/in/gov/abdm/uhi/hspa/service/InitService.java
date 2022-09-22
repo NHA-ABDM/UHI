@@ -15,7 +15,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -30,7 +29,7 @@ public class InitService implements IService {
 
     private static final String API_RESOURCE_PATIENT = "patient";
     private static final String API_RESOURCE_PROVIDER = "provider";
-    private static final Logger LOGGER = LogManager.getLogger(WrapperService.class);
+    private static final Logger LOGGER = LogManager.getLogger(InitService.class);
     @Value("${spring.openmrs_baselink}")
     String OPENMRS_BASE_LINK;
     @Value("${spring.openmrs_api}")
@@ -78,7 +77,6 @@ public class InitService implements IService {
 
     @Override
     public Mono<Response> processor(String request) {
-        //Verify message
         Request objRequest;
         Response ack = generateAck();
         try {
@@ -87,7 +85,9 @@ public class InitService implements IService {
 
             ////TODO: If provider not found donot add patient
             String typeFulfillment = objRequest.getMessage().getOrder().getFulfillment().getType();
-            if(typeFulfillment.equalsIgnoreCase("Teleconsultation") || typeFulfillment.equalsIgnoreCase("PhysicalConsultation")) {
+            logMessageId(objRequest);
+            if(typeFulfillment.equalsIgnoreCase(ConstantsUtils.TELECONSULTATION) || typeFulfillment.equalsIgnoreCase(ConstantsUtils.PHYSICAL_CONSULTATION) || typeFulfillment.equalsIgnoreCase(ConstantsUtils.GROUP_CONSULTATION)) {
+                setTeleconsultationInCaseOfGroupConsultation(typeFulfillment, objRequest);
                 findPatient(finalObjRequest)
                         .flatMap(result -> createPatient(result, finalObjRequest))
                         .flatMap(result -> createResponse(result, finalObjRequest))
@@ -101,7 +101,7 @@ public class InitService implements IService {
 
 
         } catch (Exception ex) {
-            LOGGER.error("Init Service process::error::onErrorResume::" + ex);
+            LOGGER.error("Init Service process::error::onErrorResume:: {}" , ex, ex);
             ack = generateNack(ex);
 
         }
@@ -129,18 +129,15 @@ public class InitService implements IService {
         return Mono.just(retRequest);
     }
 
-    private Fulfillment putCache(Request request)
+    private void putCache()
     {
-        Cache cache = cacheManager.getCache("slotCache");
-     //   Element element = new Element(slot, request.getMessage().getOrder().getFulfillment());
-        //cache.putIfAbsent(request.getMessage().getOrder().getFulfillment().getId(), request.getMessage().getOrder().getFulfillment());
-        return request.getMessage().getOrder().getFulfillment();
+            cacheManager.getCache("slotCache");
     }
 
 
     private Mono<String> createPatient(String exisiting, Request request) {
 
-        putCache(request);
+        putCache();
 
         if (exisiting.contains("uuid")) {
             return Mono.just(exisiting);
@@ -156,6 +153,8 @@ public class InitService implements IService {
     }
 
 
+
+
     Mono<String> findPatient(Request request) {
 
         String abha = request.getMessage().getOrder().getCustomer().getCred();
@@ -167,12 +166,16 @@ public class InitService implements IService {
                 .exchangeToMono(clientResponse -> clientResponse.bodyToMono(String.class));
     }
 
+    private void logMessageId(Request objRequest) {
+        String messageId = objRequest.getContext().getMessageId();
+        LOGGER.info(ConstantsUtils.REQUESTER_MESSAGE_ID_IS, messageId);
+    }
+
     private Mono<String> callOnInit(Request request) {
         request.getContext().setAction("on_init");
         try {
 			paymentService.saveDataInDb(null,request,ConstantsUtils.ON_INIT);
 		} catch (JsonProcessingException | UserException e) {
-			// TODO Auto-generated catch block
 			  LOGGER.error(e.getMessage());
 		}
 
@@ -184,18 +187,24 @@ public class InitService implements IService {
                 .bodyToMono(String.class)
                 .retry(3)
                 .onErrorResume(error -> {
-                    LOGGER.error("Init Service call on init::" + error);
+                    LOGGER.error("Init Service call on init:: {}", error, error);
                     return Mono.empty(); //TODO:Add appropriate response
                 });
+    }
+
+    private void setTeleconsultationInCaseOfGroupConsultation(String typeFulfillment, Request objRequest) {
+        if(typeFulfillment.equalsIgnoreCase(ConstantsUtils.GROUP_CONSULTATION)) {
+            objRequest.getMessage().getIntent().getFulfillment().setType(ConstantsUtils.TELECONSULTATION);
+        }
     }
 
     private String buildSearchString(Map<String, String> params) {
         String searchString = "?v=custom:uuid,providerId,identifier,person:(display)&q=";
         String value = "";
-        if (params.get("hprid") == null || Objects.equals(params.get("hprid"), "")) {
+        if (params.get(ConstantsUtils.HPRID) == null || Objects.equals(params.get(ConstantsUtils.HPRID), "")) {
             value = params.getOrDefault("name", "");
         } else {
-            value = params.getOrDefault("hprid", "");
+            value = params.getOrDefault(ConstantsUtils.HPRID, "");
         }
         return searchString + value;
     }
@@ -203,7 +212,7 @@ public class InitService implements IService {
     @Override
     public Mono<String> logResponse(java.lang.String result) {
 
-        LOGGER.info("OnInit::Log::Response::" + result);
+        LOGGER.info("OnInit::Log::Response:: {}" , result);
 
         return Mono.just(result);
     }

@@ -3,29 +3,27 @@ package in.gov.abdm.uhi.hspa.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import in.gov.abdm.uhi.common.dto.Error;
 import in.gov.abdm.uhi.common.dto.*;
-import in.gov.abdm.uhi.hspa.models.IntermediatePatientAppointmentModel;
+import in.gov.abdm.uhi.hspa.models.OrdersModel;
+import in.gov.abdm.uhi.hspa.repo.OrderRepository;
 import in.gov.abdm.uhi.hspa.service.ServiceInterface.IService;
-import in.gov.abdm.uhi.hspa.utils.IntermediateBuilderUtils;
+import in.gov.abdm.uhi.hspa.utils.ConstantsUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class StatusService implements IService {
 
-    private static final String API_RESOURCE_APPOINTMENT = "appointmentscheduling/appointment";
-    private static final String API_RESOURCE_PATIENT = "patient";
 
-    private static final Logger LOGGER = LogManager.getLogger(ConfirmService.class);
+    private static final Logger LOGGER = LogManager.getLogger(StatusService.class);
     @Value("${spring.openmrs_baselink}")
     String OPENMRS_BASE_LINK;
     @Value("${spring.openmrs_api}")
@@ -38,32 +36,37 @@ public class StatusService implements IService {
     String GATEWAY_URI;
     @Value("${spring.provider_uri}")
     String PROVIDER_URI;
-    @Autowired
+    final
     WebClient webClient;
-    @Autowired
+    final
     ObjectMapper mapper;
+    final OrderRepository orderRepository;
+
+    public StatusService(WebClient webClient, ObjectMapper mapper, OrderRepository orderRepository) {
+        this.webClient = webClient;
+        this.mapper = mapper;
+        this.orderRepository = orderRepository;
+    }
 
     @Override
     public Mono<Response> processor(String request) {
 
-        Request objRequest = new Request();
-        Response ack = generateAck();
+        Request objRequest;
+        Response ack;
 
-        LOGGER.info("Processing::Confirm::Request::" + request);
+        LOGGER.info("Processing::Confirm::Request:: {}", request);
         try {
             objRequest = new ObjectMapper().readValue(request, Request.class);
-            String typeFulfillment = objRequest.getMessage().getOrder().getFulfillment().getType();
-            if(typeFulfillment.equalsIgnoreCase("Teleconsultation") || typeFulfillment.equalsIgnoreCase("PhysicalConsultation")) {
+            logMessageId(objRequest);
 
-                run(objRequest, request);
-            }
-            else {
-               return Mono.just(new Response());
-            }
+            run(objRequest, request);
+
+               return Mono.just(generateAck());
+
 
         } catch (Exception ex) {
-            LOGGER.error("Confirm Service process::error::onErrorResume::" + ex);
-            ack = generateNack(mapper, ex);
+            LOGGER.error("Confirm Service process::error::onErrorResume:: {}", ex, ex);
+            ack = generateNack(ex);
 
         }
 
@@ -73,83 +76,169 @@ public class StatusService implements IService {
     @Override
     public Mono<String> run(Request request, String s) {
         Mono<String> response = Mono.empty();
-        getAppointmentStatus(request).zipWith(getPatient(request))
-                .flatMap(result -> validateAppointment(result,request))
-                .flatMap(result -> callOnStatus(result, request))
-                .subscribe();
+        Objects.requireNonNull(getAppointmentStatus(request))
+                .filter(Objects::nonNull)
+               .flatMap(appointmentStatus -> transformObject(appointmentStatus, request))
+               .flatMap(this::callOnStatus)
+               .subscribe();
+
+
         return response;
     }
 
-    private Mono<String> getAppointmentStatus(Request request) {
+    private Mono<Request> transformObject(OrdersModel appointmentStatus, Request request) {
 
-        String appointmentRefId = request.getMessage().getOrder().getRef_id();
-        String searchEndPoint = OPENMRS_BASE_LINK + OPENMRS_API + API_RESOURCE_APPOINTMENT;
-        String view = "?v=custom:uuid,status,timeSlot:(uuid,startDate,endDate),appointmentType:(display),patient:(identifiers:(display),person:(display,gender))";
-        return webClient.get()
-                .uri(searchEndPoint + "/" +appointmentRefId + view)
-                .exchangeToMono(clientResponse -> {
-                    return clientResponse.bodyToMono(String.class);
-                });
+        request.setContext(request.getContext());
+        Provider provider = new Provider();
+        Descriptor descriptor = new Descriptor();
+        Fulfillment fulfillment = new Fulfillment();
+        Person person = new Person();
+        Time time = new Time();
+        Range range = new Range();
+        Customer customer = new Customer();
+        Person patient = new Person();
+        Quote quote = new Quote();
+        Price price = new Price();
+        List<Breakup> breakupList = new ArrayList<>();
+        Payment payment = new Payment();
+
+        Order orderFromRequest = request.getMessage().getOrder();
+
+        provider.setId(appointmentStatus.getHealthcareProviderId());
+        descriptor.setName(appointmentStatus.getHealthcareProviderName());
+
+
+        setPersonDetails(appointmentStatus, person);
+        setRangeDetails(appointmentStatus, range);
+
+        time.setRange(range);
+
+        setPatientDetails(appointmentStatus, patient);
+
+        setCustomerDetails(appointmentStatus, customer, patient);
+
+        setQuoteDetails(appointmentStatus, quote, price, breakupList);
+
+        payment.setStatus(appointmentStatus.getPayment().getTransactionState());
+
+        setFulfillmentsDetails(appointmentStatus, fulfillment, person, time, customer, quote);
+        setOrderDetails(appointmentStatus, fulfillment, payment, orderFromRequest);
+
+        request.getMessage().setOrder(orderFromRequest);
+        return Mono.just(request);
+
+
+
     }
-    private Mono<String> getPatient(Request request) {
 
-        String abha = request.getMessage().getOrder().getCustomer().getCred();
-        String searchEndPoint = OPENMRS_BASE_LINK + OPENMRS_API + API_RESOURCE_PATIENT;
-        String query = "?q="+abha+"&v=default&limit=10&index=0";
-        return webClient.get()
-                .uri(searchEndPoint + query)
-                .exchangeToMono(clientResponse -> {
-                    return clientResponse.bodyToMono(String.class);
-                });
+    private void setCustomerDetails(OrdersModel appointmentStatus, Customer customer, Person patient) {
+        customer.setCred(appointmentStatus.getAbhaId());
+        customer.setPerson(patient);
     }
 
-    private Mono<List<IntermediatePatientAppointmentModel>> validateAppointment(Tuple2 result, Request request) {
-        List<IntermediatePatientAppointmentModel> patientModel = new ArrayList<IntermediatePatientAppointmentModel>();
+    private void setOrderDetails(OrdersModel appointmentStatus, Fulfillment fulfillment, Payment payment, Order orderFromRequest) {
+        orderFromRequest.setFulfillment(fulfillment);
+        orderFromRequest.setPayment(payment);
+        orderFromRequest.setState(appointmentStatus.getIsServiceFulfilled());
+    }
 
-        try {
+    private void setFulfillmentsDetails(OrdersModel appointmentStatus, Fulfillment fulfillment, Person person, Time time, Customer customer, Quote quote) {
+        fulfillment.setPerson(person);
+        fulfillment.setTime(time);
+        fulfillment.setCustomer(customer);
+        fulfillment.setQuote(quote);
+        fulfillment.setId(appointmentStatus.getSlotId());
+        fulfillment.setType(appointmentStatus.getServiceFulfillmentType());
+    }
 
-            patientModel = IntermediateBuilderUtils.BuildIntermediatePatientAppoitmentObj(result.getT1().toString(), result.getT2().toString(), request.getMessage().getOrder());
+    private void logMessageId(Request objRequest) {
+        String messageId = objRequest.getContext().getMessageId();
+        LOGGER.info(ConstantsUtils.REQUESTER_MESSAGE_ID_IS, messageId);
+    }
 
+    private void setQuoteDetails(OrdersModel appointmentStatus, Quote quote, Price price, List<Breakup> breakupList) {
+        price.setCurrency(appointmentStatus.getPayment().getCurrency());
+        String consultationCharge = appointmentStatus.getPayment().getConsultationCharge();
+        String cgst = appointmentStatus.getPayment().getCgst();
+        String sgst = appointmentStatus.getPayment().getSgst();
+        String phrHandlingFees = appointmentStatus.getPayment().getPhrHandlingFees();
 
+        String estimatedValueConvertedFromDouble = String.valueOf(Double.parseDouble(consultationCharge) + Double.parseDouble(cgst) + Double.parseDouble(sgst) + Double.parseDouble(phrHandlingFees));
+        price.setEstimatedValue(estimatedValueConvertedFromDouble);
 
-        } catch (Exception ex) {
-            LOGGER.error("Select service Get Provider Id::error::onErrorResume::" + ex);
+        Breakup cgstBreakup = new Breakup();
+        Breakup sgstBreakup = new Breakup();
+        Breakup consultationBreakup = new Breakup();
+        Breakup phrHandlingBreakup = new Breakup();
+
+        Price pricecgst = new Price();
+        Price pricesgst = new Price();
+        Price phrHAndling = new Price();
+        Price consultation = new Price();
+        pricecgst.setValue(appointmentStatus.getPayment().getCgst());
+        pricesgst.setValue(appointmentStatus.getPayment().getSgst());
+        phrHAndling.setValue(appointmentStatus.getPayment().getPhrHandlingFees());
+        consultation.setValue(appointmentStatus.getPayment().getConsultationCharge());
+
+        cgstBreakup.setTitle("cgst");
+        cgstBreakup.setPrice(pricecgst);
+        sgstBreakup.setTitle("sgst");
+        sgstBreakup.setPrice(pricesgst);
+        phrHandlingBreakup.setTitle("phr_handling_fees");
+        phrHandlingBreakup.setPrice(phrHAndling);
+        consultationBreakup.setTitle("consultation");
+        consultationBreakup.setPrice(consultation);
+
+        breakupList.add(cgstBreakup);
+        breakupList.add(sgstBreakup);
+        breakupList.add(consultationBreakup);
+        breakupList.add(phrHandlingBreakup);
+
+        price.setBreakup(breakupList);
+        quote.setPrice(price);
+    }
+
+    private void setPatientDetails(OrdersModel appointmentStatus, Person patient) {
+        patient.setCred(appointmentStatus.getAbhaId());
+        patient.setName(appointmentStatus.getPatientName());
+    }
+
+    private void setRangeDetails(OrdersModel appointmentStatus, Range range) {
+        range.setStart(appointmentStatus.getServiceFulfillmentStartTime());
+        range.setEnd(appointmentStatus.getServiceFulfillmentEndTime());
+    }
+
+    private void setPersonDetails(OrdersModel appointmentStatus, Person person) {
+        person.setId(appointmentStatus.getHealthcareProviderId());
+        person.setName(appointmentStatus.getHealthcareProfessionalName());
+        person.setGender(appointmentStatus.getHealthcareProfessionalGender());
+        person.setImage(appointmentStatus.getHealthcareProfessionalImage());
+        person.setCred(appointmentStatus.getHealthcareProviderId());
+    }
+
+    private Mono<OrdersModel> getAppointmentStatus(Request request) {
+        String orderIdFromRequest = request.getMessage().getOrder().getId();
+        List<OrdersModel> orderRecord = orderRepository.findByOrderId(orderIdFromRequest);
+        if(orderRecord != null && !orderRecord.isEmpty()) {
+            return Mono.just(orderRecord.get(0));
         }
-
-        return Mono.just(patientModel);
+        else{
+            return null;
+        }
     }
 
 
-    private Mono<String> callOnStatus(List<IntermediatePatientAppointmentModel> validAppointment, Request request) {
+    private Mono<String> callOnStatus(Request request) {
 
-        Request onStatusRequest = request;
-
-        Boolean validStatus = false;
-
-        if(!validAppointment.isEmpty())
-        {
-            validStatus =  validAppointment.get(0).getAppointmentId().equals(request.getMessage().getOrder().getRef_id());
-            validStatus =  validAppointment.get(0).getName().equals(request.getMessage().getOrder().getCustomer().getPerson().getName());
-        }
-
-        if(validStatus)
-        {
-            onStatusRequest.getMessage().getOrder().setState(validAppointment.get(0).getStatus());
-        }
-        else {
-
-            onStatusRequest.getMessage().getOrder().setState("FAILED");
-        }
         WebClient on_webclient = WebClient.create();
 
         return on_webclient.post()
-                .uri(onStatusRequest.getContext().getConsumerUri() + "/on_status")
-                .body(BodyInserters.fromValue(onStatusRequest))
+                .uri(request.getContext().getConsumerUri() + "/on_status")
+                .body(BodyInserters.fromValue(request))
                 .retrieve()
                 .bodyToMono(String.class)
-                .retry(3)
                 .onErrorResume(error -> {
-                    LOGGER.error("Select Service Call on_search::error::onErrorResume::" + error);
+                    LOGGER.error("Error in status API::error::onErrorResume:: {}", error,null);
                     return Mono.empty();
                 });
     }
@@ -158,7 +247,7 @@ public class StatusService implements IService {
     public Mono<String> logResponse(String result) {
 
 
-        LOGGER.info("OnConfirm::Log::Response::" + result);
+        LOGGER.info("OnConfirm::Log::Response:: {}", result);
         return Mono.just(result);
     }
     private static Response generateAck() {
@@ -175,7 +264,7 @@ public class StatusService implements IService {
         return res;
     }
 
-    private static Response generateNack(ObjectMapper mapper, Exception js) {
+    private static Response generateNack(Exception js) {
 
         MessageAck msz = new MessageAck();
         Response res = new Response();

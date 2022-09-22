@@ -1,11 +1,7 @@
 package in.gov.abdm.uhi.hspa.service;
 
-import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.stereotype.Repository;
-import java.util.List;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import in.gov.abdm.uhi.common.dto.Request;
 import in.gov.abdm.uhi.hspa.exceptions.UserException;
 import in.gov.abdm.uhi.hspa.models.OrdersModel;
@@ -13,10 +9,13 @@ import in.gov.abdm.uhi.hspa.models.PaymentsModel;
 import in.gov.abdm.uhi.hspa.repo.OrderRepository;
 import in.gov.abdm.uhi.hspa.repo.PaymentsRepository;
 import in.gov.abdm.uhi.hspa.utils.ConstantsUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 @EnableAsync
@@ -32,7 +31,7 @@ public class PaymentService {
 	PaymentsRepository paymentRepo;
 
 	public OrdersModel saveDataInDb(String uuid,Request request, String action) throws UserException, JsonProcessingException{		
-		LOGGER.info(request.getContext().getMessageId() + " inside saveDataInDb");	
+		LOGGER.info(request.getContext().getMessageId() ,"{} inside saveDataInDb");
 		OrdersModel saveOrderData = saveOrderData(request, action);	
 		
 			validateOrderData(request, saveOrderData);
@@ -45,21 +44,19 @@ public class PaymentService {
 				}
 				paymentRepo.save(savePaymentsData);
 				saveOrderData.setPayment(savePaymentsData);
-			}		
-			OrdersModel save = orderRepo.save(saveOrderData);
-			return save;
+			}
+		return orderRepo.save(saveOrderData);
 	}
 
 	
 
 	public OrdersModel saveOrderData(Request request, String action) throws JsonProcessingException {	
-		LOGGER.info(request.getContext().getMessageId() + " inside saveOrderData");	
-		OrdersModel order = extractOrderDetails(request,action);
-			return order;
+		LOGGER.info(request.getContext().getMessageId()  ,"{} inside saveOrderData");
+		return extractOrderDetails(request,action);
 	}
 
 	public PaymentsModel extractPaymentsData(Request request) {	
-		LOGGER.info(request.getContext().getMessageId() + " inside extractPaymentsData");	
+		LOGGER.info(request.getContext().getMessageId() , "{} inside extractPaymentsData");
 		PaymentsModel p = extractPayments(request);			
 			return checkForHealthIdIfNotThenTakeAbhaAddress_ForPayments(request, p);		
 	}
@@ -93,9 +90,12 @@ public class PaymentService {
 	{
 		return orderRepo.save(order);
 	}
+	public List<OrdersModel> getOrderDetailsByTransactionId(String transid) {
+			return orderRepo.findByTransId(transid);
+		}
 	
 	private OrdersModel extractOrderDetails(Request request, String action) throws JsonProcessingException {
-		LOGGER.info(request.getContext().getMessageId() + " inside extractOrderDetails");	
+		LOGGER.info(request.getContext().getMessageId() , " {} inside extractOrderDetails");
 		OrdersModel order = new OrdersModel();
 		order.setOrderId(request.getMessage().getOrder().getId());
 		order.setCategoryId(request.getMessage().getOrder().getItem().getId());
@@ -122,15 +122,16 @@ public class PaymentService {
 		order.setSlotId(request.getMessage().getOrder().getFulfillment().getId());
 		order.setCategoryId(request.getMessage().getOrder().getItem().getId());
 		order.setPatientName(request.getMessage().getOrder().getBilling().getName());
+		order.setTransId(request.getContext().getTransactionId());
 		String abha = request.getMessage().getOrder().getCustomer().getId();
-		order= checkForHealthIdIfNotThenTakeAbhaAddress(request, order, abha);				
+		checkForHealthIdIfNotThenTakeAbhaAddress(request, order, abha);
 		return  changeStatusAsPerTransactionState(request, action, order);	
 	}
 
 
 
 	private OrdersModel checkForHealthIdIfNotThenTakeAbhaAddress(Request request, OrdersModel order, String abha) {
-		LOGGER.info(request.getContext().getMessageId() + " inside checkForHealthIdIfNotThenTakeAbhaAddress");	
+		LOGGER.info(request.getContext().getMessageId() , "{} inside checkForHealthIdIfNotThenTakeAbhaAddress");
 		if (abha == null || abha.isBlank() || abha.isEmpty())
 			order.setAbhaId(request.getMessage().getOrder().getCustomer().getCred());
 		else
@@ -142,7 +143,7 @@ public class PaymentService {
 		if (saveOrderData == null)
 			throw new UserException("Error in request");		
 		if (saveOrderData.getOrderId() == null || saveOrderData.getOrderId().isEmpty()) {
-			LOGGER.error(request.getContext().getMessageId() + "  Order id is null or blank ");
+			LOGGER.error(request.getContext().getMessageId() ,"{}  Order id is null or blank ");
 			throw new UserException("Order id is null or blank");
 		}		
 	}
@@ -160,7 +161,6 @@ public class PaymentService {
 		p.setTransactionId(request.getMessage().getOrder().getPayment().getParams().getTransaction_id());
 		p.setMethod(request.getMessage().getOrder().getPayment().getUri());
 		p.setCurrency(request.getMessage().getOrder().getQuote().getPrice().getCurrency());
-		// p.setTransactionTimestamp(null);
 		p.setConsultationCharge(
 				request.getMessage().getOrder().getQuote().getBreakup().get(0).getPrice().getValue());
 		p.setPhrHandlingFees(request.getMessage().getOrder().getQuote().getBreakup().get(3).getPrice().getValue());
@@ -177,6 +177,12 @@ public class PaymentService {
 		else
 			p.setUserAbhaId(request.getMessage().getOrder().getCustomer().getId());
 		return p;
+	}
+
+
+
+	public List<OrdersModel> getOrderDetailsByHprIdAndType(String hprid, String aType) {
+		return orderRepo.findByHealthcareProfessionalIdAndServiceFulfillmentTypeOrderByServiceFulfillmentStartTime(hprid,aType);
 	}
 
 

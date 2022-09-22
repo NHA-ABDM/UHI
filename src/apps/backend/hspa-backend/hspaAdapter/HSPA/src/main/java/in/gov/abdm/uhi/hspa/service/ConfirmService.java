@@ -7,6 +7,7 @@ import in.gov.abdm.uhi.common.dto.*;
 import in.gov.abdm.uhi.hspa.dto.RequestSharedKeyDTO;
 import in.gov.abdm.uhi.hspa.exceptions.UserException;
 import in.gov.abdm.uhi.hspa.models.IntermediatePatientAppointmentModel;
+import in.gov.abdm.uhi.hspa.models.OrdersModel;
 import in.gov.abdm.uhi.hspa.models.SharedKeyModel;
 import in.gov.abdm.uhi.hspa.models.opemMRSModels.appointment;
 import in.gov.abdm.uhi.hspa.service.ServiceInterface.IService;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 @Service
 public class ConfirmService implements IService {
@@ -56,12 +58,15 @@ public class ConfirmService implements IService {
 
     @Autowired
     CacheManager cacheManager;
-  
+
     @Autowired
     SaveChatService chatIndb;
-    
+
     @Autowired
     PaymentService paymentService;
+    
+    @Autowired
+    CancelService cancelService;
 
 
     private static Response generateAck(ObjectMapper mapper) {
@@ -99,19 +104,21 @@ public class ConfirmService implements IService {
         Request objRequest;
         Response ack = generateAck(mapper);
 
-        LOGGER.info("Processing::Confirm::Request::" + request);
+        LOGGER.info("Processing::Confirm::Request:: {}" , request);
 
         try {
             objRequest = new ObjectMapper().readValue(request, Request.class);
             String typeFulfillment = objRequest.getMessage().getOrder().getFulfillment().getType();
-            if(typeFulfillment.equalsIgnoreCase("Teleconsultation") || typeFulfillment.equalsIgnoreCase("PhysicalConsultation")) {
+            logMessageId(objRequest);
+            if(typeFulfillment.equalsIgnoreCase(ConstantsUtils.TELECONSULTATION) || typeFulfillment.equalsIgnoreCase(ConstantsUtils.PHYSICAL_CONSULTATION) || typeFulfillment.equalsIgnoreCase(ConstantsUtils.GROUP_CONSULTATION)) {
+                setTeleconsultationInCaseOfGroupConsultation(typeFulfillment, objRequest);
                 run(objRequest, request);
             } else {
-               return Mono.just(new Response());
+                return Mono.just(new Response());
             }
 
         } catch (Exception ex) {
-            LOGGER.error("Confirm Service process::error::onErrorResume::" + ex);
+            LOGGER.error("Confirm Service process::error::onErrorResume:: {}", ex, ex);
             ack = generateNack(mapper, ex);
 
         }
@@ -132,13 +139,11 @@ public class ConfirmService implements IService {
                     .flatMap(result -> callOnConfirm(result, request))
                     .flatMap(this::logResponse)
                     .subscribe();
-        }
-        else {
+        } else {
 
-            LOGGER.info("Processing::Search::Run::Not Paid!" + request);
+            LOGGER.info("Processing::Search::Run::Not Paid! {}" , request);
             callOnConfirm("", request);
         }
-
 
 
         return response;
@@ -152,9 +157,13 @@ public class ConfirmService implements IService {
 
         return webClient.get()
                 .uri(searchEndPoint + searchPatient)
-                .exchangeToMono(clientResponse -> {
-                    return clientResponse.bodyToMono(String.class);
-                });
+                .exchangeToMono(clientResponse -> clientResponse.bodyToMono(String.class));
+    }
+
+    private void setTeleconsultationInCaseOfGroupConsultation(String typeFulfillment, Request objRequest) {
+        if(typeFulfillment.equalsIgnoreCase(ConstantsUtils.GROUP_CONSULTATION)) {
+            objRequest.getMessage().getIntent().getFulfillment().setType(ConstantsUtils.TELECONSULTATION);
+        }
     }
 
     public Mono<String> getAllAppointmentTypes(Request request) {
@@ -169,7 +178,7 @@ public class ConfirmService implements IService {
 
     private Mono<List<IntermediatePatientAppointmentModel>> getPatinetandAppointment(Tuple2 result, Request request) {
 
-        List<IntermediatePatientAppointmentModel> patientModel = new ArrayList<IntermediatePatientAppointmentModel>();
+        List<IntermediatePatientAppointmentModel> patientModel = new ArrayList<>();
 
         try {
 
@@ -178,30 +187,32 @@ public class ConfirmService implements IService {
         } catch (Exception ex) {
             LOGGER.error("Select service Get Provider Id::error::onErrorResume::" + ex);
         }
-        System.out.println("getPatinetandAppointment###############"+patientModel);
+        System.out.println("getPatinetandAppointment###############" + patientModel);
         return Mono.just(patientModel);
     }
 
-    private Boolean checkIfSlotAvaiable(Request request)
-    {
+    private void logMessageId(Request objRequest) {
+        String messageId = objRequest.getContext().getMessageId();
+        LOGGER.info(ConstantsUtils.REQUESTER_MESSAGE_ID_IS, messageId);
+    }
+
+    private boolean checkIfSlotAvaiable(Request request) {
         AtomicReference<Boolean> isBooked = new AtomicReference<>(true);
         Cache cache = cacheManager.getCache("slotCache");
         Mono<String> existingAppointment = checkValidAppointment(request);
         existingAppointment.flatMap(result -> {
-            if (result.contains("\"countOfAppointments\": 1"))
-            {
-                isBooked.set(false);
-            }
-            else if (cache.get(request.getMessage().getOrder().getFulfillment().getId()) != null)
-            {
-                isBooked.set(false);
-            }
+                    if (result.contains("\"countOfAppointments\": 1")) {
+                        isBooked.set(false);
+                    } else if (cache.get(request.getMessage().getOrder().getFulfillment().getId()) != null) {
+                        isBooked.set(false);
+                    }
 
-            return Mono.empty();
-        })
+                    return Mono.empty();
+                })
                 .subscribe();
-       return isBooked.get();
+        return isBooked.get();
     }
+
     private Mono<String> checkValidAppointment(Request request) {
 
         String appointmentSlot = request.getMessage().getOrder().getFulfillment().getId();
@@ -215,7 +226,7 @@ public class ConfirmService implements IService {
 
     private Mono<String> createAppointment(List<IntermediatePatientAppointmentModel> collection) {
 
-        if(collection.size() > 0) {
+        if (collection.size() > 0) {
             appointment appointment = IntermediateBuilderUtils.BuildAppointmentModel(collection.get(0));
 
             String searchEndPoint = OPENMRS_BASE_LINK + OPENMRS_API + API_RESOURCE_APPOINTMENT;
@@ -223,92 +234,131 @@ public class ConfirmService implements IService {
             return webClient.post()
                     .uri(searchEndPoint)
                     .body(BodyInserters.fromValue(appointment))
-                    .exchangeToMono(clientResponse -> {
-                        return clientResponse.bodyToMono(String.class);
-                    }).log();
+                    .exchangeToMono(clientResponse ->
+                            clientResponse.bodyToMono(String.class)).log();
         }
         return Mono.just("");
     }
 
     private Mono<String> callOnConfirm(String result, Request request) {
-    	 System.out.println("@@@@@@@@@@@@@@@@@@@@"+result);
-    	 String uuid="";
+        String uuid = "";
         request.getContext().setAction("on_confirm");
-        if(!checkIfSlotAvaiable(request))
-        {
-            request.getMessage().getOrder().setState("FAILED");
-        }
-        else if (result.contains("uuid")) {
-            request.getMessage().getOrder().setState("CONFIRMED");
-            uuid=IntermediateBuilderUtils.getUUID(result);
+        uuid = setOrderStatus(result, request, uuid);
+
+        setProviderUrl(request);
+
+
+        String patient = request.getMessage().getOrder().getCustomer().getCred();
+        String doctor = request.getMessage().getOrder().getFulfillment().getAgent().getId();
+
+        Map<String, String> fulfillmentTagsMap = request.getMessage().getOrder().getFulfillment().getTags();
+
+        String key = fulfillmentTagsMap.get(ConstantsUtils.ABDM_GOV_IN_PATIENT_KEY);
+
+        boolean saveKeyToDBIfNotNull = key != null;
+        savePatientKeyToDb(patient, key, saveKeyToDBIfNotNull);
+
+
+        List<SharedKeyModel> doctorKey = chatIndb.getSharedKeyDetails(doctor);
+
+
+        setDoctorsKeyToResponse(request, doctorKey);
+        boolean isResultContainsAppointmentId = result.contains("uuid");
+        if (isResultContainsAppointmentId) {
+            try {
+                paymentService.saveDataInDb(uuid, request, ConstantsUtils.ON_CONFIRM);
+
+                LOGGER.info("Request sent to on_conform" + request);
+                WebClient on_webclient = WebClient.create();
+
+                return callOnConfirmWebClient(request, on_webclient);
+            } catch (JsonProcessingException | UserException e) {
+                LOGGER.error(e.getMessage());
+            }
+
         } else {
-            request.getMessage().getOrder().setState("FAILED");
+            LOGGER.error("Error calling on_confirm, Result is {}", result);
+            List<OrdersModel> od=paymentService.getOrderDetailsByTransactionId(request.getContext().getTransactionId());
+     	   String orderId=request.getMessage().getOrder().getId();
+ 			List<OrdersModel> otherDrOrder = od
+ 					  .stream()
+ 					  .filter(c -> !c.getOrderId().equalsIgnoreCase(orderId) && c.getIsServiceFulfilled().equalsIgnoreCase(ConstantsUtils.CONFIRMED))
+ 					  .collect(Collectors.toList());
+ 			if(!otherDrOrder.isEmpty())
+ 			{
+ 				
+ 				OrdersModel grporder1=otherDrOrder.get(0);	
+ 				
+ 				request.getMessage().getOrder().setId(grporder1.getOrderId());
+ 				request.getMessage().getOrder().setState(ConstantsUtils.CANCELLED);
+ 				request.getMessage().getOrder().getFulfillment().getTags().put("@abdm/gov.in/cancelledby",ConstantsUtils.PATIENT);
+ 				request.getContext().setAction(ConstantsUtils.CANCEL);
+ 				ObjectMapper objectMapper = new ObjectMapper();					
+ 				try {
+ 					cancelService.processor(objectMapper.writeValueAsString(request));
+ 				} catch (JsonProcessingException e) {
+ 				
+ 					 LOGGER.error(e.getMessage());
+ 				}
+ 					
+ 			
+ 			}
         }
 
-        if(request.getContext().getConsumerId().equalsIgnoreCase("eua-nha"))
+        return Mono.empty();
+
+
+    }
+
+    private Mono<String> callOnConfirmWebClient(Request request, WebClient on_webclient) {
+        return on_webclient.post()
+                .uri(request.getContext().getConsumerUri() + "/on_confirm")
+                .body(BodyInserters.fromValue(request))
+                .retrieve()
+                .bodyToMono(String.class)
+                .retry(3)
+                .onErrorResume(error -> {
+                    LOGGER.error("confirm Service call on confirm::" + error);
+                    return Mono.empty(); //TODO:Add appropriate response
+                });
+    }
+
+    private void setDoctorsKeyToResponse(Request request, List<SharedKeyModel> doctorKey) {
+        if (!doctorKey.isEmpty()) {
+            SharedKeyModel keydetails = doctorKey.get(0);
+            request.getMessage().getOrder().getFulfillment().getTags().put("@abdm/gov.in/doctors_key", keydetails.getPublicKey());
+        }
+    }
+
+    private void savePatientKeyToDb(String patient, String key, boolean saveKeyToDBIfNotNull) {
+        if (saveKeyToDBIfNotNull) {
+            RequestSharedKeyDTO rpk = new RequestSharedKeyDTO();
+            rpk.setUserName(patient);
+            rpk.setPublicKey(key);
+            chatIndb.saveSharedKey(rpk);
+        }
+    }
+
+    private void setProviderUrl(Request request) {
+        if (request.getContext().getConsumerId().equalsIgnoreCase("eua-nha"))
             request.getContext().setProviderUri(PROVIDER_URI);
         else
             request.getContext().setProviderUri("http://121.242.73.124:8084/api/v1");
-        
-        System.out.println("!!!!!!!!!!!!!!!!!!!!"+uuid);
-        System.out.println("############################"+request);
-        System.out.println("@@@@@@@@@@@@@@@@@@@@"+result);
-        
-        
-
-       String patient= request.getMessage().getOrder().getCustomer().getCred();
-       String doctor  =request.getMessage().getOrder().getFulfillment().getAgent().getId();
-       
-       Map<String, String> fulfillmentTagsMap=request.getMessage().getOrder().getFulfillment().getTags();
-            
-       String key = fulfillmentTagsMap.get("@abdm/gov.in/patient_key");
-       
-       if(key!=null)
-       {
-    	   RequestSharedKeyDTO rpk=new RequestSharedKeyDTO();
-    	   rpk.setUserName(patient);
-    	   rpk.setPublicKey(key);
-    	   chatIndb.saveSharedKey(rpk);
-       }
-       
-       List<SharedKeyModel> doctorKey=chatIndb.getSharedKeyDetails(doctor);
-       
-       
-       if(!doctorKey.isEmpty())
-       {
-    	   SharedKeyModel keydetails= doctorKey.get(0);
-    	   request.getMessage().getOrder().getFulfillment().getTags().put("@abdm/gov.in/doctors_key",keydetails.getPublicKey());
-       }
-       if (result.contains("uuid")) 
-       {
-       try {
-    			paymentService.saveDataInDb(uuid,request,ConstantsUtils.ON_CONFIRM);
-    			
-    			LOGGER.info("Request sent to on_conform" + request);
-    	        WebClient on_webclient = WebClient.create();
-    	       
-    	        return on_webclient.post()
-    	                .uri(request.getContext().getConsumerUri() + "/on_confirm")
-    	                .body(BodyInserters.fromValue(request))
-    	                .retrieve()
-    	                .bodyToMono(String.class)
-    	                .retry(3)
-    	                .onErrorResume(error -> {
-    	                    LOGGER.error("confirm Service call on confirm::" + error);
-    	                    return Mono.empty(); //TODO:Add appropriate response
-    	                });
-    		} catch (JsonProcessingException | UserException e) {
-    			// TODO Auto-generated catch block
-    			  LOGGER.error(e.getMessage());
-    		}
-      
-       }
-       return Mono.empty();	
-       
-       
     }
 
-     public Mono<String> logResponse(String result) {
+    private String setOrderStatus(String result, Request request, String uuid) {
+        if (!checkIfSlotAvaiable(request)) {
+            request.getMessage().getOrder().setState("FAILED");
+        } else if (result.contains("uuid")) {
+            request.getMessage().getOrder().setState("CONFIRMED");
+            uuid = IntermediateBuilderUtils.getUUID(result);
+        } else {
+            request.getMessage().getOrder().setState("FAILED");
+        }
+        return uuid;
+    }
+
+    public Mono<String> logResponse(String result) {
 
         LOGGER.info("OnConfirm::Log::Response::" + result);
 

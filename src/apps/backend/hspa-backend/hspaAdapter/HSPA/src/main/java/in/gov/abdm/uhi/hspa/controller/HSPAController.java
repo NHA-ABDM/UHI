@@ -14,11 +14,11 @@ import in.gov.abdm.uhi.common.dto.Response;
 import in.gov.abdm.uhi.hspa.dto.*;
 import in.gov.abdm.uhi.hspa.models.*;
 import in.gov.abdm.uhi.hspa.service.*;
+import in.gov.abdm.uhi.hspa.utils.ConstantsUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -38,8 +38,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 @Validated
 @RestController
@@ -79,12 +77,12 @@ public class HSPAController {
     final
     ModelMapper modelMapper;
     
-    @Autowired
+    final
     PaymentService paymentService;
 
     final
     PushNotificationService pushNotificationService;
-    public HSPAController(SearchService searchService, SelectService selectService, InitService initService, ConfirmService confirmService, StatusService statusService, SaveChatService chatIndb, ModelMapper modelMapper, MessageService messageService, FileStorageService fileStorageService, PushNotificationService pushNotificationService,CancelService cancelService) {
+    public HSPAController(SearchService searchService, SelectService selectService, InitService initService, ConfirmService confirmService, StatusService statusService, SaveChatService chatIndb, ModelMapper modelMapper, MessageService messageService, FileStorageService fileStorageService, PushNotificationService pushNotificationService, CancelService cancelService, PaymentService paymentService) {
         this.searchService = searchService;
         this.selectService = selectService;
         this.initService = initService;
@@ -96,12 +94,12 @@ public class HSPAController {
         this.messageService = messageService;
         this.fileStorageService = fileStorageService;
         this.pushNotificationService = pushNotificationService;
+        this.paymentService = paymentService;
     }
 
     @PostMapping(value = "/search", consumes = "application/json", produces = "application/json")
     public Mono<Response> search(@Valid @RequestBody String request, @RequestHeader(value = "X-Gateway-Authorization", required = false) String gatewayHeader){
         LOGGER.info("Search::called");
-
 
         Mono<Response> res = Mono.just(new Response());
         try
@@ -111,12 +109,13 @@ public class HSPAController {
                 res =  selectService.processor(request);
             }
             else {
-                System.out.println(gatewayHeader);
+                LOGGER.info("Gateway Headers {}", gatewayHeader);
+
                 res = searchService.processor(request);
             }
         } catch (Exception ex) {
-            LOGGER.info("Search::error::" + request);
-            LOGGER.error("Search::error::" + ex);
+            LOGGER.info("Search::error:: {}", request);
+            LOGGER.error("Search::error:: {}" , ex, ex);
         }
 
         return res;
@@ -124,65 +123,65 @@ public class HSPAController {
 
     @PostMapping(value = "/select", consumes = "application/json", produces = "application/json")
     public Mono<Response> select(@Valid @RequestBody String request) {
-        LOGGER.info("Requester::called");
+        LOGGER.info(ConstantsUtils.REQUESTER_CALLED+" select");
         Mono<Response> res = Mono.just(new Response());
         try {
             res = selectService.processor(request);
 
         } catch (Exception ex) {
-            LOGGER.info("Requester::error::" + request);
-            LOGGER.error("Requester::error::" + ex);
+            LOGGER.info(ConstantsUtils.REQUESTER_ERROR, request);
+            LOGGER.error(ConstantsUtils.REQUESTER_ERROR, ex, ex);
         }
         return res;
     }
 
     @PostMapping(value = "/init", consumes = "application/json", produces = "application/json")
     public Mono<Response> init(@Valid @RequestBody String request)  {
-        LOGGER.info("Requester::called");
+        LOGGER.info(ConstantsUtils.REQUESTER_CALLED);
         Mono<Response> res = Mono.just(new Response());
         try
         {
             res =  initService.processor(request);
 
         } catch (Exception ex) {
-            LOGGER.info("Requester::error::" + request);
-            LOGGER.error("Requester::error::" + ex);
+            LOGGER.info(ConstantsUtils.REQUESTER_ERROR, request);
+            LOGGER.error(ConstantsUtils.REQUESTER_ERROR, ex, ex);
         }
         return res;
     }
 
     @PostMapping(value = "/confirm", consumes = "application/json", produces = "application/json")
     public Mono<Response> confirm(@Valid @RequestBody String request)  {
-        LOGGER.info("Requester::called");
+        LOGGER.info(ConstantsUtils.REQUESTER_CALLED);
 
         Mono<Response> res = Mono.just(new Response());
         try
         {
            res =  confirmService.processor(request);
         } catch (Exception ex) {
-            LOGGER.info("Requester::error::" + request);
-            LOGGER.error("Requester::error::" + ex);
+            LOGGER.info(ConstantsUtils.REQUESTER_ERROR, request);
+            LOGGER.error(ConstantsUtils.REQUESTER_ERROR, ex, ex);
         }
         return res;
     }
 
     @PostMapping(value = "/cancel", consumes = "application/json", produces = "application/json")
     public Mono<Response> cancel(@Valid @RequestBody String request)  {
-        LOGGER.info("Requester::called");
+        LOGGER.info(ConstantsUtils.REQUESTER_CALLED);
 
         Mono<Response> res = Mono.just(new Response());
         try
         {
            res =  cancelService.processor(request);
         } catch (Exception ex) {
-            LOGGER.info("Requester::error::" + request);
-            LOGGER.error("Requester::error::" + ex);
+            LOGGER.info(ConstantsUtils.REQUESTER_ERROR, request);
+            LOGGER.error(ConstantsUtils.REQUESTER_ERROR, ex, ex);
         }
         return res;
     }
     @PostMapping(value = "/status", consumes = "application/json", produces = "application/json")
     public Mono<Response> status(@Valid @RequestBody String request) {
-        LOGGER.info("Requester::called");
+        LOGGER.info(ConstantsUtils.REQUESTER_CALLED);
 
         Mono<Response> res = Mono.just(new Response());
         try
@@ -190,8 +189,8 @@ public class HSPAController {
             res = statusService.processor(request);
 
         } catch (Exception ex) {
-            LOGGER.info("Requester::error::" + request);
-            LOGGER.error("Requester::error::" + ex);
+            LOGGER.info(ConstantsUtils.REQUESTER_ERROR, request);
+            LOGGER.error("Requester::error::{}", ex, ex);
         }
 
         return res;
@@ -200,14 +199,14 @@ public class HSPAController {
     @PostMapping(value = "/on_message", consumes = "application/json", produces = "application/json")
     public Mono<Response> onMessage(@Valid @RequestBody String request) {
         LOGGER.info("Requester::called on_message");
-        Mono<Response> res = Mono.just(new Response());
+        Mono<Response> res;
         try
         {
             res =  messageService.processor(request);
 
         } catch (Exception ex) {
-            LOGGER.info("Requester::error::" + request);
-            LOGGER.error("Requester::error::" + ex);
+            LOGGER.info(ConstantsUtils.REQUESTER_ERROR, request);
+            LOGGER.error(ConstantsUtils.REQUESTER_ERROR, ex, ex);
             res = MessageService.generateNack(ex);
         }
 
@@ -223,8 +222,8 @@ public class HSPAController {
         {
             res =  messageService.processor(req);
         } catch (Exception ex) {
-            LOGGER.info("Requester::error::" + req);
-            LOGGER.error("Requester::error::" + ex);
+            LOGGER.info(ConstantsUtils.REQUESTER_ERROR, req);
+            LOGGER.error("Requester::error::{}", ex, ex);
             res = MessageService.generateNack(ex);
 
         }
@@ -238,18 +237,18 @@ public class HSPAController {
                                                                                     @RequestParam(value ="pageSize",defaultValue="200",required=false)Integer pageSize) {
         LOGGER.info("inside getMessagesBetweenTwo");
 
-        LOGGER.info("Requester::sender ::" + sender);
-        LOGGER.info("Requester::receiver ::" + receiver);
-        LOGGER.info("Requester::pageNumber ::" + pageNumber);
-        LOGGER.info("Requester::pageSize ::" + pageSize);
+        LOGGER.info("Requester::sender ::{}", sender);
+        LOGGER.info("Requester::receiver :: {}" , receiver);
+        LOGGER.info("Requester::pageNumber :: {}" , pageNumber);
+        LOGGER.info("Requester::pageSize :: {}" , pageSize);
 
         try {
             List<MessagesModel> getMessageDetails = chatIndb.getMessagesBetweenTwo(sender, receiver, pageNumber, pageSize);
             List<MessagesDTO> messagesDto = convertToMessageDto(getMessageDetails);
             return new ResponseEntity<>(messagesDto, HttpStatus.OK);
         } catch (Exception e) {
-            LOGGER.info("Requester::error::sender ::" + sender);
-            LOGGER.info("Requester::error::receiver ::" + receiver);
+            LOGGER.info("Requester::error::sender :: {}" , sender);
+            LOGGER.info("Requester::error::receiver :: {}" , receiver);
 
             LOGGER.error(e.getMessage());
             List<? extends ServiceResponseDTO> messagesDTOS = getErrorMessage(e.getMessage());
@@ -264,13 +263,11 @@ public class HSPAController {
     public ResponseEntity<List<? extends ServiceResponseDTO>> getUserById(@Valid @NotEmpty(message = "user id is required") @PathVariable("userid") String userId) {
         LOGGER.info("inside Get user by id");
         try {
-//            if(userId == null)
-            LOGGER.info("user id given is -: ->>>>>>" + userId);
+            LOGGER.info("user id given is -: ->>>>>> {}", userId);
             List<ChatUserModel> getUserDetails = chatIndb.getUserDetails(userId);
             return new ResponseEntity<>(getUserDetails, HttpStatus.OK);
         }catch (Exception e) {
-            LOGGER.info("Requester::error ::" + e.getMessage());
-            ChatUserModel error = new ChatUserModel();
+            LOGGER.info("Requester::error :: {}", e.getMessage());
             List<? extends ServiceResponseDTO> messagesDTOS = getErrorMessage(e.getMessage());
 
             return new ResponseEntity<>(messagesDTOS, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -284,15 +281,15 @@ public class HSPAController {
     public ResponseEntity<PushNotificationResponseDTO> sendTokenNotification(@RequestBody PushNotificationRequestDTO request) {
         try {
             pushNotificationService.sendPushNotificationToToken(request);
-        } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOGGER.error("HSPA Controller :: POST:notification/token error {}", e.getMessage());
         }
-        System.out.println("send notification");
+        LOGGER.info("send notification");
         return new ResponseEntity<>(new PushNotificationResponseDTO(HttpStatus.OK.value(), "Notification has been sent."), HttpStatus.OK);
     }
 
         @PostMapping("/saveToken")
-    public ResponseEntity<PushNotificationResponseDTO> saveToken(@RequestBody RequestTokenDTO request) throws ExecutionException, InterruptedException {
+    public ResponseEntity<PushNotificationResponseDTO> saveToken(@RequestBody RequestTokenDTO request) {
         UserTokenModel saveUserTokenModel = chatIndb.saveUserToken(request);
         if(null!= saveUserTokenModel)
         {
@@ -306,7 +303,6 @@ public class HSPAController {
 
     @PostMapping("/logout")
     public ResponseEntity<PushNotificationResponseDTO> logout(@RequestBody RequestTokenDTO request) {
-        PushNotificationResponseDTO userToken = null;
         try {
             chatIndb.deleteToken(request);
             return new ResponseEntity<>(new PushNotificationResponseDTO(HttpStatus.OK.value(), "token deleted"), HttpStatus.OK);
@@ -321,7 +317,7 @@ public class HSPAController {
         return modelMapper.map(getMessageDetails, new TypeToken<List<MessagesDTO>>() {}.getType());
     }
 
-    private List<? extends ServiceResponseDTO> getErrorMessage(String message) {
+    private List<ServiceResponseDTO> getErrorMessage(String message) {
         ServiceResponseDTO messagesDTO = new ServiceResponseDTO();
         ErrorResponseDTO errorResponseDTO =  new ErrorResponseDTO();
         errorResponseDTO.setErrorString(message);
@@ -394,7 +390,7 @@ public class HSPAController {
     public List<UploadFileResponse> uploadMultipleFiles(@RequestParam("files") MultipartFile[] files) {
         return Arrays.stream(files)
                 .map(this::uploadFile)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @GetMapping("/downloadFile/{fileName}")
@@ -451,6 +447,14 @@ public class HSPAController {
 		List<OrdersModel> getOrderDetails = paymentService.getOrderDetailsByHprId(hprid);		
 		return new ResponseEntity<>(getOrderDetails,HttpStatus.OK);		
 	}
-    
+	
+	@GetMapping(path = "/getOrdersByHprIdAndType/{hprid}/{aType}")
+	public ResponseEntity<List<OrdersModel>> getOrderByHpridAndType(@PathVariable("hprid") String hprid,@PathVariable("aType") String aType){	
+		LOGGER.info("inside Get order by hprid and type");
+		List<OrdersModel> getOrderDetails = paymentService.getOrderDetailsByHprIdAndType(hprid,aType);		
+		return new ResponseEntity<>(getOrderDetails,HttpStatus.OK);		
+	}
+
+
 
 }

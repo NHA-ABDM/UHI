@@ -7,7 +7,6 @@ import in.gov.abdm.uhi.hspa.models.*;
 import in.gov.abdm.uhi.hspa.models.opemMRSModels.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -18,11 +17,7 @@ public class IntermediateBuilderUtils {
     private static final String IDENTIFIER_TYPE = "7f820ce9-e6cb-4242-9aa3-1faaf8ad116e"; //ABHA
     private static final String IDENTIFIER_LOCATION = "58c57d25-8d39-41ab-8422-108a0c277d98"; //Outpatient
 
-    private static final String DATE_TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
-
-    @Autowired
-    static
-    ObjectMapper mapper;
+    private static final String DATE_TIME_PATTERN = ConstantsUtils.DATE_FORMAT;
 
     public static List<IntermediateProviderModel> BuildIntermediateObj(String json) {
         List<IntermediateProviderModel> collection = new ArrayList<>();
@@ -31,7 +26,7 @@ public class IntermediateBuilderUtils {
             ObjectMapper maps = new ObjectMapper();
             JsonNode root = maps.readTree(json);
 
-            JsonNode resultsNode = root.path("results");
+            JsonNode resultsNode = root.path(ConstantsUtils.RESULTS);
             if (resultsNode.isArray()) {
 
 
@@ -39,15 +34,15 @@ public class IntermediateBuilderUtils {
 
                     IntermediateProviderModel objIntermediate = new IntermediateProviderModel();
 
-                    String name = node.path("display").asText();
+                    String name = node.path(ConstantsUtils.DISPLAY).asText();
                     String hprId = node.path("hpr_id").asText();
-                    String Id = node.path("identifier").asText();
+                    String id = node.path(ConstantsUtils.IDENTIFIER).asText();
                     objIntermediate.setName(name);
                     objIntermediate.setHpr_id(hprId);
-                    objIntermediate.setId(Id);
+                    objIntermediate.setId(id);
 
-                    JsonNode person = node.path("person");
-                    String gender = person.path("gender").asText();
+                    JsonNode person = node.path(ConstantsUtils.PERSON);
+                    String gender = person.path(ConstantsUtils.GENDER).asText();
                     String age = person.path("age").asText();
                     objIntermediate.setGender(gender);
                     objIntermediate.setAge(age);
@@ -71,7 +66,7 @@ public class IntermediateBuilderUtils {
                     if (attributes.isArray()) {
                         for (JsonNode attrib : attributes) {
                             JsonNode attribVal = attrib.path("attributeType");
-                            String attrKey = attribVal.path("display").asText();
+                            String attrKey = attribVal.path(ConstantsUtils.DISPLAY).asText();
                             String attrVal = attrib.path("value").asText();
 
 
@@ -85,24 +80,21 @@ public class IntermediateBuilderUtils {
                                 case "lab_report_consultation" -> objIntermediate.setLab_consultation(attrVal);
                                 case "languages" -> objIntermediate.setLanguages(attrVal);
                                 case "receive_payment" -> objIntermediate.setReceive_payment(attrVal);
-                                case "speciality" -> objIntermediate.setSpeciality(attrVal);
+                                case ConstantsUtils.SPECIALITY -> objIntermediate.setSpeciality(attrVal);
                                 case "upi_id" -> objIntermediate.setUpi_id(attrVal);
                                 case "is_teleconsultation" -> objIntermediate.setIs_teleconsultation(attrVal);
                                 case "is_physical_consultation" -> objIntermediate.setIs_physical_consultation(attrVal);
                                 case "profile_photo" -> objIntermediate.setProfile_photo(attrVal);
-                                default -> {
-                                }
+                                default -> LOGGER.error("Unspecified case");
                             }
                         }
                     }
-                    System.out.println("type : " + name);
-                    System.out.println("ref : " + hprId);
                     collection.add(objIntermediate);
                 }
             }
         } catch (Exception ex) {
 
-            LOGGER.error("Intermediate Builder::BuildIntermediateObj ::error::onErrorResume::" + ex);
+            LOGGER.error("Intermediate Builder::BuildIntermediateObj ::error::onErrorResume:: {}", ex, ex);
         }
         return collection;
     }
@@ -114,7 +106,7 @@ public class IntermediateBuilderUtils {
             ObjectMapper maps = new ObjectMapper();
             JsonNode root = maps.readTree(json);
 
-            JsonNode resultsNode = root.path("results");
+            JsonNode resultsNode = root.path(ConstantsUtils.RESULTS);
             if (resultsNode.isArray()) {
 
 
@@ -124,18 +116,25 @@ public class IntermediateBuilderUtils {
 
                     JsonNode appointmentBlock = node.path("appointmentBlock");
                     JsonNode provider = appointmentBlock.path("provider");
-                    JsonNode person = provider.path("person");
+                    JsonNode person = provider.path(ConstantsUtils.PERSON);
 
                     String slotId = node.path("uuid").asText();
-                    String name = provider.path("display").asText();
-                    String hprId = provider.path("identifier").asText();
+                    String name = provider.path(ConstantsUtils.DISPLAY).asText();
+                    String hprId = provider.path(ConstantsUtils.IDENTIFIER).asText();
                     String id = provider.path("uuid").asText();
+                    int countOfAppointments = node.path("countOfAppointments").asInt();
+                    String startDate = node.path("startDate").asText();
+                    String endDate = node.path("endDate").asText();
+
+
+                    if (appointmentSlotIsAlreadyBooked(slotId, countOfAppointments, startDate, endDate)) continue;
+
                     objIntermediate.setName(name);
                     objIntermediate.setHpr_id(hprId);
                     objIntermediate.setId(id);
                     objIntermediate.setSlotId(slotId);
 
-                    String gender = person.path("gender").asText();
+                    String gender = person.path(ConstantsUtils.GENDER).asText();
                     String age = person.path("age").asText();
                     objIntermediate.setGender(gender);
                     objIntermediate.setAge(age);
@@ -145,7 +144,7 @@ public class IntermediateBuilderUtils {
                     if (attributes.isArray()) {
                         for (JsonNode attrib : attributes) {
                             JsonNode attribVal = attrib.path("attributeType");
-                            String attrKey = attribVal.path("display").asText();
+                            String attrKey = attribVal.path(ConstantsUtils.DISPLAY).asText();
                             String attrVal = attrib.path("value").asText();
 
                             switch (attrKey) {
@@ -154,12 +153,8 @@ public class IntermediateBuilderUtils {
                                 case "Languages" -> objIntermediate.setLanguages(attrVal);
                                 case "Charges" -> objIntermediate.setCharges(attrVal);
                                 case "Speciality" -> objIntermediate.setSpeciality(attrVal);
-                                default -> {
-                                }
+                                default -> LOGGER.error("IntermediateBuilderUtils :: Unspecified attribute");
                             }
-
-                            System.out.println("type : " + attrKey);
-                            System.out.println("type : " + attrVal);
                         }
                     }
 
@@ -178,9 +173,17 @@ public class IntermediateBuilderUtils {
                 } // end outer for
             }
         } catch (Exception ex) {
-            LOGGER.error("Intermediate Builder :: BuildIntermediateProviderAppoitmentObj :: error::onErrorResume::" + ex);
+            LOGGER.error("Intermediate Builder :: BuildIntermediateProviderAppoitmentObj :: error::onErrorResume:: {}", ex, ex);
         }
         return collection;
+    }
+
+    private static boolean appointmentSlotIsAlreadyBooked(String slotId, int countOfAppointments, String startDate, String endDate) {
+        if(countOfAppointments > 0) {
+            LOGGER.error("Appointment already booked. Skipping. Slot uuid is  ->> {}. Start date->  {} and endDate-> {}", slotId, startDate, endDate);
+            return true;
+        }
+        return false;
     }
 
     public static List<IntermediatePatientAppointmentModel> BuildIntermediatePatientAppoitmentObj(String appointment, String patient, Order order) {
@@ -193,8 +196,8 @@ public class IntermediateBuilderUtils {
             JsonNode rootPatient = maps.readTree(patient);
             JsonNode rootAppointment = maps.readTree(appointment);
 
-            JsonNode resultPatient = rootPatient.path("results");
-            JsonNode resultAppointment = rootAppointment.path("results");
+            JsonNode resultPatient = rootPatient.path(ConstantsUtils.RESULTS);
+            JsonNode resultAppointment = rootAppointment.path(ConstantsUtils.RESULTS);
 
             if (resultAppointment.isEmpty() && rootAppointment.has("uuid") && (resultPatient.isArray() && resultPatient.elements().hasNext())) {
                 IntermediatePatientAppointmentModel objIntermediate = new IntermediatePatientAppointmentModel();
@@ -204,11 +207,11 @@ public class IntermediateBuilderUtils {
                 JsonNode appointmentType = rootAppointment.path("appointmentType");
                 JsonNode appointmentTimeSlot = rootAppointment.path("timeSlot");
                 JsonNode appointmentTimeSlotId = appointmentTimeSlot.path("uuid");
-                JsonNode appointmentTypeName = appointmentType.path("display");
+                JsonNode appointmentTypeName = appointmentType.path(ConstantsUtils.DISPLAY);
 
-                JsonNode patientNode = resultPatient.get(0).path("person");
-                JsonNode patientName = patientNode.path("display");
-                JsonNode gender = patientNode.path("gender");
+                JsonNode patientNode = resultPatient.get(0).path(ConstantsUtils.PERSON);
+                JsonNode patientName = patientNode.path(ConstantsUtils.DISPLAY);
+                JsonNode gender = patientNode.path(ConstantsUtils.GENDER);
 
                 objIntermediate.setAppointmentId(appointmentId.asText());
                 objIntermediate.setAppointmentTypeName(appointmentTypeName.asText());
@@ -218,17 +221,16 @@ public class IntermediateBuilderUtils {
                 objIntermediate.setGender(gender.asText());
 
                 collection.add(objIntermediate);
-                LOGGER.info("Intermediate Builder :: BuildIntermediateProviderAppoitmentObj :: patientlist::patients::" + resultPatient);
+                LOGGER.info("Intermediate Builder :: BuildIntermediateProviderAppoitmentObj :: patientlist::patients:: {}", resultPatient);
 
             } else if (resultPatient.isArray() && resultPatient.elements().hasNext()) {
 
-                LOGGER.info("Intermediate Builder :: BuildIntermediateProviderAppoitmentObj :: patientlist::patients::" + resultPatient);
+                LOGGER.info("Intermediate Builder :: BuildIntermediateProviderAppoitmentObj :: patientlist::patients:: {}", resultPatient);
 
                 for (JsonNode node : resultPatient) {
 
                     IntermediatePatientAppointmentModel objIntermediate = new IntermediatePatientAppointmentModel();
 
-                    //String patientName = node.path("display").asText();
                     String patientId = node.path("uuid").asText();
 
                     if (resultAppointment.isArray()) {
@@ -247,7 +249,7 @@ public class IntermediateBuilderUtils {
             }
 
         } catch (Exception ex) {
-            LOGGER.error("Intermediate Builder :: BuildIntermediateProviderAppoitmentObj :: error::onErrorResume::" + ex);
+            LOGGER.error("Intermediate Builder :: BuildIntermediateProviderAppoitmentObj :: error::onErrorResume:: {}" , ex, ex);
         }
         return collection;
     }
@@ -297,7 +299,7 @@ public class IntermediateBuilderUtils {
             patient.setPerson(person);
 
         } catch (Exception ex) {
-            LOGGER.error("Intermediate Builder :: BuildPatientModel :: error::onErrorResume::" + ex);
+            LOGGER.error("Intermediate Builder :: BuildPatientModel :: error::onErrorResume:: {}" , ex, ex);
         }
         return patient;
     }
@@ -312,7 +314,7 @@ public class IntermediateBuilderUtils {
             appointmentObj.visit = "7b0f5697-27e3-40c4-8bae-f4049abfb4ed";
 
         } catch (Exception ex) {
-            LOGGER.error("Intermediate Builder :: BuildPatientModel :: error::onErrorResume::" + ex);
+            LOGGER.error("Intermediate Builder :: BuildPatientModel :: error::onErrorResume:: {}" , ex, ex);
         }
         return appointmentObj;
     }
@@ -327,10 +329,9 @@ public class IntermediateBuilderUtils {
             
         
     } catch (Exception ex) {
-        LOGGER.error("Extracting uuid from mrs ::" + ex);
-        System.out.println("Extracting uuid from mrs::" + ex);
+        LOGGER.error("Extracting uuid from mrs :: {}", ex, ex);
     }
-        return resultsNode.textValue();
+        return resultsNode != null ? resultsNode.textValue() : null;
     }
 
     public static List<IntermediateProviderModel> BuildIntermediateProviderDetails(String json) {
@@ -340,7 +341,7 @@ public class IntermediateBuilderUtils {
             ObjectMapper maps = new ObjectMapper();
             JsonNode root = maps.readTree(json);
 
-            JsonNode resultsNode = root.path("results");
+            JsonNode resultsNode = root.path(ConstantsUtils.RESULTS);
             if (resultsNode.isArray()) {
 
 
@@ -348,10 +349,10 @@ public class IntermediateBuilderUtils {
 
                     IntermediateProviderModel objIntermediate = new IntermediateProviderModel();
 
-                    JsonNode person = node.path("person");
+                    JsonNode person = node.path(ConstantsUtils.PERSON);
 
-                    String name = person.path("display").asText();
-                    String hprId = node.path("identifier").asText();
+                    String name = person.path(ConstantsUtils.DISPLAY).asText();
+                    String hprId = node.path(ConstantsUtils.IDENTIFIER).asText();
                     String providerId = node.path("uuid").asText();
                     objIntermediate.setName(name);
                     objIntermediate.setHpr_id(hprId);
@@ -361,8 +362,7 @@ public class IntermediateBuilderUtils {
                 } // end outer for
             }
         } catch (Exception ex) {
-            LOGGER.error("IntermediateBuilder::BuildIntermediateProviderDetails::Request::" + ex);
-            System.out.println("IntermediateBuilder::BuildIntermediateProviderDetails::Request::" + ex);
+            LOGGER.error("IntermediateBuilder::BuildIntermediateProviderDetails::Request:: {}", ex, ex);
         }
         return collection;
     }
@@ -374,7 +374,7 @@ public class IntermediateBuilderUtils {
         try {
             ObjectMapper maps = new ObjectMapper();
             JsonNode root = maps.readTree(json);
-            JsonNode resultsExisitng = root.path("results");
+            JsonNode resultsExisitng = root.path(ConstantsUtils.RESULTS);
             JsonNode resultsNew = root.path("identifiers");
 
             if (resultsExisitng.isArray()) {
@@ -383,7 +383,7 @@ public class IntermediateBuilderUtils {
                     JsonNode identifiers = node.path("identifiers");
                     if (identifiers.isArray()) {
                         for (JsonNode ident : identifiers) {
-                            String identifier = ident.path("display").asText();
+                            String identifier = ident.path(ConstantsUtils.DISPLAY).asText();
                             String[] vals = identifier.split("=");
                             if (Objects.equals(vals[0], "OpenMRS ID")) {
                                 patient.setId(vals[1]);
@@ -392,12 +392,12 @@ public class IntermediateBuilderUtils {
                             }
                         }
                     }
-                    JsonNode person = node.path("person");
-                    String name = person.path("display").asText();
-                    String gender = person.path("gender").asText();
+                    JsonNode person = node.path(ConstantsUtils.PERSON);
+                    String name = person.path(ConstantsUtils.DISPLAY).asText();
+                    String gender = person.path(ConstantsUtils.GENDER).asText();
                     String age = person.path("age").asText();
                     JsonNode address = person.path("preferredAddress");
-                    String add = address.path("display").asText();
+                    String add = address.path(ConstantsUtils.DISPLAY).asText();
 
                     patient.setAddress(add);
                     patient.setName(name);
@@ -410,7 +410,7 @@ public class IntermediateBuilderUtils {
             }
             if (resultsNew.isArray()) {
                 for (JsonNode node : resultsNew) {
-                    String identifier = node.path("display").asText();
+                    String identifier = node.path(ConstantsUtils.DISPLAY).asText();
                     String[] vals = identifier.split("=");
                     if (Objects.equals(vals[0], "OpenMRS ID")) {
                         patient.setId(vals[1]);
@@ -418,12 +418,12 @@ public class IntermediateBuilderUtils {
                         patient.setAbha(vals[1]);
                     }
                 }
-                JsonNode person = root.path("person");
-                String name = person.path("display").asText();
-                String gender = person.path("gender").asText();
+                JsonNode person = root.path(ConstantsUtils.PERSON);
+                String name = person.path(ConstantsUtils.DISPLAY).asText();
+                String gender = person.path(ConstantsUtils.GENDER).asText();
                 String age = person.path("age").asText();
                 JsonNode address = person.path("preferredAddress");
-                String add = address.path("display").asText();
+                String add = address.path(ConstantsUtils.DISPLAY).asText();
 
                 patient.setAddress(add);
                 patient.setName(name);
@@ -433,13 +433,14 @@ public class IntermediateBuilderUtils {
 
             } // end outer for
         } catch (Exception ex) {
-            LOGGER.error("Intermediate Builder :: BuildIntermediatePatient :: error::onErrorResume::" + ex);
+            LOGGER.error("Intermediate Builder :: BuildIntermediatePatient :: error::onErrorResume:: {}", ex, ex);
+
         }
         return patient;
     }
 
     public static Map<String, String> BuildSearchParametersIntent(Request request) {
-
+        String messageId = request.getContext().getMessageId();
         Map<String, String> listOfParams = new HashMap<>();
 
         Optional<Intent> intent = Optional.ofNullable(request.getMessage().getIntent());
@@ -450,7 +451,6 @@ public class IntermediateBuilderUtils {
         String valueType = "";
         Optional<Start> valueStart;
         Optional<End> valueEnd;
-        Optional<Tag> tags;
         Map<String, String> valueTags;
         Map<String, String> specialityTags;
         if (intent.isPresent()) {
@@ -464,27 +464,24 @@ public class IntermediateBuilderUtils {
                 specialityTags = request.getMessage().getIntent().getFulfillment().getAgent().getTags();
 
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_TIME_PATTERN);
-                listOfParams.put("fromDate", "");
-                listOfParams.put("toDate", "");
+                listOfParams.put(ConstantsUtils.FROM_DATE, "");
+                listOfParams.put(ConstantsUtils.TO_DATE, "");
 
                 if (valueStart.isPresent()) {
                     Date startDate = simpleDateFormat.parse(request.getMessage().getIntent().getFulfillment().getStart().getTime().getTimestamp());
                     String dtString = simpleDateFormat.format(startDate);
-                    listOfParams.replace("fromDate", dtString);
+                    listOfParams.replace(ConstantsUtils.FROM_DATE, dtString);
                 }
 
                 if (valueEnd.isPresent()) {
                     Date endDate = simpleDateFormat.parse(request.getMessage().getIntent().getFulfillment().getEnd().getTime().getTimestamp());
                     String dtString = simpleDateFormat.format(endDate);
-                    listOfParams.replace("toDate", dtString);
+                    listOfParams.replace(ConstantsUtils.TO_DATE, dtString);
                 }
 
                 if (order.isPresent()) {
                     valueName = request.getMessage().getOrder().getFulfillment().getAgent().getName();
                     valueHPRID = request.getMessage().getOrder().getFulfillment().getAgent().getId();
-                    //valueStart = Optional.ofNullable(request.getMessage().getOrder().getFulfillment().getStart());
-                    //valueEnd = Optional.ofNullable(request.getMessage().getOrder().getFulfillment().getEnd());
-
                 }
 
 
@@ -508,19 +505,21 @@ public class IntermediateBuilderUtils {
                         listOfParams.put("languages", valueTags.get(ConstantsUtils.ABDM_GOV_IN_LANGUAGES_TAG));
                     }
                     if (valueTags.get(ConstantsUtils.ABDM_GOV_IN_SPECIALITY_TAG) != null) {
-                        listOfParams.put("speciality", valueTags.get(ConstantsUtils.ABDM_GOV_IN_SPECIALITY_TAG));
+                        listOfParams.put(ConstantsUtils.SPECIALITY, valueTags.get(ConstantsUtils.ABDM_GOV_IN_SPECIALITY_TAG));
                     }
                 }
                 if(specialityTags != null) {
                      if (specialityTags.get(ConstantsUtils.ABDM_GOV_IN_SPECIALITY_TAG) != null) {
-                        listOfParams.put("speciality", specialityTags.get(ConstantsUtils.ABDM_GOV_IN_SPECIALITY_TAG));
+                        listOfParams.put(ConstantsUtils.SPECIALITY, specialityTags.get(ConstantsUtils.ABDM_GOV_IN_SPECIALITY_TAG));
                     }
                 }
 
 
 
             } catch (Exception ex) {
-                LOGGER.error("Intermediate Builder :: BuildSearchParametersIntent :: error::onErrorResume::" + ex);
+                LOGGER.error("Intermediate Builder :: BuildSearchParametersIntent :: error::onErrorResume:: {}", ex, ex);
+                LOGGER.info(ConstantsUtils.REQUESTER_MESSAGE_ID_IS, messageId);
+
             }
         }
 
@@ -546,21 +545,21 @@ public class IntermediateBuilderUtils {
                 valueStart = Optional.ofNullable(request.getMessage().getOrder().getFulfillment().getStart());
                 valueEnd = Optional.ofNullable(request.getMessage().getOrder().getFulfillment().getEnd());
 
-                String pattern = "yyyy-MM-dd'T'HH:mm:ss";
+                String pattern = ConstantsUtils.DATE_FORMAT;
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
-                listOfParams.put("fromDate", "");
-                listOfParams.put("toDate", "");
+                listOfParams.put(ConstantsUtils.FROM_DATE, "");
+                listOfParams.put(ConstantsUtils.TO_DATE, "");
 
                 if (valueStart.isPresent()) {
                     Date startDate = simpleDateFormat.parse(request.getMessage().getOrder().getFulfillment().getStart().getTime().getTimestamp());
                     String dtString = simpleDateFormat.format(startDate);
-                    listOfParams.replace("fromDate", dtString);
+                    listOfParams.replace(ConstantsUtils.FROM_DATE, dtString);
                 }
 
                 if (valueEnd.isPresent()) {
                     Date endDate = simpleDateFormat.parse(request.getMessage().getOrder().getFulfillment().getEnd().getTime().getTimestamp());
                     String dtString = simpleDateFormat.format(endDate);
-                    listOfParams.replace("toDate", dtString);
+                    listOfParams.replace(ConstantsUtils.TO_DATE, dtString);
                 }
 
                 if (valueName != null) {
@@ -575,7 +574,9 @@ public class IntermediateBuilderUtils {
                     listOfParams.put("hprid", valueHPRID);
                 }
             } catch (Exception ex) {
-                LOGGER.error("Intermediate Builder :: BuildSearchParametersOrder :: error::onErrorResume::" + ex);
+                LOGGER.error("Intermediate Builder :: BuildSearchParametersOrder :: error::onErrorResume::{}", ex, ex);
+                String messageId = request.getContext().getMessageId();
+                LOGGER.info(ConstantsUtils.REQUESTER_MESSAGE_ID_IS, messageId);
             }
         }
 
@@ -590,14 +591,13 @@ public class IntermediateBuilderUtils {
             ObjectMapper maps = new ObjectMapper();
             JsonNode root = maps.readTree(json);
 
-            JsonNode resultsNode = root.path("results");
+            JsonNode resultsNode = root.path(ConstantsUtils.RESULTS);
             if (resultsNode.isArray()) {
 
                 for (JsonNode node : resultsNode) {
 
 
-                    String display = node.path("display").asText();
-                    String name = node.path("name").asText();
+                    String display = node.path(ConstantsUtils.DISPLAY).asText();
                     String uuid = node.path("uuid").asText();
 
                     IntermediateAppointmentModel appointment = new IntermediateAppointmentModel();
@@ -609,7 +609,7 @@ public class IntermediateBuilderUtils {
                 }
             }
         } catch (Exception ex) {
-            LOGGER.error("Intermediate Builder :: BuildIntermediateAppointment :: error::onErrorResume::" + ex);
+            LOGGER.error("Intermediate Builder :: BuildIntermediateAppointment :: error::onErrorResume:: {}",ex, ex);
         }
         return collection;
     }

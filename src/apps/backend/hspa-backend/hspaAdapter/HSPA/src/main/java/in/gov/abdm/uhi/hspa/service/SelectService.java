@@ -1,6 +1,5 @@
 package in.gov.abdm.uhi.hspa.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import in.gov.abdm.uhi.common.dto.Error;
 import in.gov.abdm.uhi.common.dto.*;
@@ -8,6 +7,7 @@ import in.gov.abdm.uhi.hspa.models.IntermediateAppointmentModel;
 import in.gov.abdm.uhi.hspa.models.IntermediateAppointmentSearchModel;
 import in.gov.abdm.uhi.hspa.models.IntermediateProviderAppointmentModel;
 import in.gov.abdm.uhi.hspa.service.ServiceInterface.IService;
+import in.gov.abdm.uhi.hspa.utils.ConstantsUtils;
 import in.gov.abdm.uhi.hspa.utils.IntermediateBuilderUtils;
 import in.gov.abdm.uhi.hspa.utils.ProtocolBuilderUtils;
 import org.apache.logging.log4j.LogManager;
@@ -54,7 +54,7 @@ public class SelectService implements IService {
     final
     SearchService searchService;
 
-    private static final Logger LOGGER = LogManager.getLogger(WrapperService.class);
+    private static final Logger LOGGER = LogManager.getLogger(SelectService.class);
 
     public SelectService(WebClient webClient, SearchService searchService) {
         this.webClient = webClient;
@@ -63,27 +63,26 @@ public class SelectService implements IService {
 
     public Mono<Response> processor(@RequestBody String request) {
 
-        LOGGER.info("Processing::Search(Select)::Request::" + request);
+        LOGGER.info("Processing::Search(Select)::Request:: {}", request);
         Request objRequest;
         Response ack = generateAck();
 
         try {
             objRequest = new ObjectMapper().readValue(request, Request.class);
+            String messageId = objRequest.getContext().getMessageId();
+            LOGGER.info(ConstantsUtils.REQUESTER_MESSAGE_ID_IS, messageId);
+
+            logMessageId(objRequest);
+
             String typeFulfillment = objRequest.getMessage().getIntent().getFulfillment().getType();
-            if(typeFulfillment.equalsIgnoreCase("Teleconsultation") || typeFulfillment.equalsIgnoreCase("PhysicalConsultation")) {
+            if(typeFulfillment.equalsIgnoreCase(ConstantsUtils.TELECONSULTATION) || typeFulfillment.equalsIgnoreCase(ConstantsUtils.PHYSICAL_CONSULTATION) || typeFulfillment.equalsIgnoreCase(ConstantsUtils.GROUP_CONSULTATION)) {
+                setTeleconsultationInCaseOfGroupConsultation(typeFulfillment, objRequest);
                 run(objRequest, request).zipWith(getAllAppointmentTypes())
                         .flatMap(pair -> getProviderAppointment(pair, objRequest))
                         .flatMap(res -> getProviderAppointments(res, objRequest))
-                        .flatMap(result -> transformObject(result , objRequest))
+                        .flatMap(this::transformObject)
                         .flatMap(mapResult -> generateCatalog(mapResult, objRequest.getMessage().getIntent().getFulfillment().getType()))
-                        .flatMap(catalog -> {
-                            try {
-                                return callOnSerach(catalog, objRequest.getContext());
-                            } catch (JsonProcessingException e) {
-                                e.printStackTrace();
-                            }
-                            return null;
-                        })
+                        .flatMap(catalog ->  callOnSerach(catalog, objRequest.getContext()))
                         .flatMap(this::logResponse)
                         .subscribe();
             }
@@ -92,7 +91,7 @@ public class SelectService implements IService {
             }
 
         } catch (Exception ex) {
-            LOGGER.error("Search(Select) service processor::error::onErrorResume::" + ex);
+            LOGGER.error("Search(Select) service processor::error::onErrorResume:: {}", ex, ex);
             ack = generateNack(ex);
         }
 
@@ -120,9 +119,18 @@ public class SelectService implements IService {
                 .exchangeToMono(clientResponse -> clientResponse.bodyToMono(String.class));
     }
 
+    private void setTeleconsultationInCaseOfGroupConsultation(String typeFulfillment, Request objRequest) {
+        if(typeFulfillment.equalsIgnoreCase(ConstantsUtils.GROUP_CONSULTATION)) {
+            objRequest.getMessage().getIntent().getFulfillment().setType(ConstantsUtils.TELECONSULTATION);
+        }
+    }
+
     private Mono<IntermediateAppointmentSearchModel> getProviderAppointment(Tuple2 result, Request request) {
 
-        LOGGER.info("Processing::Search(Select)::getProviderAppointment::" + result);
+        LOGGER.info("Processing::Search(Select)::getProviderAppointment:: {}" , result);
+        String messageId = request.getContext().getMessageId();
+        LOGGER.info(ConstantsUtils.REQUESTER_MESSAGE_ID_IS, messageId);
+
         IntermediateAppointmentSearchModel appointmentSearchModel = new IntermediateAppointmentSearchModel();
         appointmentSearchModel.providers = new ArrayList<>();
         appointmentSearchModel.appointmentTypes = new ArrayList<>();
@@ -135,11 +143,11 @@ public class SelectService implements IService {
             appointmentSearchModel.appointmentTypes = IntermediateBuilderUtils.BuildIntermediateAppointment(result.getT2().toString());
             appointmentSearchModel.startDate = searchParams.get("fromDate");
             appointmentSearchModel.endDate = searchParams.get("toDate");
-            appointmentSearchModel.view = "custom:uuid,startDate,endDate,appointmentBlock:" +
-                                          "(provider:(uuid,display,identifier,attributes,person:(age,gender)))";
+            appointmentSearchModel.view = "full";
 
         } catch (Exception ex) {
-            LOGGER.error("Search(Select) service Get Provider Id::error::onErrorResume::" + ex);
+            LOGGER.error("Search(Select) service Get Provider Id::error::onErrorResume:: {}", ex, ex);
+            LOGGER.info(ConstantsUtils.REQUESTER_MESSAGE_ID_IS, messageId);
         }
 
 
@@ -149,7 +157,7 @@ public class SelectService implements IService {
     Mono<String> getProviderAppointments(IntermediateAppointmentSearchModel data, Request request) {
 
 
-        if (data.providers.size() > 0) {
+        if (!data.providers.isEmpty()) {
 
             String appointmentType = request.getMessage().getIntent().getFulfillment().getType();
 
@@ -159,7 +167,7 @@ public class SelectService implements IService {
             List<IntermediateAppointmentModel> appointmentTypeList = data.getAppointmentTypes().stream().filter(res -> res.getAppointmentTypeDisplay().equalsIgnoreCase(appointmentType)).toList();
 
             String provider = data.getProviders().get(0).getId();
-            String appointment = appointmentTypeList.get(0).getAppointmentTypeUUID();//"b7f07cc1-1147-48b7-8585-0df6bd15f606";//
+            String appointment = appointmentTypeList.get(0).getAppointmentTypeUUID();
             String startDate = data.getStartDate();
             String endDate = data.getEndDate();
 
@@ -174,23 +182,26 @@ public class SelectService implements IService {
             return webClient.get()
                     .uri(uri)
                     .exchangeToMono(clientResponse -> clientResponse.bodyToMono(String.class));
-
-
         } else {
             return Mono.empty();
         }
     }
 
-       private Mono<List<IntermediateProviderAppointmentModel>> transformObject(String result, Request request) {
+    private void logMessageId(Request objRequest) {
+        String messageId = objRequest.getContext().getMessageId();
+        LOGGER.info(ConstantsUtils.REQUESTER_MESSAGE_ID_IS, messageId);
+    }
 
-        LOGGER.info("Processing::Search(Select)::transformObject::" + result);
+       private Mono<List<IntermediateProviderAppointmentModel>> transformObject(String result) {
+
+        LOGGER.info("Processing::Search(Select)::transformObject:: {}", result);
         List<IntermediateProviderAppointmentModel> collection = new ArrayList<>();
         try {
 
             collection = IntermediateBuilderUtils.BuildIntermediateProviderAppoitmentObj(result);
 
         } catch (Exception ex) {
-            LOGGER.error("Select service Transform Object::error::onErrorResume::" + ex);
+            LOGGER.error("Select service Transform Object::error::onErrorResume:: {}" , ex, ex);
         }
         return Mono.just(collection);
 
@@ -205,13 +216,13 @@ public class SelectService implements IService {
 
         } catch (Exception ex) {
 
-            LOGGER.error("Select service generate catalog::error::onErrorResume::" + ex);
+            LOGGER.error("Select service generate catalog::error::onErrorResume:: {}" , ex, ex);
         }
         return Mono.just(catalog);
 
     }
 
-    private Mono<String> callOnSerach(Catalog catalog, Context context) throws JsonProcessingException {
+    private Mono<String> callOnSerach(Catalog catalog, Context context) {
         Request onSearchRequest = new Request();
         Message objMessage = new Message();
         objMessage.setCatalog(catalog);
@@ -234,7 +245,7 @@ public class SelectService implements IService {
                 .bodyToMono(String.class)
                 .retry(3)
                 .onErrorResume(error -> {
-                    LOGGER.error("Select Service Call on_search::error::onErrorResume::" + error);
+                    LOGGER.error("Select Service Call on_search::error::onErrorResume:: {}", error, error);
                     return Mono.empty();
                 });
     }
@@ -270,10 +281,10 @@ public class SelectService implements IService {
     private String buildSearchString(Map<String, String> params) {
         String searchString = "?v=custom:uuid,providerId,identifier,person:(display)&q=";
         String value = "";
-        if (params.get("hprid") == null || Objects.equals(params.get("hprid"), "")) {
+        if (params.get(ConstantsUtils.HPRID) == null || Objects.equals(params.get(ConstantsUtils.HPRID), "")) {
             value = params.getOrDefault("name", "");
         } else {
-            value = params.getOrDefault("hprid", "");
+            value = params.getOrDefault(ConstantsUtils.HPRID, "");
         }
         return searchString + value;
     }
@@ -281,7 +292,7 @@ public class SelectService implements IService {
     @Override
     public Mono<String> logResponse(java.lang.String result) {
 
-        LOGGER.info("OnSearch(Select)::Log::Response::" + result);
+        LOGGER.info("OnSearch(Select)::Log::Response:: {}", result);
 
         return Mono.just(result);
     }

@@ -1,6 +1,5 @@
 package in.gov.abdm.uhi.hspa.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import in.gov.abdm.uhi.common.dto.Error;
 import in.gov.abdm.uhi.common.dto.*;
@@ -36,7 +35,7 @@ public class WrapperService {
     ObjectMapper mapper;
     private static final Logger LOGGER = LogManager.getLogger(WrapperService.class);
 
-    public Mono<Response> processorSearch(@RequestBody Request request) throws JsonProcessingException {
+    public Mono<Response> processorSearch(@RequestBody Request request) {
 
         //Verify message
         Response ack = generateAck(mapper);
