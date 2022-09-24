@@ -153,7 +153,6 @@ public class IntermediateBuilderUtils {
                                 case "Languages" -> objIntermediate.setLanguages(attrVal);
                                 case "Charges" -> objIntermediate.setCharges(attrVal);
                                 case "Speciality" -> objIntermediate.setSpeciality(attrVal);
-                                default -> LOGGER.error("IntermediateBuilderUtils :: Unspecified attribute");
                             }
                         }
                     }

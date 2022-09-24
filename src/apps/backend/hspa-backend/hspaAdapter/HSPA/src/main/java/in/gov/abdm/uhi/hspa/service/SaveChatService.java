@@ -116,7 +116,6 @@ public class SaveChatService implements ChatDataDb {
 		saveSenderAndReceiver(request);
 		LOGGER.info("Message is saved.. sending notification");
 
-		callNotificationService(request);
 
 		return messagesModelSaved;
 	}

@@ -64,17 +64,10 @@ public class MessageService implements IService {
 
 
             objRequest = new ObjectMapper().readValue(request, Request.class);
-        String contentType = objRequest.getMessage().getIntent().getChat().getContent().getContent_type();
-        if(null != contentType) {
-            boolean checkIfContentTypeTextOrMedia = contentType.equalsIgnoreCase("text") || contentType.equalsIgnoreCase("media");
-            if (checkIfContentTypeTextOrMedia) {
                 run(objRequest, request)
                         .filter(res -> objRequest.getContext().getAction().equals(ConstantsUtils.MESSAGE_ACTION))
                         .flatMap(res -> callMessageApiOnEua(objRequest))
                         .subscribe();
-
-            }
-        }
 
         return Mono.just(ack);
     }
@@ -90,8 +83,19 @@ public class MessageService implements IService {
 
     @Override
     public Mono<String> run(Request objReq, String request) throws Exception {
-        MessagesModel messageSaved = chatService.saveChatDataInDb(objReq);
-        LOGGER.info("DB call done.");
+        String contentType = objReq.getMessage().getIntent().getChat().getContent().getContent_type();
+        MessagesModel messageSaved = new MessagesModel();
+        boolean checkIfContentTypeTextOrMedia = contentType.equalsIgnoreCase("text") || contentType.equalsIgnoreCase("media");
+        if(checkIfContentTypeTextOrMedia) {
+            messageSaved = chatService.saveChatDataInDb(objReq);
+            LOGGER.info("DB call done.");
+        }
+        else{
+            LOGGER.info("Message not saved to database. Content type is {}", contentType);
+        }
+
+        chatService.callNotificationService(objReq);
+
         String action = objReq.getContext().getAction();
         actionsInCaseOf_OnMessageAction(objReq, messageSaved, action);
         return logResponse(request);
