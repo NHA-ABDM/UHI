@@ -19,6 +19,12 @@ import 'package:uhi_flutter_app/theme/theme.dart';
 import 'package:uhi_flutter_app/utils/src/shared_preferences.dart';
 import 'package:uhi_flutter_app/view/authentication/authentication.dart';
 import 'package:uhi_flutter_app/view/authentication/login/src/web_view_registration.dart';
+import 'package:uhi_flutter_app/view/discovery/discovery.dart';
+import 'package:uhi_flutter_app/view/group-consultation/src/book_group_teleconsultation_page.dart';
+
+import '../../../../constants/constants.dart';
+
+import '../../../view.dart';
 
 class BaseLoginPage extends StatefulWidget {
   const BaseLoginPage();
@@ -172,6 +178,7 @@ class _BaseLoginPageState extends State<BaseLoginPage> {
             height: 68,
             width: width * 0.89,
             child: IntlPhoneField(
+              keyboardType: TextInputType.number,
               invalidNumberMessage: AppStrings().invalidMobileNumberError,
               controller: mobileNumberTextEditingController,
               textAlignVertical: TextAlignVertical.center,
@@ -267,7 +274,7 @@ class _BaseLoginPageState extends State<BaseLoginPage> {
           // ),
           GestureDetector(
             onTap: () {
-              Get.to(LoginWithEmailPage());
+              Get.to(LoginWithAbhaAddressPage());
             },
             child: Container(
               height: 50,
@@ -283,6 +290,33 @@ class _BaseLoginPageState extends State<BaseLoginPage> {
               child: Center(
                 child: Text(
                   AppStrings().loginWithEmail,
+                  style: AppTextStyle.textMediumStyle(
+                      color: AppColors.tileColors, fontSize: 16),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          GestureDetector(
+            onTap: () {
+              Get.to(LoginWithAbhaAddressPage());
+            },
+            child: Container(
+              height: 50,
+              width: width * 0.89,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: AppColors.tileColors,
+                ),
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(10),
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  "Login With Abha Address",
                   style: AppTextStyle.textMediumStyle(
                       color: AppColors.tileColors, fontSize: 16),
                 ),

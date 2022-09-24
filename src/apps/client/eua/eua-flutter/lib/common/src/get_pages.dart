@@ -13,6 +13,7 @@ class AppRoutes {
   static const String chatPage = '/chat_page';
   static const String localAuthPage = '/local_auth_page';
   static const String showSelectedMediaPage = '/show_selected_media_page';
+  static const String upcomingAppointmentsPage = '/upcoming_appointments_page';
 
   static void toNamed(
     String route, {
@@ -54,6 +55,11 @@ appRoutes() => [
       GetPage(
         name: AppRoutes.showSelectedMediaPage,
         page: () => const ShowSelectedMediaPage(),
+        transition: CheckInternet.pageTransition,
+      ),
+      GetPage(
+        name: AppRoutes.upcomingAppointmentsPage,
+        page: () => const UpcomingAppointmentPage(),
         transition: CheckInternet.pageTransition,
       ),
     ];

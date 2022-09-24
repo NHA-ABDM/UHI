@@ -15,6 +15,7 @@ import 'package:get/get.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:uhi_flutter_app/common/src/get_pages.dart';
 import 'package:uhi_flutter_app/firebase_options.dart';
+import 'package:uhi_flutter_app/observer/home_page_obsevable.dart';
 import 'package:uhi_flutter_app/theme/src/app_colors.dart';
 import 'package:uhi_flutter_app/utils/src/shared_preferences.dart';
 
@@ -281,6 +282,11 @@ class _MyAppState extends State<MyApp> {
             } else {
               showNotification(message);
             }
+          } else if (appRoute == AppRoutes.homePage ||
+              appRoute == AppRoutes.upcomingAppointmentsPage) {
+            showNotification(message);
+            final HomeScreenObservable observable = HomeScreenObservable();
+            observable.notifyUpdateAppointmentData();
           } else {
             showNotification(message);
           }

@@ -150,6 +150,8 @@ PODS:
     - Flutter
   - url_launcher_ios (0.0.1):
     - Flutter
+  - wakelock (0.0.1):
+    - Flutter
   - WebRTC-SDK (97.4692.05)
 
 DEPENDENCIES:
@@ -173,6 +175,7 @@ DEPENDENCIES:
   - shared_preferences_ios (from `.symlinks/plugins/shared_preferences_ios/ios`)
   - upi_pay (from `.symlinks/plugins/upi_pay/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
+  - wakelock (from `.symlinks/plugins/wakelock/ios`)
 
 SPEC REPOS:
   trunk:
@@ -235,6 +238,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/upi_pay/ios"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
+  wakelock:
+    :path: ".symlinks/plugins/wakelock/ios"
 
 SPEC CHECKSUMS:
   connectivity: c4130b2985d4ef6fd26f9702e886bd5260681467
@@ -273,6 +278,7 @@ SPEC CHECKSUMS:
   SwiftyGif: 6c3eafd0ce693cad58bb63d2b2fb9bacb8552780
   upi_pay: 16008b0cbb4d248b895e587661eab2446926c51e
   url_launcher_ios: 839c58cdb4279282219f5e248c3321761ff3c4de
+  wakelock: d0fc7c864128eac40eba1617cb5264d9c940b46f
   WebRTC-SDK: a6ee40bda0e3f7dba057907c3897374005c5715b
 
 PODFILE CHECKSUM: fe6fe6bd388a05948d417feed15492f09e8c92cb

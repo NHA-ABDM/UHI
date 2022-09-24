@@ -4,7 +4,6 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:cryptography/cryptography.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -154,6 +153,36 @@ class _ChatPageState extends State<ChatPage> {
   void dispose() {
     stompClient?.deactivate();
     super.dispose();
+  }
+
+  String getChatDisplayDateTime({required DateTime startDateTime}) {
+    DateTime now = DateTime.now();
+    DateTime justNow = DateTime.now().subtract(const Duration(minutes: 1));
+    DateTime localDateTime = startDateTime.toLocal();
+    if (!localDateTime.difference(justNow).isNegative) {
+      return 'Just now';
+    }
+
+    String roughTimeString = DateFormat('jm').format(startDateTime);
+    if (localDateTime.day == now.day &&
+        localDateTime.month == now.month &&
+        localDateTime.year == now.year) {
+      return roughTimeString;
+    }
+
+    DateTime yesterday = now.subtract(const Duration(days: 1));
+    if (localDateTime.day == yesterday.day &&
+        localDateTime.month == yesterday.month &&
+        localDateTime.year == yesterday.year) {
+      return 'Yesterday, ' + roughTimeString;
+    }
+
+    if (now.difference(localDateTime).inDays < 4) {
+      String weekday = DateFormat('EEEE').format(localDateTime);
+      return '$weekday, $roughTimeString';
+    }
+
+    return '${DateFormat('MMM dd yyyy').format(startDateTime)}, $roughTimeString';
   }
 
   ///CHAT MESSAGE HISTORY API
@@ -823,57 +852,67 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   buildReceiverMessageNew({required ChatMessageModel chatMessageModel}) {
-    debugPrint(
-        "buildReceiverMessageNew contentUrl:${chatMessageModel.contentUrl}");
-    debugPrint(
-        "buildReceiverMessageNew contentValue:${chatMessageModel.contentValue}");
-    debugPrint(
-        "buildReceiverMessageNew contentType:${chatMessageModel.contentType}");
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          constraints:
-              BoxConstraints(minWidth: width * 0.12, maxWidth: width * 0.7),
-          margin: const EdgeInsets.only(top: 10),
-          padding: const EdgeInsets.all(15),
-          decoration: BoxDecoration(
-              color: const Color(0xFF264488),
-              borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(16),
-                  topLeft: Radius.circular(16),
-                  //bottomLeft: Radius.circular(16),
-                  bottomRight: Radius.circular(16))),
-          child: chatMessageModel.contentType == 'text'
-              ? Text(
-                  chatMessageModel.contentValue ?? '',
-                  style: AppTextStyle.textSemiBoldStyle(
-                      color: AppColors.white, fontSize: 15),
-                )
-              : chatMessageModel.contentType == 'media'
-                  ? GestureDetector(
-                      onTap: () {
-                        String? mediaUrl =
-                            (chatMessageModel.contentValue == null ||
-                                    chatMessageModel.contentValue!.isEmpty)
-                                ? chatMessageModel.contentUrl
-                                : chatMessageModel.contentValue;
-                        print("Receiver Image clicked");
-                        Get.toNamed(AppRoutes.showSelectedMediaPage,
-                            arguments: {
-                              'media': '',
-                              'mediaUrl': mediaUrl,
-                              'isUpload': false
-                            });
-                      },
-                      child: buildMediaWidget(
-                          mediaUrl: (chatMessageModel.contentValue == null ||
-                                  chatMessageModel.contentValue!.isEmpty)
-                              ? chatMessageModel.contentUrl
-                              : chatMessageModel.contentValue))
-                  : Container(),
-        ),
+            constraints:
+                BoxConstraints(minWidth: width * 0.12, maxWidth: width * 0.7),
+            margin: const EdgeInsets.only(top: 10),
+            padding: const EdgeInsets.all(15),
+            decoration: BoxDecoration(
+                color: const Color(0xFF264488),
+                borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(16),
+                    topLeft: Radius.circular(16),
+                    //bottomLeft: Radius.circular(16),
+                    bottomRight: Radius.circular(16))),
+            child: Column(
+              children: [
+                chatMessageModel.contentType == 'text'
+                    ? Text(
+                        chatMessageModel.contentValue ?? '',
+                        style: AppTextStyle.textSemiBoldStyle(
+                            color: AppColors.white, fontSize: 15),
+                      )
+                    : chatMessageModel.contentType == 'media'
+                        ? GestureDetector(
+                            onTap: () {
+                              String? mediaUrl =
+                                  (chatMessageModel.contentValue == null ||
+                                          chatMessageModel
+                                              .contentValue!.isEmpty)
+                                      ? chatMessageModel.contentUrl
+                                      : chatMessageModel.contentValue;
+                              print("Receiver Image clicked");
+                              Get.toNamed(AppRoutes.showSelectedMediaPage,
+                                  arguments: {
+                                    'media': '',
+                                    'mediaUrl': mediaUrl,
+                                    'isUpload': false
+                                  });
+                            },
+                            child: buildMediaWidget(
+                                mediaUrl: (chatMessageModel.contentValue ==
+                                            null ||
+                                        chatMessageModel.contentValue!.isEmpty)
+                                    ? chatMessageModel.contentUrl
+                                    : chatMessageModel.contentValue))
+                        : Container(),
+                SizedBox(
+                  height: 2,
+                ),
+                Text(
+                  getChatDisplayDateTime(
+                      startDateTime: DateTime.parse(
+                          chatMessageModel.time!.split('.').first)),
+                  textAlign: TextAlign.end,
+                  style: AppTextStyle.textLightStyle(
+                      color: AppColors.white, fontSize: 10),
+                ),
+              ],
+            )),
       ],
     );
   }
@@ -884,46 +923,63 @@ class _ChatPageState extends State<ChatPage> {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Container(
-          constraints:
-              BoxConstraints(minWidth: width * 0.12, maxWidth: width * 0.7),
-          margin: const EdgeInsets.only(top: 10),
-          padding: const EdgeInsets.all(15),
-          decoration: BoxDecoration(
-              color: const Color(0xFFE9ECF3),
-              borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(16),
-                  topLeft: Radius.circular(16),
-                  bottomLeft: Radius.circular(16))),
-          child: chatMessageModel.contentType == 'text'
-              ? Text(
-                  chatMessageModel.contentValue ?? '',
-                  style: AppTextStyle.textSemiBoldStyle(
-                      color: Color(0xFF264488), fontSize: 15),
-                )
-              : chatMessageModel.contentType == 'media'
-                  ? GestureDetector(
-                      onTap: () {
-                        String? mediaUrl =
-                            (chatMessageModel.contentValue == null ||
-                                    chatMessageModel.contentValue!.isEmpty)
-                                ? chatMessageModel.contentUrl
-                                : chatMessageModel.contentValue;
-                        print("Sender Image clicked");
-                        Get.toNamed(AppRoutes.showSelectedMediaPage,
-                            arguments: {
-                              'media': selectedBase64EncodeFile,
-                              'mediaUrl': mediaUrl,
-                              'isUpload': false
-                            });
-                      },
-                      child: buildMediaWidget(
-                          mediaUrl: (chatMessageModel.contentValue == null ||
-                                  chatMessageModel.contentValue!.isEmpty)
-                              ? chatMessageModel.contentUrl
-                              : chatMessageModel.contentValue),
-                    )
-                  : Container(),
-        ),
+            constraints:
+                BoxConstraints(minWidth: width * 0.12, maxWidth: width * 0.7),
+            margin: const EdgeInsets.only(top: 10),
+            padding: const EdgeInsets.all(15),
+            decoration: BoxDecoration(
+                color: const Color(0xFFE9ECF3),
+                borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(16),
+                    topLeft: Radius.circular(16),
+                    bottomLeft: Radius.circular(16))),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                chatMessageModel.contentType == 'text'
+                    ? Text(
+                        chatMessageModel.contentValue ?? '',
+                        style: AppTextStyle.textSemiBoldStyle(
+                            color: Color(0xFF264488), fontSize: 15),
+                      )
+                    : chatMessageModel.contentType == 'media'
+                        ? GestureDetector(
+                            onTap: () {
+                              String? mediaUrl =
+                                  (chatMessageModel.contentValue == null ||
+                                          chatMessageModel
+                                              .contentValue!.isEmpty)
+                                      ? chatMessageModel.contentUrl
+                                      : chatMessageModel.contentValue;
+                              Get.toNamed(AppRoutes.showSelectedMediaPage,
+                                  arguments: {
+                                    'media': selectedBase64EncodeFile,
+                                    'mediaUrl': mediaUrl,
+                                    'isUpload': false
+                                  });
+                            },
+                            child: buildMediaWidget(
+                                mediaUrl: (chatMessageModel.contentValue ==
+                                            null ||
+                                        chatMessageModel.contentValue!.isEmpty)
+                                    ? chatMessageModel.contentUrl
+                                    : chatMessageModel.contentValue),
+                          )
+                        : Container(),
+                SizedBox(
+                  height: 2,
+                ),
+                Text(
+                  getChatDisplayDateTime(
+                      startDateTime: DateTime.parse(
+                          chatMessageModel.time!.split('.').first)),
+                  textAlign: TextAlign.end,
+                  style: AppTextStyle.textLightStyle(
+                      color: Color(0xFF264488), fontSize: 10),
+                ),
+              ],
+            )),
       ],
     );
   }

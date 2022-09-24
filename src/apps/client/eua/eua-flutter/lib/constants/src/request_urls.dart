@@ -100,6 +100,12 @@ class RequestUrls {
   ///LOGIN INIT API URL
   static String postLoginInitAuth = "${loginService}auth-init";
 
+  static String postAbhaAddressLoginInitAuth =
+      "${ndhmDev}cm/v1/apps/phrAddress/auth-init";
+
+  static String postAbhaAddressLoginAuthConfirm =
+      "${ndhmDev}cm/v1/apps/phrAddress/auth-confirm";
+
   ///LOGIN VERIFY API URL
   static String postLoginVerify = "${loginService}pre-Verify";
 

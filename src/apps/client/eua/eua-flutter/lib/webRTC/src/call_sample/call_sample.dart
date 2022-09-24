@@ -10,6 +10,7 @@ import '../../../theme/src/app_colors.dart';
 import '../../../theme/src/app_text_style.dart';
 import 'signaling.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:wakelock/wakelock.dart';
 
 class CallSample extends StatefulWidget {
   static String tag = 'call_sample';
@@ -53,7 +54,7 @@ class _CallSampleState extends State<CallSample> {
     super.initState();
     initRenderers();
     _connect();
-
+    Wakelock.enable();
     _doctorName = widget.doctorName ?? "doctor";
   }
 
@@ -68,6 +69,7 @@ class _CallSampleState extends State<CallSample> {
     _signaling?.close();
     _localRenderer.dispose();
     _remoteRenderer.dispose();
+    Wakelock.disable();
   }
 
   void _connect() async {

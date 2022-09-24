@@ -52,7 +52,8 @@ class AppStrings {
   String teleconsultText = 'teleconsultText'.tr();
   String teleconsultVaue = 'teleconsultVaue'.tr();
   String okString = 'okString'.tr();
-  String bookingOrderId = 'bookingOrderId'.tr();
+  String bookingOrderIdOne = 'bookingOrderIdOne'.tr();
+  String bookingOrderIdTwo = 'bookingOrderIdTwo'.tr();
 
   //BOOK APPOINTMENT AGAIN
   String appointmentDetails = 'appointmentDetails'.tr();

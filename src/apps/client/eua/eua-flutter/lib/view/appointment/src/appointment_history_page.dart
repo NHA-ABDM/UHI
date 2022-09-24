@@ -74,15 +74,14 @@ class _AppointmentHistoryPageState extends State<AppointmentHistoryPage> {
           i++) {
         if (homeScreenController.upcomingAppointmentResponseModal[i]!
             .serviceFulfillmentStartTime!.isNotEmpty) {
-          String startDate = homeScreenController
-              .upcomingAppointmentResponseModal[i]!
-              .serviceFulfillmentStartTime!;
+          String endDate = homeScreenController
+              .upcomingAppointmentResponseModal[i]!.serviceFulfillmentEndTime!;
           var now = new DateTime.now();
           var formatter = new DateFormat('y-MM-ddTHH:mm');
           String formattedDate = formatter.format(now);
           DateTime currentDate =
               DateFormat("y-MM-ddTHH:mm").parse(formattedDate);
-          DateTime tempStartDate = DateFormat("y-MM-ddTHH:mm").parse(startDate);
+          DateTime tempStartDate = DateFormat("y-MM-ddTHH:mm").parse(endDate);
           int duration = currentDate.difference(tempStartDate).inMinutes;
           if (duration > 0 &&
               homeScreenController.upcomingAppointmentResponseModal[i]!

@@ -8,3 +8,4 @@ export 'payment/payment.dart';
 export 'splashscreen/splashscreen.dart';
 export 'user/user.dart';
 export 'localauth/localauth.dart';
+export 'group-consultation/group_consultation.dart';

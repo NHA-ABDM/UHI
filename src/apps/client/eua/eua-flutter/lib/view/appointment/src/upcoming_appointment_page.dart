@@ -13,6 +13,7 @@ import 'package:uhi_flutter_app/controller/login/src/home_screen_controller.dart
 import 'package:uhi_flutter_app/model/common/src/doctor_image_model.dart';
 import 'package:uhi_flutter_app/model/response/src/booking_confirm_response_model.dart';
 import 'package:uhi_flutter_app/model/response/src/get_upcoming_appointments_response.dart';
+import 'package:uhi_flutter_app/observer/home_page_obsevable.dart';
 import 'package:uhi_flutter_app/theme/theme.dart';
 import 'package:uhi_flutter_app/utils/src/shared_preferences.dart';
 import 'package:uhi_flutter_app/view/appointment/src/appointment_status_confirm_page.dart';
@@ -20,6 +21,7 @@ import 'package:uhi_flutter_app/view/appointment/src/cancel_appointment_page.dar
 import 'package:uhi_flutter_app/view/doctor/src/doctors_detail_page.dart';
 import 'package:uhi_flutter_app/widgets/widgets.dart';
 
+import '../../../observer/home_page_observer.dart';
 import '../../chat/src/chat_page.dart';
 
 class UpcomingAppointmentPage extends StatefulWidget {
@@ -30,13 +32,15 @@ class UpcomingAppointmentPage extends StatefulWidget {
       _UpcomingAppointmentPageState();
 }
 
-class _UpcomingAppointmentPageState extends State<UpcomingAppointmentPage> {
+class _UpcomingAppointmentPageState extends State<UpcomingAppointmentPage>
+    implements HomePageObserver {
   ///CONTROLLERS
   TextEditingController searchTextEditingController = TextEditingController();
   TextEditingController symptomsTextEditingController = TextEditingController();
   final homeScreenController = Get.put(HomeScreenController());
   List<UpcomingAppointmentResponseModal?> upcomingAppointmentList = [];
   List<BookingConfirmResponseModel> bookingConfirmResponseModel = [];
+  late HomeScreenObservable observable;
 
   ///SIZE
   var width;
@@ -63,6 +67,18 @@ class _UpcomingAppointmentPageState extends State<UpcomingAppointmentPage> {
   @override
   void initState() {
     super.initState();
+    observable = HomeScreenObservable();
+    observable.register(this);
+    callAPI();
+    SharedPreferencesHelper.getDoctorImages().then((value) => setState(() {
+          debugPrint("Printing the shared preference getDoctorImages : $value");
+          if (value != null && value.isNotEmpty) {
+            _doctorImages.addAll(value);
+          }
+        }));
+  }
+
+  callAPI() {
     SharedPreferencesHelper.getABhaAddress().then((value) => setState(() {
           setState(() {
             debugPrint(
@@ -72,13 +88,12 @@ class _UpcomingAppointmentPageState extends State<UpcomingAppointmentPage> {
             getUpcomingAppointments();
           });
         }));
+  }
 
-    SharedPreferencesHelper.getDoctorImages().then((value) => setState(() {
-          debugPrint("Printing the shared preference getDoctorImages : $value");
-          if (value != null && value.isNotEmpty) {
-            _doctorImages.addAll(value);
-          }
-        }));
+  @override
+  void dispose() {
+    observable.unRegister(this);
+    super.dispose();
   }
 
   getUpcomingAppointments() async {
@@ -106,7 +121,6 @@ class _UpcomingAppointmentPageState extends State<UpcomingAppointmentPage> {
                   "CONFIRMED") {
             upcomingAppointmentList
                 .add(homeScreenController.upcomingAppointmentResponseModal[i]!);
-
             bookingConfirmResponseModel.add(
                 BookingConfirmResponseModel.fromJson(jsonDecode(
                     homeScreenController
@@ -240,8 +254,8 @@ class _UpcomingAppointmentPageState extends State<UpcomingAppointmentPage> {
           DateFormat("dd MMM y").format(DateTime.parse(tmpStartDate));
       appointmentStartTime =
           DateFormat("hh:mm a").format(DateTime.parse(tmpStartDate));
-
       tmpEndDate = upcomingAppointmentList[index]!.serviceFulfillmentEndTime!;
+
       appointmentEndDate =
           DateFormat("dd MMM y").format(DateTime.parse(tmpEndDate));
       appointmentEndTime =
@@ -349,7 +363,7 @@ class _UpcomingAppointmentPageState extends State<UpcomingAppointmentPage> {
                         SizedBox(height: 4),
                         Text(
                           "$duration minutes",
-                          style: AppTextStyle.textLightStyle(
+                          style: AppTextStyle.textMediumStyle(
                               color: AppColors.testColor, fontSize: 13),
                         ),
                         SizedBox(height: 4),
@@ -631,5 +645,10 @@ class _UpcomingAppointmentPageState extends State<UpcomingAppointmentPage> {
           isRescheduling: true,
           bookingConfirmResponseModel: bookingConfirmResponseModel[index],
         ));
+  }
+
+  @override
+  void updateAppointmentData() {
+    callAPI();
   }
 }

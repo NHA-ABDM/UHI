@@ -15,6 +15,7 @@ import 'package:uhi_flutter_app/controller/controller.dart';
 import 'package:uhi_flutter_app/model/common/src/doctor_image_model.dart';
 import 'package:uhi_flutter_app/model/model.dart';
 import 'package:uhi_flutter_app/model/request/src/appointment_status_request_model.dart';
+import 'package:uhi_flutter_app/model/request/src/booking_init_request_model.dart';
 import 'package:uhi_flutter_app/model/response/src/booking_confirm_response_model.dart';
 import 'package:uhi_flutter_app/model/response/src/get_user_details_response.dart';
 import 'package:uhi_flutter_app/services/services.dart';
@@ -29,35 +30,41 @@ import '../../../theme/src/app_colors.dart';
 import '../../../theme/src/app_text_style.dart';
 import '../../../utils/utils.dart';
 
-class AppointmentStatusConfirmPage extends StatefulWidget {
-  BookingConfirmResponseModel? bookingConfirmResponseModel;
-  String? startDateTime;
-  String? endDateTime;
-  String? doctorName;
+class MultipleDoctorAppointmentStatusPage extends StatefulWidget {
+  // BookingConfirmResponseModel? bookingConfirmResponseModel;
+  // String? startDateTime;
+  // String? endDateTime;
+  // String? doctorName;
+
+  BookingConfirmResponseModel? docOneConfirmResponse;
+  BookingConfirmResponseModel? docTwoConfirmResponse;
+
   String? consultationType;
-  String? gender;
+  // String? gender;
   bool? navigateToHomeAndRefresh;
   String? doctorImage;
 
-  AppointmentStatusConfirmPage(
+  MultipleDoctorAppointmentStatusPage(
       {Key? key,
-      this.bookingConfirmResponseModel,
-      this.startDateTime,
-      this.endDateTime,
-      this.doctorName,
+      // this.bookingConfirmResponseModel,
+      // this.startDateTime,
+      // this.endDateTime,
+      // this.doctorName,
+      this.docOneConfirmResponse,
+      this.docTwoConfirmResponse,
       this.consultationType,
-      this.gender,
+      // this.gender,
       this.navigateToHomeAndRefresh,
       this.doctorImage})
       : super(key: key);
 
   @override
-  State<AppointmentStatusConfirmPage> createState() =>
-      _AppointmentStatusConfirmPageState();
+  State<MultipleDoctorAppointmentStatusPage> createState() =>
+      _MultipleDoctorAppointmentStatusPageState();
 }
 
-class _AppointmentStatusConfirmPageState
-    extends State<AppointmentStatusConfirmPage> {
+class _MultipleDoctorAppointmentStatusPageState
+    extends State<MultipleDoctorAppointmentStatusPage> {
   ///CONTROLLERS
   final _postAppointmentStatusController =
       Get.put(PostAppointmentStatusController());
@@ -73,6 +80,8 @@ class _AppointmentStatusConfirmPageState
   bool isAppointmentTime = false;
   Timer? _timer;
   BookingConfirmResponseModel? _bookingConfirmResponseModel;
+  BookingConfirmResponseModel? _docOneConfirmResponse;
+  BookingConfirmResponseModel? _docTwoConfirmResponse;
   String? _consultationType;
   String? _orderId;
   String _uniqueId = "";
@@ -95,10 +104,12 @@ class _AppointmentStatusConfirmPageState
           setState(() {
             userAbhaAddress = value;
           });
-          futureOfGetSharedKey = getSharedKey();
+          // futureOfGetSharedKey = getSharedKey();
         }));
 
-    _bookingConfirmResponseModel = widget.bookingConfirmResponseModel;
+    // _bookingConfirmResponseModel = widget.bookingConfirmResponseModel;
+    _docOneConfirmResponse = widget.docOneConfirmResponse;
+    _docTwoConfirmResponse = widget.docTwoConfirmResponse;
     _consultationType = widget.consultationType;
     _doctorImage = widget.doctorImage;
     _doctorHprAddress =
@@ -468,83 +479,80 @@ class _AppointmentStatusConfirmPageState
           ),
           titleSpacing: 0,
           title: Text(
-            _consultationType == DataStrings.teleconsultation
-                ? AppStrings().appointmentStatusConfirmPageTitle
-                : AppStrings()
-                    .appointmentStatusConfirmPagePhysicalConsultationTitle,
+            "Group Consultation Appointment",
             style: AppTextStyle.textBoldStyle(
                 color: AppColors.black, fontSize: 18),
           ),
         ),
-        // body: buildWidgets(),
-        body: FutureBuilder(
-          future: futureOfGetSharedKey,
-          builder: (context, loadingData) {
-            switch (loadingData.connectionState) {
-              case ConnectionState.waiting:
-                return CommonLoadingIndicator();
+        body: buildWidgets(),
+        // body: FutureBuilder(
+        //   future: futureOfGetSharedKey,
+        //   builder: (context, loadingData) {
+        //     switch (loadingData.connectionState) {
+        //       case ConnectionState.waiting:
+        //         return CommonLoadingIndicator();
 
-              case ConnectionState.active:
-                return Text(AppStrings().loadingData);
+        //       case ConnectionState.active:
+        //         return Text(AppStrings().loadingData);
 
-              case ConnectionState.done:
-                return loadingData.data != null
-                    ? buildWidgets(loadingData.data)
-                    : RefreshIndicator(
-                        onRefresh: onRefresh,
-                        child: Stack(
-                          children: [
-                            ListView(),
-                            Container(
-                              padding: EdgeInsets.all(15),
-                              child: Center(
-                                child: Text(
-                                  AppStrings().serverBusyErrorMsg,
-                                  style: TextStyle(
-                                      fontFamily: "Poppins",
-                                      fontStyle: FontStyle.normal,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 16.0),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-              default:
-                return loadingData.data != null
-                    ? buildWidgets(loadingData.data)
-                    : RefreshIndicator(
-                        onRefresh: onRefresh,
-                        child: Stack(
-                          children: [
-                            ListView(),
-                            Container(
-                              padding: EdgeInsets.all(15),
-                              child: Center(
-                                child: Text(
-                                  AppStrings().serverBusyErrorMsg,
-                                  style: TextStyle(
-                                      fontFamily: "Poppins",
-                                      fontStyle: FontStyle.normal,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 16.0),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-            }
-          },
-        ),
+        //       case ConnectionState.done:
+        //         return loadingData.data != null
+        //             ? buildWidgets(loadingData.data)
+        //             : RefreshIndicator(
+        //                 onRefresh: onRefresh,
+        //                 child: Stack(
+        //                   children: [
+        //                     ListView(),
+        //                     Container(
+        //                       padding: EdgeInsets.all(15),
+        //                       child: Center(
+        //                         child: Text(
+        //                           AppStrings().serverBusyErrorMsg,
+        //                           style: TextStyle(
+        //                               fontFamily: "Poppins",
+        //                               fontStyle: FontStyle.normal,
+        //                               fontWeight: FontWeight.w500,
+        //                               fontSize: 16.0),
+        //                           textAlign: TextAlign.center,
+        //                         ),
+        //                       ),
+        //                     ),
+        //                   ],
+        //                 ),
+        //               );
+        //       default:
+        //         return loadingData.data != null
+        //             ? buildWidgets(loadingData.data)
+        //             : RefreshIndicator(
+        //                 onRefresh: onRefresh,
+        //                 child: Stack(
+        //                   children: [
+        //                     ListView(),
+        //                     Container(
+        //                       padding: EdgeInsets.all(15),
+        //                       child: Center(
+        //                         child: Text(
+        //                           AppStrings().serverBusyErrorMsg,
+        //                           style: TextStyle(
+        //                               fontFamily: "Poppins",
+        //                               fontStyle: FontStyle.normal,
+        //                               fontWeight: FontWeight.w500,
+        //                               fontSize: 16.0),
+        //                           textAlign: TextAlign.center,
+        //                         ),
+        //                       ),
+        //                     ),
+        //                   ],
+        //                 ),
+        //               );
+        //     }
+        //   },
+        // ),
       ),
     );
   }
 
-  buildWidgets(Object? data) {
+  buildWidgets() {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
@@ -555,14 +563,12 @@ class _AppointmentStatusConfirmPageState
             Spacing(isWidth: false, size: 8),
             Center(
               child: Text(
-                _consultationType == DataStrings.teleconsultation
-                    ? AppStrings().teleconsultationAppointmentConfirm
-                    : AppStrings().physicalConsultationAppointmentConfirm,
+                "Your group consultation appointment is confirmed.",
                 style: AppTextStyle.appointmentConfirmedLightTextStyle(),
               ),
             ),
             //Spacing(size: 20, isWidth: false),
-            doctorCardView(),
+            buildDoctorsCard(),
 
             Padding(
               padding: const EdgeInsets.only(left: 20.0, right: 8, top: 8),
@@ -649,46 +655,25 @@ class _AppointmentStatusConfirmPageState
     );
   }
 
-  doctorCardView() {
-    String doctorName;
+  buildDoctorsCard() {
     String appointmentDate;
     String appointmentStartTime;
     String appointmentEndTime;
     String appointmentTime;
-    String doctorEducation;
-    String doctorHPRAdd;
-    var tmpDate;
-    String hprId = "";
-    String gender = "";
 
-    doctorName = _bookingConfirmResponseModel
-            ?.message?.order?.fulfillment?.agent?.name ??
-        widget.doctorName!;
-    gender = _bookingConfirmResponseModel
-            ?.message?.order?.fulfillment?.agent?.gender ??
-        widget.gender!;
-    doctorHPRAdd =
-        _bookingConfirmResponseModel?.message?.order?.fulfillment?.agent?.id ??
-            "";
-    tmpDate = _bookingConfirmResponseModel
+    var tmpDate;
+
+    tmpDate = _docOneConfirmResponse
             ?.message?.order?.fulfillment?.start?.time?.timestamp ??
-        widget.startDateTime;
+        DateTime.now().toString();
     appointmentDate = DateFormat("dd MMM y").format(DateTime.parse(tmpDate));
     appointmentStartTime =
         DateFormat("hh:mm a").format(DateTime.parse(tmpDate));
-    tmpDate = _bookingConfirmResponseModel
+    tmpDate = _docOneConfirmResponse
             ?.message?.order?.fulfillment?.end?.time?.timestamp ??
-        widget.endDateTime;
+        DateTime.now().toString();
     appointmentEndTime = DateFormat("hh:mm a").format(DateTime.parse(tmpDate));
     appointmentTime = appointmentStartTime + "-" + appointmentEndTime;
-    doctorEducation = _bookingConfirmResponseModel
-            ?.message?.order?.fulfillment?.agent?.tags?.education ??
-        "";
-
-    var StringArray = doctorName.split("-");
-    doctorName = StringArray[1].replaceFirst(" ", "");
-    hprId = StringArray[0];
-
     return Card(
       elevation: 8,
       shape: RoundedRectangleBorder(
@@ -697,86 +682,25 @@ class _AppointmentStatusConfirmPageState
       margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 4),
       child: Column(
         children: [
+          buildDoctorTile(_docOneConfirmResponse!),
+          buildDoctorTile(_docTwoConfirmResponse!),
           Padding(
-            padding: const EdgeInsets.only(left: 16, top: 4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            padding:
+                const EdgeInsets.only(left: 15, top: 0, right: 15, bottom: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Container(
-                            width: width * 0.2,
-                            height: width * 0.2,
-                            margin: EdgeInsets.only(top: 12),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              image: DecorationImage(
-                                  image: Image.network(gender == "M"
-                                          ? AppStrings().maleDoctorImage
-                                          : AppStrings().femaleDoctorImage)
-                                      .image),
-                            ),
-                          ),
-                          Spacing(size: 16),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                // 'Dr. Sana Bhatt',
-                                doctorName,
-                                style: AppTextStyle
-                                    .appointmentConfirmedBoldTextStyle(
-                                        color: AppColors.doctorNameColor),
-                              ),
-                              Text(
-                                hprId,
-                                style: AppTextStyle.textBoldStyle(
-                                    color: AppColors.doctorNameColor,
-                                    fontSize: 12),
-                              ),
-                              Text(
-                                // 'MBBS/MS Cardiology',
-                                doctorEducation,
-                                style: AppTextStyle
-                                    .appointmentConfirmedLightTextStyle(
-                                        color: AppColors.doctorNameColor),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.more_horiz_rounded,
-                          color: AppColors.doctorExperienceColor),
-                    ),
-                  ],
+                Text(
+                  // '17th April 2022',
+                  appointmentDate,
+                  style: AppTextStyle.textBoldStyle(
+                      fontSize: 16, color: AppColors.infoIconColor),
                 ),
-                Spacing(isWidth: false, size: 10),
-                Padding(
-                  padding: const EdgeInsets.only(top: 0, right: 12, bottom: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        // '17th April 2022',
-                        appointmentDate,
-                        style: AppTextStyle.textBoldStyle(
-                            fontSize: 16, color: AppColors.infoIconColor),
-                      ),
-                      Text(
-                        // '10am - 10:30am',
-                        appointmentTime,
-                        style: AppTextStyle.textBoldStyle(
-                            fontSize: 16, color: AppColors.infoIconColor),
-                      ),
-                    ],
-                  ),
+                Text(
+                  // '10am - 10:30am',
+                  appointmentTime,
+                  style: AppTextStyle.textBoldStyle(
+                      fontSize: 16, color: AppColors.infoIconColor),
                 ),
               ],
             ),
@@ -800,26 +724,25 @@ class _AppointmentStatusConfirmPageState
                                 .appointmentConfirmDoctorActionsEnabledTextColor
                             : AppColors
                                 .appointmentConfirmDoctorActionsTextColor,
-                        // color: AppColors
-                        //     .appointmentConfirmDoctorActionsEnabledTextColor,
                         actionText: AppStrings().videoCall,
                         onTap: () async {
+                          ///NAVIGATE TO VIDEO CALL
                           if (isAppointmentTime) {
-                            final result = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => CallSample(
-                                        host: '121.242.73.119',
-                                        doctorsHPRAdd: doctorHPRAdd,
-                                      )),
-                            );
-                            log("$result");
-                            if (result != null && result == true) {
-                              Get.to(() => ConsultationCompletedPage(
-                                    bookingConfirmResponseModel:
-                                        _bookingConfirmResponseModel,
-                                  ));
-                            }
+                            // final result = await Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //       builder: (context) => CallSample(
+                            //             host: '121.242.73.119',
+                            //             doctorsHPRAdd: doctorHPRAdd,
+                            //           )),
+                            // );
+                            // log("$result");
+                            // if (result != null && result == true) {
+                            //   Get.to(() => ConsultationCompletedPage(
+                            //         bookingConfirmResponseModel:
+                            //             _bookingConfirmResponseModel,
+                            //       ));
+                            // }
                           }
                         },
                       )
@@ -862,32 +785,109 @@ class _AppointmentStatusConfirmPageState
                     : Container(),
                 showDoctorActionView(
                     assetImage: 'assets/images/Chat.png',
-                    color: AppColors
-                        .appointmentConfirmDoctorActionsEnabledTextColor,
+                    color: AppColors.appointmentConfirmDoctorActionsTextColor,
                     actionText: AppStrings().startChat,
-                    onTap: () {
-                      // Get.to(() => ChatPage(
-                      //       doctorHprId: hprId.trim(),
-                      //       patientAbhaId: userAbhaAddress,
-                      //       doctorName: doctorName,
-                      //       doctorGender: gender,
-                      //       providerUri: _bookingConfirmResponseModel!
-                      //           .context!.providerUrl,
-                      //     ));
-                      Get.toNamed(AppRoutes.chatPage,
-                          arguments: <String, dynamic>{
-                            'doctorHprId': hprId.trim(),
-                            'patientAbhaId': userAbhaAddress,
-                            'doctorName': doctorName,
-                            'doctorGender': gender,
-                            'providerUri': _bookingConfirmResponseModel!
-                                .context!.providerUrl,
-                            'allowSendMessage': true,
-                          });
-                    }),
+                    onTap: () {}),
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  buildDoctorTile(BookingConfirmResponseModel confirmResponseModel) {
+    String doctorName;
+    String appointmentDate;
+    String appointmentStartTime;
+    String appointmentEndTime;
+    String appointmentTime;
+    String doctorEducation;
+    String doctorHPRAdd;
+    var tmpDate;
+    String gender = "";
+
+    doctorName =
+        confirmResponseModel.message?.order?.fulfillment?.agent?.name ?? "";
+    doctorName = doctorName != "" ? (doctorName.split("-")[1].trim()) : "";
+    gender =
+        confirmResponseModel.message?.order?.fulfillment?.agent?.gender ?? "";
+    doctorHPRAdd =
+        confirmResponseModel.message?.order?.fulfillment?.agent?.id ?? "";
+    tmpDate = confirmResponseModel
+            .message?.order?.fulfillment?.start?.time?.timestamp ??
+        DateTime.now().toString();
+    appointmentDate = DateFormat("dd MMM y").format(DateTime.parse(tmpDate));
+    appointmentStartTime =
+        DateFormat("hh:mm a").format(DateTime.parse(tmpDate));
+    tmpDate = confirmResponseModel
+            .message?.order?.fulfillment?.end?.time?.timestamp ??
+        DateTime.now().toString();
+    appointmentEndTime = DateFormat("hh:mm a").format(DateTime.parse(tmpDate));
+    appointmentTime = appointmentStartTime + "-" + appointmentEndTime;
+    doctorEducation = confirmResponseModel
+            .message?.order?.fulfillment?.agent?.tags?.education ??
+        "";
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 16, top: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      width: width * 0.2,
+                      height: width * 0.2,
+                      margin: EdgeInsets.only(top: 12),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        image: DecorationImage(
+                            image: Image.network(gender == "M"
+                                    ? AppStrings().maleDoctorImage
+                                    : AppStrings().femaleDoctorImage)
+                                .image),
+                      ),
+                    ),
+                    Spacing(size: 16),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          // 'Dr. Sana Bhatt',
+                          doctorName,
+                          style: AppTextStyle.appointmentConfirmedBoldTextStyle(
+                              color: AppColors.doctorNameColor),
+                        ),
+                        Text(
+                          doctorHPRAdd,
+                          style: AppTextStyle.textBoldStyle(
+                              color: AppColors.doctorNameColor, fontSize: 12),
+                        ),
+                        Text(
+                          // 'MBBS/MS Cardiology',
+                          doctorEducation,
+                          style:
+                              AppTextStyle.appointmentConfirmedLightTextStyle(
+                                  color: AppColors.doctorNameColor),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              // IconButton(
+              //   onPressed: () {},
+              //   icon: const Icon(Icons.more_horiz_rounded,
+              //       color: AppColors.doctorExperienceColor),
+              // ),
+            ],
+          ),
+          Spacing(isWidth: false, size: 10),
         ],
       ),
     );

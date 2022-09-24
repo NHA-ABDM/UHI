@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer' as developer;
 import 'dart:io';
@@ -29,6 +30,7 @@ import 'package:uhi_flutter_app/services/src/stomp_socket_connection.dart';
 import 'package:uhi_flutter_app/utils/src/loading_indicator.dart';
 import 'package:uhi_flutter_app/utils/src/shared_preferences.dart';
 import 'package:uhi_flutter_app/view/appointment/src/appointment_status_confirm_page.dart';
+import 'package:uhi_flutter_app/view/group-consultation/src/multiple_doctor_appointment_status_page.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../theme/src/app_colors.dart';
@@ -36,29 +38,32 @@ import '../../../theme/src/app_text_style.dart';
 import '../../../widgets/src/spacing.dart';
 import 'package:upi_pay/upi_pay.dart';
 
-class PaymentPage extends StatefulWidget {
+class MultipleDoctorPaymentPage extends StatefulWidget {
   String? teleconsultationFees;
   String? doctorsUPIaddress;
-  BookingOnInitResponseModel? bookingOnInitResponseModel;
+  BookingOnInitResponseModel docOneInitResponse;
+  BookingOnInitResponseModel docTwoInitResponse;
   String consultationType;
   String? doctorImage;
 
   // BookingConfirmResponseModel? bookingConfirmResponseModel;
-  PaymentPage({
+  MultipleDoctorPaymentPage({
     Key? key,
     this.teleconsultationFees,
     this.doctorsUPIaddress,
-    this.bookingOnInitResponseModel,
+    required this.docOneInitResponse,
+    required this.docTwoInitResponse,
     required this.consultationType,
     this.doctorImage,
     // this.bookingConfirmResponseModel,
   }) : super(key: key);
 
   @override
-  State<PaymentPage> createState() => _PaymentPageState();
+  State<MultipleDoctorPaymentPage> createState() =>
+      _MultipleDoctorPaymentPageState();
 }
 
-class _PaymentPageState extends State<PaymentPage> {
+class _MultipleDoctorPaymentPageState extends State<MultipleDoctorPaymentPage> {
   List<ApplicationMeta>? _apps;
   String? _upiAddrError;
   // ApplicationMeta? applicationMeta;
@@ -66,10 +71,15 @@ class _PaymentPageState extends State<PaymentPage> {
   int messageQueueNum = 0;
   StompClient? stompClient;
   String? abhaAddress;
-  BookingOnInitResponseModel? _bookingOnInitResponseModel;
+  // BookingOnInitResponseModel? _bookingOnInitResponseModel;
+  BookingOnInitResponseModel? _docOneInitResponse;
+  BookingOnInitResponseModel? _docTwoInitResponse;
+
   final _postBookingDetailsController = Get.put(PostBookingDetailsController());
 
   BookingConfirmResponseModel? _confirmResponse;
+  BookingConfirmResponseModel? _docOneConfirmResponse;
+  BookingConfirmResponseModel? _docTwoConfirmResponse;
   StompSocketConnection stompSocketConnection = StompSocketConnection();
   bool isLoadingIndicator = false;
   bool isBtnPressed = false;
@@ -82,11 +92,14 @@ class _PaymentPageState extends State<PaymentPage> {
   final encryptionAlgorithm = X25519();
 
   UpiTransactionResponse? _upiTransactionResponse;
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    _bookingOnInitResponseModel = widget.bookingOnInitResponseModel;
+    // _bookingOnInitResponseModel = widget.bookingOnInitResponseModel;
+    _docOneInitResponse = widget.docOneInitResponse;
+    _docTwoInitResponse = widget.docTwoInitResponse;
     SharedPreferencesHelper.getABhaAddress().then((value) => setState(() {
           setState(() {
             debugPrint("Printing the shared preference abhaAddress : $value");
@@ -115,74 +128,142 @@ class _PaymentPageState extends State<PaymentPage> {
     super.dispose();
   }
 
-  getConfirmResponse() async {
+  getResponseOfMultipleDoctors() async {
+    BookingConfirmResponseModel? firstConfirmResponse;
+    BookingConfirmResponseModel? secondConfirmResponse;
+
+    firstConfirmResponse = await getFirstDoctorConfirmResponse();
+    await Future.delayed(Duration(seconds: 1));
+    secondConfirmResponse = await getSecondDoctorConfirmResponse();
+
+    developer.log("${jsonEncode(firstConfirmResponse)}",
+        name: "DOC ONE ON CONFIRM");
+    developer.log("${jsonEncode(secondConfirmResponse)}",
+        name: "DOC TWO ON CONFIRM");
+
+    if (firstConfirmResponse != null && secondConfirmResponse != null) {
+      _docOneConfirmResponse = firstConfirmResponse;
+      _docTwoConfirmResponse = secondConfirmResponse;
+      if ((firstConfirmResponse.message?.order?.state == "FAILED" &&
+              secondConfirmResponse.message?.order?.state == "FAILED") ||
+          firstConfirmResponse.message?.order?.state == "FAILED" ||
+          secondConfirmResponse.message?.order?.state == "FAILED") {
+        DialogHelper.showErrorDialog(
+            title: AppStrings().failureString,
+            description: AppStrings().bookingFailedMsg);
+        setState(() {
+          _docOneConfirmResponse == null;
+          _docTwoConfirmResponse == null;
+          isLoadingIndicator = false;
+          isBtnPressed = false;
+        });
+        stompSocketConnection.disconnect();
+      } else if (firstConfirmResponse.message?.order?.state == "CONFIRMED" &&
+          secondConfirmResponse.message?.order?.state == "CONFIRMED") {
+        Get.to(() => MultipleDoctorAppointmentStatusPage(
+              // bookingConfirmResponseModel: _confirmResponse,
+              docOneConfirmResponse: firstConfirmResponse,
+              docTwoConfirmResponse: secondConfirmResponse,
+              consultationType: _consultationType,
+              navigateToHomeAndRefresh: true,
+              doctorImage: _doctorImage,
+            ));
+        setState(() {
+          isLoadingIndicator = false;
+          isBtnPressed = false;
+        });
+      }
+    } else if (isBtnPressed) {
+      DialogHelper.showErrorDialog(
+          title: AppStrings().errorString,
+          description: AppStrings().somethingWentWrongErrorMsg);
+      setState(() {
+        isLoadingIndicator = false;
+        isBtnPressed = false;
+      });
+    }
+  }
+
+  Future<BookingConfirmResponseModel?> getFirstDoctorConfirmResponse() async {
     BookingConfirmResponseModel? bookingConfirmResponseModel;
     _uniqueId = const Uuid().v1();
 
-    stompSocketConnection.connect(uniqueId: _uniqueId, api: postConfirmAPI);
+    _timer =
+        await Timer.periodic(Duration(milliseconds: 100), (timer) async {});
+
+    stompSocketConnection.connect(
+        uniqueId: _uniqueId, api: postConfirmAPIForDocOne);
     stompSocketConnection.onResponse = (response) {
       if (response == null) {
-        if (isBtnPressed) {
-          DialogHelper.showErrorDialog(
-              title: AppStrings().errorString,
-              description: AppStrings().somethingWentWrongErrorMsg);
-          setState(() {
-            isLoadingIndicator = false;
-            isBtnPressed = false;
-          });
-          stompSocketConnection.disconnect();
-        }
+        // if (isBtnPressed) {
+        //   DialogHelper.showErrorDialog(
+        //       title: AppStrings().errorString,
+        //       description: AppStrings().somethingWentWrongErrorMsg);
+        //   setState(() {
+        //     isLoadingIndicator = false;
+        //     isBtnPressed = false;
+        //   });
+        //   stompSocketConnection.disconnect();
+        // }
+        _timer?.cancel();
       } else {
-        developer.log("${json.encode(response)}");
-
         bookingConfirmResponseModel = BookingConfirmResponseModel.fromJson(
             json.decode(response.response!));
-        developer.log("${json.encode(bookingConfirmResponseModel)}");
-        if (bookingConfirmResponseModel != null) {
-          _confirmResponse = bookingConfirmResponseModel;
-          // developer.log("${_confirmResponse?.message?.order?.state}");
-          if (_confirmResponse?.message?.order?.state == "FAILED") {
-            DialogHelper.showErrorDialog(
-                title: AppStrings().failureString,
-                description: AppStrings().bookingFailedMsg);
-            setState(() {
-              _confirmResponse == null;
-              isLoadingIndicator = false;
-              isBtnPressed = false;
-            });
-            stompSocketConnection.disconnect();
-          } else if (_confirmResponse?.message?.order?.state == "CONFIRMED") {
-            Get.to(() => AppointmentStatusConfirmPage(
-                  bookingConfirmResponseModel: _confirmResponse,
-                  consultationType: _consultationType,
-                  navigateToHomeAndRefresh: true,
-                  doctorImage: _doctorImage,
-                ));
-            setState(() {
-              isLoadingIndicator = false;
-              isBtnPressed = false;
-            });
-            stompSocketConnection.disconnect();
-          }
-        } else if (isBtnPressed) {
-          DialogHelper.showErrorDialog(
-              title: AppStrings().errorString,
-              description: AppStrings().somethingWentWrongErrorMsg);
-          setState(() {
-            isLoadingIndicator = false;
-            isBtnPressed = false;
-          });
-          stompSocketConnection.disconnect();
-        }
+        _timer?.cancel();
       }
     };
+
+    while (_timer!.isActive) {
+      // log("${_timer?.tick}");
+      await Future.delayed(Duration(milliseconds: 100));
+    }
+
+    stompSocketConnection.disconnect();
+
+    return bookingConfirmResponseModel;
+  }
+
+  Future<BookingConfirmResponseModel?> getSecondDoctorConfirmResponse() async {
+    BookingConfirmResponseModel? bookingConfirmResponseModel;
+    _uniqueId = const Uuid().v1();
+    _timer =
+        await Timer.periodic(Duration(milliseconds: 100), (timer) async {});
+
+    stompSocketConnection.connect(
+        uniqueId: _uniqueId, api: postConfirmAPIForDocTwo);
+    stompSocketConnection.onResponse = (response) {
+      if (response == null) {
+        // if (isBtnPressed) {
+        //   DialogHelper.showErrorDialog(
+        //       title: AppStrings().errorString,
+        //       description: AppStrings().somethingWentWrongErrorMsg);
+        //   setState(() {
+        //     isLoadingIndicator = false;
+        //     isBtnPressed = false;
+        //   });
+        //   stompSocketConnection.disconnect();
+        // }
+        _timer?.cancel();
+      } else {
+        bookingConfirmResponseModel = BookingConfirmResponseModel.fromJson(
+            json.decode(response.response!));
+        _timer?.cancel();
+      }
+    };
+
+    while (_timer!.isActive) {
+      // log("${_timer?.tick}");
+      await Future.delayed(Duration(milliseconds: 100));
+    }
 
     stompSocketConnection.disconnect();
 
     // await Future.delayed(Duration(milliseconds: 2000));
+    return bookingConfirmResponseModel;
   }
 
-  postConfirmAPI() async {
+  ///CONFIRM API DOC ONE
+  postConfirmAPIForDocOne() async {
     String? userData;
 
     // Get a public key for our peer.
@@ -221,8 +302,7 @@ class _PaymentPageState extends State<PaymentPage> {
         .toUtc()
         .toIso8601String();
     contextModel.transactionId = _uniqueId;
-    contextModel.providerUrl =
-        _bookingOnInitResponseModel?.context?.providerUrl;
+    contextModel.providerUrl = _docOneInitResponse?.context?.providerUrl;
 
     BookOnConfirmResponseModel bookOnConfirmResponseModel =
         BookOnConfirmResponseModel();
@@ -256,34 +336,30 @@ class _PaymentPageState extends State<PaymentPage> {
     Breakup breakupReg = Breakup();
     Params params = Params();
 
-    item.id = _bookingOnInitResponseModel?.message?.order?.item?.id;
+    item.id = _docOneInitResponse?.message?.order?.item?.id;
     discoveryDescriptor.name = "Consultation";
     item.descriptor = discoveryDescriptor;
-    item.fulfillmentId = _bookingOnInitResponseModel
+    item.fulfillmentId = _docOneInitResponse
         ?.message?.order?.fulfillment?.initTimeSlotTags?.abdmGovInSlotId;
     priceFee.currency =
-        _bookingOnInitResponseModel?.message?.order?.item?.price?.currency;
-    priceFee.value =
-        _bookingOnInitResponseModel?.message?.order?.item?.price?.value;
+        _docOneInitResponse?.message?.order?.item?.price?.currency;
+    priceFee.value = _docOneInitResponse?.message?.order?.item?.price?.value;
     item.price = priceFee;
 
-    startTime.timestamp = _bookingOnInitResponseModel
+    startTime.timestamp = _docOneInitResponse
         ?.message?.order?.fulfillment?.start?.time?.timestamp;
-    endTime.timestamp = _bookingOnInitResponseModel
-        ?.message?.order?.fulfillment?.end?.time?.timestamp;
+    endTime.timestamp =
+        _docOneInitResponse?.message?.order?.fulfillment?.end?.time?.timestamp;
     start.time = startTime;
     end.time = endTime;
 
     fulfillment.start = start;
     fulfillment.end = end;
-    fulfillment.agent =
-        _bookingOnInitResponseModel?.message?.order?.fulfillment?.agent;
-    fulfillment.type =
-        _bookingOnInitResponseModel?.message?.order?.fulfillment?.type;
-    fulfillment.id =
-        _bookingOnInitResponseModel?.message?.order?.fulfillment?.id;
+    fulfillment.agent = _docOneInitResponse?.message?.order?.fulfillment?.agent;
+    fulfillment.type = _docOneInitResponse?.message?.order?.fulfillment?.type;
+    fulfillment.id = _docOneInitResponse?.message?.order?.fulfillment?.id;
 
-    initTimeSlotTags.abdmGovInSlotId = _bookingOnInitResponseModel
+    initTimeSlotTags.abdmGovInSlotId = _docOneInitResponse
         ?.message?.order?.fulfillment?.initTimeSlotTags?.abdmGovInSlotId;
     initTimeSlotTags.patientKey = "${_publicKey}";
     fulfillment.initTimeSlotTags = initTimeSlotTags;
@@ -322,20 +398,17 @@ class _PaymentPageState extends State<PaymentPage> {
     priceReg.value = "0";
     breakupReg.price = priceReg;
 
-    price.currency =
-        _bookingOnInitResponseModel?.message?.order?.item?.price?.currency;
-    price.value =
-        _bookingOnInitResponseModel?.message?.order?.item?.price?.value;
+    price.currency = _docOneInitResponse?.message?.order?.item?.price?.currency;
+    price.value = _docOneInitResponse?.message?.order?.item?.price?.value;
 
     quote.price = price;
     quote.breakup = [breakupPrice, breakupCGST, breakupSGST, breakupReg];
 
     // params.amount = "1500";
-    params.amount =
-        _bookingOnInitResponseModel?.message?.order?.item?.price?.value;
+    params.amount = _docOneInitResponse?.message?.order?.item?.price?.value;
     params.mode = "UPI";
-    params.vpa = _bookingOnInitResponseModel
-        ?.message?.order?.fulfillment?.agent?.tags?.upiId;
+    params.vpa =
+        _docOneInitResponse?.message?.order?.fulfillment?.agent?.tags?.upiId;
     params.transactionId = _upiTransactionResponse?.txnId ?? "";
     payment.uri =
         "https://api.bpp.com/pay?amt=1500&txn_id=ksh87yriuro34iyr3p4&mode=upi&vpa=sana.bhatt@upi";
@@ -360,7 +433,186 @@ class _PaymentPageState extends State<PaymentPage> {
     bookOnConfirmResponseModel.context = contextModel;
     bookOnConfirmResponseModel.message = message;
 
-    developer.log("==> ${jsonEncode(bookOnConfirmResponseModel)}");
+    developer.log("${jsonEncode(bookOnConfirmResponseModel)}",
+        name: "DOC ONE CONFIRM MODEL");
+
+    await _postBookingDetailsController.postConfirmBookingDetails(
+        bookOnConfirmResponseModel: bookOnConfirmResponseModel);
+  }
+
+  ///CONFIRM API DOC TWO
+  postConfirmAPIForDocTwo() async {
+    String? userData;
+
+    // Get a public key for our peer.
+    // final remoteKeyPair = await encryptionAlgorithm.newKeyPair();
+    // final remotePublicKey = await remoteKeyPair.extractPublicKey();
+
+    // developer.log("$remotePublicKey", name: "PUBLIC KEY");
+
+    await SharedPreferencesHelper.getUserData().then((value) => setState(() {
+          setState(() {
+            debugPrint("Printing the shared preference userData : $value");
+            userData = value;
+          });
+        }));
+
+    GetUserDetailsResponse? getUserDetailsResponseModel =
+        GetUserDetailsResponse.fromJson(jsonDecode(userData!));
+
+    final prefs = await SharedPreferences.getInstance();
+    String? orderId = await prefs.getString(AppStrings().bookingOrderIdTwo);
+
+    developer.log("$orderId", name: "ORDER ID");
+
+    ContextModel contextModel = ContextModel();
+    contextModel.domain = "nic2004:85111";
+    contextModel.city = "std:080";
+    contextModel.country = "IND";
+    contextModel.action = "confirm";
+    contextModel.coreVersion = "0.7.1";
+    contextModel.messageId = _uniqueId;
+    contextModel.consumerId = "eua-nha";
+    contextModel.consumerUri = "http://100.65.158.41:8901/api/v1/euaService";
+    contextModel.timestamp = DateTime.now()
+        .add(Duration(days: 4))
+        .toLocal()
+        .toUtc()
+        .toIso8601String();
+    contextModel.transactionId = _uniqueId;
+    contextModel.providerUrl = _docTwoInitResponse?.context?.providerUrl;
+
+    BookOnConfirmResponseModel bookOnConfirmResponseModel =
+        BookOnConfirmResponseModel();
+    BookOnConfirmResponseMessage message = BookOnConfirmResponseMessage();
+    BookingConfirmResponseOrder bookingConfirmResponseOrder =
+        BookingConfirmResponseOrder();
+
+    DiscoveryItems item = DiscoveryItems();
+    DiscoveryDescriptor discoveryDescriptor = DiscoveryDescriptor();
+    DiscoveryPrice priceFee = DiscoveryPrice();
+    DiscoveryPrice priceCGST = DiscoveryPrice();
+    DiscoveryPrice priceSGST = DiscoveryPrice();
+    DiscoveryPrice priceReg = DiscoveryPrice();
+    DiscoveryPrice price = DiscoveryPrice();
+
+    Fulfillment fulfillment = Fulfillment();
+    InitTimeSlotTags initTimeSlotTags = InitTimeSlotTags();
+
+    Billing? billing = Billing();
+    Quote? quote = Quote();
+    Payment? payment = Payment();
+    Start start = Start();
+    Start end = Start();
+    Time startTime = Time();
+    Time endTime = Time();
+    Customer customer = Customer();
+    Address address = Address();
+    Breakup breakupPrice = Breakup();
+    Breakup breakupSGST = Breakup();
+    Breakup breakupCGST = Breakup();
+    Breakup breakupReg = Breakup();
+    Params params = Params();
+
+    item.id = _docTwoInitResponse?.message?.order?.item?.id;
+    discoveryDescriptor.name = "Consultation";
+    item.descriptor = discoveryDescriptor;
+    item.fulfillmentId = _docTwoInitResponse
+        ?.message?.order?.fulfillment?.initTimeSlotTags?.abdmGovInSlotId;
+    priceFee.currency =
+        _docTwoInitResponse?.message?.order?.item?.price?.currency;
+    priceFee.value = _docTwoInitResponse?.message?.order?.item?.price?.value;
+    item.price = priceFee;
+
+    startTime.timestamp = _docTwoInitResponse
+        ?.message?.order?.fulfillment?.start?.time?.timestamp;
+    endTime.timestamp =
+        _docTwoInitResponse?.message?.order?.fulfillment?.end?.time?.timestamp;
+    start.time = startTime;
+    end.time = endTime;
+
+    fulfillment.start = start;
+    fulfillment.end = end;
+    fulfillment.agent = _docTwoInitResponse?.message?.order?.fulfillment?.agent;
+    fulfillment.type = _docTwoInitResponse?.message?.order?.fulfillment?.type;
+    fulfillment.id = _docTwoInitResponse?.message?.order?.fulfillment?.id;
+
+    initTimeSlotTags.abdmGovInSlotId = _docTwoInitResponse
+        ?.message?.order?.fulfillment?.initTimeSlotTags?.abdmGovInSlotId;
+    initTimeSlotTags.patientKey = "${_publicKey}";
+    fulfillment.initTimeSlotTags = initTimeSlotTags;
+
+    customer.id = "";
+    // customer.cred = "vi.s@sbx";
+    customer.cred = abhaAddress;
+
+    billing.name = getUserDetailsResponseModel.fullName;
+    billing.email = getUserDetailsResponseModel.email;
+    billing.phone = getUserDetailsResponseModel.mobile;
+    address.door = "";
+    address.name = getUserDetailsResponseModel.address;
+    address.locality = "";
+    address.city = getUserDetailsResponseModel.districtName;
+    address.state = getUserDetailsResponseModel.stateName;
+    address.country = getUserDetailsResponseModel.countryName;
+    address.areaCode = getUserDetailsResponseModel.pincode;
+    billing.address = address;
+
+    breakupPrice.title = "Consultation";
+    breakupPrice.price = priceFee;
+
+    breakupCGST.title = "CGST @ 5%";
+    priceCGST.currency = "INR";
+    priceCGST.value = "0";
+    breakupCGST.price = priceCGST;
+
+    breakupSGST.title = "SGST @ 5%";
+    priceSGST.currency = "INR";
+    priceSGST.value = "0";
+    breakupSGST.price = priceSGST;
+
+    breakupReg.title = "Registration";
+    priceReg.currency = "INR";
+    priceReg.value = "0";
+    breakupReg.price = priceReg;
+
+    price.currency = _docTwoInitResponse?.message?.order?.item?.price?.currency;
+    price.value = _docTwoInitResponse?.message?.order?.item?.price?.value;
+
+    quote.price = price;
+    quote.breakup = [breakupPrice, breakupCGST, breakupSGST, breakupReg];
+
+    // params.amount = "1500";
+    params.amount = _docTwoInitResponse?.message?.order?.item?.price?.value;
+    params.mode = "UPI";
+    params.vpa =
+        _docTwoInitResponse?.message?.order?.fulfillment?.agent?.tags?.upiId;
+    params.transactionId = _upiTransactionResponse?.txnId ?? "";
+    payment.uri =
+        "https://api.bpp.com/pay?amt=1500&txn_id=ksh87yriuro34iyr3p4&mode=upi&vpa=sana.bhatt@upi";
+    payment.tlMethod = "http/get";
+    payment.status =
+        _upiTransactionResponse?.status == UpiTransactionStatus.success
+            ? "PAID"
+            : "PAID";
+    payment.type = "ON-ORDER";
+    payment.params = params;
+
+    bookingConfirmResponseOrder.id = orderId;
+    bookingConfirmResponseOrder.fulfillment = fulfillment;
+    bookingConfirmResponseOrder.item = item;
+    bookingConfirmResponseOrder.customer = customer;
+    bookingConfirmResponseOrder.billing = billing;
+    bookingConfirmResponseOrder.payment = payment;
+    bookingConfirmResponseOrder.quote = quote;
+
+    message.order = bookingConfirmResponseOrder;
+
+    bookOnConfirmResponseModel.context = contextModel;
+    bookOnConfirmResponseModel.message = message;
+
+    developer.log("${jsonEncode(bookOnConfirmResponseModel)}",
+        name: "DOC TWO CONFIRM MODEL");
 
     await _postBookingDetailsController.postConfirmBookingDetails(
         bookOnConfirmResponseModel: bookOnConfirmResponseModel);
@@ -503,7 +755,7 @@ class _PaymentPageState extends State<PaymentPage> {
                                     isLoadingIndicator = true;
                                     isBtnPressed = true;
                                   });
-                                  await getConfirmResponse();
+                                  await getResponseOfMultipleDoctors();
 
                                   // if (_confirmResponse != null) {
                                   //   Get.to(() => AppointmentStatusConfirmPage(
@@ -538,7 +790,7 @@ class _PaymentPageState extends State<PaymentPage> {
                               ? CommonLoadingIndicator(
                                   size: 6, color: Colors.white)
                               : Text(
-                                  widget.teleconsultationFees!,
+                                  "₹ " + widget.teleconsultationFees!,
                                   style: AppTextStyle.textBoldStyle(
                                       fontSize: 18, color: AppColors.white),
                                 ),
@@ -584,7 +836,7 @@ class _PaymentPageState extends State<PaymentPage> {
       app: applicationMeta.upiApplication,
       receiverName: 'UHI',
       //receiverUpiAddress: widget.doctorsUPIaddress!,
-      receiverUpiAddress: _bookingOnInitResponseModel
+      receiverUpiAddress: _docOneInitResponse
               ?.message?.order?.fulfillment?.agent?.tags?.upiId ??
           "",
       transactionRef: transactionRef,

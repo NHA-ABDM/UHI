@@ -170,7 +170,7 @@ class _DiscoveryResultsPageState extends State<AppointmentDetailsPage> {
     _orderId = const Uuid().v1();
 
     final prefs = await SharedPreferences.getInstance();
-    prefs.setString(AppStrings().bookingOrderId, _orderId!);
+    prefs.setString(AppStrings().bookingOrderIdOne, _orderId!);
 
     ContextModel contextModel = ContextModel();
     contextModel.domain = "nic2004:85111";
@@ -388,7 +388,7 @@ class _DiscoveryResultsPageState extends State<AppointmentDetailsPage> {
   buildWidgets(Object? data) {
     _initResponse = data as BookingOnInitResponseModel;
 
-    _appointmentDateAndTime = DateFormat("EE MMMM dd y, hh:mm a").format(
+    _appointmentDateAndTime = DateFormat("EE, MMMM dd y, hh:mm a").format(
         DateTime.parse(_initResponse!
             .message!.order!.fulfillment!.start!.time!.timestamp!));
     // log("$_appointmentDateAndTime", name: "DATE AND TIME");

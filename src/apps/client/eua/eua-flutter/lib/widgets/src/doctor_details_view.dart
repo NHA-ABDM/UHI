@@ -117,11 +117,22 @@ class _DoctorDetailsViewState extends State<DoctorDetailsView> {
                   ),
                   Row(
                     children: [
-                      Text(
-                        education ?? "-",
-                        style: AppTextStyle.textLightStyle(
-                            color: AppColors.doctorNameColor, fontSize: 14),
+                      Container(
+                        //width: MediaQuery.of(context).size.width * 0.48,
+                        constraints: BoxConstraints(
+                            maxWidth: MediaQuery.of(context).size.width * 0.48,
+                            minWidth: 10),
+                        child: Text(
+                          education ?? "-",
+                          style: AppTextStyle.textLightStyle(
+                              color: AppColors.doctorNameColor, fontSize: 14),
+                        ),
                       ),
+                      // Text(
+                      //   education ?? "-",
+                      //   style: AppTextStyle.textLightStyle(
+                      //       color: AppColors.doctorNameColor, fontSize: 14),
+                      // ),
                       const SizedBox(
                         width: 10,
                       ),
@@ -142,11 +153,16 @@ class _DoctorDetailsViewState extends State<DoctorDetailsView> {
                   ),
                   Row(
                     children: [
-                      Text(
-                        specialty ?? "-",
-                        style: AppTextStyle.textNormalStyle(
-                            color: AppColors.doctorExperienceColor,
-                            fontSize: 10),
+                      Container(
+                        constraints: BoxConstraints(
+                            maxWidth: MediaQuery.of(context).size.width * 0.48,
+                            minWidth: 10),
+                        child: Text(
+                          specialty ?? "-",
+                          style: AppTextStyle.textNormalStyle(
+                              color: AppColors.doctorExperienceColor,
+                              fontSize: 10),
+                        ),
                       ),
                       const SizedBox(
                         width: 10,
@@ -174,10 +190,13 @@ class _DoctorDetailsViewState extends State<DoctorDetailsView> {
                   const SizedBox(
                     height: 10,
                   ),
-                  Text(
-                    languageSpoken ?? "-",
-                    style: AppTextStyle.textLightStyle(
-                        color: AppColors.infoIconColor, fontSize: 12),
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.56,
+                    child: Text(
+                      languageSpoken ?? "-",
+                      style: AppTextStyle.textLightStyle(
+                          color: AppColors.infoIconColor, fontSize: 12),
+                    ),
                   ),
                   const SizedBox(
                     height: 5,

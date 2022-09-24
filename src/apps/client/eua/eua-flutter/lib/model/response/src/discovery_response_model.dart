@@ -433,18 +433,25 @@ class Tags {
   String? upiId;
   String? slotId;
   String? hprId;
+  String? abdmGovInGroupConsultation;
+  String? abdmGovInPrimaryDoctor;
+  String? abdmGovInSecondaryDoctor;
 
-  Tags(
-      {this.experience,
-      this.specialtyTag,
-      this.medicinesTag,
-      this.followUp,
-      this.languageSpokenTag,
-      this.education,
-      this.firstConsultation,
-      this.upiId,
-      this.slotId,
-      this.hprId});
+  Tags({
+    this.experience,
+    this.specialtyTag,
+    this.medicinesTag,
+    this.followUp,
+    this.languageSpokenTag,
+    this.education,
+    this.firstConsultation,
+    this.upiId,
+    this.slotId,
+    this.hprId,
+    this.abdmGovInGroupConsultation,
+    this.abdmGovInPrimaryDoctor,
+    this.abdmGovInSecondaryDoctor,
+  });
 
   Tags.fromJson(Map<String, dynamic> json) {
     if (json['@abdm/gov/in/education'] != null) {
@@ -484,6 +491,18 @@ class Tags {
     if (json['@abdm/gov/in/hpr_id'] != null) {
       hprId = json['@abdm/gov/in/hpr_id'];
     }
+
+    if (json['@abdm/gov.in/groupConsultation'] != null) {
+      abdmGovInGroupConsultation = json['@abdm/gov.in/groupConsultation'];
+    }
+
+    if (json['@abdm/gov.in/primaryDoctor'] != null) {
+      abdmGovInPrimaryDoctor = json['@abdm/gov.in/primaryDoctor'];
+    }
+
+    if (json['@abdm/gov.in/secondaryDoctor'] != null) {
+      abdmGovInSecondaryDoctor = json['@abdm/gov.in/secondaryDoctor'];
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -522,6 +541,18 @@ class Tags {
 
     if (this.hprId != null) {
       data['@abdm/gov/in/hpr_id'] = this.hprId;
+    }
+
+    if (this.abdmGovInGroupConsultation != null) {
+      data['@abdm/gov.in/groupConsultation'] = this.abdmGovInGroupConsultation;
+    }
+
+    if (this.abdmGovInPrimaryDoctor != null) {
+      data['@abdm/gov.in/primaryDoctor'] = this.abdmGovInPrimaryDoctor;
+    }
+
+    if (this.abdmGovInSecondaryDoctor != null) {
+      data['@abdm/gov.in/secondaryDoctor'] = this.abdmGovInSecondaryDoctor;
     }
 
     return data;

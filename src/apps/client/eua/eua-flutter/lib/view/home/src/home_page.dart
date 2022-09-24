@@ -25,6 +25,7 @@ import 'package:uhi_flutter_app/observer/home_page_obsevable.dart';
 import 'package:uhi_flutter_app/theme/src/app_colors.dart';
 import 'package:uhi_flutter_app/theme/src/app_text_style.dart';
 import 'package:uhi_flutter_app/utils/src/shared_preferences.dart';
+import 'package:uhi_flutter_app/view/group-consultation/src/book_group_teleconsultation_page.dart';
 import 'package:uhi_flutter_app/view/view.dart';
 import 'package:uhi_flutter_app/widgets/src/spacing.dart';
 
@@ -389,9 +390,6 @@ class _DiscoverServicesPageState extends State<HomePage>
           i++) {
         if (homeScreenController.upcomingAppointmentResponseModal[i]!
             .serviceFulfillmentStartTime!.isNotEmpty) {
-          String startDate = homeScreenController
-              .upcomingAppointmentResponseModal[i]!
-              .serviceFulfillmentStartTime!;
           String endDate = homeScreenController
               .upcomingAppointmentResponseModal[i]!.serviceFulfillmentEndTime!;
           var now = new DateTime.now();
@@ -399,7 +397,6 @@ class _DiscoverServicesPageState extends State<HomePage>
           String formattedDate = formatter.format(now);
           DateTime currentDate =
               DateFormat("y-MM-ddTHH:mm").parse(formattedDate);
-          DateTime tempStartDate = DateFormat("y-MM-ddTHH:mm").parse(startDate);
           DateTime tempEndDate = DateFormat("y-MM-ddTHH:mm").parse(endDate);
           int duration = currentDate.difference(tempEndDate).inMinutes;
 
@@ -875,13 +872,13 @@ class _DiscoverServicesPageState extends State<HomePage>
                           ),
                           Expanded(
                             child: dashboardGridItems(
-                              assetImage: 'assets/images/ambulance.png',
-                              actionText: AppStrings().ambulance,
+                              assetImage: 'assets/images/doctor.png',
+                              actionText: "Group Consultation",
                               onTap: () {
-                                DialogHelper.showInfoDialog(
-                                  title: AppStrings().infoString,
-                                  description: AppStrings().comingSoon,
-                                );
+                                Get.to(() => BookGroupTeleconsultationPage(
+                                      consultationType:
+                                          DataStrings.teleconsultation,
+                                    ));
                               },
                             ),
                           )
@@ -893,6 +890,18 @@ class _DiscoverServicesPageState extends State<HomePage>
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
+                          Expanded(
+                            child: dashboardGridItems(
+                              assetImage: 'assets/images/ambulance.png',
+                              actionText: AppStrings().ambulance,
+                              onTap: () {
+                                DialogHelper.showInfoDialog(
+                                  title: AppStrings().infoString,
+                                  description: AppStrings().comingSoon,
+                                );
+                              },
+                            ),
+                          ),
                           Expanded(
                             child: dashboardGridItems(
                               assetImage: 'assets/images/testing_lab.png',
@@ -917,9 +926,9 @@ class _DiscoverServicesPageState extends State<HomePage>
                               },
                             ),
                           ),
-                          Expanded(
-                            child: Container(),
-                          )
+                          // Expanded(
+                          //   child: Container(),
+                          // )
                         ],
                       ),
                     ],
@@ -1031,7 +1040,7 @@ class _DiscoverServicesPageState extends State<HomePage>
         DoctorImageModel image = DoctorImageModel.fromJson(jsonDecode(element));
 
         if (image.doctorHprAddress ==
-            upcomingAppointmentList[0]?.healthcareProfessionalId) {
+            historyAppointmentList[0]?.healthcareProfessionalId) {
           doctorImage = base64Decode(image.doctorImage ?? "");
         }
       });
@@ -1870,7 +1879,6 @@ class _DiscoverServicesPageState extends State<HomePage>
 
   @override
   void updateAppointmentData() {
-    print("AppointmentData Updated");
     getUpdatedAppointments();
   }
 }

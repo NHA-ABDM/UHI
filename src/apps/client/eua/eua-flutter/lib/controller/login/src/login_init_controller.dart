@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:uhi_flutter_app/constants/constants.dart';
 import 'package:uhi_flutter_app/controller/controller.dart';
+import 'package:uhi_flutter_app/model/request/src/login_abha_address_init_request_model.dart';
 import 'package:uhi_flutter_app/model/response/src/login_init_response_model.dart';
 import 'package:uhi_flutter_app/services/services.dart';
 import 'package:uhi_flutter_app/model/model.dart';
@@ -30,6 +31,73 @@ class LoginInitController extends GetxController with ExceptionHandler {
         .then(
       (value) {
         log("Post Login Details ${loginDetails?.value} ");
+        if (value == null) {
+        } else {
+          LoginInitResponseModel loginInitResponseModel =
+              LoginInitResponseModel.fromJson(value);
+          setLoginDetails(loginInitResponse: loginInitResponseModel);
+        }
+      },
+    ).catchError(
+      (onError) {
+        loginInitResponseModel = null;
+        log("Post Errors Details ${onError.message}");
+        errorString = "${onError.message}";
+        if (errorString != "value is marked non-null but is null") {
+          handleError(onError, isShowDialog: true, isShowSnackbar: false);
+        }
+      },
+    );
+
+    state.value = DataState.complete;
+  }
+
+  Future<void> postAbhaAddressInitAuth(
+      {LoginAbhaAddressInitRequestModel? loginDetails}) async {
+    if (loginDetails == null) {
+      state.value = DataState.loading;
+    }
+
+    await BaseClient(
+            url: RequestUrls.postAbhaAddressLoginInitAuth, body: loginDetails)
+        .post()
+        .then(
+      (value) {
+        log("Post Login Details ${loginDetails?.patientId} ");
+        if (value == null) {
+        } else {
+          LoginInitResponseModel loginInitResponseModel =
+              LoginInitResponseModel.fromJson(value);
+          setLoginDetails(loginInitResponse: loginInitResponseModel);
+        }
+      },
+    ).catchError(
+      (onError) {
+        loginInitResponseModel = null;
+        log("Post Errors Details ${onError.message}");
+        errorString = "${onError.message}";
+        if (errorString != "value is marked non-null but is null") {
+          handleError(onError, isShowDialog: true, isShowSnackbar: false);
+        }
+      },
+    );
+
+    state.value = DataState.complete;
+  }
+
+  Future<void> postAbhaAddressAuthConfirm(
+      {LoginVerifyRequestModel? loginDetails}) async {
+    if (loginDetails == null) {
+      state.value = DataState.loading;
+    }
+
+    await BaseClient(
+            url: RequestUrls.postAbhaAddressLoginAuthConfirm,
+            body: loginDetails)
+        .post()
+        .then(
+      (value) {
+        log("Post Login Details ${loginDetails?.authCode} ");
         if (value == null) {
         } else {
           LoginInitResponseModel loginInitResponseModel =
