@@ -6,6 +6,9 @@ import 'package:hspa_app/view/dashboard/src/dashboard_page.dart';
 import 'package:hspa_app/view/doctor_setup/src/days_time_selection_page.dart';
 import 'package:hspa_app/view/role/role.dart';
 import 'package:hspa_app/view/splash_screen/splashscreen.dart';
+import 'package:hspa_app/webRTC/src/video_call/group_video_call_primary.dart';
+import 'package:hspa_app/webRTC/src/video_call/group_video_call_secondary.dart';
+import 'package:hspa_app/webRTC/src/video_call/video_call.dart';
 
 import '../../utils/src/utility.dart';
 import '../../view/account_statement/src/account_statement_page.dart';
@@ -75,6 +78,9 @@ class AppRoutes {
   static const String editProfilePage = '/edit_profile_page';
   static const String profileNotFoundPage = '/profile_not_found_page';
   static const String callSample = '/call_sample';
+  static const String videoCall = '/video_call';
+  static const String groupVideoCallPrimary = '/group_video_call_primary';
+  static const String groupVideoCallSecondary = '/group_video_call_secondary';
   static const String localAuthPage = '/local_auth_page';
   static const String showSelectedMediaPage = '/show_selected_media_page';
   static const String accountStatementPage = '/account_statement_page';
@@ -250,6 +256,21 @@ appRoutes() => [
       GetPage(
         name: AppRoutes.callSample,
         page: () => const CallSample(),
+        transition: Utility.pageTransition,
+      ),
+      GetPage(
+        name: AppRoutes.videoCall,
+        page: () => const VideoCall(),
+        transition: Utility.pageTransition,
+      ),
+      GetPage(
+        name: AppRoutes.groupVideoCallPrimary,
+        page: () => const GroupVideoCallPrimary(),
+        transition: Utility.pageTransition,
+      ),
+      GetPage(
+        name: AppRoutes.groupVideoCallSecondary,
+        page: () => const GroupVideoCallSecondary(),
         transition: Utility.pageTransition,
       ),
       GetPage(
