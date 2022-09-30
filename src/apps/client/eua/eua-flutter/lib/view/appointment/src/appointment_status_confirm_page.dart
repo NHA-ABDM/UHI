@@ -70,7 +70,7 @@ class _AppointmentStatusConfirmPageState
   DateTime appointmentEndTime = DateTime.now().add(Duration(hours: 2));
   DateTime appointmentTimerEndTime = DateTime.now();
   DateTime currentTime = DateTime.now();
-  bool isAppointmentTime = false;
+  bool isAppointmentTime = true;
   Timer? _timer;
   BookingConfirmResponseModel? _bookingConfirmResponseModel;
   String? _consultationType;
@@ -112,9 +112,9 @@ class _AppointmentStatusConfirmPageState
             ?.message?.order?.fulfillment?.end?.time?.timestamp ??
         "${DateTime.now().add(Duration(minutes: 30))}");
 
-    if (appointmentTime.difference(currentTime).inMinutes <= 120) {
-      isAppointmentAvailable();
-    }
+    // if (appointmentTime.difference(currentTime).inMinutes <= 120) {
+    //   isAppointmentAvailable();
+    // }
 
     saveDoctorImage();
   }
@@ -805,14 +805,43 @@ class _AppointmentStatusConfirmPageState
                         actionText: AppStrings().videoCall,
                         onTap: () async {
                           if (isAppointmentTime) {
-                            final result = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => CallSample(
-                                        host: '121.242.73.119',
-                                        doctorsHPRAdd: doctorHPRAdd,
-                                      )),
-                            );
+                              // final result = Get.toNamed(AppRoutes.videoCallPage,
+                              //   arguments: <String, dynamic>{
+                              //     'initiator': {'address': userAbhaAddress},
+                              //     'remoteParticipant': {
+                              //       'name': doctorName,
+                              //       'gender': gender,
+                              //       'address': doctorHPRAdd,
+                              //       'uri': _bookingConfirmResponseModel!
+                              //           .context!.providerUrl,
+                              //     },
+                              //   });
+                            final result = Get.toNamed(AppRoutes.groupVideoCallPage,
+                                arguments: <String, dynamic>{
+                                  'initiator': {'address': userAbhaAddress},
+                                  'primaryDoctor': {
+                                    'name': doctorName,
+                                    'gender': gender,
+                                    'address': doctorHPRAdd,
+                                    'uri': _bookingConfirmResponseModel!
+                                        .context!.providerUrl,
+                                  },
+                                  'secondaryDoctor': {
+                                    'name': 'Amod Joshi',
+                                    'gender': 'Male',
+                                    'address': 'amodjoshi@hpr.ndhm',
+                                    'uri': 'http://100.96.9.171:8084/api/v1',
+                                  },
+                                });
+                            // final result = await Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //       builder: (context) => CallSample(
+                            //             host: '121.242.73.119',
+                            //             doctorsHPRAdd: doctorHPRAdd,
+                            //             doctorName: doctorName,
+                            //           )),
+                            // );
                             log("$result");
                             if (result != null && result == true) {
                               Get.to(() => ConsultationCompletedPage(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hspa_app/constants/constants.dart';
 import 'package:hspa_app/constants/src/get_pages.dart';
 import 'package:hspa_app/widgets/src/vertical_spacing.dart';
 
@@ -171,7 +172,7 @@ class AppointmentsView extends StatelessWidget {
                                   ),
                                 if (isTeleconsultation)
                                   IconButton(
-                                    onPressed: () {
+                                    onPressed: () async {
                                       /*Get.to(() => CallSample(host: '34.224.99.221'),
                                 transition: Utility.pageTransition,);*/
                                       /*Get.to(
@@ -179,7 +180,88 @@ class AppointmentsView extends StatelessWidget {
                                             host: '121.242.73.119'),
                                         transition: Utility.pageTransition,
                                       );*/
-                                      Get.toNamed(AppRoutes.callSample, arguments: {'host': '121.242.73.119'});
+                                      DoctorProfile? doctorProfile =
+                                          await DoctorProfile.getSavedProfile();
+                                      String? doctorHprId =
+                                          doctorProfile?.hprAddress;
+                                      String? patientABHAId =
+                                          providerAppointment
+                                              .patient?.abhaAddress;
+                                      String? patientName = providerAppointment
+                                          .patient?.person?.display;
+                                      String? patientGender =
+                                          providerAppointment
+                                              .patient?.person?.gender;
+                                      // Get.toNamed(AppRoutes.videoCall,
+                                      //     arguments: {
+                                      //       'initiator': {
+                                      //         'address': doctorHprId
+                                      //       },
+                                      //       'remoteParticipant': {
+                                      //         'name': 'Airesh Bhat',
+                                      //         'gender': 'Male',
+                                      //         'address': 'aireshbhat9@sbx',
+                                      //         'uri': RequestUrls.consumerUri,
+                                      //       }
+                                      //       // 'remoteParticipant': {
+                                      //       //   'name': patientName,
+                                      //       //   'gender': patientGender,
+                                      //       //   'address': patientABHAId,
+                                      //       //   'uri': RequestUrls.consumerUri,
+                                      //       // }
+                                      //     });
+                                      Get.toNamed(AppRoutes.groupVideoCallPrimary,
+                                          arguments: {
+                                            'host': '121.242.73.119',
+                                            'initiator': {
+                                              'address': doctorHprId
+                                            },
+                                            'remotePatient': {
+                                              'name': 'Airesh Bhat',
+                                              'gender': 'Male',
+                                              'address': 'aireshbhat9@sbx',
+                                              'uri': RequestUrls.consumerUri,
+                                            },
+                                            // 'remotePatient': {
+                                            //   'name': patientName,
+                                            //   'gender': patientGender,
+                                            //   'address': patientABHAId,
+                                            //   'uri': RequestUrls.consumerUri,
+                                            // },
+                                            'remoteDoctor': {
+                                              'name': 'Amod Joshi',
+                                              'gender': 'Male',
+                                              'address': 'amodjoshi@hpr.ndhm',
+                                              'uri': 'http://100.96.9.171:8084/api/v1',
+                                            },
+                                          });
+                                      // Get.toNamed(
+                                      //     AppRoutes.groupVideoCallSecondary,
+                                      //     arguments: {
+                                      //       'host': '121.242.73.119',
+                                      //       'initiator': {
+                                      //         'address': doctorHprId
+                                      //       },
+                                      //       'remotePatient': {
+                                      //         'name': 'Airesh Bhat',
+                                      //         'gender': 'Male',
+                                      //         'address': 'aireshbhat9@sbx',
+                                      //         'uri': RequestUrls.consumerUri,
+                                      //       },
+                                      //       // 'remotePatient': {
+                                      //       //   'name': patientName,
+                                      //       //   'gender': patientGender,
+                                      //       //   'address': patientABHAId,
+                                      //       //   'uri': RequestUrls.consumerUri,
+                                      //       // },
+                                      //       'remoteDoctor': {
+                                      //         'name': 'Ganesh Borse',
+                                      //         'gender': 'Male',
+                                      //         'address': 'ganeshborse@hpr.ndhm',
+                                      //         'uri':
+                                      //             'http://100.96.9.171:8084/api/v1',
+                                      //       },
+                                      //     });
                                     },
                                     visualDensity: VisualDensity.compact,
                                     icon: Image.asset(
@@ -242,13 +324,18 @@ class AppointmentsView extends StatelessWidget {
                                 color: AppColors.infoIconColor,
                                 actionText: AppStrings().labelCancel,
                                 onTap: () async {
-                                  bool isCancelled = /*await Get.to(
+                                  bool
+                                      isCancelled = /*await Get.to(
                                       () => CancelAppointmentPage(
                                           providerAppointment:
                                               providerAppointment),
                                       transition: Utility.pageTransition);*/
-                                  await Get.toNamed(AppRoutes.cancelAppointmentPage, arguments: {'providerAppointment':
-                                  providerAppointment});
+                                      await Get.toNamed(
+                                          AppRoutes.cancelAppointmentPage,
+                                          arguments: {
+                                        'providerAppointment':
+                                            providerAppointment
+                                      });
                                   if (isCancelled) {
                                     cancelAppointment();
                                   }
