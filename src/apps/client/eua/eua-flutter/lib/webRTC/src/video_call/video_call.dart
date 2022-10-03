@@ -1,90 +1,109 @@
-import 'dart:math';
-import 'package:get/get.dart';
+/**Created by Airesh Bhat (nelliairesh@gmail.com)
+ * Date : 23-09-2022
+ * 
+ * This screen is the video calling screen between two participants in a tele consultation
+ * This implementation is done via the message/on_message communication between the two participants
+ * 
+ */
 
 import 'package:flutter/material.dart';
-import 'package:uhi_flutter_app/common/common.dart';
-import 'package:uhi_flutter_app/constants/src/strings.dart';
-import 'package:uhi_flutter_app/widgets/src/new_confirmation_dialog.dart';
-import 'dart:core';
-import '../../../theme/src/app_colors.dart';
-import '../../../theme/src/app_text_style.dart';
-import 'signaling.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:get/get.dart';
+import 'package:stomp_dart_client/stomp.dart';
+import 'package:uhi_flutter_app/constants/constants.dart';
+import 'package:uhi_flutter_app/controller/chat/chat.dart';
+import 'package:uhi_flutter_app/theme/theme.dart';
+import 'package:uhi_flutter_app/webrtc/src/video_call/video_call_signalling.dart';
 
-class CallSample extends StatefulWidget {
-  static String tag = 'call_sample';
-  final String host;
-  final String? doctorsHPRAdd;
-  String? doctorName;
+import 'package:uhi_flutter_app/widgets/src/new_confirmation_dialog.dart';
 
-  CallSample({
-    required this.host,
-    this.doctorsHPRAdd,
-    this.doctorName,
-  });
+import '../../../constants/src/strings.dart';
+import '../utils/create_stream.dart';
+
+class VideoCall extends StatefulWidget {
+  static String tag = 'video_call';
+
+  const VideoCall({Key? key}) : super(key: key);
 
   @override
-  _CallSampleState createState() => _CallSampleState();
+  VideoCallState createState() => VideoCallState();
 }
 
-class _CallSampleState extends State<CallSample> {
-  Signaling? _signaling;
-  List<dynamic> _peers = [];
-  String? _selfId;
-  String? roomId;
+class VideoCallState extends State<VideoCall> {
+  late final Map initiator;
+  late final Map remoteParticipant;
+
+  bool inCalling = false;
+  bool waitAccept = false;
+  bool isMute = false;
+  bool isSpeaker = true;
+
   RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
-  bool _inCalling = false;
-  Session? _session;
-  bool _waitAccept = false;
-  bool isSpeaker = true;
-  // ignore: unused_element
-  _CallSampleState();
+  VideoCallSignalling? _videoCallSignalling;
+
+  StompClient? stompClient;
+  MediaStream? _localStream;
 
   late double height, width;
 
-  bool isMute = false;
+  String? _providerUri = "";
+  String? _doctorHprId = "";
+  String? _patientAbhaId = "";
+  String? _doctorName = "";
+  String? _doctorGender = "";
 
-  ///DATA VARIABLES
-  String? _doctorName;
+  Session? _session;
 
   @override
-  initState() {
+  void initState() {
     super.initState();
-    initRenderers();
+
+    initiator = Get.arguments['initiator'];
+    remoteParticipant = Get.arguments['remoteParticipant'];
+    _doctorHprId = remoteParticipant['address'];
+    _patientAbhaId = initiator['address'];
+    _doctorName = remoteParticipant['name'];
+    _doctorGender = remoteParticipant['gender'];
+    _providerUri = remoteParticipant['uri'];
+    //_providerUri = "http://hspasbx.abdm.gov.in";
+
+    startVideoCall();
+  }
+
+  startVideoCall() async {
+    await initRenderers();
     _connect();
-    Wakelock.enable();
-    _doctorName = widget.doctorName ?? "doctor";
   }
 
   initRenderers() async {
     await _localRenderer.initialize();
     await _remoteRenderer.initialize();
+    _localStream = await createStream('video', false);
   }
 
   @override
-  deactivate() {
+  deactivate() async {
     super.deactivate();
-    _signaling?.close();
     _localRenderer.dispose();
     _remoteRenderer.dispose();
-    Wakelock.disable();
+    _videoCallSignalling?.disconnect();
   }
 
-  void _connect() async {
-    _signaling ??= Signaling(widget.host, doctorsHPRAdd: widget.doctorsHPRAdd)
-      ..connect();
-    _signaling?.onSignalingStateChange = (SignalingState state) {
-      switch (state) {
-        case SignalingState.ConnectionClosed:
-        case SignalingState.ConnectionError:
-        case SignalingState.ConnectionOpen:
-          break;
-      }
-    };
+  void _connect() {
+    _videoCallSignalling ??= VideoCallSignalling(
+      receiversAddress: _doctorHprId!,
+      sendersAddress: _patientAbhaId!,
+      receiversGender: _doctorGender!,
+      receiversName: _doctorName!,
+      providerUri: _providerUri!,
+      chatId: '$_patientAbhaId|$_doctorHprId',
+    )..connect();
+    _videoCallSignalling?.setStream(_localStream!);
 
-    _signaling?.onCallStateChange = (Session session, CallState state) async {
+    _videoCallSignalling?.poll();
+    _videoCallSignalling?.onCallStateChange =
+        (Session session, CallState state) async {
       switch (state) {
         case CallState.CallStateNew:
           setState(() {
@@ -96,70 +115,53 @@ class _CallSampleState extends State<CallSample> {
           if (accept!) {
             _accept();
             setState(() {
-              _inCalling = true;
+              inCalling = true;
             });
           } else {
             _reject();
           }
           break;
         case CallState.CallStateBye:
-          if (_waitAccept) {
-            print('peer reject');
-            _waitAccept = false;
+          if (waitAccept) {
+            debugPrint('peer reject');
+            waitAccept = false;
             Navigator.of(context).pop(false);
           }
           setState(() {
             _localRenderer.srcObject = null;
             _remoteRenderer.srcObject = null;
-            _inCalling = false;
+            inCalling = false;
             _session = null;
           });
           break;
         case CallState.CallStateInvite:
-          _waitAccept = true;
-          _showInvateDialog();
+          waitAccept = true;
+          _showInviteDialog();
           break;
         case CallState.CallStateConnected:
-          if (_waitAccept) {
-            _waitAccept = false;
+          if (waitAccept) {
+            waitAccept = false;
             Navigator.of(context).pop(false);
           }
           setState(() {
-            _inCalling = true;
+            inCalling = true;
           });
 
           break;
-        case CallState.CallStateRinging:
       }
     };
 
-    _signaling?.onPeersUpdate = ((event) {
-      // setState(() {
-      //   _selfId = event['self'];
-      //   _peers = event['peers'];
-      // });
-      if (mounted) {
-        setState(() {
-          _selfId = event['self'];
-          _peers = event['peers'];
-          if (event.containsKey('roomId')) {
-            roomId = event['roomId'];
-          }
-        });
-      }
-    });
-
-    _signaling?.onLocalStream = ((stream) {
+    _videoCallSignalling?.onLocalStream = ((stream) {
       _localRenderer.srcObject = stream;
       setState(() {});
     });
 
-    _signaling?.onAddRemoteStream = ((_, stream) {
+    _videoCallSignalling?.onAddRemoteStream = ((_, stream) {
       _remoteRenderer.srcObject = stream;
       setState(() {});
     });
 
-    _signaling?.onRemoveRemoteStream = ((_, stream) {
+    _videoCallSignalling?.onRemoveRemoteStream = ((_, stream) {
       _remoteRenderer.srcObject = null;
       setState(() {});
     });
@@ -205,7 +207,7 @@ class _CallSampleState extends State<CallSample> {
     );
   }
 
-  Future<bool?> _showInvateDialog() {
+  Future<bool?> _showInviteDialog() {
     return showDialog<bool?>(
       context: context,
       builder: (context) {
@@ -238,248 +240,34 @@ class _CallSampleState extends State<CallSample> {
     );
   }
 
-  _invitePeer(BuildContext context, String peerId, bool useScreen) async {
-    if (_signaling != null && peerId != _selfId) {
-      _signaling?.invite(peerId, 'video', useScreen);
-    }
-  }
-
   _accept() {
     if (_session != null) {
-      _signaling?.accept(_session!.sid);
+      _videoCallSignalling?.accept(_session!.sid);
     }
   }
 
   _reject() {
     if (_session != null) {
-      _signaling?.reject(_session!.sid);
+      _videoCallSignalling?.reject(_session!.sid);
     }
   }
 
   _hangUp() {
     if (_session != null) {
-      _signaling?.bye(_session!.sid);
+      _videoCallSignalling?.bye(_session!.sid);
     }
   }
 
   _switchCamera() {
-    _signaling?.switchCamera();
+    _videoCallSignalling?.switchCamera();
   }
 
   _muteMic() {
     setState(() {
       isMute = !isMute;
     });
-    _signaling?.muteMic();
+    _videoCallSignalling?.muteMic();
   }
-
-  _buildRow(context, peer) {
-    var self = (peer['id'] == _selfId);
-    return ListBody(children: <Widget>[
-      ListTile(
-        title: Text(self
-            ? peer['name'] + ', ID: ${peer['id']} ' + ' [Your self]'
-            : peer['name'] + ', ID: ${peer['id']} '),
-        onTap: null,
-        trailing: SizedBox(
-            width: 100.0,
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  IconButton(
-                    icon: Icon(self ? Icons.close : Icons.videocam,
-                        color: self ? Colors.grey : Colors.black),
-                    onPressed: () => _invitePeer(context, peer['id'], false),
-                    tooltip: 'Video calling',
-                  ),
-                  IconButton(
-                    icon: Icon(self ? Icons.close : Icons.screen_share,
-                        color: self ? Colors.grey : Colors.black),
-                    onPressed: () => _invitePeer(context, peer['id'], true),
-                    tooltip: 'Screen sharing',
-                  )
-                ])),
-        subtitle: Text('[' + peer['user_agent'] + ']'),
-      ),
-      Divider()
-    ]);
-  }
-
-  Widget buildListRow(BuildContext context, int index) {
-    var self = (_peers[index]['id'] == _selfId);
-    if (self) return Container();
-    return Card(
-      elevation: 5,
-      color: AppColors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0),
-        child: ListTile(
-          leading: CircleAvatar(
-            radius: 24,
-            backgroundColor:
-                Colors.primaries[Random().nextInt(Colors.primaries.length)],
-            child: Text(
-              '${index + 1}',
-              style: AppTextStyle.textSemiBoldStyle(
-                  fontSize: 16, color: AppColors.white),
-            ),
-          ),
-          title: Text(
-            self
-                ? _peers[index]['name'] +
-                    ', ID: ${_peers[index]['id']} ' +
-                    ' [Your self]'
-                : _peers[index]['name'] + ', ID: ${_peers[index]['id']} ',
-            style: AppTextStyle.textSemiBoldStyle(
-                fontSize: 16, color: AppColors.testColor),
-          ),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              /*IconButton(
-                onPressed: () {},
-                visualDensity: VisualDensity.compact,
-                icon: Icon(
-                  Icons.chat,
-                  size: 24,
-                ),
-              ),
-              IconButton(
-                onPressed: () {},
-                visualDensity: VisualDensity.compact,
-                icon: Icon(
-                  Icons.call,
-                  size: 24,
-                ),
-              ),*/
-              IconButton(
-                onPressed: () {
-                  _invitePeer(context, _peers[index]['id'], false);
-                },
-                visualDensity: VisualDensity.compact,
-                icon: Icon(
-                  Icons.video_call,
-                  size: 24,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  _buildNewRow(context, peer) {
-    var self = (peer['id'] == _selfId);
-    return ListBody(children: <Widget>[
-      ListTile(
-        title: Text(self
-            ? peer['name'] + ', ID: ${peer['id']} ' + ' [Your self]'
-            : peer['name'] + ', ID: ${peer['id']} '),
-        onTap: null,
-        trailing: SizedBox(
-            width: 100.0,
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  IconButton(
-                    icon: Icon(self ? Icons.close : Icons.videocam,
-                        color: self ? Colors.grey : Colors.black),
-                    onPressed: () => _invitePeer(context, peer['id'], false),
-                    tooltip: 'Video calling',
-                  ),
-                  IconButton(
-                    icon: Icon(self ? Icons.close : Icons.screen_share,
-                        color: self ? Colors.grey : Colors.black),
-                    onPressed: () => _invitePeer(context, peer['id'], true),
-                    tooltip: 'Screen sharing',
-                  )
-                ])),
-        subtitle: Text('[' + peer['user_agent'] + ']'),
-      ),
-      Divider()
-    ]);
-  }
-
-  /*@override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('P2P Call Sample' +
-            (_selfId != null ? ' [Your ID ($_selfId)] ' : '')),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: null,
-            tooltip: 'setup',
-          ),
-        ],
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: _inCalling
-          ? SizedBox(
-              width: 200.0,
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    FloatingActionButton(
-                      child: const Icon(Icons.switch_camera),
-                      onPressed: _switchCamera,
-                    ),
-                    FloatingActionButton(
-                      onPressed: _hangUp,
-                      tooltip: 'Hangup',
-                      child: Icon(Icons.call_end),
-                      backgroundColor: Colors.pink,
-                    ),
-                    FloatingActionButton(
-                      child: const Icon(Icons.mic_off),
-                      onPressed: _muteMic,
-                    )
-                  ]))
-          : null,
-      body: _inCalling
-          ? OrientationBuilder(builder: (context, orientation) {
-              return Container(
-                child: Stack(children: <Widget>[
-                  Positioned(
-                      left: 0.0,
-                      right: 0.0,
-                      top: 0.0,
-                      bottom: 0.0,
-                      child: Container(
-                        margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.height,
-                        child: RTCVideoView(_remoteRenderer),
-                        decoration: BoxDecoration(color: Colors.black54),
-                      )),
-                  Positioned(
-                    left: 20.0,
-                    top: 20.0,
-                    child: Container(
-                      width: orientation == Orientation.portrait ? 90.0 : 120.0,
-                      height:
-                          orientation == Orientation.portrait ? 120.0 : 90.0,
-                      child: RTCVideoView(_localRenderer, mirror: true),
-                      decoration: BoxDecoration(color: Colors.black54),
-                    ),
-                  ),
-                ]),
-              );
-            })
-          : ListView.builder(
-              shrinkWrap: true,
-              padding: const EdgeInsets.all(0.0),
-              itemCount: (_peers != null ? _peers.length : 0),
-              itemBuilder: (context, i) {
-                //return _buildRow(context, _peers[i]);
-                return buildListRow(context, i);
-              }),
-    );
-  }*/
 
   _speaker() {
     setState(() {
@@ -498,7 +286,7 @@ class _CallSampleState extends State<CallSample> {
     return WillPopScope(
       onWillPop: () async {
         _hangUp();
-        if (_inCalling) {
+        if (inCalling) {
           Navigator.pop(context, true);
         } else {
           Navigator.pop(context, false);
@@ -506,7 +294,7 @@ class _CallSampleState extends State<CallSample> {
         return true;
       },
       child: Scaffold(
-          appBar: _inCalling
+          appBar: inCalling
               ? null
               : AppBar(
                   backgroundColor: AppColors.white,
@@ -531,7 +319,7 @@ class _CallSampleState extends State<CallSample> {
                         color: AppColors.black, fontSize: 18),
                   ),
                 ),
-          body: _inCalling
+          body: inCalling
               ? Stack(
                   alignment: Alignment.center,
                   children: [
@@ -562,14 +350,6 @@ class _CallSampleState extends State<CallSample> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            // const Icon(
-                            //   Icons.chat,
-                            //   size: 30,
-                            //   color: Colors.grey,
-                            // ),
-                            // const SizedBox(
-                            //   width: 30,
-                            // ),
                             InkWell(
                               onTap: _muteMic,
                               child: Icon(
@@ -584,20 +364,6 @@ class _CallSampleState extends State<CallSample> {
                             InkWell(
                               onTap: () {
                                 _hangUp();
-                                // Get.back();
-                                // DialogHelper.showDialogWithOptions(
-                                //   context: context,
-                                //   width: width,
-                                //   height: height,
-                                //   title: "Hey!",
-                                //   description:
-                                //       "Are you done with the consultation?",
-                                //   submitBtnText: "Yes",
-                                //   cancelBtnText: "No",
-                                //   onSubmit: () => Navigator.pop(context, true),
-                                //   onCancel: () {},
-                                // );
-                                // Navigator.pop(context, true);
                                 NewConfirmationDialog(
                                     context: context,
                                     title: AppStrings()
@@ -694,10 +460,14 @@ class _CallSampleState extends State<CallSample> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Text(
-                                "You are in $_doctorName's waiting room",
-                                style: AppTextStyle.textBoldStyle(
-                                    color: AppColors.tileColors, fontSize: 16),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  "You are in $_doctorName's waiting room",
+                                  style: AppTextStyle.textBoldStyle(
+                                      color: AppColors.tileColors,
+                                      fontSize: 16),
+                                ),
                               ),
                               Text(
                                 "Please wait, $_doctorName will let you in soon.",
@@ -735,16 +505,7 @@ class _CallSampleState extends State<CallSample> {
                       ),
                     ],
                   ),
-                )
-          /*ListView.builder(
-                shrinkWrap: true,
-                padding: const EdgeInsets.all(0.0),
-                itemCount: (_peers.length),
-                itemBuilder: (context, i) {
-                  // return _buildRow(context, _peers[i]);
-                  return buildListRow(context, i);
-                }),*/
-          ),
+                )),
     );
   }
 }

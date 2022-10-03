@@ -84,7 +84,7 @@ class _ABHAAddressSelectionPageState extends State<ABHAAddressSelectionPage> {
   navigateToHomePage(String selectedAbhaAddress) {
     postFcmToken(selectedAbhaAddress);
     SharedPreferencesHelper.setAutoLoginFlag(true);
-    Get.to(HomePage());
+    Get.offAll(HomePage());
   }
 
   ///SAVE FCM TOKEN API

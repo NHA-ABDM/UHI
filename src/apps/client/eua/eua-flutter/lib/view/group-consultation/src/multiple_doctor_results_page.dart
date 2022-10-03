@@ -11,6 +11,7 @@ import 'package:uhi_flutter_app/widgets/src/spacing.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../constants/constants.dart';
+import '../../../constants/src/strings.dart';
 import '../../../controller/controller.dart';
 import '../../../model/model.dart';
 import '../../../model/request/src/booking_init_request_model.dart';
@@ -319,11 +320,9 @@ class _MultipleDoctorResultsPageState extends State<MultipleDoctorResultsPage> {
     if (_doctorLanguage1!.isNotEmpty) {
       tags?.languageSpokenTag = _doctorLanguage1?.join(",");
     }
-
-    tags?.abdmGovInGroupConsultation = "true";
+    tags?.abdmGovInGroupConsultation = "";
     tags?.abdmGovInPrimaryDoctor = "";
     tags?.abdmGovInSecondaryDoctor = "";
-
     agent?.tags = tags;
     fulfillment.type = _consultationType;
     fulfillment.agent = agent;
@@ -397,7 +396,7 @@ class _MultipleDoctorResultsPageState extends State<MultipleDoctorResultsPage> {
       tags?.languageSpokenTag = _doctorLanguage2?.join(",");
     }
 
-    tags?.abdmGovInGroupConsultation = "true";
+    tags?.abdmGovInGroupConsultation = "";
     tags?.abdmGovInPrimaryDoctor = "";
     tags?.abdmGovInSecondaryDoctor = "";
 
@@ -449,8 +448,19 @@ class _MultipleDoctorResultsPageState extends State<MultipleDoctorResultsPage> {
         backgroundColor: AppColors.white,
         shadowColor: Colors.black.withOpacity(0.1),
         leading: IconButton(
-          onPressed: () {
-            Get.back();
+          onPressed: () async {
+            if (isFirstDoctor) {
+              Get.back();
+            } else {
+              showProgressIndicator();
+              await Future.delayed(Duration(seconds: 1));
+              _fulfillments?.clear();
+              _listOfDiscoveryResponse.clear();
+              setState(() {
+                isFirstDoctor = true;
+              });
+              hideProgressIndicator();
+            }
           },
           icon: Icon(
             Icons.chevron_left_rounded,
@@ -667,9 +677,7 @@ class _MultipleDoctorResultsPageState extends State<MultipleDoctorResultsPage> {
               if (_selectedDoctorIndex == null || _selectedDoctorIndex == "") {
                 DialogHelper.showErrorDialog(
                     description: "Please select a doctor to continue.");
-                return;
-              }
-              if (isFirstDoctor) {
+              } else if (isFirstDoctor) {
                 showProgressIndicator();
                 await Future.delayed(Duration(seconds: 1));
                 _fulfillments?.clear();
@@ -679,12 +687,16 @@ class _MultipleDoctorResultsPageState extends State<MultipleDoctorResultsPage> {
                   _selectedDoctorIndex = null;
                 });
                 hideProgressIndicator();
+              } else if (_fulfillmentObjDoc1?.agent?.id ==
+                  _fulfillmentObjDoc2?.agent?.id) {
+                DialogHelper.showErrorDialog(
+                    description:
+                        "Both doctors are same please select the different doctor");
               } else {
                 log("${jsonEncode(_fulfillmentObjDoc1)}",
                     name: "DOCTOR 1 INFO");
                 log("${jsonEncode(_fulfillmentObjDoc2)}",
                     name: "DOCTOR 2 INFO");
-
                 Get.to(() => MultipleDoctorCommonSlotsPage(
                       doctor1AbhaId: _fulfillmentObjDoc1?.agent?.id ?? "",
                       doctor1Name: _fulfillmentObjDoc1?.agent?.name ?? "",
@@ -696,6 +708,7 @@ class _MultipleDoctorResultsPageState extends State<MultipleDoctorResultsPage> {
                       doctor2DiscoveryFulfillments: _fulfillmentObjDoc2!,
                       consultationType: _consultationType!,
                       isRescheduling: false,
+                      uniqueId: _uniqueId,
                     ));
               }
             },

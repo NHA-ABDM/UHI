@@ -174,7 +174,7 @@ class _DiscoveryResultsPageState extends State<DiscoveryResultsPage> {
     if (discoveryResponseModel == null ||
         discoveryResponseModel?.message == null) {
       await Timer.periodic(Duration(seconds: 1), (timer) async {
-        if (timer.tick == 3) {
+        if (timer.tick == 6) {
           _timer?.cancel();
         }
       });
@@ -765,6 +765,7 @@ class _DiscoveryResultsPageState extends State<DiscoveryResultsPage> {
                           discoveryFulfillments: discoveryFulfillments,
                           consultationType: _consultationType!,
                           isRescheduling: false,
+                          uniqueId: _uniqueId,
                         ));
                   },
                   child: Container(

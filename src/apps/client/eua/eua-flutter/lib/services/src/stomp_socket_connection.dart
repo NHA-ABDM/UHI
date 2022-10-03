@@ -10,6 +10,8 @@ import 'package:uhi_flutter_app/constants/constants.dart';
 import 'package:uhi_flutter_app/model/response/response.dart';
 import 'package:uhi_flutter_app/model/response/src/response_model.dart';
 
+import '../../constants/src/request_urls.dart';
+
 class StompSocketConnection {
   StompClient? stompClient;
   ResponseModel? responseModel;
@@ -46,12 +48,12 @@ class StompSocketConnection {
         },
         onDebugMessage: (dynamic error) {
           print("On Debug Message " + error.toString());
-          timer = Timer.periodic(Duration(seconds: 1), (timer) async {
-            if (timer.tick == 10) {
-              timer.cancel();
-              onResponse?.call(responseModel);
-            }
-          });
+          // timer = Timer.periodic(Duration(seconds: 1), (timer) async {
+          //   if (timer.tick == 10) {
+          //     timer.cancel();
+          //     onResponse?.call(responseModel);
+          //   }
+          // });
         },
         onUnhandledFrame: (dynamic error) =>
             print("On Unhandled Frame " + error.toString()),
@@ -81,25 +83,32 @@ class StompSocketConnection {
           timer = Timer.periodic(Duration(seconds: 1), (timer) async {
             if (timer.tick == 10) {
               timer.cancel();
+              responseModel = null;
               onResponse?.call(responseModel);
-              stompClient?.deactivate();
+              // stompClient?.deactivate();
+            }
+
+            Map<String, dynamic> jsonData = json.decode(frame.body!);
+
+            if (jsonData.containsKey('message')) {
+              AcknowledgementResponseModel acknowledgementModel =
+                  AcknowledgementResponseModel.fromJson(
+                      json.decode(frame.body!));
+              if (acknowledgementModel.message?.ack?.status == "NACK") {
+                timer.cancel();
+
+                onResponse?.call(responseModel);
+                // stompClient?.deactivate();
+              }
+            } else if (jsonData.containsKey('response')) {
+              responseModel = ResponseModel.fromJson(json.decode(frame.body!));
+              timer.cancel();
+
+              onResponse?.call(responseModel!);
+
+              // stompClient?.deactivate();
             }
           });
-          Map<String, dynamic> jsonData = json.decode(frame.body!);
-
-          if (jsonData.containsKey('message')) {
-            AcknowledgementResponseModel acknowledgementModel =
-                AcknowledgementResponseModel.fromJson(json.decode(frame.body!));
-            if (acknowledgementModel.message?.ack?.status == "NACK") {
-              onResponse?.call(responseModel);
-              stompClient?.deactivate();
-            }
-          } else if (jsonData.containsKey('response')) {
-            responseModel = ResponseModel.fromJson(json.decode(frame.body!));
-            onResponse?.call(responseModel!);
-            stompClient?.deactivate();
-          }
-
           // if (messageQueueNum == 0) {
           //   messageQueueNum++;
           //   AcknowledgementResponseModel acknowledgementModel =

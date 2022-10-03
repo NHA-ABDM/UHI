@@ -16,6 +16,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../common/common.dart';
 import '../../../constants/constants.dart';
+import '../../../constants/src/data_strings.dart';
 import '../../../controller/controller.dart';
 import '../../../model/model.dart';
 import '../../../services/services.dart';
@@ -136,6 +137,7 @@ class _CancelAppointmentState extends State<CancelAppointment> {
                             : DataStrings.physicalConsultation,
                     isRescheduling: true,
                     bookingConfirmResponseModel: _bookingConfirmResponse,
+                    uniqueId: Uuid().v1(),
                   ));
             } else {
               Get.back(result: true);
@@ -268,7 +270,7 @@ class _CancelAppointmentState extends State<CancelAppointment> {
 
   buildWidgets() {
     String? amount =
-        widget.discoveryFulfillments!.agent!.tags!.firstConsultation!;
+        widget.discoveryFulfillments!.agent!.tags!.firstConsultation ?? "";
     String appointmentStartDate = "";
     String appointmentStartTime = "";
     var tmpStartDate;

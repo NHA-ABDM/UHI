@@ -42,6 +42,7 @@ class PaymentPage extends StatefulWidget {
   BookingOnInitResponseModel? bookingOnInitResponseModel;
   String consultationType;
   String? doctorImage;
+  String? uniqueId;
 
   // BookingConfirmResponseModel? bookingConfirmResponseModel;
   PaymentPage({
@@ -51,6 +52,7 @@ class PaymentPage extends StatefulWidget {
     this.bookingOnInitResponseModel,
     required this.consultationType,
     this.doctorImage,
+    this.uniqueId,
     // this.bookingConfirmResponseModel,
   }) : super(key: key);
 
@@ -107,6 +109,8 @@ class _PaymentPageState extends State<PaymentPage> {
 
     _consultationType = widget.consultationType;
     _doctorImage = widget.doctorImage;
+    _uniqueId = widget.uniqueId ?? const Uuid().v1();
+
   }
 
   @override
@@ -117,7 +121,7 @@ class _PaymentPageState extends State<PaymentPage> {
 
   getConfirmResponse() async {
     BookingConfirmResponseModel? bookingConfirmResponseModel;
-    _uniqueId = const Uuid().v1();
+    // _uniqueId = const Uuid().v1();
 
     stompSocketConnection.connect(uniqueId: _uniqueId, api: postConfirmAPI);
     stompSocketConnection.onResponse = (response) {
@@ -202,7 +206,8 @@ class _PaymentPageState extends State<PaymentPage> {
         GetUserDetailsResponse.fromJson(jsonDecode(userData!));
 
     final prefs = await SharedPreferences.getInstance();
-    String? orderId = await prefs.getString(AppStrings().bookingOrderIdOne);
+    String? orderId =
+        await prefs.getString(SharedPreferencesHelper.bookingOrderIdOne);
 
     developer.log("$orderId", name: "ORDER ID");
 

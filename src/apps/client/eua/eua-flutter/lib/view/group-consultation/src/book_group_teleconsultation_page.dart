@@ -1,5 +1,7 @@
 import 'package:intl/intl.dart';
 import 'package:uhi_flutter_app/common/src/dialog_helper.dart';
+import '../../../constants/src/data_strings.dart';
+import '../../../constants/src/strings.dart';
 import '../../discovery/discovery.dart';
 
 class BookGroupTeleconsultationPage extends StatefulWidget {
@@ -185,22 +187,24 @@ class _BookGroupTeleconsultationPageState
         _secondDocTextFieldValidate = true;
       });
       return false;
-    } else if (docFirstName == docSecondName &&
-        _specialtiesDropdownValue == null &&
-        _specialtiesTwoDropdownValue == null &&
-        _cityDropdownValue == null &&
-        _cityTwoDropdownValue == null &&
-        _languageDropdownValue == null &&
-        _languageTwoDropdownValue == null) {
-      DialogHelper.showErrorDialog(description: 'Doctors name can not be same');
-      return false;
-    } else if (docFirstName == docSecondName &&
-        _specialtiesDropdownValue == _specialtiesTwoDropdownValue &&
-        _cityDropdownValue == _cityTwoDropdownValue) {
-      DialogHelper.showErrorDialog(
-          description: 'Doctors name and details can not be same');
-      return false;
     }
+    // else if (docFirstName == docSecondName &&
+    //     _specialtiesDropdownValue == null &&
+    //     _specialtiesTwoDropdownValue == null &&
+    //     _cityDropdownValue == null &&
+    //     _cityTwoDropdownValue == null &&
+    //     _languageDropdownValue == null &&
+    //     _languageTwoDropdownValue == null) {
+    //   DialogHelper.showErrorDialog(description: 'Doctors name can not be same');
+    //   return false;
+    // }
+    // else if (docFirstName == docSecondName &&
+    //     _specialtiesDropdownValue == _specialtiesTwoDropdownValue &&
+    //     _cityDropdownValue == _cityTwoDropdownValue) {
+    //   DialogHelper.showErrorDialog(
+    //       description: 'Doctors name and details can not be same');
+    //   return false;
+    // }
     return true;
   }
 
@@ -386,38 +390,38 @@ class _BookGroupTeleconsultationPageState
                                   "Language", false, DropDownType.language),
                             ]),
                         Spacing(size: 30, isWidth: false),
-                        titleTextWidget("Availability"),
-                        Spacing(isWidth: false),
-                        Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              InkWell(
-                                onTap: () {
-                                  availabilityType = AvailabilityType.today;
-                                  _availabilityTypeHandler();
-                                },
-                                child: availabilityCheckerWidget(
-                                    "Today", AvailabilityType.today),
-                              ),
-                              Spacing(size: 5, isWidth: true),
-                              InkWell(
-                                onTap: () {
-                                  availabilityType = AvailabilityType.thisWeek;
-                                  _availabilityTypeHandler();
-                                },
-                                child: availabilityCheckerWidget(
-                                    "This Week", AvailabilityType.thisWeek),
-                              ),
-                              Spacing(size: 5, isWidth: true),
-                              InkWell(
-                                onTap: () {
-                                  availabilityType = AvailabilityType.thisMonth;
-                                  _availabilityTypeHandler();
-                                },
-                                child: availabilityCheckerWidget(
-                                    "This Month", AvailabilityType.thisMonth),
-                              ),
-                            ]),
+                        // titleTextWidget("Availability"),
+                        // Spacing(isWidth: false),
+                        // Row(
+                        //     crossAxisAlignment: CrossAxisAlignment.center,
+                        //     children: [
+                        //       InkWell(
+                        //         onTap: () {
+                        //           availabilityType = AvailabilityType.today;
+                        //           _availabilityTypeHandler();
+                        //         },
+                        //         child: availabilityCheckerWidget(
+                        //             "Today", AvailabilityType.today),
+                        //       ),
+                        //       Spacing(size: 5, isWidth: true),
+                        //       InkWell(
+                        //         onTap: () {
+                        //           availabilityType = AvailabilityType.thisWeek;
+                        //           _availabilityTypeHandler();
+                        //         },
+                        //         child: availabilityCheckerWidget(
+                        //             "This Week", AvailabilityType.thisWeek),
+                        //       ),
+                        //       Spacing(size: 5, isWidth: true),
+                        //       InkWell(
+                        //         onTap: () {
+                        //           availabilityType = AvailabilityType.thisMonth;
+                        //           _availabilityTypeHandler();
+                        //         },
+                        //         child: availabilityCheckerWidget(
+                        //             "This Month", AvailabilityType.thisMonth),
+                        //       ),
+                        //     ]),
                       ],
                     ),
                   ),

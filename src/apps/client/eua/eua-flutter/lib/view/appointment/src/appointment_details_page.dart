@@ -27,6 +27,8 @@ import 'package:uhi_flutter_app/view/view.dart';
 import 'package:uhi_flutter_app/widgets/src/doctor_details_view.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../constants/src/data_strings.dart';
+
 class AppointmentDetailsPage extends StatefulWidget {
   // BookingOnInitResponseModel? bookingOnInitResponseModel;
   Fulfillment discoveryFulfillments;
@@ -34,6 +36,7 @@ class AppointmentDetailsPage extends StatefulWidget {
   DiscoveryProviders? discoveryProviders;
   TimeSlotModel timeSlot;
   String? consultationType;
+  String? uniqueId;
 
   String doctorProviderUri;
   AppointmentDetailsPage({
@@ -45,6 +48,7 @@ class AppointmentDetailsPage extends StatefulWidget {
     required this.doctorProviderUri,
     required this.timeSlot,
     this.consultationType,
+    this.uniqueId,
   }) : super(key: key);
 
   @override
@@ -101,6 +105,8 @@ class _DiscoveryResultsPageState extends State<AppointmentDetailsPage> {
     // _bookingOnInitResponseModel = widget.bookingOnInitResponseModel;
     _timeSlot = widget.timeSlot;
     _consultationType = widget.consultationType;
+    _uniqueId = widget.uniqueId ?? const Uuid().v1();
+
     if (mounted) {
       futureInitResponse = getInitResponse();
     }
@@ -119,7 +125,7 @@ class _DiscoveryResultsPageState extends State<AppointmentDetailsPage> {
     _timer =
         await Timer.periodic(Duration(milliseconds: 100), (timer) async {});
 
-    _uniqueId = const Uuid().v1();
+    // _uniqueId = const Uuid().v1();
 
     stompSocketConnection.connect(uniqueId: _uniqueId, api: postInitAPI);
     stompSocketConnection.onResponse = (response) {
@@ -170,7 +176,7 @@ class _DiscoveryResultsPageState extends State<AppointmentDetailsPage> {
     _orderId = const Uuid().v1();
 
     final prefs = await SharedPreferences.getInstance();
-    prefs.setString(AppStrings().bookingOrderIdOne, _orderId!);
+    prefs.setString(SharedPreferencesHelper.bookingOrderIdOne, _orderId!);
 
     ContextModel contextModel = ContextModel();
     contextModel.domain = "nic2004:85111";
@@ -199,10 +205,28 @@ class _DiscoveryResultsPageState extends State<AppointmentDetailsPage> {
 
     Fulfillment? fulfillment = Fulfillment();
     DiscoveryAgent agent = DiscoveryAgent();
+    Tags tags = Tags();
     agent.id = widget.discoveryFulfillments.agent?.id;
     agent.name = widget.discoveryFulfillments.agent?.name;
     agent.gender = widget.discoveryFulfillments.agent?.gender;
-    agent.tags = widget.discoveryFulfillments.agent?.tags;
+    // agent.tags = widget.discoveryFulfillments.agent?.tags;
+
+    tags.education = widget.discoveryFulfillments.agent?.tags?.education;
+    tags.experience = widget.discoveryFulfillments.agent?.tags?.experience;
+    tags.firstConsultation =
+        widget.discoveryFulfillments.agent?.tags?.firstConsultation;
+    tags.followUp = widget.discoveryFulfillments.agent?.tags?.followUp;
+    tags.hprId = widget.discoveryFulfillments.agent?.tags?.hprId;
+    tags.languageSpokenTag =
+        widget.discoveryFulfillments.agent?.tags?.languageSpokenTag;
+    tags.medicinesTag = widget.discoveryFulfillments.agent?.tags?.medicinesTag;
+    tags.slotId = widget.discoveryFulfillments.agent?.tags?.slotId;
+    tags.specialtyTag = widget.discoveryFulfillments.agent?.tags?.specialtyTag;
+    tags.upiId = widget.discoveryFulfillments.agent?.tags?.upiId;
+    tags.patientGender = getUserDetailsResponseModel.gender;
+    tags.abdmGovInGroupConsultation = "false";
+
+    agent.tags = tags;
 
     fulfillment.agent = agent;
     fulfillment.id = widget.discoveryFulfillments.id;
@@ -263,7 +287,7 @@ class _DiscoveryResultsPageState extends State<AppointmentDetailsPage> {
     message.order = order;
     bookingInitRequestModel.message = message;
 
-    log("==> Init request ${jsonEncode(bookingInitRequestModel)}");
+    log(" ${jsonEncode(bookingInitRequestModel)}", name: "INIT REQUEST MODEL");
 
     await _postInitBookingDetailsController.postInitBookingDetails(
         bookingInitRequestModel: bookingInitRequestModel);
@@ -575,6 +599,7 @@ class _DiscoveryResultsPageState extends State<AppointmentDetailsPage> {
                       bookingOnInitResponseModel: _initResponse,
                       consultationType: _consultationType!,
                       doctorImage: widget.discoveryFulfillments.agent?.image,
+                      uniqueId: _uniqueId,
                     ));
               },
               child: Container(

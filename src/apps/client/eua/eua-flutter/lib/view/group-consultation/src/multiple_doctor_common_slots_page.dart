@@ -26,6 +26,7 @@ import 'package:uhi_flutter_app/utils/src/shared_preferences.dart';
 import 'package:uhi_flutter_app/utils/utils.dart';
 import 'package:uhi_flutter_app/view/appointment/src/appointment_details_page.dart';
 import 'package:uhi_flutter_app/view/appointment/src/appointment_status_confirm_page.dart';
+import 'package:uhi_flutter_app/view/discovery/discovery.dart';
 import 'package:uhi_flutter_app/view/group-consultation/src/multiple_doctor_appointment_details_page.dart';
 import 'package:uhi_flutter_app/widgets/src/calendar_date_range_picker.dart';
 import 'package:uhi_flutter_app/widgets/src/doctor_details_view.dart';
@@ -46,6 +47,7 @@ class MultipleDoctorCommonSlotsPage extends StatefulWidget {
 
   String consultationType;
   bool isRescheduling;
+  String uniqueId;
 
   MultipleDoctorCommonSlotsPage({
     Key? key,
@@ -59,6 +61,7 @@ class MultipleDoctorCommonSlotsPage extends StatefulWidget {
     required this.doctor2DiscoveryFulfillments,
     required this.consultationType,
     required this.isRescheduling,
+    required this.uniqueId,
   }) : super(key: key);
 
   @override
@@ -123,6 +126,12 @@ class _DiscoveryResultsPageState extends State<MultipleDoctorCommonSlotsPage> {
   TimeSlotModel? _selectedTimeSlotDocTwo;
   List<GroupConsultTimeSlot> _groupConsultTimeSlotList =
       List<GroupConsultTimeSlot>.empty(growable: true);
+  String minSlot = "";
+  DateTime minTimeForSlot1 = DateTime.now();
+  DateTime maxTimeForSlot1 = DateTime.now();
+  DateTime minTimeForSlot2 = DateTime.now();
+  DateTime maxTimeForSlot2 = DateTime.now();
+  int minSlotIndex = 0;
 
   // String? _slotsEndTime = DateFormat("y-MM-ddThh:mm:ss").format(DateTime.now());
 
@@ -139,6 +148,7 @@ class _DiscoveryResultsPageState extends State<MultipleDoctorCommonSlotsPage> {
     _selectedDate = getForm(DateTime.now());
     _consultationType = widget.consultationType;
     _isRescheduling = widget.isRescheduling;
+    _uniqueId = widget.uniqueId != "" ? widget.uniqueId : const Uuid().v1();
 
     if (mounted) {
       futureDiscoveryResponse = getResponseOfMultipleDoctors();
@@ -173,7 +183,7 @@ class _DiscoveryResultsPageState extends State<MultipleDoctorCommonSlotsPage> {
     _timer =
         await Timer.periodic(Duration(milliseconds: 100), (timer) async {});
 
-    _uniqueId = const Uuid().v1();
+    // _uniqueId = const Uuid().v1();
 
     stompSocketConnection.connect(
         uniqueId: _uniqueId, api: postSearch2APIForDocOne);
@@ -208,7 +218,7 @@ class _DiscoveryResultsPageState extends State<MultipleDoctorCommonSlotsPage> {
     _timer =
         await Timer.periodic(Duration(milliseconds: 100), (timer) async {});
 
-    _uniqueId = const Uuid().v1();
+    // _uniqueId = const Uuid().v1();
 
     stompSocketConnection.connect(
         uniqueId: _uniqueId, api: postSearch2APIForDocTwo);
@@ -296,6 +306,7 @@ class _DiscoveryResultsPageState extends State<MultipleDoctorCommonSlotsPage> {
     fulfillment.startTime = start;
     fulfillment.endTime = end;
     fulfillment.type = _consultationType;
+    agent.tags = tags;
     fulfillment.agent = agent;
     intent.fulfillment = fulfillment;
     message.intent = intent;
@@ -360,6 +371,7 @@ class _DiscoveryResultsPageState extends State<MultipleDoctorCommonSlotsPage> {
     fulfillment.startTime = start;
     fulfillment.endTime = end;
     fulfillment.type = _consultationType;
+    agent.tags = tags;
     fulfillment.agent = agent;
     intent.fulfillment = fulfillment;
     message.intent = intent;
@@ -437,39 +449,136 @@ class _DiscoveryResultsPageState extends State<MultipleDoctorCommonSlotsPage> {
     List<TimeSlotModel> matchingSlots =
         List<TimeSlotModel>.empty(growable: true);
 
-    slots1.forEach((s1) {
-      DateTime s1Start = DateTime.parse(s1.start!.time!.timestamp!);
-      DateTime s1End = DateTime.parse(s1.end!.time!.timestamp!);
+    // String minSlot = "";
 
-      if (s1Start.isBefore(minStartTime) && s1Start != minStartTime) {
-        return;
-      }
+    if (slots1.isNotEmpty && slots2.isNotEmpty) {
+      minTimeForSlot1 = DateTime.parse(slots1[0].start!.time!.timestamp!);
+      maxTimeForSlot1 =
+          DateTime.parse(slots1[(slots1.length - 1)].end!.time!.timestamp!);
+      minTimeForSlot2 = DateTime.parse(slots2[0].start!.time!.timestamp!);
+      maxTimeForSlot2 =
+          DateTime.parse(slots2[(slots2.length - 1)].end!.time!.timestamp!);
+      checkMinSlot(slots1, slots2);
 
-      slots2.forEach((s2) {
-        DateTime s2Start = DateTime.parse(s2.start!.time!.timestamp!);
-        DateTime s2End = DateTime.parse(s2.end!.time!.timestamp!);
+      slots1.forEach((s1) {
+        DateTime s1Start = DateTime.parse(s1.start!.time!.timestamp!);
+        DateTime s1End = DateTime.parse(s1.end!.time!.timestamp!);
 
-        if (s2Start.isBefore(minStartTime) && s2Start != minStartTime) {
+        if (s1Start.isBefore(minStartTime) && s1Start != minStartTime) {
           return;
         }
 
-        if (between(s1Start, s2Start, s2End) ||
-            between(s2Start, s1Start, s1End)) {
-          matchingSlots.add(s1);
-          _groupConsultTimeSlotList.add(
-              GroupConsultTimeSlot(docOneTimeSlot: s1, docTwoTimeSlot: s2));
-        }
+        slots2.forEach((s2) {
+          DateTime s2Start = DateTime.parse(s2.start!.time!.timestamp!);
+          DateTime s2End = DateTime.parse(s2.end!.time!.timestamp!);
+
+          if (s2Start.isBefore(minStartTime) && s2Start != minStartTime) {
+            return;
+          }
+
+          if (between(s1Start, s2Start, s2End) ||
+              between(s2Start, s1Start, s1End)) {
+            if (minSlot == "s1") {
+              matchingSlots.add(s1);
+              _groupConsultTimeSlotList.add(
+                  GroupConsultTimeSlot(docOneTimeSlot: s1, docTwoTimeSlot: s2));
+            } else if (minSlot == "s2") {
+              matchingSlots.add(s2);
+              _groupConsultTimeSlotList.add(
+                  GroupConsultTimeSlot(docOneTimeSlot: s1, docTwoTimeSlot: s2));
+            }
+          }
+        });
       });
-    });
 
-    matchingSlots = matchingSlots.toSet().toList();
-    _groupConsultTimeSlotList = _groupConsultTimeSlotList.toSet().toList();
-
+      matchingSlots = matchingSlots.toSet().toList();
+      _groupConsultTimeSlotList = _groupConsultTimeSlotList.toSet().toList();
+    }
     return matchingSlots;
   }
 
   bool between(DateTime t, DateTime t1, DateTime t2) {
     return (t.isBefore(t2) || t == t2) && (t.isAfter(t1) || t == t1);
+  }
+
+  String minBetween(
+    DateTime s1Start,
+    DateTime s1End,
+    DateTime s2Start,
+    DateTime s2End,
+  ) {
+    if ((s2Start.isAfter(s1Start) || s2Start.isAtSameMomentAs(s1Start)) &&
+        (s2End.isBefore(s1End) || s2End.isAtSameMomentAs(s1End))) {
+      return "s2";
+    } else if ((s1Start.isAfter(s2Start) ||
+            s2Start.isAtSameMomentAs(s1Start)) &&
+        (s1End.isBefore(s2End) || s2End.isAtSameMomentAs(s1End))) {
+      return "s1";
+    }
+    return "";
+  }
+
+  checkMinSlot(List<TimeSlotModel> slots1, List<TimeSlotModel> slots2) {
+    if (slots1.isNotEmpty &&
+        slots2.isNotEmpty &&
+        slots1.length >= minSlotIndex &&
+        slots2.length >= minSlotIndex) {
+      if (slots1.length == minSlotIndex) {
+        minSlot = "s1";
+        minSlotIndex = 0;
+
+        return;
+      } else if (slots2.length == minSlotIndex) {
+        minSlot = "s2";
+        minSlotIndex = 0;
+
+        return;
+      }
+
+      DateTime s1StartZeroElement =
+          DateTime.parse(slots1[minSlotIndex].start!.time!.timestamp!)
+              .toLocal();
+      DateTime s1EndZeroElement =
+          DateTime.parse(slots1[minSlotIndex].end!.time!.timestamp!).toLocal();
+      DateTime s2StartZeroElement =
+          DateTime.parse(slots2[minSlotIndex].start!.time!.timestamp!)
+              .toLocal();
+      DateTime s2EndZeroElement =
+          DateTime.parse(slots2[minSlotIndex].end!.time!.timestamp!).toLocal();
+
+      if (maxTimeForSlot1.isBefore(minTimeForSlot2) ||
+          maxTimeForSlot1.isAtSameMomentAs(minTimeForSlot2)) {
+        minSlot = "";
+        minSlotIndex = 0;
+
+        return;
+      } else if (maxTimeForSlot2.isBefore(minTimeForSlot1) ||
+          maxTimeForSlot2.isAtSameMomentAs(minTimeForSlot1)) {
+        minSlot = "";
+        minSlotIndex = 0;
+
+        return;
+      }
+
+      if (minBetween(s1StartZeroElement, s1EndZeroElement, s2StartZeroElement,
+              s2EndZeroElement) ==
+          "s1") {
+        minSlot = "s1";
+        minSlotIndex = 0;
+
+        return;
+      } else if (minBetween(s1StartZeroElement, s1EndZeroElement,
+              s2StartZeroElement, s2EndZeroElement) ==
+          "s2") {
+        minSlot = "s2";
+        minSlotIndex = 0;
+
+        return;
+      } else {
+        minSlotIndex++;
+        checkMinSlot(slots1, slots2);
+      }
+    }
   }
 
   @override
@@ -550,6 +659,18 @@ class _DiscoveryResultsPageState extends State<MultipleDoctorCommonSlotsPage> {
                   title: AppStrings().errorString,
                   description: AppStrings().selectTimeSlot);
             } else {
+              _groupConsultTimeSlotList.forEach((element) {
+                if (_selectedTimeSlot?.tags?.abdmGovInSlot ==
+                    element.docOneTimeSlot.tags?.abdmGovInSlot) {
+                  _selectedTimeSlotDocOne = element.docOneTimeSlot;
+                  _selectedTimeSlotDocTwo = element.docTwoTimeSlot;
+                } else if (_selectedTimeSlot?.tags?.abdmGovInSlot ==
+                    element.docTwoTimeSlot.tags?.abdmGovInSlot) {
+                  _selectedTimeSlotDocOne = element.docOneTimeSlot;
+                  _selectedTimeSlotDocTwo = element.docTwoTimeSlot;
+                }
+              });
+
               if (widget.isRescheduling) {
                 final result = await Navigator.push(
                   context,
@@ -560,13 +681,20 @@ class _DiscoveryResultsPageState extends State<MultipleDoctorCommonSlotsPage> {
                           MultipleDoctorAppointmentDetailsPage(
                             docOneDiscoveryFulfillments:
                                 widget.doctor1DiscoveryFulfillments,
+                            doctor1AbhaId: widget.doctor1AbhaId,
                             docOneProviderUri: widget.doctor1ProviderUri,
                             docOneTimeSlot: _selectedTimeSlotDocOne!,
                             docTwoDiscoveryFulfillments:
                                 widget.doctor2DiscoveryFulfillments,
+                            doctor2AbhaId: widget.doctor2AbhaId,
                             docTwoProviderUri: widget.doctor2ProviderUri,
                             docTwoTimeSlot: _selectedTimeSlotDocTwo!,
                             consultationType: _consultationType,
+                            uniqueId: _uniqueId,
+                            appointmentStartTime:
+                                _selectedTimeSlot?.start?.time?.timestamp ?? "",
+                            appointmentEndTime:
+                                _selectedTimeSlot?.end?.time?.timestamp ?? "",
                           )),
                 );
                 if (result != null && result == true) {
@@ -582,13 +710,20 @@ class _DiscoveryResultsPageState extends State<MultipleDoctorCommonSlotsPage> {
                           MultipleDoctorAppointmentDetailsPage(
                             docOneDiscoveryFulfillments:
                                 widget.doctor1DiscoveryFulfillments,
+                            doctor1AbhaId: widget.doctor1AbhaId,
                             docOneProviderUri: widget.doctor1ProviderUri,
                             docOneTimeSlot: _selectedTimeSlotDocOne!,
                             docTwoDiscoveryFulfillments:
                                 widget.doctor2DiscoveryFulfillments,
+                            doctor2AbhaId: widget.doctor2AbhaId,
                             docTwoProviderUri: widget.doctor2ProviderUri,
                             docTwoTimeSlot: _selectedTimeSlotDocTwo!,
                             consultationType: _consultationType,
+                            uniqueId: _uniqueId,
+                            appointmentStartTime:
+                                _selectedTimeSlot?.start?.time?.timestamp ?? "",
+                            appointmentEndTime:
+                                _selectedTimeSlot?.end?.time?.timestamp ?? "",
                           )),
                 );
                 if (result != null && result == true) {
@@ -618,7 +753,7 @@ class _DiscoveryResultsPageState extends State<MultipleDoctorCommonSlotsPage> {
             ),
             child: Center(
               child: Text(
-                AppStrings().bookNow,
+                "BOOK SLOT",
                 style: AppTextStyle.textSemiBoldStyle(
                     color: AppColors.white, fontSize: 12),
               ),
@@ -643,11 +778,35 @@ class _DiscoveryResultsPageState extends State<MultipleDoctorCommonSlotsPage> {
               children: [
                 buildDoctorTile(widget.doctor1DiscoveryFulfillments),
                 buildDoctorTile(widget.doctor2DiscoveryFulfillments),
+                // Container(
+                //   margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                //   height: 1,
+                //   width: width,
+                //   color: const Color.fromARGB(255, 238, 238, 238),
+                // ),
+                Spacing(
+                  isWidth: false,
+                  size: 15,
+                ),
                 Container(
-                  margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                  height: 1,
                   width: width,
-                  color: const Color.fromARGB(255, 238, 238, 238),
+                  padding: const EdgeInsets.only(
+                    left: 16,
+                    top: 5,
+                    bottom: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.dividerColor,
+                  ),
+                  child: Text(
+                    "Common slots for doctors",
+                    style: AppTextStyle.textSemiBoldStyle(
+                        color: AppColors.doctorNameColor, fontSize: 18),
+                  ),
+                ),
+                Spacing(
+                  isWidth: false,
+                  size: 15,
                 ),
                 GestureDetector(
                   onTap: () {
@@ -658,7 +817,7 @@ class _DiscoveryResultsPageState extends State<MultipleDoctorCommonSlotsPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        margin: const EdgeInsets.fromLTRB(20, 0, 8, 10),
+                        margin: const EdgeInsets.fromLTRB(16, 0, 8, 10),
                         width: width * 0.6,
                         height: 36,
                         decoration: BoxDecoration(
@@ -700,7 +859,7 @@ class _DiscoveryResultsPageState extends State<MultipleDoctorCommonSlotsPage> {
                         return loadingData.data != null
                             ? buildTimeSlots(loadingData.data)
                             : Container(
-                                padding: EdgeInsets.fromLTRB(25, 0, 8, 10),
+                                padding: EdgeInsets.fromLTRB(16, 0, 8, 10),
                                 child: Text(
                                   AppStrings().timeSlotError,
                                   style: AppTextStyle.textLightStyle(
@@ -712,7 +871,7 @@ class _DiscoveryResultsPageState extends State<MultipleDoctorCommonSlotsPage> {
                         return loadingData.data != null
                             ? buildTimeSlots(loadingData.data)
                             : Container(
-                                padding: EdgeInsets.fromLTRB(25, 0, 8, 10),
+                                padding: EdgeInsets.fromLTRB(16, 0, 8, 10),
                                 child: Text(
                                   AppStrings().timeSlotError,
                                   style: AppTextStyle.textLightStyle(
@@ -781,7 +940,7 @@ class _DiscoveryResultsPageState extends State<MultipleDoctorCommonSlotsPage> {
       children: [
         _timeSlotListCommon.length > 0
             ? Padding(
-                padding: const EdgeInsets.fromLTRB(25, 0, 8, 10),
+                padding: const EdgeInsets.fromLTRB(16, 0, 8, 10),
                 child: Text(
                   AppStrings().chooseTimeSlot,
                   style: AppTextStyle.textLightStyle(
@@ -789,7 +948,7 @@ class _DiscoveryResultsPageState extends State<MultipleDoctorCommonSlotsPage> {
                 ),
               )
             : Padding(
-                padding: const EdgeInsets.fromLTRB(25, 0, 8, 10),
+                padding: const EdgeInsets.fromLTRB(16, 0, 8, 10),
                 child: Text(
                   AppStrings().noTimeSlot,
                   style: AppTextStyle.textLightStyle(
@@ -819,10 +978,14 @@ class _DiscoveryResultsPageState extends State<MultipleDoctorCommonSlotsPage> {
                     setState(() {
                       _selectedTimeSlotIndex = index;
                       _selectedTimeSlot = _timeSlotListCommon[index];
+                      log("${jsonEncode(_selectedTimeSlot)}");
                       _selectedTimeSlotDocOne =
                           _groupConsultTimeSlotList[index].docOneTimeSlot;
+                      log("${jsonEncode(_selectedTimeSlotDocOne)}");
+
                       _selectedTimeSlotDocTwo =
                           _groupConsultTimeSlotList[index].docTwoTimeSlot;
+                      log("${jsonEncode(_selectedTimeSlotDocTwo)}");
                     });
                   },
                   //   child: Container(
@@ -900,6 +1063,7 @@ class _DiscoveryResultsPageState extends State<MultipleDoctorCommonSlotsPage> {
           _slotsStartTime = DateFormat("y-MM-ddTHH:mm:ss").format(startDate);
           // _slotsEndTime = DateFormat("y-MM-ddThh:mm:ss").format(endDate!);
           _selectedDate = getForm(startDate);
+          minSlotIndex = 0;
         });
         // connectToStompServer();
         onRefresh();

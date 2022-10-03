@@ -9,6 +9,8 @@ import 'package:uhi_flutter_app/services/services.dart';
 import 'package:uhi_flutter_app/model/model.dart';
 import 'package:uhi_flutter_app/utils/src/shared_preferences.dart';
 
+import '../../../constants/src/request_urls.dart';
+
 class AccessTokenController extends GetxController with ExceptionHandler {
   AccessTokenResponseModel? accessTokenResponseModel;
 

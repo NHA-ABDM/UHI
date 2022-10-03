@@ -7,6 +7,8 @@ import 'package:uhi_flutter_app/model/response/src/discovery_response_model.dart
 import 'package:uhi_flutter_app/services/services.dart';
 import 'package:uhi_flutter_app/model/model.dart';
 
+import '../../../constants/src/request_urls.dart';
+
 class GetLoginDetailsController extends GetxController with ExceptionHandler {
   ///LOGIN DETAILS
   List<DiscoveryResponseModel>? loginDetails;

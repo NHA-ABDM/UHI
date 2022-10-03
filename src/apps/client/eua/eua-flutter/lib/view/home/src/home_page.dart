@@ -28,12 +28,15 @@ import 'package:uhi_flutter_app/utils/src/shared_preferences.dart';
 import 'package:uhi_flutter_app/view/group-consultation/src/book_group_teleconsultation_page.dart';
 import 'package:uhi_flutter_app/view/view.dart';
 import 'package:uhi_flutter_app/widgets/src/spacing.dart';
+import 'package:uuid/uuid.dart';
 
+import '../../../constants/src/data_strings.dart';
 import '../../../controller/controller.dart';
 import '../../../controller/login/src/post_fcm_token_controller.dart';
 import '../../../model/common/src/doctor_image_model.dart';
 import '../../../model/model.dart';
 import '../../discovery/src/book_a_teleconsultation_page.dart';
+import '../../group-consultation/src/multiple_doctor_appointment_status_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -74,6 +77,7 @@ class _DiscoverServicesPageState extends State<HomePage>
 
   GetUserDetailsResponse? getUserDetailsResponseModel;
   late HomeScreenObservable observable;
+  GroupConsultAppointment? _groupConsultAppointment;
 
   // Generate a key pair.
   final encryptionAlgorithm = X25519();
@@ -431,6 +435,15 @@ class _DiscoverServicesPageState extends State<HomePage>
         bookOnConfirmUpcomingResponseModel =
             BookingConfirmResponseModel.fromJson(
                 jsonDecode(orderDetailUpComingMessage!));
+
+        if (upcomingAppointmentList[0]?.groupConsultStatus == "true") {
+          upcomingAppointmentList.forEach((element) {
+            if (element?.transId == upcomingAppointmentList[0]?.transId) {
+              _groupConsultAppointment = GroupConsultAppointment(
+                  element?.transId, [upcomingAppointmentList[0], element]);
+            }
+          });
+        }
       }
     }
     hideProgressDialog();
@@ -939,6 +952,7 @@ class _DiscoverServicesPageState extends State<HomePage>
                 ),
                 //Upcoming Appointments
                 upcomingAppointmentsView(),
+
                 //Appointment History
                 appointmentHistoryView()
               ],
@@ -1397,6 +1411,7 @@ class _DiscoverServicesPageState extends State<HomePage>
               assetImage,
               height: 16,
               width: 16,
+              color: color,
             ),
             Spacing(size: 5),
             Text(
@@ -1495,354 +1510,269 @@ class _DiscoverServicesPageState extends State<HomePage>
           ),
           Spacing(size: 20, isWidth: false),
           upcomingAppointmentList.isNotEmpty
-              ? Container(
-                  width: width * 0.9,
-                  padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: const [
-                      BoxShadow(
-                        offset: Offset(0, 5),
-                        blurRadius: 10,
-                        color: Color(0x1B1C204D),
-                      )
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Get.to(() => AppointmentStatusConfirmPage(
-                                bookingConfirmResponseModel:
-                                    bookOnConfirmUpcomingResponseModel,
-                                startDateTime: upcomingAppointmentList[0]!
-                                    .serviceFulfillmentStartTime!,
-                                endDateTime: upcomingAppointmentList[0]!
-                                    .serviceFulfillmentEndTime!,
-                                doctorName: upcomingAppointmentList[0]!
-                                    .healthcareProfessionalName!,
-                                consultationType: upcomingAppointmentList[0]!
-                                            .serviceFulfillmentType ==
-                                        DataStrings.teleconsultation
-                                    ? DataStrings.teleconsultation
-                                    : DataStrings.physicalConsultation,
-                                gender: gender,
-                                navigateToHomeAndRefresh: false,
-                              ));
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 20.0),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                width: width * 0.2,
-                                height: width * 0.2,
-                                margin: EdgeInsets.only(top: 12),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  image: DecorationImage(
-                                    image: doctorImage != null &&
-                                            doctorImage!.isNotEmpty
-                                        ? Image.memory(doctorImage!).image
-                                        : Image.network(gender == "M"
-                                                ? AppStrings().maleDoctorImage
-                                                : AppStrings()
-                                                    .femaleDoctorImage)
-                                            .image,
-                                    fit: BoxFit.fill,
+              ? upcomingAppointmentList[0]?.groupConsultStatus != "true"
+                  ? Container(
+                      width: width * 0.9,
+                      padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: const [
+                          BoxShadow(
+                            offset: Offset(0, 5),
+                            blurRadius: 10,
+                            color: Color(0x1B1C204D),
+                          )
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(() => AppointmentStatusConfirmPage(
+                                    bookingConfirmResponseModel:
+                                        bookOnConfirmUpcomingResponseModel,
+                                    startDateTime: upcomingAppointmentList[0]!
+                                        .serviceFulfillmentStartTime!,
+                                    endDateTime: upcomingAppointmentList[0]!
+                                        .serviceFulfillmentEndTime!,
+                                    doctorName: upcomingAppointmentList[0]!
+                                        .healthcareProfessionalName!,
+                                    consultationType:
+                                        upcomingAppointmentList[0]!
+                                                    .serviceFulfillmentType ==
+                                                DataStrings.teleconsultation
+                                            ? DataStrings.teleconsultation
+                                            : DataStrings.physicalConsultation,
+                                    gender: gender,
+                                    navigateToHomeAndRefresh: false,
+                                  ));
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 20.0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    width: width * 0.2,
+                                    height: width * 0.2,
+                                    margin: EdgeInsets.only(top: 12),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      image: DecorationImage(
+                                        image: doctorImage != null &&
+                                                doctorImage!.isNotEmpty
+                                            ? Image.memory(doctorImage!).image
+                                            : Image.network(gender == "M"
+                                                    ? AppStrings()
+                                                        .maleDoctorImage
+                                                    : AppStrings()
+                                                        .femaleDoctorImage)
+                                                .image,
+                                        fit: BoxFit.fill,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                              Container(
-                                margin: const EdgeInsets.only(
-                                    left: 10, top: 10, right: 10),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
+                                  Container(
+                                    margin: const EdgeInsets.only(
+                                        left: 10, top: 10, right: 10),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Container(
-                                          //height: 50,
-                                          width: width * 0.5,
-                                          child: Text(
-                                            doctorName,
-                                            style: AppTextStyle.textBoldStyle(
-                                                color: AppColors.testColor,
-                                                fontSize: 15),
-                                          ),
+                                        Row(
+                                          children: [
+                                            Container(
+                                              //height: 50,
+                                              width: width * 0.5,
+                                              child: Text(
+                                                doctorName,
+                                                style:
+                                                    AppTextStyle.textBoldStyle(
+                                                        color:
+                                                            AppColors.testColor,
+                                                        fontSize: 15),
+                                              ),
+                                            ),
+                                            Spacing(),
+                                            // Text(
+                                            //   "Cardiologist",
+                                            //   style: AppTextStyle
+                                            //       .textNormalStyle(
+                                            //           color:
+                                            //               AppColors.testColor,
+                                            //           fontSize: 15),
+                                            // ),
+                                          ],
                                         ),
-                                        Spacing(),
-                                        // Text(
-                                        //   "Cardiologist",
-                                        //   style: AppTextStyle
-                                        //       .textNormalStyle(
-                                        //           color:
-                                        //               AppColors.testColor,
-                                        //           fontSize: 15),
-                                        // ),
+                                        Text(
+                                          hprId,
+                                          style: AppTextStyle.textBoldStyle(
+                                              color: AppColors.doctorNameColor,
+                                              fontSize: 12),
+                                        ),
+                                        SizedBox(height: 4),
+                                        Text(
+                                          //"Tomorrow at 8:42 AM",
+                                          appointmentStartDate +
+                                              " at " +
+                                              appointmentStartTime,
+                                          style: AppTextStyle.textBoldStyle(
+                                              color: AppColors.testColor,
+                                              fontSize: 15),
+                                        ),
+                                        SizedBox(height: 4),
+                                        Text(
+                                          "$duration minutes",
+                                          style: AppTextStyle.textLightStyle(
+                                              color: AppColors.testColor,
+                                              fontSize: 13),
+                                        ),
+                                        SizedBox(height: 4),
+                                        Text(
+                                          upcomingAppointmentList[0]!
+                                                      .serviceFulfillmentType ==
+                                                  DataStrings.teleconsultation
+                                              ? DataStrings.teleconsultation
+                                              : AppStrings()
+                                                  .physicalConsultationString,
+                                          style: AppTextStyle.textBoldStyle(
+                                              color: AppColors.testColor,
+                                              fontSize: 15),
+                                        ),
                                       ],
                                     ),
-                                    Text(
-                                      hprId,
-                                      style: AppTextStyle.textBoldStyle(
-                                          color: AppColors.doctorNameColor,
-                                          fontSize: 12),
-                                    ),
-                                    SizedBox(height: 4),
-                                    Text(
-                                      //"Tomorrow at 8:42 AM",
-                                      appointmentStartDate +
-                                          " at " +
-                                          appointmentStartTime,
-                                      style: AppTextStyle.textBoldStyle(
-                                          color: AppColors.testColor,
-                                          fontSize: 15),
-                                    ),
-                                    SizedBox(height: 4),
-                                    Text(
-                                      "$duration minutes",
-                                      style: AppTextStyle.textLightStyle(
-                                          color: AppColors.testColor,
-                                          fontSize: 13),
-                                    ),
-                                    SizedBox(height: 4),
-                                    Text(
-                                      upcomingAppointmentList[0]!
-                                                  .serviceFulfillmentType ==
-                                              DataStrings.teleconsultation
-                                          ? DataStrings.teleconsultation
-                                          : AppStrings()
-                                              .physicalConsultationString,
-                                      style: AppTextStyle.textBoldStyle(
-                                          color: AppColors.testColor,
-                                          fontSize: 15),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
-                        ),
-                      ),
-                      Spacing(isWidth: false),
-                      Container(
-                        decoration: const BoxDecoration(
-                            border: Border(
-                                bottom: BorderSide(
-                          width: 1,
-                          color: Color(0xFFF0F3F4),
-                          // color: Colors.green,
-                        ))),
-                      ),
-                      //Spacing(isWidth: false),
-                      // Padding(
-                      //   padding: const EdgeInsets.only(left: 20, right: 20),
-                      //   child: Row(
-                      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      //     crossAxisAlignment: CrossAxisAlignment.center,
-                      //     children: [
-                      //       GestureDetector(
-                      //         onTap: () {
-                      //           Get.to(CancelAppointment(
-                      //               discoveryFulfillments:
-                      //                   bookOnConfirmUpcomingResponseModel
-                      //                       .message!.order!.fulfillment));
-                      //         },
-                      //         child: Row(
-                      //           mainAxisAlignment:
-                      //               MainAxisAlignment.spaceBetween,
-                      //           crossAxisAlignment: CrossAxisAlignment.center,
-                      //           children: [
-                      //             Image.asset(
-                      //               'assets/images/cross.png',
-                      //               height: 16,
-                      //               width: 16,
-                      //             ),
-                      //             Spacing(size: 5),
-                      //             Text(
-                      //               AppStrings().cancel,
-                      //               style: AppTextStyle.textLightStyle(
-                      //                   color: AppColors.tileColors,
-                      //                   fontSize: 12),
-                      //             ),
-                      //           ],
-                      //         ),
-                      //       ),
-                      //       //Spacing(isWidth: true),
-                      //       Container(
-                      //         color: Color(0xFFF0F3F4),
-                      //         height: 60,
-                      //         width: 1,
-                      //       ),
-                      //       //Spacing(isWidth: true),
-                      //       GestureDetector(
-                      //         onTap: () async {
-                      //           //rescheduleAppointment();
-                      //         },
-                      //         child: Row(
-                      //           mainAxisAlignment:
-                      //               MainAxisAlignment.spaceBetween,
-                      //           crossAxisAlignment: CrossAxisAlignment.center,
-                      //           children: [
-                      //             Image.asset(
-                      //               'assets/images/Calendar.png',
-                      //               height: 16,
-                      //               width: 16,
-                      //             ),
-                      //             Spacing(size: 5),
-                      //             Text(
-                      //               AppStrings().reschedule,
-                      //               style: AppTextStyle.textLightStyle(
-                      //                   color: AppColors.tileColors,
-                      //                   fontSize: 12),
-                      //             ),
-                      //           ],
-                      //         ),
-                      //       ),
-                      //       Container(
-                      //         color: Color(0xFFF0F3F4),
-                      //         height: 60,
-                      //         width: 1,
-                      //       ),
-                      //       GestureDetector(
-                      //         onTap: () {
-                      //           //Get.to(ChatPage());
-                      //           Get.to(() => ChatPage(
-                      //                 doctorHprId: upcomingAppointmentList[0]
-                      //                     ?.healthcareProfessionalId,
-                      //                 patientAbhaId:
-                      //                     upcomingAppointmentList[0]?.abhaId,
-                      //                 doctorName: doctorName,
-                      //                 doctorGender: gender,
-                      //                 providerUri: upcomingAppointmentList[0]
-                      //                     ?.healthcareProviderUrl,
-                      //               ));
-                      //         },
-                      //         child: Padding(
-                      //           padding: const EdgeInsets.only(left: 8),
-                      //           child: Row(
-                      //             mainAxisAlignment:
-                      //                 MainAxisAlignment.spaceBetween,
-                      //             crossAxisAlignment: CrossAxisAlignment.center,
-                      //             children: [
-                      //               Image.asset(
-                      //                 'assets/images/Chat.png',
-                      //                 height: 16,
-                      //                 width: 16,
-                      //               ),
-                      //               Spacing(size: 5),
-                      //               Text(
-                      //                 AppStrings().startChat,
-                      //                 style: AppTextStyle.textLightStyle(
-                      //                     color: AppColors.tileColors,
-                      //                     fontSize: 12),
-                      //               ),
-                      //             ],
-                      //           ),
-                      //         ),
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10, right: 10),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: showDoctorActionView(
-                                  assetImage: 'assets/images/cross.png',
-                                  color: AppColors.infoIconColor,
-                                  actionText: AppStrings().cancel,
-                                  onTap: () {
-                                    final result = Get.to(() => CancelAppointment(
-                                        isRescheduleAppointment: false,
-                                        upcomingAppointmentResponseModal:
-                                            upcomingAppointmentList[0],
-                                        discoveryFulfillments:
-                                            bookOnConfirmUpcomingResponseModel
-                                                .message!.order!.fulfillment));
-                                    if (result != null && result == true) {
-                                      showProgressDialog();
-                                      getUpdatedAppointments();
-                                    }
-                                  }),
-                            ),
-                            Container(
-                              color: Color(0xFFF0F3F4),
-                              height: 60,
+                          Spacing(isWidth: false),
+                          Container(
+                            decoration: const BoxDecoration(
+                                border: Border(
+                                    bottom: BorderSide(
                               width: 1,
-                            ),
-                            Expanded(
-                              child: showDoctorActionView(
-                                  assetImage: 'assets/images/Calendar.png',
-                                  color: AppColors.infoIconColor,
-                                  actionText: AppStrings().reschedule,
-                                  onTap: () async {
-                                    //rescheduleAppointment();
-                                    final result = Get.to(() => CancelAppointment(
-                                        isRescheduleAppointment: true,
-                                        upcomingAppointmentResponseModal:
-                                            upcomingAppointmentList[0],
-                                        discoveryFulfillments:
-                                            bookOnConfirmUpcomingResponseModel
-                                                .message!.order!.fulfillment));
-                                    if (result != null && result == true) {
-                                      showProgressDialog();
-                                      getUpdatedAppointments();
-                                    }
-                                  }),
-                            ),
-                            Container(
                               color: Color(0xFFF0F3F4),
-                              height: 60,
-                              width: 1,
+                              // color: Colors.green,
+                            ))),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 10, right: 10),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  child: showDoctorActionView(
+                                      assetImage: 'assets/images/cross.png',
+                                      color: AppColors.infoIconColor,
+                                      actionText: AppStrings().cancel,
+                                      onTap: () {
+                                        final result = Get.to(() =>
+                                            CancelAppointment(
+                                                isRescheduleAppointment: false,
+                                                upcomingAppointmentResponseModal:
+                                                    upcomingAppointmentList[0],
+                                                discoveryFulfillments:
+                                                    bookOnConfirmUpcomingResponseModel
+                                                        .message!
+                                                        .order!
+                                                        .fulfillment));
+                                        if (result != null && result == true) {
+                                          showProgressDialog();
+                                          getUpdatedAppointments();
+                                        }
+                                      }),
+                                ),
+                                Container(
+                                  color: Color(0xFFF0F3F4),
+                                  height: 60,
+                                  width: 1,
+                                ),
+                                Expanded(
+                                  child: showDoctorActionView(
+                                      assetImage: 'assets/images/Calendar.png',
+                                      color: AppColors.infoIconColor,
+                                      actionText: AppStrings().reschedule,
+                                      onTap: () async {
+                                        //rescheduleAppointment();
+                                        final result = Get.to(() =>
+                                            CancelAppointment(
+                                                isRescheduleAppointment: true,
+                                                upcomingAppointmentResponseModal:
+                                                    upcomingAppointmentList[0],
+                                                discoveryFulfillments:
+                                                    bookOnConfirmUpcomingResponseModel
+                                                        .message!
+                                                        .order!
+                                                        .fulfillment));
+                                        if (result != null && result == true) {
+                                          showProgressDialog();
+                                          getUpdatedAppointments();
+                                        }
+                                      }),
+                                ),
+                                Container(
+                                  color: Color(0xFFF0F3F4),
+                                  height: 60,
+                                  width: 1,
+                                ),
+                                Expanded(
+                                  child: showDoctorActionView(
+                                      assetImage: 'assets/images/Chat.png',
+                                      color: AppColors.infoIconColor,
+                                      actionText: AppStrings().startChat,
+                                      onTap: () async {
+                                        // Get.to(() => ChatPage(
+                                        //       doctorHprId:
+                                        //           upcomingAppointmentList[0]
+                                        //               ?.healthcareProfessionalId,
+                                        //       patientAbhaId:
+                                        //           upcomingAppointmentList[0]
+                                        //               ?.abhaId,
+                                        //       doctorName: doctorName,
+                                        //       doctorGender: gender,
+                                        //       providerUri:
+                                        //           upcomingAppointmentList[0]
+                                        //               ?.healthcareProviderUrl,
+                                        //     ));
+                                        Get.toNamed(AppRoutes.chatPage,
+                                            arguments: <String, dynamic>{
+                                              'doctorHprId':
+                                                  upcomingAppointmentList[0]
+                                                      ?.healthcareProfessionalId,
+                                              'patientAbhaId':
+                                                  upcomingAppointmentList[0]
+                                                      ?.abhaId,
+                                              'doctorName': doctorName,
+                                              'doctorGender': gender,
+                                              'providerUri':
+                                                  upcomingAppointmentList[0]
+                                                      ?.healthcareProviderUrl,
+                                              'allowSendMessage': true,
+                                            });
+                                      }),
+                                ),
+                              ],
                             ),
-                            Expanded(
-                              child: showDoctorActionView(
-                                  assetImage: 'assets/images/Chat.png',
-                                  color: AppColors.infoIconColor,
-                                  actionText: AppStrings().startChat,
-                                  onTap: () async {
-                                    // Get.to(() => ChatPage(
-                                    //       doctorHprId:
-                                    //           upcomingAppointmentList[0]
-                                    //               ?.healthcareProfessionalId,
-                                    //       patientAbhaId:
-                                    //           upcomingAppointmentList[0]
-                                    //               ?.abhaId,
-                                    //       doctorName: doctorName,
-                                    //       doctorGender: gender,
-                                    //       providerUri:
-                                    //           upcomingAppointmentList[0]
-                                    //               ?.healthcareProviderUrl,
-                                    //     ));
-                                    Get.toNamed(AppRoutes.chatPage,
-                                        arguments: <String, dynamic>{
-                                          'doctorHprId':
-                                              upcomingAppointmentList[0]
-                                                  ?.healthcareProfessionalId,
-                                          'patientAbhaId':
-                                              upcomingAppointmentList[0]
-                                                  ?.abhaId,
-                                          'doctorName': doctorName,
-                                          'doctorGender': gender,
-                                          'providerUri':
-                                              upcomingAppointmentList[0]
-                                                  ?.healthcareProviderUrl,
-                                          'allowSendMessage': true,
-                                        });
-                                  }),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                )
+                    )
+                  : _groupConsultAppointment != null
+                      ? buildGroupConsultNewDoctorTile(
+                          _groupConsultAppointment!)
+                      : Center(
+                          child: Text(
+                            AppStrings().noUpcomingAppointmentsFound,
+                            style: AppTextStyle.textBoldStyle(
+                                color: AppColors
+                                    .appointmentConfirmDoctorActionsTextColor,
+                                fontSize: 14),
+                          ),
+                        )
               : Center(
                   child: Text(
                     AppStrings().noUpcomingAppointmentsFound,
@@ -1874,7 +1804,481 @@ class _DiscoverServicesPageState extends State<HomePage>
                   : DataStrings.physicalConsultation,
           isRescheduling: true,
           bookingConfirmResponseModel: bookOnConfirmUpcomingResponseModel,
+          uniqueId: Uuid().v1(),
         ));
+  }
+
+  String minBetween(
+    DateTime s1Start,
+    DateTime s1End,
+    DateTime s2Start,
+    DateTime s2End,
+  ) {
+    if ((s2Start.isAfter(s1Start) || s2Start.isAtSameMomentAs(s1Start)) &&
+        (s2End.isBefore(s1End) || s2End.isAtSameMomentAs(s1End))) {
+      return "s2";
+    } else if ((s1Start.isAfter(s2Start) ||
+            s2Start.isAtSameMomentAs(s1Start)) &&
+        (s1End.isBefore(s2End) || s2End.isAtSameMomentAs(s1End))) {
+      return "s1";
+    }
+    return "";
+  }
+
+  buildGroupConsultNewDoctorTile(GroupConsultAppointment response) {
+    UpcomingAppointmentResponseModal? docOneResponse;
+    UpcomingAppointmentResponseModal? docTwoResponse;
+
+    docOneResponse = response.listOfResponses?[0];
+    docTwoResponse = response.listOfResponses?[1];
+
+    String appointmentStartDate = "";
+    String appointmentEndDate = "";
+    String appointmentStartTime = "";
+    String appointmentEndTime = "";
+    String doctorName = "";
+    String hprId = "";
+    int duration = 0;
+    var tmpStartDate;
+    var tmpEndDate;
+    String gender = "";
+    Uint8List? doctorImage;
+    String minSlotStartDateAndTime;
+    String minSlotEndDateAndTime;
+
+    String doctorNameDocTwo = "";
+    String hprIdDocTwo = "";
+    String genderDocTwo = "";
+    Uint8List? doctorImageTwo;
+
+    _doctorImages.forEach((element) {
+      DoctorImageModel image = DoctorImageModel.fromJson(jsonDecode(element));
+      if (image.doctorHprAddress == docOneResponse?.healthcareProfessionalId) {
+        doctorImage = base64Decode(image.doctorImage ?? "");
+      }
+    });
+
+    DateTime s1Start =
+        DateTime.parse(docOneResponse!.serviceFulfillmentStartTime!);
+    DateTime s1End = DateTime.parse(docOneResponse.serviceFulfillmentEndTime!);
+    DateTime s2Start =
+        DateTime.parse(docTwoResponse!.serviceFulfillmentStartTime!);
+    DateTime s2End = DateTime.parse(docTwoResponse.serviceFulfillmentEndTime!);
+
+    String slotName = minBetween(s1Start, s1End, s2Start, s2End);
+
+    if (slotName == "s1") {
+      minSlotStartDateAndTime = docOneResponse.serviceFulfillmentStartTime!;
+      minSlotEndDateAndTime = docOneResponse.serviceFulfillmentEndTime!;
+    } else {
+      minSlotStartDateAndTime = docTwoResponse.serviceFulfillmentStartTime!;
+      minSlotEndDateAndTime = docTwoResponse.serviceFulfillmentEndTime!;
+    }
+
+    tmpStartDate = minSlotStartDateAndTime;
+    appointmentStartDate =
+        DateFormat("dd MMM y").format(DateTime.parse(tmpStartDate));
+    appointmentStartTime =
+        DateFormat("hh:mm a").format(DateTime.parse(tmpStartDate));
+    tmpEndDate = minSlotEndDateAndTime;
+    appointmentEndDate =
+        DateFormat("dd MMM y").format(DateTime.parse(tmpEndDate));
+    appointmentEndTime =
+        DateFormat("hh:mm a").format(DateTime.parse(tmpEndDate));
+
+    gender = docOneResponse.healthcareProfessionalGender!;
+    doctorName =
+        docOneResponse.healthcareProfessionalName!.split("-")[1].trim();
+    hprId = docOneResponse.healthcareProfessionalId ?? "";
+
+    DateTime tempStartDate = DateFormat("y-MM-ddTHH:mm:ss").parse(tmpStartDate);
+    DateTime tempEndDate = DateFormat("y-MM-ddTHH:mm:ss").parse(tmpEndDate);
+    duration = tempEndDate.difference(tempStartDate).inMinutes;
+
+    doctorNameDocTwo =
+        docTwoResponse.healthcareProfessionalName!.split("-")[1].trim();
+    hprIdDocTwo = docTwoResponse.healthcareProfessionalId ?? "";
+    genderDocTwo = docTwoResponse.healthcareProfessionalGender ?? "";
+    doctorImage =
+        base64Decode(docTwoResponse.healthcareProfessionalImage ?? "");
+
+    return Container(
+      width: width * 0.9,
+      padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: const [
+          BoxShadow(
+            offset: Offset(0, 5),
+            blurRadius: 10,
+            color: Color(0x1B1C204D),
+          )
+        ],
+      ),
+      child: Column(
+        children: [
+          GestureDetector(
+            onTap: () {
+              Get.to(MultipleDoctorAppointmentStatusPage(
+                consultationType: docOneResponse?.serviceFulfillmentType ==
+                        DataStrings.teleconsultation
+                    ? DataStrings.teleconsultation
+                    : DataStrings.physicalConsultation,
+                docOneConfirmResponse: BookingConfirmResponseModel.fromJson(
+                    jsonDecode(docOneResponse!.message!)),
+                docTwoConfirmResponse: BookingConfirmResponseModel.fromJson(
+                    jsonDecode(docTwoResponse!.message!)),
+                navigateToHomeAndRefresh: false,
+                appointmentStartDateAndTime: minSlotStartDateAndTime,
+                appointmentEndDateAndTime: minSlotEndDateAndTime,
+              ));
+            },
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 20.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: width * 0.2,
+                        height: width * 0.2,
+                        padding: EdgeInsets.only(top: 10),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            image:
+                                doctorImage != null && doctorImage!.isNotEmpty
+                                    ? Image.memory(doctorImage!).image
+                                    : Image.network(gender == "M"
+                                            ? AppStrings().maleDoctorImage
+                                            : AppStrings().femaleDoctorImage)
+                                        .image,
+                            fit: BoxFit.fill,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        margin:
+                            const EdgeInsets.only(left: 10, top: 10, right: 10),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  width: width * 0.5,
+                                  child: Text(
+                                    doctorName,
+                                    style: AppTextStyle.textBoldStyle(
+                                        color: AppColors.testColor,
+                                        fontSize: 15),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Text(
+                              hprId,
+                              style: AppTextStyle.textBoldStyle(
+                                  color: AppColors.doctorNameColor,
+                                  fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Spacing(
+                  isWidth: false,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 20.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: width * 0.2,
+                        height: width * 0.2,
+                        padding: EdgeInsets.only(top: 12),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            image: doctorImageTwo != null &&
+                                    doctorImageTwo.isNotEmpty
+                                ? Image.memory(doctorImageTwo).image
+                                : Image.network(genderDocTwo == "M"
+                                        ? AppStrings().maleDoctorImage
+                                        : AppStrings().femaleDoctorImage)
+                                    .image,
+                            fit: BoxFit.fill,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        margin:
+                            const EdgeInsets.only(left: 10, top: 10, right: 10),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  width: width * 0.5,
+                                  child: Text(
+                                    doctorNameDocTwo,
+                                    style: AppTextStyle.textBoldStyle(
+                                        color: AppColors.testColor,
+                                        fontSize: 15),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Text(
+                              hprIdDocTwo,
+                              style: AppTextStyle.textBoldStyle(
+                                  color: AppColors.doctorNameColor,
+                                  fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Spacing(
+                  isWidth: false,
+                ),
+                Container(
+                  padding: const EdgeInsets.only(left: 25.0, right: 25),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          //"Tomorrow at 8:42 AM",
+                          "$appointmentStartDate at $appointmentStartTime · $duration minutes",
+                          style: AppTextStyle.textBoldStyle(
+                              color: AppColors.testColor, fontSize: 15),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Spacing(
+                  isWidth: false,
+                ),
+                Container(
+                  padding: const EdgeInsets.only(left: 25.0, right: 25),
+                  child: Text(
+                    docOneResponse.serviceFulfillmentType ==
+                            DataStrings.teleconsultation
+                        ? DataStrings.teleconsultation
+                        : AppStrings().physicalConsultationString,
+                    style: AppTextStyle.textBoldStyle(
+                        color: AppColors.testColor, fontSize: 15),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Spacing(isWidth: false),
+          Container(
+            decoration: const BoxDecoration(
+                border: Border(
+                    bottom: BorderSide(
+              width: 1,
+              color: Color(0xFFF0F3F4),
+              // color: Colors.green,
+            ))),
+          ),
+          //Spacing(isWidth: false),
+          // Padding(
+          //   padding: const EdgeInsets.only(left: 20, right: 20),
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //     crossAxisAlignment: CrossAxisAlignment.center,
+          //     children: [
+          //       GestureDetector(
+          //         onTap: () {
+          //           //Get.to(const CancelAppointment());
+          //         },
+          //         child: Row(
+          //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //           crossAxisAlignment: CrossAxisAlignment.center,
+          //           children: [
+          //             Image.asset(
+          //               'assets/images/cross.png',
+          //               height: 16,
+          //               width: 16,
+          //             ),
+          //             Spacing(size: 5),
+          //             Text(
+          //               AppStrings().cancel,
+          //               style: AppTextStyle.textLightStyle(
+          //                   color: AppColors.tileColors, fontSize: 12),
+          //             ),
+          //           ],
+          //         ),
+          //       ),
+          //       //Spacing(isWidth: true),
+          //       Container(
+          //         color: Color(0xFFF0F3F4),
+          //         height: 60,
+          //         width: 1,
+          //       ),
+          //       //Spacing(isWidth: true),
+          //       GestureDetector(
+          //         onTap: () {
+          //           //rescheduleAppointment(index);
+          //         },
+          //         child: Row(
+          //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //           crossAxisAlignment: CrossAxisAlignment.center,
+          //           children: [
+          //             Image.asset(
+          //               'assets/images/Calendar.png',
+          //               height: 16,
+          //               width: 16,
+          //             ),
+          //             Spacing(size: 5),
+          //             Text(
+          //               AppStrings().reschedule,
+          //               style: AppTextStyle.textLightStyle(
+          //                   color: AppColors.tileColors, fontSize: 12),
+          //             ),
+          //           ],
+          //         ),
+          //       ),
+          //       Container(
+          //         color: Color(0xFFF0F3F4),
+          //         height: 60,
+          //         width: 1,
+          //       ),
+          //       GestureDetector(
+          //         onTap: () {
+          //           Get.to(() => ChatPage(
+          //                 doctorHprId: upcomingAppointmentList[index]
+          //                     ?.healthcareProfessionalId,
+          //                 patientAbhaId: upcomingAppointmentList[index]?.abhaId,
+          //                 doctorName: doctorName,
+          //                 doctorGender: gender,
+          //                 providerUri:
+          //                     upcomingAppointmentList[0]?.healthcareProviderUrl,
+          //               ));
+          //         },
+          //         child: Padding(
+          //           padding: const EdgeInsets.only(left: 8),
+          //           child: Row(
+          //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //             crossAxisAlignment: CrossAxisAlignment.center,
+          //             children: [
+          //               Image.asset(
+          //                 'assets/images/Chat.png',
+          //                 height: 16,
+          //                 width: 16,
+          //               ),
+          //               Spacing(size: 5),
+          //               Text(
+          //                 AppStrings().startChat,
+          //                 style: AppTextStyle.textLightStyle(
+          //                     color: AppColors.tileColors, fontSize: 12),
+          //               ),
+          //             ],
+          //           ),
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
+          Padding(
+            padding: const EdgeInsets.only(left: 10, right: 10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: showDoctorActionView(
+                    assetImage: 'assets/images/cross.png',
+                    color: AppColors.appointmentConfirmDoctorActionsTextColor,
+                    actionText: AppStrings().cancel,
+                    onTap: () async {
+                      //   final result = await Get.to(() => CancelAppointment(
+                      //       isRescheduleAppointment: false,
+                      //       upcomingAppointmentResponseModal:
+                      //           upcomingAppointmentList[index],
+                      //       discoveryFulfillments:
+                      //           bookingConfirmResponseModel[index]
+                      //               .message!
+                      //               .order!
+                      //               .fulfillment));
+
+                      //   if (result != null && result == true) {
+                      //     showProgressDialog();
+                      //     getUpcomingAppointments();
+                      //   }
+                    },
+                  ),
+                ),
+                Container(
+                  color: Color(0xFFF0F3F4),
+                  height: 60,
+                  width: 1,
+                ),
+                Expanded(
+                  child: showDoctorActionView(
+                      assetImage: 'assets/images/Calendar.png',
+                      color: AppColors.appointmentConfirmDoctorActionsTextColor,
+                      actionText: AppStrings().reschedule,
+                      onTap: () async {
+                        //rescheduleAppointment();
+                        // Get.to(() => CancelAppointment(
+                        //     isRescheduleAppointment: true,
+                        //     upcomingAppointmentResponseModal:
+                        //         upcomingAppointmentList[index],
+                        //     discoveryFulfillments:
+                        //         bookingConfirmResponseModel[index]
+                        //             .message!
+                        //             .order!
+                        //             .fulfillment));
+                      }),
+                ),
+                Container(
+                  color: Color(0xFFF0F3F4),
+                  height: 60,
+                  width: 1,
+                ),
+                Expanded(
+                  child: showDoctorActionView(
+                      assetImage: 'assets/images/Chat.png',
+                      color: AppColors.appointmentConfirmDoctorActionsTextColor,
+                      actionText: AppStrings().startChat,
+                      onTap: () async {
+                        // Get.toNamed(AppRoutes.chatPage,
+                        //     arguments: <String, dynamic>{
+                        //       'doctorHprId': upcomingAppointmentList[index]
+                        //           ?.healthcareProfessionalId,
+                        //       'patientAbhaId':
+                        //           upcomingAppointmentList[index]?.abhaId,
+                        //       'doctorName': doctorName,
+                        //       'doctorGender': gender,
+                        //       'providerUri': upcomingAppointmentList[0]
+                        //           ?.healthcareProviderUrl,
+                        //       'allowSendMessage': true,
+                        //     });
+                      }),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override

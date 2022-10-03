@@ -7,6 +7,8 @@ import 'package:uhi_flutter_app/model/response/src/discovery_response_model.dart
 import 'package:uhi_flutter_app/services/services.dart';
 import 'package:uhi_flutter_app/model/model.dart';
 
+import '../../../constants/src/request_urls.dart';
+
 class GetDiscoveryDetailsController extends GetxController
     with ExceptionHandler {
   ///DISCOVERY DETAILS

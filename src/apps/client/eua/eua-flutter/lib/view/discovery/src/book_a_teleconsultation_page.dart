@@ -20,6 +20,8 @@ import 'package:uhi_flutter_app/view/view.dart';
 import 'package:uhi_flutter_app/widgets/src/calendar_date_range_picker.dart';
 import 'package:uhi_flutter_app/widgets/widgets.dart';
 
+import '../../../constants/src/data_strings.dart';
+
 class BookATeleconsultationPage extends StatefulWidget {
   String consultationType;
 

@@ -7,6 +7,7 @@ import 'package:uhi_flutter_app/view/chat/src/chat_page.dart';
 import 'package:uhi_flutter_app/view/view.dart';
 import 'package:uhi_flutter_app/widgets/src/doctor_details_view.dart';
 import 'package:uhi_flutter_app/widgets/src/spacing.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../theme/src/app_colors.dart';
 import '../../../theme/src/app_text_style.dart';
@@ -54,6 +55,7 @@ class _BookAppointmentAgainPageState extends State<BookAppointmentAgain> {
               discoveryFulfillments: widget.discoveryFulfillments!,
               consultationType: widget.consultationType!,
               isRescheduling: false,
+              uniqueId: Uuid().v1(),
             ));
           },
           child: Text(

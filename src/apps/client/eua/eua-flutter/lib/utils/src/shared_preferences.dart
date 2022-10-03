@@ -15,6 +15,8 @@ class SharedPreferencesHelper {
   static const String _encryptionPrivateKey = 'encryptionPrivateKey';
   static const String _encryptionPublicKey = 'encryptionPublicKey';
   static const String _doctorImages = 'doctorImages';
+  static const String bookingOrderIdOne = 'bookingOrderIdOne';
+  static const String bookingOrderIdTwo = 'bookingOrderIdTwo';
 
   static Future<String?> getAccessToken() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();

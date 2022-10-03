@@ -6,6 +6,9 @@ import 'package:uhi_flutter_app/view/authentication/login/src/base_login_page.da
 import 'package:uhi_flutter_app/view/chat/src/show_selected_media_page.dart';
 import 'package:uhi_flutter_app/view/view.dart';
 
+import '../../webrtc/src/video_call/group_video_call.dart';
+import '../../webrtc/src/video_call/video_call.dart';
+
 class AppRoutes {
   static const String splashPage = '/splash';
   static const String baseLoginPage = '/base_login_page';
@@ -14,6 +17,8 @@ class AppRoutes {
   static const String localAuthPage = '/local_auth_page';
   static const String showSelectedMediaPage = '/show_selected_media_page';
   static const String upcomingAppointmentsPage = '/upcoming_appointments_page';
+  static const String videoCallPage = '/video_call_page';
+  static const String groupVideoCallPage = '/group_video_call_page';
 
   static void toNamed(
     String route, {
@@ -60,6 +65,16 @@ appRoutes() => [
       GetPage(
         name: AppRoutes.upcomingAppointmentsPage,
         page: () => const UpcomingAppointmentPage(),
+        transition: CheckInternet.pageTransition,
+      ),
+      GetPage(
+        name: AppRoutes.videoCallPage,
+        page: () => const VideoCall(),
+        transition: CheckInternet.pageTransition,
+      ),
+      GetPage(
+        name: AppRoutes.groupVideoCallPage,
+        page: () => const GroupVideoCall(),
         transition: CheckInternet.pageTransition,
       ),
     ];

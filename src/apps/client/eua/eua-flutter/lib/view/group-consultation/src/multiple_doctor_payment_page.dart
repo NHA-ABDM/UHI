@@ -40,21 +40,29 @@ import 'package:upi_pay/upi_pay.dart';
 
 class MultipleDoctorPaymentPage extends StatefulWidget {
   String? teleconsultationFees;
-  String? doctorsUPIaddress;
+  Fulfillment docOneFulfillment;
+  Fulfillment docTwoFulfillment;
   BookingOnInitResponseModel docOneInitResponse;
   BookingOnInitResponseModel docTwoInitResponse;
   String consultationType;
   String? doctorImage;
+  String uniqueId;
+  String appointmentStartDateAndTime;
+  String appointmentEndDateAndTime;
 
   // BookingConfirmResponseModel? bookingConfirmResponseModel;
   MultipleDoctorPaymentPage({
     Key? key,
     this.teleconsultationFees,
-    this.doctorsUPIaddress,
+    required this.docOneFulfillment,
+    required this.docTwoFulfillment,
     required this.docOneInitResponse,
     required this.docTwoInitResponse,
     required this.consultationType,
     this.doctorImage,
+    required this.uniqueId,
+    required this.appointmentStartDateAndTime,
+    required this.appointmentEndDateAndTime,
     // this.bookingConfirmResponseModel,
   }) : super(key: key);
 
@@ -74,6 +82,8 @@ class _MultipleDoctorPaymentPageState extends State<MultipleDoctorPaymentPage> {
   // BookingOnInitResponseModel? _bookingOnInitResponseModel;
   BookingOnInitResponseModel? _docOneInitResponse;
   BookingOnInitResponseModel? _docTwoInitResponse;
+  Fulfillment? _docOneFulfillment;
+  Fulfillment? _docTwoFulfillment;
 
   final _postBookingDetailsController = Get.put(PostBookingDetailsController());
 
@@ -93,6 +103,8 @@ class _MultipleDoctorPaymentPageState extends State<MultipleDoctorPaymentPage> {
 
   UpiTransactionResponse? _upiTransactionResponse;
   Timer? _timer;
+  String? _appointmentStartDateAndTime;
+  String? _appointmentEndDateAndTime;
 
   @override
   void initState() {
@@ -100,6 +112,8 @@ class _MultipleDoctorPaymentPageState extends State<MultipleDoctorPaymentPage> {
     // _bookingOnInitResponseModel = widget.bookingOnInitResponseModel;
     _docOneInitResponse = widget.docOneInitResponse;
     _docTwoInitResponse = widget.docTwoInitResponse;
+    _docOneFulfillment = widget.docOneFulfillment;
+    _docTwoFulfillment = widget.docTwoFulfillment;
     SharedPreferencesHelper.getABhaAddress().then((value) => setState(() {
           setState(() {
             debugPrint("Printing the shared preference abhaAddress : $value");
@@ -120,6 +134,9 @@ class _MultipleDoctorPaymentPageState extends State<MultipleDoctorPaymentPage> {
 
     _consultationType = widget.consultationType;
     _doctorImage = widget.doctorImage;
+    _uniqueId = widget.uniqueId != "" ? widget.uniqueId : const Uuid().v1();
+    _appointmentStartDateAndTime = widget.appointmentStartDateAndTime;
+    _appointmentEndDateAndTime = widget.appointmentEndDateAndTime;
   }
 
   @override
@@ -167,6 +184,8 @@ class _MultipleDoctorPaymentPageState extends State<MultipleDoctorPaymentPage> {
               consultationType: _consultationType,
               navigateToHomeAndRefresh: true,
               doctorImage: _doctorImage,
+              appointmentStartDateAndTime: _appointmentStartDateAndTime ?? "",
+              appointmentEndDateAndTime: _appointmentEndDateAndTime ?? "",
             ));
         setState(() {
           isLoadingIndicator = false;
@@ -186,7 +205,7 @@ class _MultipleDoctorPaymentPageState extends State<MultipleDoctorPaymentPage> {
 
   Future<BookingConfirmResponseModel?> getFirstDoctorConfirmResponse() async {
     BookingConfirmResponseModel? bookingConfirmResponseModel;
-    _uniqueId = const Uuid().v1();
+    // _uniqueId = const Uuid().v1();
 
     _timer =
         await Timer.periodic(Duration(milliseconds: 100), (timer) async {});
@@ -225,7 +244,7 @@ class _MultipleDoctorPaymentPageState extends State<MultipleDoctorPaymentPage> {
 
   Future<BookingConfirmResponseModel?> getSecondDoctorConfirmResponse() async {
     BookingConfirmResponseModel? bookingConfirmResponseModel;
-    _uniqueId = const Uuid().v1();
+    // _uniqueId = const Uuid().v1();
     _timer =
         await Timer.periodic(Duration(milliseconds: 100), (timer) async {});
 
@@ -283,7 +302,8 @@ class _MultipleDoctorPaymentPageState extends State<MultipleDoctorPaymentPage> {
         GetUserDetailsResponse.fromJson(jsonDecode(userData!));
 
     final prefs = await SharedPreferences.getInstance();
-    String? orderId = await prefs.getString(AppStrings().bookingOrderIdOne);
+    String? orderId =
+        await prefs.getString(SharedPreferencesHelper.bookingOrderIdOne);
 
     developer.log("$orderId", name: "ORDER ID");
 
@@ -318,7 +338,60 @@ class _MultipleDoctorPaymentPageState extends State<MultipleDoctorPaymentPage> {
     DiscoveryPrice priceReg = DiscoveryPrice();
     DiscoveryPrice price = DiscoveryPrice();
 
-    Fulfillment fulfillment = Fulfillment();
+    Fulfillment? fulfillment = Fulfillment();
+    DiscoveryAgent agent = DiscoveryAgent();
+    Tags tags = Tags();
+
+    // DiscoveryAgent agent = widget.discoveryAgentModel ?? DiscoveryAgent();
+
+    // agent.id = agent.id;
+    // agent.name = agent.name;
+    // agent.gender = agent.gender;
+    // agent.tags = agent.tags;
+
+    developer.log("${jsonEncode(_docOneFulfillment)}");
+
+    agent.id = _docOneFulfillment?.agent?.id;
+    agent.name = _docOneFulfillment?.agent?.name;
+    agent.gender = _docOneFulfillment?.agent?.gender;
+
+    tags.abdmGovInGroupConsultation = _docOneInitResponse
+        ?.message?.order?.fulfillment?.agent?.tags?.abdmGovInGroupConsultation;
+    tags.abdmGovInPrimaryDoctor =
+        _docOneFulfillment?.agent?.tags?.abdmGovInPrimaryDoctor;
+    tags.abdmGovInSecondaryDoctor =
+        _docOneFulfillment?.agent?.tags?.abdmGovInSecondaryDoctor;
+
+    tags.education = _docOneFulfillment?.agent?.tags?.education;
+    tags.experience = _docOneFulfillment?.agent?.tags?.experience;
+    tags.firstConsultation = _docOneFulfillment?.agent?.tags?.firstConsultation;
+    tags.followUp = _docOneFulfillment?.agent?.tags?.followUp;
+    tags.hprId = _docOneFulfillment?.agent?.tags?.hprId;
+    tags.languageSpokenTag = _docOneFulfillment?.agent?.tags?.languageSpokenTag;
+    tags.medicinesTag = _docOneFulfillment?.agent?.tags?.medicinesTag;
+    tags.slotId = _docOneFulfillment?.agent?.tags?.slotId;
+    tags.specialtyTag = _docOneFulfillment?.agent?.tags?.specialtyTag;
+    tags.upiId = _docOneFulfillment?.agent?.tags?.upiId;
+
+    tags.patientName = getUserDetailsResponseModel.fullName;
+    tags.patientGender = getUserDetailsResponseModel.gender;
+    tags.patientPHRAddress = abhaAddress;
+
+    tags.primaryDoctorGender = _docOneFulfillment?.agent?.gender;
+    tags.primaryDoctorHPRAddress = _docOneFulfillment?.agent?.id;
+    tags.primaryDoctorName = _docOneFulfillment?.agent?.name;
+    tags.primaryDoctorProviderURI = _docOneInitResponse?.context?.providerUrl;
+
+    tags.secondaryDoctorGender = _docTwoFulfillment?.agent?.gender;
+    tags.secondaryDoctorHPRAddress = _docTwoFulfillment?.agent?.id;
+    tags.secondaryDoctorName = _docTwoFulfillment?.agent?.name;
+    tags.secondaryDoctorProviderURI = _docTwoInitResponse?.context?.providerUrl;
+
+    agent.tags = tags;
+
+    fulfillment.agent = agent;
+    fulfillment.type = _consultationType;
+
     InitTimeSlotTags initTimeSlotTags = InitTimeSlotTags();
 
     Billing? billing = Billing();
@@ -355,7 +428,7 @@ class _MultipleDoctorPaymentPageState extends State<MultipleDoctorPaymentPage> {
 
     fulfillment.start = start;
     fulfillment.end = end;
-    fulfillment.agent = _docOneInitResponse?.message?.order?.fulfillment?.agent;
+    // fulfillment.agent = _docOneInitResponse?.message?.order?.fulfillment?.agent;
     fulfillment.type = _docOneInitResponse?.message?.order?.fulfillment?.type;
     fulfillment.id = _docOneInitResponse?.message?.order?.fulfillment?.id;
 
@@ -461,7 +534,8 @@ class _MultipleDoctorPaymentPageState extends State<MultipleDoctorPaymentPage> {
         GetUserDetailsResponse.fromJson(jsonDecode(userData!));
 
     final prefs = await SharedPreferences.getInstance();
-    String? orderId = await prefs.getString(AppStrings().bookingOrderIdTwo);
+    String? orderId =
+        await prefs.getString(SharedPreferencesHelper.bookingOrderIdTwo);
 
     developer.log("$orderId", name: "ORDER ID");
 
@@ -497,6 +571,55 @@ class _MultipleDoctorPaymentPageState extends State<MultipleDoctorPaymentPage> {
     DiscoveryPrice price = DiscoveryPrice();
 
     Fulfillment fulfillment = Fulfillment();
+    DiscoveryAgent agent = DiscoveryAgent();
+    Tags tags = Tags();
+
+    // DiscoveryAgent agent = widget.discoveryAgentModel ?? DiscoveryAgent();
+    // agent.id = agent.id;
+    // agent.name = agent.name;
+    // agent.gender = agent.gender;
+    // agent.tags = agent.tags;
+
+    agent.id = _docTwoFulfillment?.agent?.id;
+    agent.name = _docTwoFulfillment?.agent?.name;
+    agent.gender = _docTwoFulfillment?.agent?.gender;
+
+    tags.abdmGovInGroupConsultation = _docTwoInitResponse
+        ?.message?.order?.fulfillment?.agent?.tags?.abdmGovInGroupConsultation;
+    tags.abdmGovInPrimaryDoctor =
+        _docTwoFulfillment?.agent?.tags?.abdmGovInPrimaryDoctor;
+    tags.abdmGovInSecondaryDoctor =
+        _docTwoFulfillment?.agent?.tags?.abdmGovInSecondaryDoctor;
+    tags.education = _docTwoFulfillment?.agent?.tags?.education;
+    tags.experience = _docTwoFulfillment?.agent?.tags?.experience;
+    tags.firstConsultation = _docTwoFulfillment?.agent?.tags?.firstConsultation;
+    tags.followUp = _docTwoFulfillment?.agent?.tags?.followUp;
+    tags.hprId = _docTwoFulfillment?.agent?.tags?.hprId;
+    tags.languageSpokenTag = _docTwoFulfillment?.agent?.tags?.languageSpokenTag;
+    tags.medicinesTag = _docTwoFulfillment?.agent?.tags?.medicinesTag;
+    tags.slotId = _docTwoFulfillment?.agent?.tags?.slotId;
+    tags.specialtyTag = _docTwoFulfillment?.agent?.tags?.specialtyTag;
+    tags.upiId = _docTwoFulfillment?.agent?.tags?.upiId;
+
+    tags.patientName = getUserDetailsResponseModel.fullName;
+    tags.patientGender = getUserDetailsResponseModel.gender;
+    tags.patientPHRAddress = abhaAddress;
+
+    tags.primaryDoctorGender = _docOneFulfillment?.agent?.gender;
+    tags.primaryDoctorHPRAddress = _docOneFulfillment?.agent?.id;
+    tags.primaryDoctorName = _docOneFulfillment?.agent?.name;
+    tags.primaryDoctorProviderURI = _docOneInitResponse?.context?.providerUrl;
+
+    tags.secondaryDoctorGender = _docTwoFulfillment?.agent?.gender;
+    tags.secondaryDoctorHPRAddress = _docTwoFulfillment?.agent?.id;
+    tags.secondaryDoctorName = _docTwoFulfillment?.agent?.name;
+    tags.secondaryDoctorProviderURI = _docTwoInitResponse?.context?.providerUrl;
+
+    agent.tags = tags;
+
+    fulfillment.agent = agent;
+    fulfillment.type = _consultationType;
+
     InitTimeSlotTags initTimeSlotTags = InitTimeSlotTags();
 
     Billing? billing = Billing();
@@ -533,7 +656,7 @@ class _MultipleDoctorPaymentPageState extends State<MultipleDoctorPaymentPage> {
 
     fulfillment.start = start;
     fulfillment.end = end;
-    fulfillment.agent = _docTwoInitResponse?.message?.order?.fulfillment?.agent;
+    // fulfillment.agent = _docTwoInitResponse?.message?.order?.fulfillment?.agent;
     fulfillment.type = _docTwoInitResponse?.message?.order?.fulfillment?.type;
     fulfillment.id = _docTwoInitResponse?.message?.order?.fulfillment?.id;
 
@@ -818,7 +941,7 @@ class _MultipleDoctorPaymentPageState extends State<MultipleDoctorPaymentPage> {
   }
 
   Future<void> _onTap(ApplicationMeta applicationMeta) async {
-    final err = _validateUpiAddress(widget.doctorsUPIaddress!);
+    final err = _validateUpiAddress(_docOneFulfillment?.agent?.id ?? "");
     if (err != null) {
       setState(() {
         _upiAddrError = err;

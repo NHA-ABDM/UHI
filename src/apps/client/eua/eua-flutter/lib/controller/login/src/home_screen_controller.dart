@@ -7,6 +7,8 @@ import 'package:uhi_flutter_app/model/response/src/get_upcoming_appointments_res
 import 'package:uhi_flutter_app/model/response/src/get_user_details_response.dart';
 import 'package:uhi_flutter_app/services/services.dart';
 
+import '../../../constants/src/request_urls.dart';
+
 class HomeScreenController extends GetxController with ExceptionHandler {
   GetUserDetailsResponse? getUserDetailsResponseModel;
   List<UpcomingAppointmentResponseModal?> upcomingAppointmentResponseModal = [];

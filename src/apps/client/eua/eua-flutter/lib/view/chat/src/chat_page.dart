@@ -28,6 +28,8 @@ import 'package:uhi_flutter_app/utils/utils.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../common/src/get_pages.dart';
+import '../../../constants/src/request_urls.dart';
+import '../../../constants/src/strings.dart';
 import '../../../controller/controller.dart';
 
 class ChatPage extends StatefulWidget {
@@ -869,6 +871,7 @@ class _ChatPageState extends State<ChatPage> {
                     //bottomLeft: Radius.circular(16),
                     bottomRight: Radius.circular(16))),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 chatMessageModel.contentType == 'text'
                     ? Text(

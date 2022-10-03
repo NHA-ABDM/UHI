@@ -24,6 +24,7 @@ import 'package:uhi_flutter_app/view/appointment/src/consultation_completed_page
 import 'package:uhi_flutter_app/webRTC/src/call_sample/call_sample.dart';
 import 'package:uhi_flutter_app/widgets/src/spacing.dart';
 
+import '../../../constants/src/data_strings.dart';
 import '../../../observer/home_page_obsevable.dart';
 import '../../../theme/src/app_colors.dart';
 import '../../../theme/src/app_text_style.dart';
@@ -70,7 +71,7 @@ class _AppointmentStatusConfirmPageState
   DateTime appointmentEndTime = DateTime.now().add(Duration(hours: 2));
   DateTime appointmentTimerEndTime = DateTime.now();
   DateTime currentTime = DateTime.now();
-  bool isAppointmentTime = false;
+  bool isAppointmentTime = true;
   Timer? _timer;
   BookingConfirmResponseModel? _bookingConfirmResponseModel;
   String? _consultationType;
@@ -805,14 +806,37 @@ class _AppointmentStatusConfirmPageState
                         actionText: AppStrings().videoCall,
                         onTap: () async {
                           if (isAppointmentTime) {
-                            final result = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => CallSample(
-                                        host: '121.242.73.119',
-                                        doctorsHPRAdd: doctorHPRAdd,
-                                      )),
-                            );
+                            // final result = await Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //       builder: (context) => CallSample(
+                            //             host: '121.242.73.119',
+                            //             doctorsHPRAdd: doctorHPRAdd,
+                            //           )),
+                            // );
+
+                            ///this is for normal one to one video call
+                            final result = Get.toNamed(AppRoutes.videoCallPage,
+                                arguments: <String, dynamic>{
+                                  'initiator': {'address': userAbhaAddress},
+                                  'remoteParticipant': {
+                                    'name': doctorName,
+                                    'gender': gender,
+                                    'address': doctorHPRAdd,
+                                    'uri': _bookingConfirmResponseModel!
+                                        .context!.providerUrl,
+                                  },
+                                });
+
+                            // final result = await Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //       builder: (context) => CallSample(
+                            //             host: '121.242.73.119',
+                            //             doctorsHPRAdd: doctorHPRAdd,
+                            //             doctorName: doctorName,
+                            //           )),
+                            // );
                             log("$result");
                             if (result != null && result == true) {
                               Get.to(() => ConsultationCompletedPage(

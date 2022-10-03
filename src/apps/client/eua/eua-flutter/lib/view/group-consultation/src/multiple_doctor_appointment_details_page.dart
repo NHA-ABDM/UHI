@@ -30,28 +30,38 @@ import 'package:uuid/uuid.dart';
 
 class MultipleDoctorAppointmentDetailsPage extends StatefulWidget {
   Fulfillment docOneDiscoveryFulfillments;
+  String doctor1AbhaId;
   DiscoveryItems? docOneDiscoveryItems;
   TimeSlotModel docOneTimeSlot;
   String docOneProviderUri;
 
   Fulfillment docTwoDiscoveryFulfillments;
+  String doctor2AbhaId;
   DiscoveryItems? docTwoDiscoveryItems;
   TimeSlotModel docTwoTimeSlot;
   String docTwoProviderUri;
 
   String? consultationType;
+  String uniqueId;
+  String appointmentStartTime;
+  String appointmentEndTime;
 
   MultipleDoctorAppointmentDetailsPage({
     Key? key,
+    required this.doctor1AbhaId,
     required this.docOneDiscoveryFulfillments,
     this.docOneDiscoveryItems,
     required this.docOneProviderUri,
     required this.docOneTimeSlot,
     required this.docTwoDiscoveryFulfillments,
+    required this.doctor2AbhaId,
     this.docTwoDiscoveryItems,
     required this.docTwoTimeSlot,
     required this.docTwoProviderUri,
     this.consultationType,
+    required this.uniqueId,
+    required this.appointmentStartTime,
+    required this.appointmentEndTime,
   }) : super(key: key);
 
   @override
@@ -82,6 +92,8 @@ class _MultipleDoctorAppointmentDetailsPageState
   String? _teleconsultationFees = "0/-";
   String? _totalFees = "0/-";
   String? _appointmentDateAndTime;
+  String? _appointmentStartDateAndTime;
+  String? _appointmentEndDateAndTime;
   String _uniqueId = "";
   int messageQueueNum = 0;
   StompClient? stompClient;
@@ -121,6 +133,10 @@ class _MultipleDoctorAppointmentDetailsPageState
     _docOneDiscoveryFulfillments = widget.docOneDiscoveryFulfillments;
     _docTwoDiscoveryFulfillments = widget.docTwoDiscoveryFulfillments;
     _consultationType = widget.consultationType;
+    _uniqueId = widget.uniqueId != "" ? widget.uniqueId : const Uuid().v1();
+    _appointmentStartDateAndTime = widget.appointmentStartTime;
+    _appointmentEndDateAndTime = widget.appointmentEndTime;
+
     if (mounted) {
       futureInitResponse = getResponseOfMultipleDoctors();
     }
@@ -156,7 +172,7 @@ class _MultipleDoctorAppointmentDetailsPageState
     _timer =
         await Timer.periodic(Duration(milliseconds: 100), (timer) async {});
 
-    _uniqueId = const Uuid().v1();
+    // _uniqueId = const Uuid().v1();
 
     stompSocketConnection.connect(
         uniqueId: _uniqueId, api: postInitAPIForDocOne);
@@ -191,7 +207,7 @@ class _MultipleDoctorAppointmentDetailsPageState
     _timer =
         await Timer.periodic(Duration(milliseconds: 100), (timer) async {});
 
-    _uniqueId = const Uuid().v1();
+    // _uniqueId = const Uuid().v1();
 
     stompSocketConnection.connect(
         uniqueId: _uniqueId, api: postInitAPIForDocTwo);
@@ -243,7 +259,7 @@ class _MultipleDoctorAppointmentDetailsPageState
     _orderId = const Uuid().v1();
 
     final prefs = await SharedPreferences.getInstance();
-    prefs.setString(AppStrings().bookingOrderIdOne, _orderId!);
+    prefs.setString(SharedPreferencesHelper.bookingOrderIdOne, _orderId!);
 
     ContextModel contextModel = ContextModel();
     contextModel.domain = "nic2004:85111";
@@ -275,8 +291,12 @@ class _MultipleDoctorAppointmentDetailsPageState
     agent.id = widget.docOneDiscoveryFulfillments.agent?.id;
     agent.name = widget.docOneDiscoveryFulfillments.agent?.name;
     agent.gender = widget.docOneDiscoveryFulfillments.agent?.gender;
-    agent.tags = widget.docOneDiscoveryFulfillments.agent?.tags;
-
+    // agent.tags = widget.docOneDiscoveryFulfillments.agent?.tags;
+    Tags tags = Tags();
+    tags.abdmGovInGroupConsultation = "true";
+    tags.abdmGovInPrimaryDoctor = widget.doctor1AbhaId;
+    tags.abdmGovInSecondaryDoctor = widget.doctor2AbhaId;
+    agent.tags = tags;
     fulfillment.agent = agent;
     fulfillment.id = widget.docOneDiscoveryFulfillments.id;
     fulfillment.type = _consultationType;
@@ -360,7 +380,7 @@ class _MultipleDoctorAppointmentDetailsPageState
     _orderId = const Uuid().v1();
 
     final prefs = await SharedPreferences.getInstance();
-    prefs.setString(AppStrings().bookingOrderIdTwo, _orderId!);
+    prefs.setString(SharedPreferencesHelper.bookingOrderIdTwo, _orderId!);
 
     ContextModel contextModel = ContextModel();
     contextModel.domain = "nic2004:85111";
@@ -392,8 +412,12 @@ class _MultipleDoctorAppointmentDetailsPageState
     agent.id = widget.docTwoDiscoveryFulfillments.agent?.id;
     agent.name = widget.docTwoDiscoveryFulfillments.agent?.name;
     agent.gender = widget.docTwoDiscoveryFulfillments.agent?.gender;
-    agent.tags = widget.docTwoDiscoveryFulfillments.agent?.tags;
-
+    // agent.tags = widget.docTwoDiscoveryFulfillments.agent?.tags;
+    Tags tags = Tags();
+    tags.abdmGovInGroupConsultation = "true";
+    tags.abdmGovInPrimaryDoctor = widget.doctor1AbhaId;
+    tags.abdmGovInSecondaryDoctor = widget.doctor2AbhaId;
+    agent.tags = tags;
     fulfillment.agent = agent;
     fulfillment.id = widget.docTwoDiscoveryFulfillments.id;
     fulfillment.type = _consultationType;
@@ -576,12 +600,16 @@ class _MultipleDoctorAppointmentDetailsPageState
           onTap: () async {
             Get.to(() => MultipleDoctorPaymentPage(
                   teleconsultationFees: _teleconsultationFees,
-                  doctorsUPIaddress: _docOneInitResponse
-                      ?.message?.order?.fulfillment?.agent?.id,
+                  docOneFulfillment: _docOneDiscoveryFulfillments!,
+                  docTwoFulfillment: _docTwoDiscoveryFulfillments!,
                   docOneInitResponse: _docOneInitResponse!,
                   docTwoInitResponse: _docTwoInitResponse!,
                   consultationType: _consultationType!,
                   doctorImage: _docOneDiscoveryFulfillments?.agent?.image,
+                  uniqueId: _uniqueId,
+                  appointmentStartDateAndTime:
+                      _appointmentStartDateAndTime ?? "",
+                  appointmentEndDateAndTime: _appointmentEndDateAndTime ?? "",
                 ));
           },
           child: Container(
@@ -648,9 +676,12 @@ class _MultipleDoctorAppointmentDetailsPageState
 
     log("${_docOneDiscoveryFulfillments?.start?.time?.timestamp}");
 
+    // _appointmentDateAndTime = DateFormat("EE, MMMM dd y, hh:mm a").format(
+    //     DateTime.parse(_timeSlotDocOne?.start?.time?.timestamp ??
+    //         DateTime.now().toString()));
     _appointmentDateAndTime = DateFormat("EE, MMMM dd y, hh:mm a").format(
-        DateTime.parse(_timeSlotDocOne?.start?.time?.timestamp ??
-            DateTime.now().toString()));
+        DateTime.parse(
+            _appointmentStartDateAndTime ?? DateTime.now().toString()));
     appointmentFees =
         _docOneDiscoveryFulfillments?.agent?.tags?.firstConsultation ?? "";
 
@@ -681,7 +712,7 @@ class _MultipleDoctorAppointmentDetailsPageState
               height: 4.0,
               color: AppColors.innerBoxColor,
             ),
-            Spacing(isWidth: false),
+            Spacing(isWidth: false, size: 20),
             Padding(
               padding: EdgeInsets.only(left: 16.0, right: 16.0),
               child: Text(
@@ -700,7 +731,7 @@ class _MultipleDoctorAppointmentDetailsPageState
                     color: AppColors.testColor, fontSize: 18),
               ),
             ),
-            Spacing(isWidth: false),
+            Spacing(isWidth: false, size: 20),
             Container(
               height: 4.0,
               color: AppColors.innerBoxColor,
@@ -729,72 +760,74 @@ class _MultipleDoctorAppointmentDetailsPageState
             //   height: 4.0,
             //   color: AppColors.innerBoxColor,
             // ),
-            Spacing(isWidth: false),
+            Spacing(isWidth: false, size: 20),
             Padding(
-              padding: EdgeInsets.only(left: 16.0, right: 16.0),
+              padding: EdgeInsets.only(left: 15.0),
               child: Text(
-                "Bill details",
+                "Bill Details",
                 style: AppTextStyle.textBoldStyle(
                     color: AppColors.testColor, fontSize: 18),
               ),
             ),
-            Spacing(size: 15, isWidth: false),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  flex: 7,
-                  child: splitBillWidget("Consultation Fee (Primary Doctor)"),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: splitBillWidget("Rs. $docOneFees"),
-                ),
-              ],
+            Spacing(size: 20, isWidth: false),
+            Container(
+              padding: EdgeInsets.only(left: 15.0, right: 15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: splitBillWidget("Consultation Fee (Primary Doctor)"),
+                  ),
+                  Spacing(),
+                  splitBillWidget("Rs. $docOneFees"),
+                ],
+              ),
             ),
             Spacing(isWidth: false),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  flex: 7,
-                  child: splitBillWidget("Consultation Fee (Secondary Doctor)"),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: splitBillWidget("Rs. $docTwoFees"),
-                ),
-              ],
+            Container(
+              padding: EdgeInsets.only(left: 15.0, right: 15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child:
+                        splitBillWidget("Consultation Fee (Secondary Doctor)"),
+                  ),
+                  Spacing(),
+                  splitBillWidget("Rs. $docTwoFees"),
+                ],
+              ),
             ),
             Spacing(isWidth: false),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  flex: 7,
-                  child: splitBillWidget("Booking Fee"),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: splitBillWidget("Rs. 0"),
-                ),
-              ],
+            Container(
+              padding: EdgeInsets.only(left: 15.0, right: 15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: splitBillWidget("Booking Fee"),
+                  ),
+                  Spacing(),
+                  splitBillWidget("Rs. 0"),
+                ],
+              ),
             ),
-            Spacing(size: 15, isWidth: false),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  flex: 7,
-                  child: finalBillWidget("Total Payable"),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: finalBillWidget("Rs. $_teleconsultationFees"),
-                ),
-              ],
+            Spacing(size: 20, isWidth: false),
+            Container(
+              padding: EdgeInsets.only(left: 15.0, right: 15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: finalBillWidget("Total Payable"),
+                  ),
+                  Spacing(),
+                  finalBillWidget("Rs. $_teleconsultationFees"),
+                ],
+              ),
             ),
-            Spacing(isWidth: false),
+            Spacing(isWidth: false, size: 20),
             Container(
               height: 4.0,
               color: AppColors.innerBoxColor,
@@ -881,23 +914,19 @@ class _MultipleDoctorAppointmentDetailsPageState
   }
 
   Widget splitBillWidget(String billTypeDetail) {
-    return Padding(
-        padding: EdgeInsets.only(left: 16.0, right: 16.0),
-        child: Text(
-          billTypeDetail,
-          style: AppTextStyle.textBoldStyle(
-              color: AppColors.appointmentConfirmDoctorActionsTextColor,
-              fontSize: 15),
-        ));
+    return Text(
+      billTypeDetail,
+      style: AppTextStyle.textBoldStyle(
+          color: AppColors.appointmentConfirmDoctorActionsTextColor,
+          fontSize: 15),
+    );
   }
 
   Widget finalBillWidget(String finalBillDetail) {
-    return Padding(
-        padding: EdgeInsets.only(left: 16.0, right: 16.0),
-        child: Text(
-          finalBillDetail,
-          style: AppTextStyle.textBoldStyle(
-              color: AppColors.testColor, fontSize: 18),
-        ));
+    return Text(
+      finalBillDetail,
+      style:
+          AppTextStyle.textBoldStyle(color: AppColors.testColor, fontSize: 18),
+    );
   }
 }

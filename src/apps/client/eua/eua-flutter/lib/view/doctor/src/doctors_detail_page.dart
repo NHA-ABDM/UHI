@@ -42,17 +42,19 @@ class DoctorsDetailPage extends StatefulWidget {
   String consultationType;
   bool isRescheduling;
   BookingConfirmResponseModel? bookingConfirmResponseModel;
+  String? uniqueId;
 
-  DoctorsDetailPage(
-      {Key? key,
-      required this.doctorAbhaId,
-      required this.doctorName,
-      required this.doctorProviderUri,
-      required this.discoveryFulfillments,
-      required this.consultationType,
-      required this.isRescheduling,
-      this.bookingConfirmResponseModel})
-      : super(key: key);
+  DoctorsDetailPage({
+    Key? key,
+    required this.doctorAbhaId,
+    required this.doctorName,
+    required this.doctorProviderUri,
+    required this.discoveryFulfillments,
+    required this.consultationType,
+    required this.isRescheduling,
+    this.bookingConfirmResponseModel,
+    required this.uniqueId,
+  }) : super(key: key);
 
   @override
   State<DoctorsDetailPage> createState() => _DiscoveryResultsPageState();
@@ -120,6 +122,7 @@ class _DiscoveryResultsPageState extends State<DoctorsDetailPage> {
     _selectedDate = getForm(DateTime.now());
     _consultationType = widget.consultationType;
     _isRescheduling = widget.isRescheduling;
+    _uniqueId = widget.uniqueId ?? const Uuid().v1();
 
     if (mounted) {
       futureDiscoveryResponse = getDiscoveryResponse();
@@ -138,7 +141,7 @@ class _DiscoveryResultsPageState extends State<DoctorsDetailPage> {
     _timer =
         await Timer.periodic(Duration(milliseconds: 100), (timer) async {});
 
-    _uniqueId = const Uuid().v1();
+    // _uniqueId = const Uuid().v1();
 
     stompSocketConnection.connect(uniqueId: _uniqueId, api: postSearch2API);
     stompSocketConnection.onResponse = (response) {
@@ -241,8 +244,8 @@ class _DiscoveryResultsPageState extends State<DoctorsDetailPage> {
       TimeSlotStartTime timeSlotStartTime = TimeSlotStartTime();
       TimeSlotStartTime timeSlotEndTime = TimeSlotStartTime();
 
-      if (Jiffy(DateTime.parse(element.start!.time!.timestamp!))
-          .isSameOrAfter(DateTime.now())) {
+      if (Jiffy(DateTime.parse(element.start!.time!.timestamp!).toUtc())
+          .isSameOrAfter(DateTime.now().toUtc())) {
         timeSlotStartTime.timestamp = element.start?.time?.timestamp;
         timeSlotStart.time = timeSlotStartTime;
 

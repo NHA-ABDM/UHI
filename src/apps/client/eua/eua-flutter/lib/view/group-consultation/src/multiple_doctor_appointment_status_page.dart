@@ -25,6 +25,7 @@ import 'package:uhi_flutter_app/view/appointment/src/consultation_completed_page
 import 'package:uhi_flutter_app/webRTC/src/call_sample/call_sample.dart';
 import 'package:uhi_flutter_app/widgets/src/spacing.dart';
 
+import '../../../constants/src/data_strings.dart';
 import '../../../observer/home_page_obsevable.dart';
 import '../../../theme/src/app_colors.dart';
 import '../../../theme/src/app_text_style.dart';
@@ -43,20 +44,24 @@ class MultipleDoctorAppointmentStatusPage extends StatefulWidget {
   // String? gender;
   bool? navigateToHomeAndRefresh;
   String? doctorImage;
+  String appointmentStartDateAndTime;
+  String appointmentEndDateAndTime;
 
-  MultipleDoctorAppointmentStatusPage(
-      {Key? key,
-      // this.bookingConfirmResponseModel,
-      // this.startDateTime,
-      // this.endDateTime,
-      // this.doctorName,
-      this.docOneConfirmResponse,
-      this.docTwoConfirmResponse,
-      this.consultationType,
-      // this.gender,
-      this.navigateToHomeAndRefresh,
-      this.doctorImage})
-      : super(key: key);
+  MultipleDoctorAppointmentStatusPage({
+    Key? key,
+    // this.bookingConfirmResponseModel,
+    // this.startDateTime,
+    // this.endDateTime,
+    // this.doctorName,
+    this.docOneConfirmResponse,
+    this.docTwoConfirmResponse,
+    this.consultationType,
+    // this.gender,
+    this.navigateToHomeAndRefresh,
+    this.doctorImage,
+    required this.appointmentStartDateAndTime,
+    required this.appointmentEndDateAndTime,
+  }) : super(key: key);
 
   @override
   State<MultipleDoctorAppointmentStatusPage> createState() =>
@@ -77,7 +82,7 @@ class _MultipleDoctorAppointmentStatusPageState
   DateTime appointmentEndTime = DateTime.now().add(Duration(hours: 2));
   DateTime appointmentTimerEndTime = DateTime.now();
   DateTime currentTime = DateTime.now();
-  bool isAppointmentTime = false;
+  bool isAppointmentTime = true;
   Timer? _timer;
   BookingConfirmResponseModel? _bookingConfirmResponseModel;
   BookingConfirmResponseModel? _docOneConfirmResponse;
@@ -91,6 +96,7 @@ class _MultipleDoctorAppointmentStatusPageState
   List<String> _doctorImages = List.empty(growable: true);
   DoctorImageModel doctorImageModel = DoctorImageModel();
   String? _doctorHprAddress;
+  String? _appointmentStartDateAndTime;
 
   Future<GetSharedKeyResponseModel?>? futureOfGetSharedKey;
 
@@ -114,13 +120,12 @@ class _MultipleDoctorAppointmentStatusPageState
     _doctorImage = widget.doctorImage;
     _doctorHprAddress =
         _bookingConfirmResponseModel?.message?.order?.fulfillment?.agent?.id;
+    _appointmentStartDateAndTime = widget.appointmentStartDateAndTime;
 
-    appointmentTime = DateTime.parse(_bookingConfirmResponseModel
-            ?.message?.order?.fulfillment?.start?.time?.timestamp ??
+    appointmentTime = DateTime.parse(_appointmentStartDateAndTime ??
         "${DateTime.now().add(Duration(minutes: 30))}");
 
-    appointmentTimerEndTime = DateTime.parse(_bookingConfirmResponseModel
-            ?.message?.order?.fulfillment?.end?.time?.timestamp ??
+    appointmentTimerEndTime = DateTime.parse(_appointmentStartDateAndTime ??
         "${DateTime.now().add(Duration(minutes: 30))}");
 
     if (appointmentTime.difference(currentTime).inMinutes <= 120) {
@@ -655,25 +660,72 @@ class _MultipleDoctorAppointmentStatusPageState
     );
   }
 
+  String minBetween(
+    DateTime s1Start,
+    DateTime s1End,
+    DateTime s2Start,
+    DateTime s2End,
+  ) {
+    log("${s1Start}");
+    log("${s1End}");
+    log("${s2Start}");
+    log("${s2End}");
+
+    if ((s2Start.isAfter(s1Start) || s2Start.isAtSameMomentAs(s1Start)) &&
+        (s2End.isBefore(s1End) || s2End.isAtSameMomentAs(s1End))) {
+      return "s2";
+    } else if ((s1Start.isAfter(s2Start) ||
+            s2Start.isAtSameMomentAs(s1Start)) &&
+        (s1End.isBefore(s2End) || s2End.isAtSameMomentAs(s1End))) {
+      return "s1";
+    }
+    return "s2";
+  }
+
   buildDoctorsCard() {
     String appointmentDate;
     String appointmentStartTime;
     String appointmentEndTime;
     String appointmentTime;
+    String minSlotStartDateAndTime;
+    String minSlotEndDateAndTime;
 
     var tmpDate;
 
-    tmpDate = _docOneConfirmResponse
+    DateTime s1Start = DateTime.parse(_docOneConfirmResponse
             ?.message?.order?.fulfillment?.start?.time?.timestamp ??
-        DateTime.now().toString();
+        "");
+    DateTime s1End = DateTime.parse(_docOneConfirmResponse
+            ?.message?.order?.fulfillment?.end?.time?.timestamp ??
+        "");
+    DateTime s2Start = DateTime.parse(_docTwoConfirmResponse
+            ?.message?.order?.fulfillment?.start?.time?.timestamp ??
+        "");
+    DateTime s2End = DateTime.parse(_docTwoConfirmResponse
+            ?.message?.order?.fulfillment?.end?.time?.timestamp ??
+        "");
+
+    String slotName = minBetween(s1Start, s1End, s2Start, s2End);
+
+    if (slotName == "s1") {
+      minSlotStartDateAndTime = s1Start.toString();
+      minSlotEndDateAndTime = s1End.toString();
+    } else if (slotName == "s2") {
+      minSlotStartDateAndTime = s2Start.toString();
+      minSlotEndDateAndTime = s2End.toString();
+    } else {
+      minSlotStartDateAndTime = "";
+      minSlotEndDateAndTime = "";
+    }
+
+    tmpDate = minSlotStartDateAndTime;
     appointmentDate = DateFormat("dd MMM y").format(DateTime.parse(tmpDate));
     appointmentStartTime =
         DateFormat("hh:mm a").format(DateTime.parse(tmpDate));
-    tmpDate = _docOneConfirmResponse
-            ?.message?.order?.fulfillment?.end?.time?.timestamp ??
-        DateTime.now().toString();
+    tmpDate = minSlotEndDateAndTime;
     appointmentEndTime = DateFormat("hh:mm a").format(DateTime.parse(tmpDate));
     appointmentTime = appointmentStartTime + "-" + appointmentEndTime;
+
     return Card(
       elevation: 8,
       shape: RoundedRectangleBorder(
@@ -737,12 +789,40 @@ class _MultipleDoctorAppointmentStatusPageState
                             //           )),
                             // );
                             // log("$result");
-                            // if (result != null && result == true) {
-                            //   Get.to(() => ConsultationCompletedPage(
-                            //         bookingConfirmResponseModel:
-                            //             _bookingConfirmResponseModel,
-                            //       ));
-                            // }
+
+                            ///this is for group consultation
+                            final result = Get.toNamed(
+                                AppRoutes.groupVideoCallPage,
+                                arguments: <String, dynamic>{
+                                  'initiator': {'address': userAbhaAddress},
+                                  'primaryDoctor': {
+                                    'name': _docOneConfirmResponse!.message!
+                                        .order!.fulfillment!.agent!.name,
+                                    'gender': _docOneConfirmResponse!.message!
+                                        .order!.fulfillment!.agent!.gender,
+                                    'address': _docOneConfirmResponse!
+                                        .message!.order!.fulfillment!.agent!.id,
+                                    'uri': _docOneConfirmResponse!
+                                        .context!.providerUrl,
+                                  },
+                                  'secondaryDoctor': {
+                                    'name': _docTwoConfirmResponse!.message!
+                                        .order!.fulfillment!.agent!.name,
+                                    'gender': _docTwoConfirmResponse!.message!
+                                        .order!.fulfillment!.agent!.gender,
+                                    'address': _docTwoConfirmResponse!
+                                        .message!.order!.fulfillment!.agent!.id,
+                                    'uri': _docTwoConfirmResponse!
+                                        .context!.providerUrl,
+                                  },
+                                });
+
+                            if (result != null && result == true) {
+                              Get.to(() => ConsultationCompletedPage(
+                                    bookingConfirmResponseModel:
+                                        _bookingConfirmResponseModel,
+                                  ));
+                            }
                           }
                         },
                       )

@@ -436,22 +436,43 @@ class Tags {
   String? abdmGovInGroupConsultation;
   String? abdmGovInPrimaryDoctor;
   String? abdmGovInSecondaryDoctor;
+  String? patientName;
+  String? patientPHRAddress;
+  String? patientGender;
+  String? primaryDoctorName;
+  String? primaryDoctorHPRAddress;
+  String? primaryDoctorGender;
+  String? primaryDoctorProviderURI;
+  String? secondaryDoctorName;
+  String? secondaryDoctorHPRAddress;
+  String? secondaryDoctorGender;
+  String? secondaryDoctorProviderURI;
 
-  Tags({
-    this.experience,
-    this.specialtyTag,
-    this.medicinesTag,
-    this.followUp,
-    this.languageSpokenTag,
-    this.education,
-    this.firstConsultation,
-    this.upiId,
-    this.slotId,
-    this.hprId,
-    this.abdmGovInGroupConsultation,
-    this.abdmGovInPrimaryDoctor,
-    this.abdmGovInSecondaryDoctor,
-  });
+  Tags(
+      {this.experience,
+      this.specialtyTag,
+      this.medicinesTag,
+      this.followUp,
+      this.languageSpokenTag,
+      this.education,
+      this.firstConsultation,
+      this.upiId,
+      this.slotId,
+      this.hprId,
+      this.abdmGovInGroupConsultation,
+      this.abdmGovInPrimaryDoctor,
+      this.abdmGovInSecondaryDoctor,
+      this.patientName,
+      this.patientPHRAddress,
+      this.patientGender,
+      this.primaryDoctorName,
+      this.primaryDoctorHPRAddress,
+      this.primaryDoctorGender,
+      this.primaryDoctorProviderURI,
+      this.secondaryDoctorName,
+      this.secondaryDoctorHPRAddress,
+      this.secondaryDoctorGender,
+      this.secondaryDoctorProviderURI});
 
   Tags.fromJson(Map<String, dynamic> json) {
     if (json['@abdm/gov/in/education'] != null) {
@@ -503,6 +524,51 @@ class Tags {
     if (json['@abdm/gov.in/secondaryDoctor'] != null) {
       abdmGovInSecondaryDoctor = json['@abdm/gov.in/secondaryDoctor'];
     }
+
+    if (json['@abdm/gov.in/patientName'] != null) {
+      patientName = json['patientName'];
+    }
+
+    if (json['@abdm/gov.in/patientPHRAddress'] != null) {
+      patientPHRAddress = json['patientPHRAddress'];
+    }
+
+    if (json['@abdm/gov.in/patientGender'] != null) {
+      patientGender = json['@abdm/gov.in/patientGender'];
+    }
+
+    if (json['@abdm/gov.in/primaryDoctorName'] != null) {
+      primaryDoctorName = json['@abdm/gov.in/primaryDoctorName'];
+    }
+
+    if (json['@abdm/gov.in/primaryHprAddress'] != null) {
+      primaryDoctorHPRAddress = json['@abdm/gov.in/primaryHprAddress'];
+    }
+
+    if (json['@abdm/gov.in/primaryDoctorGender'] != null) {
+      primaryDoctorGender = json['@abdm/gov.in/primaryDoctorGender'];
+    }
+
+    if (json['@abdm/gov.in/primaryDoctorProviderURI'] != null) {
+      primaryDoctorProviderURI = json['@abdm/gov.in/primaryDoctorProviderUrl'];
+    }
+
+    if (json['@abdm/gov.in/secondaryDoctorName'] != null) {
+      secondaryDoctorName = json['@abdm/gov.in/secondaryDoctorName'];
+    }
+
+    if (json['@abdm/gov.in/secondaryHprAddress'] != null) {
+      secondaryDoctorHPRAddress = json['@abdm/gov.in/secondaryHprAddress'];
+    }
+
+    if (json['@abdm/gov.in/secondaryDoctorGender'] != null) {
+      secondaryDoctorGender = json['@abdm/gov.in/secondaryDoctorGender'];
+    }
+
+    if (json['@abdm/gov.in/secondaryDoctorProviderUrl'] != null) {
+      secondaryDoctorProviderURI =
+          json['@abdm/gov.in/secondaryDoctorProviderUrl'];
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -553,6 +619,52 @@ class Tags {
 
     if (this.abdmGovInSecondaryDoctor != null) {
       data['@abdm/gov.in/secondaryDoctor'] = this.abdmGovInSecondaryDoctor;
+    }
+
+    if (this.patientName != null) {
+      data['@abdm/gov.in/patientName'] = this.patientName;
+    }
+
+    if (this.patientPHRAddress != null) {
+      data['@abdm/gov.in/patientPHRAddress'] = this.patientPHRAddress;
+    }
+
+    if (this.patientGender != null) {
+      data['@abdm/gov.in/patientGender'] = this.patientGender;
+    }
+
+    if (this.primaryDoctorName != null) {
+      data['@abdm/gov.in/primaryDoctorName'] = this.primaryDoctorName;
+    }
+
+    if (this.primaryDoctorHPRAddress != null) {
+      data['@abdm/gov.in/primaryHprAddress'] = this.primaryDoctorHPRAddress;
+    }
+
+    if (this.primaryDoctorGender != null) {
+      data['@abdm/gov.in/primaryDoctorGender'] = this.primaryDoctorGender;
+    }
+
+    if (this.primaryDoctorProviderURI != null) {
+      data['@abdm/gov.in/primaryDoctorProviderUrl'] =
+          this.primaryDoctorProviderURI;
+    }
+
+    if (this.secondaryDoctorName != null) {
+      data['@abdm/gov.in/secondaryDoctorName'] = this.secondaryDoctorName;
+    }
+
+    if (this.secondaryDoctorHPRAddress != null) {
+      data['@abdm/gov.in/secondaryHprAddress'] = this.secondaryDoctorHPRAddress;
+    }
+
+    if (this.secondaryDoctorGender != null) {
+      data['@abdm/gov.in/secondaryDoctorGender'] = this.secondaryDoctorGender;
+    }
+
+    if (this.secondaryDoctorProviderURI != null) {
+      data['@abdm/gov.in/secondaryDoctorProviderUrl'] =
+          this.secondaryDoctorProviderURI;
     }
 
     return data;

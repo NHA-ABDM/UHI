@@ -22,6 +22,10 @@ class UpcomingAppointmentResponseModal {
   String? languagesSpokenByHealthcareProfessional;
   String? healthcareProfessionalExperience;
   String? isServiceFulfilled;
+  String? transId;
+  String? primaryDoctor;
+  String? secondaryDoctor;
+  String? groupConsultStatus;
   String? healthcareProfessionalDepartment;
   String? message;
   String? slotId;
@@ -54,6 +58,10 @@ class UpcomingAppointmentResponseModal {
       this.languagesSpokenByHealthcareProfessional,
       this.healthcareProfessionalExperience,
       this.isServiceFulfilled,
+      this.transId,
+      this.primaryDoctor,
+      this.secondaryDoctor,
+      this.groupConsultStatus,
       this.healthcareProfessionalDepartment,
       this.message,
       this.slotId,
@@ -86,6 +94,10 @@ class UpcomingAppointmentResponseModal {
         json['languagesSpokenByHealthcareProfessional'];
     healthcareProfessionalExperience = json['healthcareProfessionalExperience'];
     isServiceFulfilled = json['isServiceFulfilled'];
+    transId = json['transId'];
+    primaryDoctor = json['primaryDoctor'];
+    secondaryDoctor = json['secondaryDoctor'];
+    groupConsultStatus = json['groupConsultStatus'];
     healthcareProfessionalDepartment = json['healthcareProfessionalDepartment'];
     message = json['message'];
     slotId = json['slotId'];
@@ -125,6 +137,10 @@ class UpcomingAppointmentResponseModal {
     data['healthcareProfessionalExperience'] =
         this.healthcareProfessionalExperience;
     data['isServiceFulfilled'] = this.isServiceFulfilled;
+    data['transId'] = this.transId;
+    data['primaryDoctor'] = this.primaryDoctor;
+    data['secondaryDoctor'] = this.secondaryDoctor;
+    data['groupConsultStatus'] = this.groupConsultStatus;
     data['healthcareProfessionalDepartment'] =
         this.healthcareProfessionalDepartment;
     data['message'] = this.message;

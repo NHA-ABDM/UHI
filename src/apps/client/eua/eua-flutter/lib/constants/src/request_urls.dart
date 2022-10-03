@@ -3,14 +3,14 @@ class RequestUrls {
   ///UHI EUA ENVIRONMENT URLS
   static const String uhiEuaAbdmBeta = "https://uhieuabeta.abdm.gov.in/api/v1/";
   static const String uhiEuaAbdmSandbox =
-      "https://uhieuabeta.abdm.gov.in/api/v1/";
+      "https://uhieuasandbox.abdm.gov.in/api/v1/";
   static const String uhiEuaAbdmBackup =
       "https://uhieuabeta.abdm.gov.in/api/v1/";
   static const String uhiEuaAbdmHackathon =
       "http://121.242.73.125:8080/api/v1/";
 
   ///UHI EUA URL
-  static const String uhiEua = uhiEuaAbdmHackathon;
+  static const String uhiEua = uhiEuaAbdmSandbox;
 
   ///NDHM DEV ENVIRONMENT URL
   static const String ndhmDev = "https://dev.ndhm.gov.in/";
@@ -19,14 +19,14 @@ class RequestUrls {
   static const String uhiEuaAbdmBetaSocket =
       "wss://uhieuabeta.abdm.gov.in/api/v1/";
   static const String uhiEuaAbdmSandboxSocket =
-      "wss://uhieuabeta.abdm.gov.in/api/v1/";
+      "wss://uhieuasandbox.abdm.gov.in/api/v1/";
   static const String uhiEuaAbdmBackupSocket =
       "wss://uhieuabeta.abdm.gov.in/api/v1/";
   static const String uhiEuaAbdmHackathonSocket =
       "ws://121.242.73.125:8080/api/v1/";
 
   ///UHI EUA SOCKET URL
-  static const String uhiEuaSocket = uhiEuaAbdmHackathonSocket;
+  static const String uhiEuaSocket = uhiEuaAbdmSandboxSocket;
 
   ///++++++++++++++++++ ENDPOINTS ++++++++++++++++++///
 
