@@ -13,8 +13,8 @@ class AccountStatementController extends GetxController with ExceptionHandler {
   var errorString = '';
   List<PaymentStatus> listPaymentStatus = <PaymentStatus>[];
 
-  Future<void> getAccountStatements({required String? fromDate, required String? toDate, required String hprAddress, int limit = 100}) async{
-    String requestUrl = '${RequestUrls.getPaymentStatus}/$hprAddress';
+  Future<void> getAccountStatements({required String? fromDate, required String? toDate, required String hprAddress, required String serviceType, int limit = 100}) async{
+    String requestUrl = '${RequestUrls.getPaymentStatus}/$hprAddress/$serviceType';
     /// We will use this once we start filter logic implementation using date range
     /*if(fromDate != null && toDate != null) {
       requestUrl += '&fromDate=$fromDate&toDate=$toDate';

@@ -41,12 +41,17 @@ class SplashScreenPageState extends State<SplashScreenPage> {
       debugPrint('getInitialMessage message is ${message?.toMap()}');
 
       String nextRoute = AppRoutes.userRolePage;
-      DoctorProfile? profile = await DoctorProfile.getSavedProfile();
-      if(profile != null && profile.uuid != null) {
-        if(profile.firstConsultation == null) {
-          nextRoute = AppRoutes.doctorProfilePage;
-        } else {
-          nextRoute = AppRoutes.dashboardPage;
+      bool? isAuth = Preferences.getBool(key: AppStrings.isProminentDisclosureAgreed);
+      if(isAuth == null || !isAuth) {
+        nextRoute = AppRoutes.prominentDisclosurePage;
+      } else {
+        DoctorProfile? profile = await DoctorProfile.getSavedProfile();
+        if (profile != null && profile.uuid != null) {
+          if (profile.firstConsultation == null) {
+            nextRoute = AppRoutes.doctorProfilePage;
+          } else {
+            nextRoute = AppRoutes.dashboardPage;
+          }
         }
       }
 

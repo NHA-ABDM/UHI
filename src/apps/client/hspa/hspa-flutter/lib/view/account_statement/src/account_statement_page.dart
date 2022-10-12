@@ -46,7 +46,8 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
       });
       DoctorProfile? doctorProfile = await DoctorProfile.getSavedProfile();
       await _accountStatementController.getAccountStatements(
-          hprAddress: doctorProfile!.hprAddress!, fromDate: null, toDate: null);
+          hprAddress: doctorProfile!.hprAddress!, fromDate: null, toDate: null,
+      serviceType: isTeleconsultation ? 'Teleconsultation' : 'Physicalconsultation');
       setState(() {
         isLoading = false;
       });

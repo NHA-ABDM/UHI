@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:hspa_app/theme/src/app_colors.dart';
 
 import '../../constants/src/request_urls.dart';
 import '../../model/response/src/appointment_slots_response.dart';
@@ -15,6 +14,8 @@ class AppointmentsSlotsCalenderViewController extends GetxController
   ///ERROR STRING
   var errorString = '';
 
+  Map<int, List<ProviderAppointmentSlots>?> mapMonthlyAppointmentSlots = {};
+
   List<ProviderAppointmentSlots> listProviderAppointmentSlots =
       <ProviderAppointmentSlots>[];
   List<ProviderAppointmentSlots> filteredListProviderAppointmentSlots =
@@ -25,12 +26,14 @@ class AppointmentsSlotsCalenderViewController extends GetxController
       required String endDate,
       required String provider,
       required String appointType,
+      required int day,
       int startIndex = 0}) async {
     int limit = 100;
-    if(startIndex == 0) {
+    if (startIndex == 0) {
       listProviderAppointmentSlots.clear();
       filteredListProviderAppointmentSlots.clear();
     }
+
     await BaseClient(
             url:
                 "${RequestUrls.getProviderAppointmentSlots}?fromDate=$startDate&toDate=$endDate&limit=$limit&q=&provider=$provider&appointmentType=$appointType&v=default&includeFull=true&startIndex=$startIndex")
@@ -49,18 +52,24 @@ class AppointmentsSlotsCalenderViewController extends GetxController
               appointmentSlots.providerAppointmentSlots!.isNotEmpty) {
             debugPrint(
                 'get provider Calender events appointment slots parsed successfully');
-            listProviderAppointmentSlots.addAll(appointmentSlots.providerAppointmentSlots!);
+            listProviderAppointmentSlots
+                .addAll(appointmentSlots.providerAppointmentSlots!);
+            mapMonthlyAppointmentSlots[day] =
+                List.from(listProviderAppointmentSlots);
           }
 
-          if(appointmentSlots.links != null && appointmentSlots.links!.isNotEmpty) {
-              //if(appointmentSlots.providerAppointmentSlots!.isNotEmpty && appointmentSlots.providerAppointmentSlots!.length == limit) {
-            for(Links link in appointmentSlots.links!) {
+          if (appointmentSlots.links != null &&
+              appointmentSlots.links!.isNotEmpty) {
+            //if(appointmentSlots.providerAppointmentSlots!.isNotEmpty && appointmentSlots.providerAppointmentSlots!.length == limit) {
+            for (Links link in appointmentSlots.links!) {
               if (link.rel == 'next') {
                 startIndex = startIndex + limit;
-                await getProviderAppointmentSlots(startDate: startDate,
+                await getProviderAppointmentSlots(
+                    startDate: startDate,
                     endDate: endDate,
                     provider: provider,
                     appointType: appointType,
+                    day: day,
                     startIndex: startIndex);
                 break;
               }
@@ -79,5 +88,4 @@ class AppointmentsSlotsCalenderViewController extends GetxController
       },
     );
   }
-
 }

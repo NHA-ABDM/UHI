@@ -39,7 +39,11 @@ import '../../view/local_auth/src/local_auth_page.dart';
 import '../../view/profile/src/doctor_profile_page.dart';
 import '../../view/profile/src/edit_profile_page.dart';
 import '../../view/profile/src/profile_not_found_page.dart';
+import '../../view/prominent_disclosure/src/prominent_disclosure_page.dart';
 import '../../webRTC/src/call_sample/call_sample.dart';
+import '../../webRTC/src/video_call/group_video_call_primary.dart';
+import '../../webRTC/src/video_call/group_video_call_secondary.dart';
+import '../../webRTC/src/video_call/video_call.dart';
 
 class AppRoutes {
   static const String splashPage = '/splash';
@@ -79,6 +83,10 @@ class AppRoutes {
   static const String showSelectedMediaPage = '/show_selected_media_page';
   static const String accountStatementPage = '/account_statement_page';
   static const String calendarWithSlotsPage = '/calendar_with_slots_page';
+  static const String prominentDisclosurePage = '/prominent_disclosure_page';
+  static const String videoCall = '/video_call';
+  static const String groupVideoCallPrimary = '/group_video_call_primary';
+  static const String groupVideoCallSecondary = '/group_video_call_secondary';
 
   static void toNamed(
     String route, {
@@ -277,6 +285,26 @@ appRoutes() => [
         page: () => const CalendarWithSlotsPage(),
         transition: Utility.pageTransition,
       ),
+      GetPage(
+        name: AppRoutes.prominentDisclosurePage,
+        page: () => const ProminentDisclosurePage(),
+        transition: Utility.pageTransition,
+      ),
+      GetPage(
+        name: AppRoutes.videoCall,
+        page: () => const VideoCall(),
+        transition: Utility.pageTransition,
+      ),
+      GetPage(
+        name: AppRoutes.groupVideoCallPrimary,
+        page: () => const GroupVideoCallPrimary(),
+        transition: Utility.pageTransition,
+      ),
+      GetPage(
+        name: AppRoutes.groupVideoCallSecondary,
+        page: () => const GroupVideoCallSecondary(),
+        transition: Utility.pageTransition,
+      ),
     ];
 
 void checkMessageTypeAndOpenPage(RemoteMessage? message, {String? nextRoute}) {
@@ -287,16 +315,22 @@ void checkMessageTypeAndOpenPage(RemoteMessage? message, {String? nextRoute}) {
       String? patientABHAId = data['SenderabhaAddress'];
       String? patientGender = data['gender'];
       String? patientName = data['senderName'];
+      String? appointmentTransactionId;
+      if(data.containsKey('transId')) {
+        appointmentTransactionId = data['transId'];
+      }
       debugPrint('App current route is ${Get.currentRoute}');
       if(Get.currentRoute == AppRoutes.chatPage) {
         String? chatDoctorHprId = Get.arguments['doctorHprId'];
         String? chatPatientAbhaId = Get.arguments['patientAbhaId'];
+
         if(doctorHprId == chatDoctorHprId && patientABHAId != chatPatientAbhaId) {
           AppRoutes.toNamed(AppRoutes.chatPage, arguments: {
             'doctorHprId': doctorHprId,
             'patientAbhaId': patientABHAId,
             'patientName': patientName,
             'patientGender': patientGender,
+            'appointmentTransactionId': appointmentTransactionId,
             'allowSendMessage': true
           });
         }
@@ -307,6 +341,7 @@ void checkMessageTypeAndOpenPage(RemoteMessage? message, {String? nextRoute}) {
             'patientAbhaId': patientABHAId,
             'patientName': patientName,
             'patientGender': patientGender,
+            'appointmentTransactionId': appointmentTransactionId,
             'allowSendMessage': true
           });
         } else {
@@ -315,6 +350,7 @@ void checkMessageTypeAndOpenPage(RemoteMessage? message, {String? nextRoute}) {
             'patientAbhaId': patientABHAId,
             'patientName': patientName,
             'patientGender': patientGender,
+            'appointmentTransactionId': appointmentTransactionId,
             'allowSendMessage': true
           });
         }

@@ -8,7 +8,6 @@ import '../../../constants/src/asset_images.dart';
 import '../../../constants/src/strings.dart';
 import '../../../controller/src/appointments_controller.dart';
 import '../../../model/response/src/appointment_details_response.dart';
-import '../../../model/response/src/provider_appointments_response.dart';
 import '../../../model/src/appointment_updates.dart';
 import '../../../model/src/doctor_profile.dart';
 import '../../../theme/src/app_colors.dart';
@@ -16,20 +15,9 @@ import '../../../theme/src/app_text_style.dart';
 import '../../../utils/src/utility.dart';
 import '../../../widgets/src/spacing.dart';
 import '../../../widgets/src/vertical_spacing.dart';
-import '../../chat/src/chat_page.dart';
 
 class AppointmentDetailsPage extends StatefulWidget {
   const AppointmentDetailsPage({Key? key}) : super(key: key);
-
-/*  const AppointmentDetailsPage({
-    Key? key,
-    required this.isTeleconsultation,
-    required this.providerAppointment,
-    required this.isPrevious,
-  }) : super(key: key);
-  final ProviderAppointments providerAppointment;
-  final bool isTeleconsultation;
-  final bool isPrevious;*/
 
   @override
   State<AppointmentDetailsPage> createState() => _AppointmentDetailsPageState();
@@ -42,9 +30,11 @@ class _AppointmentDetailsPageState extends State<AppointmentDetailsPage> {
   bool _isLoading = false;
 
   /// Arguments
-  late final ProviderAppointments providerAppointment;
+  dynamic providerAppointment;
+  // late final ProviderAppointments providerAppointment;
   late final bool isTeleconsultation;
   late final bool isPrevious;
+  late final bool isOpenMrsAppointment;
 
   @override
   void initState() {
@@ -53,15 +43,17 @@ class _AppointmentDetailsPageState extends State<AppointmentDetailsPage> {
     providerAppointment = Get.arguments['providerAppointment'];
     isTeleconsultation = Get.arguments['isTeleconsultation'];
     isPrevious = Get.arguments['isPrevious'];
+    isOpenMrsAppointment = Get.arguments['isOpenMrsAppointment'];
 
     _dateFormat = DateFormat('dd MMMM, hh:mm aa');
     listAppointmentUpdates.add(AppointmentUpdates(
-        updateDateTime: DateTime.parse(
-            providerAppointment.timeSlot!.startDate!.split('.').first),
-        updateDetails: providerAppointment.status!));
-    // listAppointmentUpdates.add(AppointmentUpdates(updateDateTime: DateTime(2022, 4, 13, 16, 10), updateDetails: 'Reschedule Requested'));
-    // listAppointmentUpdates.add(AppointmentUpdates(updateDateTime: DateTime(2022, 4, 13, 17, 20), updateDetails: 'Reschedule Accepted'));
-    // listAppointmentUpdates.add(AppointmentUpdates(updateDateTime: DateTime(2022, 4, 13, 17, 30), updateDetails: 'Appointment Status', status: 'In Progress'));
+        updateDateTime: isOpenMrsAppointment
+            ? DateTime.parse(providerAppointment.timeSlot!.startDate!.split('.').first)
+            : DateTime.parse(providerAppointment.serviceFulfillmentStartTime!),
+        updateDetails: isOpenMrsAppointment
+            ? providerAppointment.status!
+            : providerAppointment.isServiceFulfilled!),
+    );
     generateListChildren();
     getAppointmentDetails();
     super.initState();
@@ -128,17 +120,21 @@ class _AppointmentDetailsPageState extends State<AppointmentDetailsPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              providerAppointment.patient!.person!
-                                  .display!,
+                              isOpenMrsAppointment
+                                  ? providerAppointment.patient!.person!.display!
+                                  : providerAppointment.patientName!,
                               style: AppTextStyle.textSemiBoldStyle(
                                   color: AppColors.testColor, fontSize: 16),
                             ),
                             Spacing(),
                             Text(
-                              Utility.getAppointmentDisplayDate(
-                                  date: DateTime.parse(providerAppointment
-                                      .timeSlot!
-                                      .startDate!)),
+                              isOpenMrsAppointment
+                                  ? Utility.getAppointmentDisplayDate(
+                                      date: DateTime.parse(providerAppointment
+                                          .timeSlot!.startDate!))
+                                  : Utility.getAppointmentDisplayDate(
+                                      date: DateTime.parse(providerAppointment
+                                          .serviceFulfillmentStartTime!)),
                               style: AppTextStyle.textNormalStyle(
                                   color: AppColors.testColor, fontSize: 16),
                             ),
@@ -152,20 +148,32 @@ class _AppointmentDetailsPageState extends State<AppointmentDetailsPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              providerAppointment.reason ?? '',
+                              isOpenMrsAppointment
+                                  ? providerAppointment.reason ?? ''
+                              : providerAppointment.healthcareServiceName ?? '',
                               style: AppTextStyle.textNormalStyle(
                                   color: AppColors.testColor, fontSize: 12),
                             ),
                             Spacing(),
                             Text(
-                              Utility.getAppointmentDisplayTimeRange(
-                                  startDateTime: DateTime.parse(
-                                      providerAppointment.timeSlot!.startDate!
-                                      .split('.')
-                                      .first),
-                                  endDateTime: DateTime.parse(providerAppointment.timeSlot!.endDate!
-                                      .split('.')
-                                      .first)),
+                              isOpenMrsAppointment
+                                  ? Utility.getAppointmentDisplayTimeRange(
+                                      startDateTime: DateTime.parse(
+                                          providerAppointment
+                                              .timeSlot!.startDate!
+                                              .split('.')
+                                              .first),
+                                      endDateTime: DateTime.parse(
+                                          providerAppointment.timeSlot!.endDate!
+                                              .split('.')
+                                              .first))
+                                  : Utility.getAppointmentDisplayTimeRange(
+                                      startDateTime: DateTime.parse(
+                                          providerAppointment
+                                              .serviceFulfillmentStartTime!),
+                                      endDateTime: DateTime.parse(
+                                          providerAppointment
+                                              .serviceFulfillmentEndTime!)),
                               style: AppTextStyle.textNormalStyle(
                                   color: AppColors.testColor, fontSize: 12),
                             ),
@@ -183,30 +191,28 @@ class _AppointmentDetailsPageState extends State<AppointmentDetailsPage> {
                                       await DoctorProfile.getSavedProfile();
                                   String? doctorHprId =
                                       doctorProfile?.hprAddress;
-                                  String? patientABHAId = providerAppointment.patient?.abhaAddress;
-                                  String? patientName = providerAppointment
-                                      .patient
-                                      ?.person
-                                      ?.display;
-                                  String? patientGender = providerAppointment
-                                      .patient
-                                      ?.person
-                                      ?.gender;
-                                  /*Get.to(
-                                    () => ChatPage(
-                                      doctorHprId: doctorHprId,
-                                      patientAbhaId: patientABHAId,
-                                      patientName: patientName,
-                                      patientGender: patientGender,
-                                      allowSendMessage: !isPrevious,
-                                    ),
-                                    transition: Utility.pageTransition,
-                                  );*/
+                                  String? patientABHAId = isOpenMrsAppointment
+                                      ? providerAppointment.patient?.abhaAddress
+                                      : providerAppointment.abhaId;
+                                  String? patientName = isOpenMrsAppointment
+                                      ? providerAppointment
+                                          .patient?.person?.display
+                                      : providerAppointment.patientName;
+                                  String? patientGender = isOpenMrsAppointment
+                                      ? providerAppointment
+                                          .patient?.person?.gender
+                                      : providerAppointment
+                                          .healthcareProfessionalGender;
+                                  String? appointmentTransactionId = isOpenMrsAppointment
+                                      ? providerAppointment.uuid
+                                      : providerAppointment.transId;
+
                                   Get.toNamed(AppRoutes.chatPage, arguments: {
                                     'doctorHprId': doctorHprId,
                                     'patientAbhaId': patientABHAId,
                                     'patientName': patientName,
                                     'patientGender': patientGender,
+                                    'appointmentTransactionId': appointmentTransactionId,
                                     'allowSendMessage': !isPrevious
                                   });
                                 },
@@ -229,8 +235,43 @@ class _AppointmentDetailsPageState extends State<AppointmentDetailsPage> {
                                 ),
                               if (isTeleconsultation && !isPrevious)
                                 IconButton(
-                                  onPressed: () {
-                                    Get.toNamed(AppRoutes.callSample, arguments: {'host': '121.242.73.119'});
+                                  onPressed: () async{
+                                    bool isShowChat = await Get.toNamed(AppRoutes.callSample, arguments: {'host': '121.242.73.119'});
+
+                                    if (isShowChat) {
+                                      DoctorProfile? doctorProfile =
+                                          await DoctorProfile.getSavedProfile();
+                                      String? doctorHprId =
+                                          doctorProfile?.hprAddress;
+                                      String? patientABHAId =
+                                          isOpenMrsAppointment
+                                              ? providerAppointment
+                                                  .patient?.abhaAddress
+                                              : providerAppointment.abhaId;
+                                      String? patientName = isOpenMrsAppointment
+                                          ? providerAppointment
+                                              .patient?.person?.display
+                                          : providerAppointment.patientName;
+                                      String? patientGender =
+                                          isOpenMrsAppointment
+                                              ? providerAppointment
+                                                  .patient?.person?.gender
+                                              : providerAppointment
+                                                  .healthcareProfessionalGender;
+                                      String? appointmentTransactionId = isOpenMrsAppointment
+                                          ? providerAppointment.uuid
+                                          : providerAppointment.transId;
+
+                                      Get.toNamed(AppRoutes.chatPage,
+                                          arguments: {
+                                            'doctorHprId': doctorHprId,
+                                            'patientAbhaId': patientABHAId,
+                                            'patientName': patientName,
+                                            'patientGender': patientGender,
+                                            'appointmentTransactionId': appointmentTransactionId,
+                                            'allowSendMessage': !isPrevious
+                                          });
+                                    }
                                   },
                                   visualDensity: VisualDensity.compact,
                                   icon: Image.asset(
@@ -369,7 +410,7 @@ class _AppointmentDetailsPageState extends State<AppointmentDetailsPage> {
       AppointmentsController appointmentsController = AppointmentsController();
       AppointmentDetailsResponse? appointmentDetailsResponse =
           await appointmentsController.getAppointmentDetails(
-              appointmentUUID: providerAppointment.uuid!);
+              appointmentUUID: isOpenMrsAppointment ? providerAppointment.uuid! : providerAppointment.appointmentId!);
 
       debugPrint(
           'Get appointment details response is ${appointmentDetailsResponse?.results}');

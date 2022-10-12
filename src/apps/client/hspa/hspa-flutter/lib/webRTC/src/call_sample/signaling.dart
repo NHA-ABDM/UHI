@@ -2,7 +2,12 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:hspa_app/model/src/doctor_profile.dart';
+import 'package:get/get.dart';
+import '../../../model/src/doctor_profile.dart';
+import '../../../constants/src/strings.dart';
+import '../../../theme/src/app_colors.dart';
+import '../../../theme/src/app_text_style.dart';
+import '../../../widgets/src/new_confirmation_dialog.dart';
 import 'random_string.dart';
 
 import '../utils/device_info.dart'
@@ -141,6 +146,17 @@ class Signaling {
     }
   }
 
+  void cancel(String sessionId) {
+    _send('cancel', {
+      'session_id': sessionId,
+      'from': _selfId,
+    });
+    var sess = _sessions[sessionId];
+    if (sess != null) {
+      _closeSession(sess);
+    }
+  }
+
   void accept(String sessionId) {
     var session = _sessions[sessionId];
     if (session == null) {
@@ -154,7 +170,7 @@ class Signaling {
     if (session == null) {
       return;
     }
-    bye(session.sid);
+    cancel(session.sid);
   }
 
   void onMessage(message) async {
@@ -266,14 +282,30 @@ class Signaling {
         break;
       case 'leave':
         {
+          debugPrint('Signaling In Leave');
           var peerId = data as String;
           _closeSessionByPeerId(peerId);
         }
         break;
       case 'bye':
         {
+          debugPrint('Signaling In Bye');
           var sessionId = data['session_id'];
           debugPrint('bye: ' + sessionId);
+          var session = _sessions.remove(sessionId);
+          if (session != null) {
+            onCallStateChange?.call(session, CallState.callStateBye);
+            _closeSession(session);
+            showAppointmentCompletedDialog();
+          }
+        }
+        break;
+
+      case 'cancel':
+        {
+          debugPrint('Signaling In cancel');
+          var sessionId = data['session_id'];
+          debugPrint('cancel: ' + sessionId);
           var session = _sessions.remove(sessionId);
           if (session != null) {
             onCallStateChange?.call(session, CallState.callStateBye);
@@ -384,8 +416,8 @@ class Signaling {
     };
 
     MediaStream stream = userScreen
-        ? await navigator.mediaDevices.getDisplayMedia(mediaConstraints)
-        : await navigator.mediaDevices.getUserMedia(mediaConstraints);
+        ? await RTCFactoryNative.instance.navigator.mediaDevices.getDisplayMedia(mediaConstraints)
+        : await RTCFactoryNative.instance.navigator.mediaDevices.getUserMedia(mediaConstraints);
     onLocalStream?.call(stream);
     return stream;
   }
@@ -604,5 +636,24 @@ class Signaling {
 
     await session.pc?.close();
     await session.dc?.close();
+  }
+
+  void showAppointmentCompletedDialog() {
+    NewConfirmationDialog(
+        context: Get.context!,
+        title: AppStrings().alert,
+        titleTextStyle:
+        AppTextStyle.textBoldStyle(color: AppColors.black, fontSize: 18),
+        showSubtitle: false,
+        description: AppStrings().messageConsultationCompleted,
+        submitButtonText: AppStrings().btnProceed,
+        onCancelTap: () {
+          Navigator.pop(Get.context!);
+          Get.back(result: false);
+        },
+        onSubmitTap: () {
+          Navigator.of(Get.context!).pop();
+          Get.back(result: true);
+        }).showAlertDialog();
   }
 }

@@ -7,6 +7,7 @@ import '../../../../theme/src/app_colors.dart';
 import '../../../../theme/src/app_text_style.dart';
 import '../../../../widgets/src/vertical_spacing.dart';
 import '../../../widgets/src/appointments_view.dart';
+import '../../../widgets/src/hspa_appointments_view.dart';
 import 'appointments_page.dart';
 import 'reschedule_appointments_page.dart';
 
@@ -30,16 +31,19 @@ class _PreviousAppointmentsPageState extends State<PreviousAppointmentsPage> wit
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return RefreshIndicator(
       onRefresh: () {
         final appointmentsPageState = context.findAncestorStateOfType<AppointmentsPageState>()!;
-        return appointmentsPageState.fetchProviderAppointments(isInitial: true);
+        return appointmentsPageState.fetchProviderPreviousAppointments();
+        //return appointmentsPageState.fetchProviderAppointments(isInitial: true);
       },
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if(widget.appointmentsController.isOpenMrsAppointments)
             widget.appointmentsController.listPreviousProviderAppointments
                     .isNotEmpty
                 ? showProviderAppointments()
@@ -53,6 +57,20 @@ class _PreviousAppointmentsPageState extends State<PreviousAppointmentsPage> wit
                       ),
                     ),
                   ),
+            if (!widget.appointmentsController.isOpenMrsAppointments)
+              widget.appointmentsController.listPreviousProviderHSPAAppointments
+                      .isNotEmpty
+                  ? showProviderAppointments()
+                  : SizedBox(
+                      height: MediaQuery.of(context).size.height - 96,
+                      child: Center(
+                        child: Text(
+                          AppStrings().errorNoPreviousAppointments,
+                          style: AppTextStyle.textBoldStyle(
+                              fontSize: 16, color: AppColors.tileColors),
+                        ),
+                      ),
+                    ),
             VerticalSpacing(),
             /// Hiding reschedule appointments list view
             /*Padding(
@@ -71,11 +89,14 @@ class _PreviousAppointmentsPageState extends State<PreviousAppointmentsPage> wit
   showProviderAppointments(){
     return ListView.builder(
         padding: const EdgeInsets.only(top: 4, bottom: 4),
-        itemCount: widget.appointmentsController.listPreviousProviderAppointments.length,
+        itemCount: widget.appointmentsController.isOpenMrsAppointments
+            ? widget.appointmentsController.listPreviousProviderAppointments.length
+            : widget.appointmentsController.listPreviousProviderHSPAAppointments.length,
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemBuilder: (BuildContext context, int index) {
-          return AppointmentsView(
+          return widget.appointmentsController.isOpenMrsAppointments
+              ? AppointmentsView(
             providerAppointment: widget.appointmentsController.listPreviousProviderAppointments[index],
             isTeleconsultation: widget.isTeleconsultation,
             isPrevious: true,
@@ -85,7 +106,18 @@ class _PreviousAppointmentsPageState extends State<PreviousAppointmentsPage> wit
                 widget.appointmentsController.listPreviousProviderAppointments.removeAt(index);
               });
             },
-          );
+          )
+                : HSPAAppointmentsView(
+              providerAppointment: widget.appointmentsController.listPreviousProviderHSPAAppointments[index],
+              isTeleconsultation: widget.isTeleconsultation,
+              isPrevious: true,
+              cancelAppointment: () {
+                setState(() {
+                  //widget.appointmentsController.listProviderAppointments.remove(widget.appointmentsController.listPreviousProviderAppointments[index]);
+                  widget.appointmentsController.listPreviousProviderHSPAAppointments.removeAt(index);
+                });
+              },
+            );
         }
     );
   }

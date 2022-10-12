@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hspa_app/constants/src/appointment_status.dart';
-import 'package:hspa_app/constants/src/asset_images.dart';
-import 'package:hspa_app/constants/src/get_pages.dart';
-import 'package:hspa_app/constants/src/strings.dart';
-import 'package:hspa_app/model/response/src/provider_appointments_response.dart';
-import 'package:hspa_app/model/src/doctor_profile.dart';
-import 'package:hspa_app/utils/src/utility.dart';
-import 'package:hspa_app/widgets/src/vertical_spacing.dart';
+import '../../../constants/src/appointment_status.dart';
+import '../../../constants/src/asset_images.dart';
+import '../../../constants/src/get_pages.dart';
+import '../../../constants/src/strings.dart';
+import '../../../model/response/src/provider_appointments_response.dart';
+import '../../../model/src/doctor_profile.dart';
+import '../../../utils/src/utility.dart';
+import '../../../widgets/src/calendar_date_range_picker.dart';
+import '../../../widgets/src/vertical_spacing.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 import '../../../controller/src/appointments_controller.dart';
@@ -19,8 +20,6 @@ import '../../../theme/src/app_text_style.dart';
 import '../../../widgets/src/spacing.dart';
 import '../../../widgets/src/square_rounded_button.dart';
 import 'previous_appointments_page.dart';
-import 'appointment_ongoing_page.dart';
-import 'reschedule_appointments_page.dart';
 import 'today_appointment_page.dart';
 import 'upcoming_appointments_page.dart';
 
@@ -66,7 +65,14 @@ class AppointmentsPageState extends State<AppointmentsPage> with SingleTickerPro
     _controller.addListener(_handleTabSelection);
 
     _appointmentsController = AppointmentsController();
-    fetchProviderAppointments(isInitial: true);
+    //_appointmentsController.upcomingStartDate = DateTime.now().add(const Duration(days: 1));
+    //_appointmentsController.upcomingEndDate = DateTime.now().add(const Duration(days: 1));
+    //fetchProviderAppointments(isInitial: true);
+
+    /// New logic to fetch data based on tabs
+    fetchProviderTodayAppointments();
+    fetchProviderUpcomingAppointments();
+    fetchProviderPreviousAppointments();
 
     listAppointments.add(Appointments(name: 'Arya Mahajan', visitType: 'First Consultation', appointmentDate: '13th April', appointmentTime: '10AM - 10:30 AM', appointmentDateTime: DateTime.utc(2022, 4, 13, 10, 0,0)));
     listAppointments.add(Appointments(name: 'Tarak Mehta', visitType: 'First Consultation', appointmentDate: '18th April', appointmentTime: '10AM - 10:30 AM', appointmentDateTime: DateTime.utc(2022, 4, 18, 10, 0,0)));
@@ -101,6 +107,21 @@ class AppointmentsPageState extends State<AppointmentsPage> with SingleTickerPro
                 Get.back();
               },
             ),
+            actions: [
+              if(_currentIndex != 0)
+                IconButton(
+                  tooltip: _currentIndex == 1
+                      ? AppStrings().tooltipFilterUpcoming
+                      : AppStrings().tooltipFilterPrevious,
+                  icon: Icon(
+                    Icons.filter_alt,
+                    color: AppColors.black,
+                  ),
+                  onPressed: () {
+                    datePicker();
+                  },
+                )
+            ],
             bottom: TabBar(
               controller: _controller,
               isScrollable: true,
@@ -847,5 +868,150 @@ class AppointmentsPageState extends State<AppointmentsPage> with SingleTickerPro
         ),
       ),
     ) : Container();
+  }
+
+  datePicker() {
+    debugPrint('Upcoming dates start -> ${_appointmentsController.upcomingStartDate} end -> ${_appointmentsController.upcomingEndDate}');
+    debugPrint('Previous dates start -> ${_appointmentsController.previousStartDate} end -> ${_appointmentsController.previousEndDate}');
+    CalendarDateRangePicker(
+      context: context,
+      isDateRange: true,
+      initialDate: _currentIndex == 1
+          ? _appointmentsController.upcomingStartDate
+          : _appointmentsController.previousStartDate,
+      lastDate: _currentIndex == 1
+          ? _appointmentsController.upcomingEndDate
+          : _appointmentsController.previousStartDate != null
+              ? _appointmentsController.previousEndDate
+              : null,
+      minDateTime: _currentIndex == 1
+          ? DateTime.now().add(const Duration(days: 1))
+          : null,
+      maxDateTime: _currentIndex == 1
+          ? null
+          : DateTime.now().add(const Duration(days: -1)),
+      onDateSubmit: (startDate, endDate) {
+        if (startDate != null) {
+          endDate ??= startDate;
+          setState(() {
+            if(_currentIndex == 1) {
+              _appointmentsController.upcomingStartDate = startDate;
+              _appointmentsController.upcomingEndDate =
+                  DateTime(endDate!.year, endDate.month, endDate.day, 23, 59, 59);
+              fetchProviderUpcomingAppointments();
+            } else {
+              _appointmentsController.previousStartDate = startDate;
+              _appointmentsController.previousEndDate =
+                  DateTime(endDate!.year, endDate.month, endDate.day, 23, 59, 59);
+              fetchProviderPreviousAppointments();
+            }
+          });
+        }
+      },
+    ).sfDatePicker();
+  }
+
+  Future<void> fetchProviderTodayAppointments() async{
+    try {
+      _appointmentsController.isTodayDataLoading = true;
+      setState(() {
+        isLoading = true;
+      });
+
+      DoctorProfile? doctorProfile = await DoctorProfile.getSavedProfile();
+      await _appointmentsController.getProviderTodayFilterAppointments(
+          fromDate: null,
+          toDate: null,
+          provider: doctorProfile!.uuid!,
+          appointType: providerServiceTypes.uuid!,
+          isOpenMrs: false,
+          hprAddress: doctorProfile.hprAddress!);
+
+      _appointmentsController.isTodayDataLoading = false;
+      hideLoader();
+    } catch (e){
+      debugPrint('Get provider today appointments exception is ${e.toString()}');
+      _appointmentsController.isTodayDataLoading = false;
+      hideLoader();
+    }
+  }
+
+  Future<void> fetchProviderUpcomingAppointments() async{
+    try {
+      _appointmentsController.isUpcomingDataLoading = true;
+      setState(() {
+        isLoading = true;
+      });
+
+      DateTime tomorrow = DateTime.now().add(const Duration(days: 1));
+      _appointmentsController.upcomingStartDate ??= DateTime(tomorrow.year, tomorrow.month, tomorrow.day, 00, 00, 00);
+
+      DoctorProfile? doctorProfile = await DoctorProfile.getSavedProfile();
+      await _appointmentsController.getProviderUpcomingFilterAppointments(
+          fromDate: _appointmentsController.upcomingStartDate != null
+              ? Utility.getAPIRequestDateFormatString(
+              _appointmentsController.upcomingStartDate!)
+              : null,
+          toDate: _appointmentsController.upcomingEndDate != null
+              ? Utility.getAPIRequestDateFormatString(
+              _appointmentsController.upcomingEndDate!)
+              : null,
+          provider: doctorProfile!.uuid!,
+          appointType: providerServiceTypes.uuid!,
+          isOpenMrs: false,
+          hprAddress: doctorProfile.hprAddress!);
+
+      _appointmentsController.isUpcomingDataLoading = false;
+      hideLoader();
+    } catch (e){
+      debugPrint('Get provider upcoming appointments exception is ${e.toString()}');
+      _appointmentsController.isUpcomingDataLoading = false;
+      hideLoader();
+    }
+  }
+
+  Future<void> fetchProviderPreviousAppointments() async{
+    try {
+      _appointmentsController.isPreviousDataLoading = true;
+      setState(() {
+        isLoading = true;
+      });
+      DoctorProfile? doctorProfile = await DoctorProfile.getSavedProfile();
+        DateTime yesterday = DateTime.now().add(const Duration(days: -1));
+      _appointmentsController.previousEndDate ??= DateTime(yesterday.year, yesterday.month, yesterday.day, 23, 59, 59);
+
+      await _appointmentsController.getProviderPreviousFilterAppointments(
+          fromDate: _appointmentsController.previousStartDate != null
+              ? Utility.getAPIRequestDateFormatString(
+              _appointmentsController.previousStartDate!)
+              : null,
+          toDate: _appointmentsController.previousEndDate != null
+              ? Utility.getAPIRequestDateFormatString(
+              _appointmentsController.previousEndDate!)
+              : null,
+          provider: doctorProfile!.uuid!,
+          appointType: providerServiceTypes.uuid!,
+          isOpenMrs: false,
+          hprAddress: doctorProfile.hprAddress!
+      );
+
+      _appointmentsController.isPreviousDataLoading = false;
+      hideLoader();
+    } catch (e){
+      debugPrint('Get provider previous appointments exception is ${e.toString()}');
+      _appointmentsController.isPreviousDataLoading = false;
+      hideLoader();
+    }
+  }
+
+  void hideLoader() {
+    if(!_appointmentsController.isTodayDataLoading
+        && !_appointmentsController.isUpcomingDataLoading
+        && !_appointmentsController.isPreviousDataLoading
+    ) {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 }

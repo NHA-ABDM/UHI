@@ -343,6 +343,29 @@ class AppStrings {
   String labelNotBooked = 'labelNotBooked'.tr();
   String labelBooked = 'labelBooked'.tr();
   String errorEnterValidMobile = 'errorEnterValidMobile'.tr();
+  String labelDocument = 'labelDocument'.tr();
+  String messageConsultationCompleted = 'messageConsultationCompleted'.tr();
+  String btnProceed = 'btnProceed'.tr();
+  String tooltipFilterUpcoming = 'tooltipFilterUpcoming'.tr();
+  String tooltipFilterPrevious = 'tooltipFilterPrevious'.tr();
+  String errorMinimumSlotDuration = 'errorMinimumSlotDuration'.tr();
+  String errorNotMatchedMinimumTimeRange = 'errorNotMatchedMinimumTimeRange'.tr();
+  String titleProminentDisclosure = 'titleProminentDisclosure'.tr();
+  String descProminentDisclosure = 'descProminentDisclosure'.tr();
+  String btnDecline = 'btnDecline'.tr();
+  String descCamera = 'descCamera'.tr();
+  String labelMicrophone = 'labelMicrophone'.tr();
+  String descMicrophone = 'descMicrophone'.tr();
+  String labelStorage = 'labelStorage'.tr();
+  String descStorage = 'descStorage'.tr();
+  String labelSMS = 'labelSMS'.tr();
+  String descSMS = 'descSMS'.tr();
+  String labelSharingOfData = 'labelSharingOfData'.tr();
+  String descSharingOfData = 'descSharingOfData'.tr();
+
+  /// Service types strings to be passed in API calls
+  static String teleconsultation = 'Teleconsultation';
+  static String physicalConsultation = 'PhysicalConsultation';
 
   /// Preferences
   static String chatUserName = 'chat_user_name';
@@ -350,6 +373,7 @@ class AppStrings {
   static String accessToken = 'access_token';
   static String isLocalAuth = 'is_local_auth';
   static const String encryptionPrivateKey = 'encryptionPrivateKey';
+  static String isProminentDisclosureAgreed = 'is_prominent_disclosure_agrees';
 
   static List<String> educations = <String>[
     'MBBS',

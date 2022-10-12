@@ -164,6 +164,7 @@ class _CallSampleState extends State<CallSample> {
   Future<bool?> _showAcceptDialog() {
     return showDialog<bool?>(
       context: context,
+      barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
           title: Text(AppStrings().labelIncomingCall, style: AppTextStyle.textBoldStyle(color: AppColors.black, fontSize: 16),),
@@ -188,6 +189,7 @@ class _CallSampleState extends State<CallSample> {
   Future<bool?> _showInviteDialog() {
     return showDialog<bool?>(
       context: context,
+      barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
           title: Text(AppStrings().labelConnecting, style: AppTextStyle.textBoldStyle(color: AppColors.black, fontSize: 16),),
@@ -197,7 +199,7 @@ class _CallSampleState extends State<CallSample> {
               child: Text(AppStrings().btnCancel.camelCase!, style: AppTextStyle.textSemiBoldStyle(fontSize: 14, color: AppColors.black),),
               onPressed: () {
                 Navigator.of(context).pop(false);
-                _hangUp();
+                _cancel();
               },
             ),
           ],
@@ -227,6 +229,12 @@ class _CallSampleState extends State<CallSample> {
   _hangUp() {
     if (_session != null) {
       _signaling?.bye(_session!.sid);
+    }
+  }
+
+  _cancel() {
+    if (_session != null) {
+      _signaling?.cancel(_session!.sid);
     }
   }
 
@@ -478,7 +486,7 @@ class _CallSampleState extends State<CallSample> {
         shadowColor: Colors.black.withOpacity(0.1),
         leading: IconButton(
           onPressed: () {
-            Get.back();
+            Get.back(result: false);
           },
           icon: Icon(
             Icons.chevron_left_rounded,

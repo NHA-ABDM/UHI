@@ -394,6 +394,9 @@ class _DayTimeSelectionPageState extends State<DayTimeSelectionPage> {
                     } else if (difference != null && difference <= 0) {
                       Get.snackbar(AppStrings().alert,
                           AppStrings().errorInvalidTimeRange);
+                    } else if (difference != null && difference < 10) {
+                      Get.snackbar(AppStrings().alert,
+                          AppStrings().errorNotMatchedMinimumTimeRange, duration: const Duration(seconds: 5));
                     } else if (isFixed && !_formKey.currentState!.validate()) {
                       setState(() {
                         _autoValidateMode = AutovalidateMode.always;
@@ -575,10 +578,12 @@ class _DayTimeSelectionPageState extends State<DayTimeSelectionPage> {
                     return AppStrings().errorEnterValidTime;
                   } else if (int.parse(value.trim()) <= 0) {
                     return AppStrings().errorEnterNonZeroTime;
+                  } else if (int.parse(value.trim()) < 10) {
+                    return AppStrings().errorMinimumSlotDuration;
                   } else {
                     if (startTime != null && endTime != null) {
                       int? difference = getDifference();
-                      if (difference != null && difference <= 0) {
+                      if (difference != null && difference < 10) {
                         return null;
                       } else if (difference != null &&
                           difference < int.parse(value.trim())) {

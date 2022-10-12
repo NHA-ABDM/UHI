@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:hspa_app/controller/src/appointments_controller.dart';
+import '../../../widgets/src/hspa_appointments_view.dart';
+import '../../../controller/src/appointments_controller.dart';
 
 import '../../../constants/src/strings.dart';
 import '../../../model/src/appointment_reschedule.dart';
@@ -30,17 +31,20 @@ class _TodayAppointmentPageState extends State<TodayAppointmentPage> with Automa
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return RefreshIndicator(
       onRefresh: () {
         final appointmentsPageState = context.findAncestorStateOfType<AppointmentsPageState>()!;
-        return appointmentsPageState.fetchProviderAppointments(isInitial: true);
+        return appointmentsPageState.fetchProviderTodayAppointments();
+        //return appointmentsPageState.fetchProviderAppointments(isInitial: true);
       },
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            widget.appointmentsController.listTodayProviderAppointments.isNotEmpty
+            if(widget.appointmentsController.isOpenMrsAppointments)
+                widget.appointmentsController.listTodayProviderAppointments.isNotEmpty
                 ? showProviderAppointments()
                 : SizedBox(
                     height: MediaQuery.of(context).size.height - 96,
@@ -52,6 +56,20 @@ class _TodayAppointmentPageState extends State<TodayAppointmentPage> with Automa
                       ),
                     ),
                   ),
+            if (!widget.appointmentsController.isOpenMrsAppointments)
+              widget.appointmentsController.listTodayProviderHSPAAppointments
+                      .isNotEmpty
+                  ? showProviderAppointments()
+                  : SizedBox(
+                      height: MediaQuery.of(context).size.height - 96,
+                      child: Center(
+                        child: Text(
+                          AppStrings().errorNoTodayAppointments,
+                          style: AppTextStyle.textBoldStyle(
+                              fontSize: 16, color: AppColors.tileColors),
+                        ),
+                      ),
+                    ),
             VerticalSpacing(),
             /// Hiding reschedule appointments list view
             /*Padding(
@@ -70,17 +88,31 @@ class _TodayAppointmentPageState extends State<TodayAppointmentPage> with Automa
   showProviderAppointments(){
     return ListView.builder(
         padding: const EdgeInsets.only(top: 4, bottom: 4),
-        itemCount: widget.appointmentsController.listTodayProviderAppointments.length,
+        itemCount: widget.appointmentsController.isOpenMrsAppointments
+            ? widget.appointmentsController.listTodayProviderAppointments.length
+            : widget.appointmentsController.listTodayProviderHSPAAppointments.length,
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemBuilder: (BuildContext context, int index) {
-          return AppointmentsView(
+          return
+            widget.appointmentsController.isOpenMrsAppointments
+                ? AppointmentsView(
             providerAppointment: widget.appointmentsController.listTodayProviderAppointments[index],
             isTeleconsultation: widget.isTeleconsultation,
             cancelAppointment: () {
               setState(() {
                 widget.appointmentsController.listProviderAppointments.remove(widget.appointmentsController.listTodayProviderAppointments[index]);
                 widget.appointmentsController.listTodayProviderAppointments.removeAt(index);
+              });
+            },
+          )
+            : HSPAAppointmentsView(
+            providerAppointment: widget.appointmentsController.listTodayProviderHSPAAppointments[index],
+            isTeleconsultation: widget.isTeleconsultation,
+            cancelAppointment: () {
+              setState(() {
+                //widget.appointmentsController.listProviderAppointments.remove(widget.appointmentsController.listTodayProviderAppointments[index]);
+                widget.appointmentsController.listTodayProviderHSPAAppointments.removeAt(index);
               });
             },
           );

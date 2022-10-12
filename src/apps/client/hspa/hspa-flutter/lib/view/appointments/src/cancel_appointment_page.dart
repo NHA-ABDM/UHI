@@ -35,7 +35,8 @@ class CancelAppointmentPage extends StatefulWidget {
 class _CancelAppointmentPageState extends State<CancelAppointmentPage> {
 
   /// Arguments
-  late final ProviderAppointments providerAppointment;
+  dynamic providerAppointment;
+  late final bool isOpenMrsAppointment;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   AutovalidateMode _autoValidateMode = AutovalidateMode.disabled;
@@ -46,6 +47,7 @@ class _CancelAppointmentPageState extends State<CancelAppointmentPage> {
   void initState() {
     /// Get arguments
     providerAppointment = Get.arguments['providerAppointment'];
+    isOpenMrsAppointment = Get.arguments['isOpenMrsAppointment'];
     super.initState();
   }
 
@@ -122,13 +124,21 @@ class _CancelAppointmentPageState extends State<CancelAppointmentPage> {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      providerAppointment.patient!.person!.display!,
+                                      isOpenMrsAppointment
+                                          ? providerAppointment.patient!.person!.display!
+                                          : providerAppointment.patientName!,
                                       style: AppTextStyle.textSemiBoldStyle(
                                           color: AppColors.testColor, fontSize: 16),
                                     ),
                                     Spacing(),
                                     Text(
-                                      Utility.getAppointmentDisplayDate(date: DateTime.parse(providerAppointment.timeSlot!.startDate!)),
+                                      isOpenMrsAppointment
+                                          ? Utility.getAppointmentDisplayDate(
+                                          date: DateTime.parse(providerAppointment
+                                              .timeSlot!.startDate!))
+                                          : Utility.getAppointmentDisplayDate(
+                                          date: DateTime.parse(providerAppointment
+                                              .serviceFulfillmentStartTime!)),
                                       style: AppTextStyle
                                           .textNormalStyle(
                                           color: AppColors.testColor, fontSize: 16),
@@ -141,13 +151,32 @@ class _CancelAppointmentPageState extends State<CancelAppointmentPage> {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      providerAppointment.reason ?? '',
+                                      isOpenMrsAppointment
+                                          ? providerAppointment.reason ?? ''
+                                          : providerAppointment.healthcareServiceName ?? '',
                                       style: AppTextStyle.textNormalStyle(
                                           color: AppColors.testColor, fontSize: 12),
                                     ),
                                     Spacing(),
                                     Text(
-                                      Utility.getAppointmentDisplayTimeRange(startDateTime: DateTime.parse(providerAppointment.timeSlot!.startDate!.split('.').first), endDateTime: DateTime.parse(providerAppointment.timeSlot!.endDate!.split('.').first)),
+                                      isOpenMrsAppointment
+                                          ? Utility.getAppointmentDisplayTimeRange(
+                                          startDateTime: DateTime.parse(
+                                              providerAppointment
+                                                  .timeSlot!.startDate!
+                                                  .split('.')
+                                                  .first),
+                                          endDateTime: DateTime.parse(
+                                              providerAppointment.timeSlot!.endDate!
+                                                  .split('.')
+                                                  .first))
+                                          : Utility.getAppointmentDisplayTimeRange(
+                                          startDateTime: DateTime.parse(
+                                              providerAppointment
+                                                  .serviceFulfillmentStartTime!),
+                                          endDateTime: DateTime.parse(
+                                              providerAppointment
+                                                  .serviceFulfillmentEndTime!)),
                                       style: AppTextStyle
                                           .textNormalStyle(
                                           color: AppColors.testColor, fontSize: 12),
@@ -202,13 +231,15 @@ class _CancelAppointmentPageState extends State<CancelAppointmentPage> {
               CancelAppointmentRequestModel requestBody = await getCancelAppointmentRequestBody();
 
               /// This is for cancel appointment from both EUA and HSPA backend and from open mrs also
-              AcknowledgementMessage? acknowledgementMessage = await appointmentsController.cancelProviderAppointmentWrapper(appointmentUUID: providerAppointment.uuid!, cancelAppointmentRequestModel: requestBody);
+              AcknowledgementMessage? acknowledgementMessage = await appointmentsController.cancelProviderAppointmentWrapper(
+                  appointmentUUID: isOpenMrsAppointment ? providerAppointment.uuid! : providerAppointment.appointmentId!,
+                  cancelAppointmentRequestModel: requestBody);
 
               /// This is for cancel appointment from open mrs only
-              //CancelAppointmentResponse? cancelAppointmentResponse = await appointmentsController.cancelProviderAppointment(appointmentUUID: providerAppointment.uuid!, status: AppointmentStatus.cancelled, cancelReason: cancelReason);
+              //CancelAppointmentResponse? cancelAppointmentResponse = await appointmentsController.cancelProviderAppointment(appointmentUUID: isOpenMrsAppointment ? providerAppointment.uuid! : providerAppointment.appointmentId!,, status: AppointmentStatus.cancelled, cancelReason: cancelReason);
 
               /*if(cancelAppointmentResponse != null) {
-                bool? status = await appointmentsController.purgeCanceledAppointmentSlot(appointmentUUID: providerAppointment.uuid!);
+                bool? status = await appointmentsController.purgeCanceledAppointmentSlot(appointmentUUID: isOpenMrsAppointment ? providerAppointment.uuid! : providerAppointment.appointmentId!);
               }*/
 
               setState(() {
@@ -249,20 +280,22 @@ class _CancelAppointmentPageState extends State<CancelAppointmentPage> {
     //contextModel.providerUrl = _providerUri;
     contextModel.timestamp = DateTime.now().toLocal().toUtc().toIso8601String();
     contextModel.transactionId = _uniqueId;
+    // contextModel.transactionId = isOpenMrsAppointment ? _uniqueId : providerAppointment.transId;
 
 
     CancelAppointmentRequestTags tags = CancelAppointmentRequestTags();
     tags.tagMap = <String, dynamic>{};
     tags.tagMap!.addAll({
       '@abdm/gov.in/cancelledby' : 'doctor',
-      '@abdm/gov.in/cancelReason' : _reasonTextController.text.trim()
+      '@abdm/gov.in/cancelReason' : _reasonTextController.text.trim(),
+      '@abdm/gov.in/groupConsultation' : isOpenMrsAppointment ? false : providerAppointment.groupConsultStatus
     });
 
     CancelAppointmentRequestFulfillment cancelAppointmentRequestFulfillment = CancelAppointmentRequestFulfillment();
     cancelAppointmentRequestFulfillment.tags = tags;
 
     CancelAppointmentRequestOrder cancelAppointmentRequestOrder = CancelAppointmentRequestOrder();
-    cancelAppointmentRequestOrder.id = providerAppointment.uuid!;
+    cancelAppointmentRequestOrder.id = isOpenMrsAppointment ? providerAppointment.uuid! : providerAppointment.appointmentId!;
     cancelAppointmentRequestOrder.state = AppointmentStatus.cancelled;
     cancelAppointmentRequestOrder.fulfillment = cancelAppointmentRequestFulfillment;
 

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hspa_app/constants/src/get_pages.dart';
-import 'package:hspa_app/widgets/src/vertical_spacing.dart';
+import '../../constants/src/appointment_status.dart';
+import '../../constants/src/get_pages.dart';
+import '../../constants/src/request_urls.dart';
+import '../../model/response/src/hspa_appointments_response.dart';
+import 'vertical_spacing.dart';
 
 import '../../common/common.dart';
 import '../../constants/src/asset_images.dart';
-import '../../constants/src/request_urls.dart';
 import '../../constants/src/strings.dart';
-import '../../model/response/src/provider_appointments_response.dart';
-import '../../model/src/doctor_profile.dart';
 import '../../theme/src/app_colors.dart';
 import '../../theme/src/app_text_style.dart';
 import '../../utils/src/utility.dart';
@@ -16,22 +16,22 @@ import 'alert_dialog_with_single_action.dart';
 import 'spacing.dart';
 import 'square_rounded_button.dart';
 
-class AppointmentsView extends StatelessWidget {
-  const AppointmentsView(
+class HSPAAppointmentsView extends StatelessWidget {
+  const HSPAAppointmentsView(
       {Key? key,
       required this.providerAppointment,
       required this.isTeleconsultation,
       required this.cancelAppointment,
       this.isPrevious = false})
       : super(key: key);
-  final ProviderAppointments providerAppointment;
+  final HSPAAppointments providerAppointment;
   final bool isTeleconsultation;
   final Function() cancelAppointment;
   final bool isPrevious;
 
   @override
   Widget build(BuildContext context) {
-    return (providerAppointment.status == 'SCHEDULED')
+    return (providerAppointment.isServiceFulfilled == AppointmentStatus.confirmed)
         ? Padding(
             padding: const EdgeInsets.all(8.0),
             child: Card(
@@ -54,7 +54,7 @@ class AppointmentsView extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              providerAppointment.patient!.person!.display!,
+                              providerAppointment.patientName!,
                               style: AppTextStyle.textSemiBoldStyle(
                                   color: AppColors.testColor, fontSize: 16),
                             ),
@@ -62,7 +62,7 @@ class AppointmentsView extends StatelessWidget {
                             Text(
                               Utility.getAppointmentDisplayDate(
                                   date: DateTime.parse(providerAppointment
-                                      .timeSlot!.startDate!)),
+                                      .serviceFulfillmentStartTime!)),
                               style: AppTextStyle.textNormalStyle(
                                   color: AppColors.testColor, fontSize: 16),
                             ),
@@ -76,7 +76,7 @@ class AppointmentsView extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              providerAppointment.reason ?? '',
+                              providerAppointment.healthcareServiceName ?? '',
                               style: AppTextStyle.textNormalStyle(
                                   color: AppColors.testColor, fontSize: 12),
                             ),
@@ -84,14 +84,9 @@ class AppointmentsView extends StatelessWidget {
                             Text(
                               Utility.getAppointmentDisplayTimeRange(
                                   startDateTime: DateTime.parse(
-                                      providerAppointment.timeSlot!.startDate!
-                                          .split('.')
-                                          .first),
+                                      providerAppointment.serviceFulfillmentStartTime!),
                                   endDateTime: DateTime.parse(
-                                      providerAppointment.timeSlot!.endDate!
-                                          .split('.')
-                                          .first)),
-                              //Utility.getAppointmentDisplayTime(startDateTime:providerAppointment.timeSlot!.startDate!, endDateTime: providerAppointment.timeSlot!.endDate!),
+                                      providerAppointment.serviceFulfillmentEndTime!)),
                               style: AppTextStyle.textNormalStyle(
                                   color: AppColors.testColor, fontSize: 12),
                             ),
@@ -117,19 +112,15 @@ class AppointmentsView extends StatelessWidget {
                                   ),
                                 IconButton(
                                   onPressed: () async {
-                                    //DialogHelper.showComingSoonView();
-                                    DoctorProfile? doctorProfile =
-                                        await DoctorProfile.getSavedProfile();
                                     String? doctorHprId =
-                                        doctorProfile?.hprAddress;
+                                        providerAppointment.healthcareProfessionalId;
                                     String? patientABHAId = providerAppointment
-                                        .patient?.abhaAddress;
+                                        .abhaId;
                                     String? patientName = providerAppointment
-                                        .patient?.person?.display;
+                                        .patientName;
+                                    //TODO this needs to be changed as we would required patient gender from API end
                                     String? patientGender = providerAppointment
-                                        .patient?.person?.gender;
-                                    String? appointmentTransactionId = providerAppointment
-                                        .uuid;
+                                        .healthcareProfessionalGender;
                                     /*Get.to(
                                       () => ChatPage(
                                         doctorHprId: doctorHprId,
@@ -145,7 +136,7 @@ class AppointmentsView extends StatelessWidget {
                                       'patientAbhaId': patientABHAId,
                                       'patientName': patientName,
                                       'patientGender': patientGender,
-                                      'appointmentTransactionId': appointmentTransactionId,
+                                      'appointmentTransactionId': providerAppointment.transId ?? '',
                                       'allowSendMessage': true
                                     });
                                   },
@@ -172,113 +163,106 @@ class AppointmentsView extends StatelessWidget {
                                   IconButton(
                                     onPressed: () async{
                                       /*Get.to(() => CallSample(host: '34.224.99.221'),
-                                transition: Utility.pageTransition,);*/
-                                      /*Get.to(
-                                        () => const CallSample(
-                                            host: '121.242.73.119'),
-                                        transition: Utility.pageTransition,
-                                      );*/
-                                      // bool isShowChat = await Get.toNamed(AppRoutes.callSample, arguments: {'host': '121.242.73.119'});
-                                      // debugPrint('isShowChat $isShowChat');
-                                      DoctorProfile? doctorProfile =
-                                      await DoctorProfile.getSavedProfile();
-                                      String? doctorHprId =
-                                          doctorProfile?.hprAddress;
-                                      String? patientABHAId = providerAppointment
-                                          .patient?.abhaAddress;
-                                      String? patientName = providerAppointment
-                                          .patient?.person?.display;
-                                      String? patientGender = providerAppointment
-                                          .patient?.person?.gender;
-                                      /*if(isShowChat) {
-                                        Get.toNamed(AppRoutes.chatPage, arguments: {
+                                      transition: Utility.pageTransition,);*/
+                                      /*bool isShowChat = await Get.toNamed(AppRoutes.callSample, arguments: {'host': '121.242.73.119'});
+                                      debugPrint('isShowChat $isShowChat');
+                                      if(isShowChat) {*/
+                                        String? doctorHprId =
+                                            providerAppointment.healthcareProfessionalId;
+                                        String? patientABHAId = providerAppointment
+                                            .abhaId;
+                                        String? patientName = providerAppointment
+                                            .patientName;
+                                        String? patientGender = providerAppointment
+                                            .healthcareProfessionalGender;
+
+                                        /*Get.toNamed(AppRoutes.chatPage, arguments: {
                                           'doctorHprId': doctorHprId,
                                           'patientAbhaId': patientABHAId,
                                           'patientName': patientName,
                                           'patientGender': patientGender,
+                                          'appointmentTransactionId': providerAppointment.transId ?? '',
                                           'allowSendMessage': true
                                         });
                                       }*/
 
-                                      /// Latest Code shared by Airesh for Group Consultation
+                                        /// Latest Code shared by Airesh for Group Consultation
 
-                                      /// To initiate one to one call uncomment below code
-                                      Get.toNamed(AppRoutes.videoCall,
-                                          arguments: {
-                                            'initiator': {
-                                              //'host': '121.242.73.119',
-                                              'address': doctorHprId
-                                            },
-                                            // 'remoteParticipant': {
-                                            //   'name': 'Airesh Bhat',
-                                            //   'gender': 'Male',
-                                            //   'address': 'aireshbhat9@sbx',
-                                            //   'uri': RequestUrls.consumerUri,
-                                            // }
-                                            'remoteParticipant': {
-                                              'name': patientName,
-                                              'gender': patientGender,
-                                              'address': patientABHAId,
-                                              'uri': RequestUrls.consumerUri,
-                                            }
-                                          });
-
-                                      /// To initiate group call and if user is primary doctor then uncomment below code
-                                      // Get.toNamed(AppRoutes.groupVideoCallPrimary,
-                                      //     arguments: {
-                                      //       'host': '121.242.73.119',
-                                      //       'initiator': {
-                                      //         'address': doctorHprId
-                                      //       },
-                                      //       /*'remotePatient': {
-                                      //         'name': 'Airesh Bhat',
-                                      //         'gender': 'Male',
-                                      //         'address': 'aireshbhat9@sbx',
-                                      //         'uri': RequestUrls.consumerUri,
-                                      //       },*/
-                                      //       'remotePatient': {
-                                      //         'name': patientName,
-                                      //         'gender': patientGender,
-                                      //         'address': patientABHAId,
-                                      //         'uri': RequestUrls.consumerUri,
-                                      //       },
-                                      //       'remoteDoctor': {
-                                      //         'name': 'Amod Joshi',
-                                      //         'gender': 'Male',
-                                      //         'address': 'amodjoshi@hpr.ndhm',
-                                      //         'uri': 'http://100.96.9.171:8084/api/v1',
-                                      //       },
-                                      //     });
-
-                                      /// To initiate group call and if user is secondary doctor then uncomment below code
-                                      // Get.toNamed(
-                                      //     AppRoutes.groupVideoCallSecondary,
-                                      //     arguments: {
-                                      //       'host': '121.242.73.119',
-                                      //       'initiator': {
-                                      //         'address': doctorHprId
-                                      //       },
-                                      //       // 'remotePatient': {
-                                      //       //   'name': 'Airesh Bhat',
-                                      //       //   'gender': 'Male',
-                                      //       //   'address': 'aireshbhat9@sbx',
-                                      //       //   'uri': RequestUrls.consumerUri,
-                                      //       // },
-                                      //       'remotePatient': {
-                                      //         'name': patientName,
-                                      //         'gender': patientGender,
-                                      //         'address': patientABHAId,
-                                      //         'uri': RequestUrls.consumerUri,
-                                      //       },
-                                      //       'remoteDoctor': {
-                                      //         'name': 'Ganesh Borse',
-                                      //         'gender': 'Male',
-                                      //         'address': 'ganeshborse@hpr.ndhm',
-                                      //         'uri':
-                                      //             'http://100.96.9.171:8084/api/v1',
-                                      //       },
-                                      //     });
-
+                                        /// To initiate one to one call
+                                        if (providerAppointment.groupConsultStatus == null
+                                            || !providerAppointment.groupConsultStatus!) {
+                                          Get.toNamed(AppRoutes.videoCall,
+                                              arguments: {
+                                                'initiator': {
+                                                  'address': doctorHprId,
+                                                  'uri': providerAppointment.healthcareProviderUrl
+                                                },
+                                                'remoteParticipant': {
+                                                  'name': patientName,
+                                                  'gender': patientGender,
+                                                  'address': patientABHAId,
+                                                  'uri': providerAppointment.patientConsumerUri,
+                                                  // 'uri': RequestUrls.consumerUri,
+                                                },
+                                                'appointmentTransactionId': providerAppointment.transId,
+                                              },
+                                          );
+                                        }
+                                        if (providerAppointment.groupConsultStatus != null
+                                            && providerAppointment.groupConsultStatus!) {
+                                          /// To initiate group call and if user is primary doctor
+                                          if(providerAppointment.primaryDoctorHprAddress == doctorHprId) {
+                                            Get.toNamed(AppRoutes.groupVideoCallPrimary,
+                                                arguments: {
+                                                  'host': '121.242.73.119',
+                                                  'initiator': {
+                                                    'address': doctorHprId,
+                                                    'uri': providerAppointment.primaryDoctorProviderUri
+                                                  },
+                                                  'remotePatient': {
+                                                    'name': patientName,
+                                                    'gender': patientGender,
+                                                    'address': patientABHAId,
+                                                    'uri': providerAppointment.patientConsumerUri,
+                                                    // 'uri': RequestUrls.consumerUri,
+                                                  },
+                                                  'remoteDoctor': {
+                                                    'name': providerAppointment.secondaryDoctorName,
+                                                    'gender': providerAppointment.secondaryDoctorGender,
+                                                    'address': providerAppointment.secondaryDoctorHprAddress,
+                                                    'uri': providerAppointment.secondaryDoctorProviderUri,
+                                                    // 'uri': 'http://100.96.9.171:8084/api/v1',
+                                                  },
+                                                  'appointmentTransactionId': providerAppointment.transId,
+                                                });
+                                          } else {
+                                            /// To initiate group call and if user is secondary doctor
+                                            Get.toNamed(
+                                                AppRoutes.groupVideoCallSecondary,
+                                                arguments: {
+                                                  'host': '121.242.73.119',
+                                                  'initiator': {
+                                                    'address': doctorHprId,
+                                                    'uri': providerAppointment.secondaryDoctorProviderUri
+                                                  },
+                                                  'remotePatient': {
+                                                    'name': patientName,
+                                                    'gender': patientGender,
+                                                    'address': patientABHAId,
+                                                    'uri': providerAppointment.patientConsumerUri,
+                                                    // 'uri': RequestUrls.consumerUri,
+                                                  },
+                                                  'remoteDoctor': {
+                                                    'name': providerAppointment.primaryDoctorName,
+                                                    'gender': providerAppointment.primaryDoctorGender,
+                                                    'address': providerAppointment.primaryDoctorHprAddress,
+                                                    'uri': providerAppointment.primaryDoctorProviderUri,
+                                                    // 'uri': 'http://100.96.9.171:8084/api/v1',
+                                                  },
+                                                  'appointmentTransactionId': providerAppointment.transId,
+                                                });
+                                          }
+                                        }
                                     },
                                     visualDensity: VisualDensity.compact,
                                     icon: Image.asset(
@@ -309,22 +293,13 @@ class AppointmentsView extends StatelessWidget {
                               color: AppColors.infoIconColor,
                               actionText: AppStrings().labelViewDetails,
                               onTap: () {
-                                /*Get.to(
-                                    () => AppointmentDetailsPage(
-                                          isTeleconsultation:
-                                              isTeleconsultation,
-                                          providerAppointment:
-                                              providerAppointment,
-                                          isPrevious: isPrevious,
-                                        ),
-                                    transition: Utility.pageTransition);*/
                                 Get.toNamed(AppRoutes.appointmentDetailsPage,
                                     arguments: <String, dynamic>{
                                       'isTeleconsultation': isTeleconsultation,
                                       'providerAppointment':
                                           providerAppointment,
                                       'isPrevious': isPrevious,
-                                      'isOpenMrsAppointment': true,
+                                      'isOpenMrsAppointment': false,
                                     });
                               }),
                         ),
@@ -342,16 +317,12 @@ class AppointmentsView extends StatelessWidget {
                                 color: AppColors.infoIconColor,
                                 actionText: AppStrings().labelCancel,
                                 onTap: () async {
-                                  bool isCancelled = /*await Get.to(
-                                      () => CancelAppointmentPage(
-                                          providerAppointment:
-                                              providerAppointment),
-                                      transition: Utility.pageTransition);*/
-                                  await Get.toNamed(AppRoutes.cancelAppointmentPage,
+                                  bool isCancelled = await Get.toNamed(
+                                      AppRoutes.cancelAppointmentPage,
                                       arguments: {
-                                    'providerAppointment': providerAppointment,
-                                        'isOpenMrsAppointment': true,
-                                  });
+                                        'providerAppointment': providerAppointment,
+                                        'isOpenMrsAppointment': false,}
+                                  );
                                   if (isCancelled) {
                                     cancelAppointment();
                                   }

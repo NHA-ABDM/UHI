@@ -69,6 +69,7 @@ class ChatPageState extends State<ChatPage> {
   String? patientAbhaId = "";
   String? patientGender = "";
   String? patientName = "";
+  String? appointmentTransactionId = "";
 
   //String? _providerUri = "";
   // List<ChatMessageDhpModel> _messagesList = List.empty(growable: true);
@@ -98,6 +99,7 @@ class ChatPageState extends State<ChatPage> {
     patientAbhaId = Get.arguments['patientAbhaId'];
     patientGender = Get.arguments['patientGender'];
     patientName = Get.arguments['patientName'];
+    appointmentTransactionId = Get.arguments['appointmentTransactionId'];
 
     _privateKey = Preferences.getString(key: AppStrings.encryptionPrivateKey);
 
@@ -265,6 +267,7 @@ class ChatPageState extends State<ChatPage> {
   connectToStomp() async {
     // _uniqueId = const Uuid().v1();
     _chatId = "$patientAbhaId|$doctorHprId";
+      // _chatId = appointmentTransactionId ?? "$patientAbhaId|$doctorHprId";
 
     debugPrint('chat key is $_chatId');
 
@@ -392,6 +395,7 @@ class ChatPageState extends State<ChatPage> {
     //contextModel.providerUrl = _providerUri;
     contextModel.timestamp = DateTime.now().toLocal().toUtc().toIso8601String();
     contextModel.transactionId = _uniqueId;
+    // contextModel.transactionId = appointmentTransactionId;
 
     ChatMessage chatMessage = ChatMessage();
     ChatIntent chatIntent = ChatIntent();
@@ -988,42 +992,66 @@ class ChatPageState extends State<ChatPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    GestureDetector(
-                      onTap: () {
-                        _handleImageSelection(source: ImageSource.camera);
-                        Navigator.of(context).pop();
-                      },
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          CircleAvatar(
-                            radius: 30,
-                            backgroundColor: AppColors.amountColor,
-                            child: Icon(Icons.camera, color: AppColors.white,),
-                          ),
-                          VerticalSpacing(),
-                          Text(AppStrings().camera, style: AppTextStyle.textMediumStyle(fontSize: 16, color: AppColors.titleTextColor),)
-                        ],
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          _handleImageSelection(source: ImageSource.camera);
+                          Navigator.of(context).pop();
+                        },
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircleAvatar(
+                              radius: 30,
+                              backgroundColor: AppColors.amountColor,
+                              child: Icon(Icons.camera_alt_rounded, color: AppColors.white,),
+                            ),
+                            VerticalSpacing(),
+                            Text(AppStrings().camera, style: AppTextStyle.textMediumStyle(fontSize: 16, color: AppColors.titleTextColor),)
+                          ],
+                        ),
                       ),
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        _handleImageSelection(source: ImageSource.gallery);
-                        Navigator.of(context).pop();
-                      },
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          CircleAvatar(
-                            radius: 30,
-                            backgroundColor: AppColors.amountColor,
-                            child: Icon(Icons.folder, color: AppColors.white,),
-                          ),
-                          VerticalSpacing(),
-                          Text(AppStrings().gallery, style: AppTextStyle.textMediumStyle(fontSize: 16, color: AppColors.titleTextColor),)
-                        ],
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          _handleImageSelection(source: ImageSource.gallery);
+                          Navigator.of(context).pop();
+                        },
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircleAvatar(
+                              radius: 30,
+                              backgroundColor: AppColors.amountColor,
+                              child: Icon(Icons.image, color: AppColors.white,),
+                            ),
+                            VerticalSpacing(),
+                            Text(AppStrings().gallery, style: AppTextStyle.textMediumStyle(fontSize: 16, color: AppColors.titleTextColor),)
+                          ],
+                        ),
                       ),
                     ),
+                    /*Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          _handleFileSelection();
+                        },
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircleAvatar(
+                              radius: 30,
+                              backgroundColor: AppColors.amountColor,
+                              child: Icon(Icons.insert_drive_file, color: AppColors.white,),
+                            ),
+                            VerticalSpacing(),
+                            Text(AppStrings().labelDocument, style: AppTextStyle.textMediumStyle(fontSize: 16, color: AppColors.titleTextColor),)
+                          ],
+                        ),
+                      ),
+                    ),*/
                   ],
                 ),
               );
@@ -1069,7 +1097,9 @@ class ChatPageState extends State<ChatPage> {
 
   void _handleFileSelection() async {
     final result = await FilePicker.platform.pickFiles(
-      type: FileType.any,
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+      allowMultiple: false
     );
 
     if (result != null && result.files.single.path != null) {

@@ -209,4 +209,11 @@ class Utility {
 
     return decryptedMessage;
   }
+
+  static String getSlotDividerDisplayDate({required DateTime date}){
+    String displayDate = '';
+    DateFormat format = DateFormat('MMMM d');
+    displayDate = format.format(date);
+    return displayDate;
+  }
 }
