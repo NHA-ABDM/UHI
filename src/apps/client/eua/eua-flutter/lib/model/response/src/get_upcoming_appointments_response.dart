@@ -2,6 +2,8 @@ class UpcomingAppointmentResponseModal {
   String? orderId;
   String? categoryId;
   String? orderDate;
+  String? createDate;
+  String? modifyDate;
   String? healthcareServiceName;
   String? healthcareServiceId;
   String? healthcareProviderName;
@@ -34,45 +36,69 @@ class UpcomingAppointmentResponseModal {
   // String? payment;
   AppointmentPayment? payment;
 
-  UpcomingAppointmentResponseModal(
-      {this.orderId,
-      this.categoryId,
-      this.orderDate,
-      this.healthcareServiceName,
-      this.healthcareServiceId,
-      this.healthcareProviderName,
-      this.healthcareProviderId,
-      this.healthcareProviderUrl,
-      this.healthcareServiceProviderEmail,
-      this.healthcareServiceProviderPhone,
-      this.healthcareProfessionalName,
-      this.healthcareProfessionalImage,
-      this.healthcareProfessionalEmail,
-      this.healthcareProfessionalPhone,
-      this.healthcareProfessionalId,
-      this.healthcareProfessionalGender,
-      this.serviceFulfillmentStartTime,
-      this.serviceFulfillmentEndTime,
-      this.serviceFulfillmentType,
-      this.symptoms,
-      this.languagesSpokenByHealthcareProfessional,
-      this.healthcareProfessionalExperience,
-      this.isServiceFulfilled,
-      this.transId,
-      this.primaryDoctor,
-      this.secondaryDoctor,
-      this.groupConsultStatus,
-      this.healthcareProfessionalDepartment,
-      this.message,
-      this.slotId,
-      this.user,
-      this.abhaId,
-      this.payment});
+  String? primaryDoctorName;
+  String? primaryDoctorHprAddress;
+  String? primaryDoctorGender;
+  String? primaryDoctorProviderURI;
+  String? secondaryDoctorName;
+  String? secondaryDoctorHprAddress;
+  String? secondaryDoctorGender;
+  String? secondaryDoctorProviderURI;
+  String? patientConsumerUrl;
+
+  UpcomingAppointmentResponseModal({
+    this.orderId,
+    this.categoryId,
+    this.orderDate,
+    this.createDate,
+    this.modifyDate,
+    this.healthcareServiceName,
+    this.healthcareServiceId,
+    this.healthcareProviderName,
+    this.healthcareProviderId,
+    this.healthcareProviderUrl,
+    this.healthcareServiceProviderEmail,
+    this.healthcareServiceProviderPhone,
+    this.healthcareProfessionalName,
+    this.healthcareProfessionalImage,
+    this.healthcareProfessionalEmail,
+    this.healthcareProfessionalPhone,
+    this.healthcareProfessionalId,
+    this.healthcareProfessionalGender,
+    this.serviceFulfillmentStartTime,
+    this.serviceFulfillmentEndTime,
+    this.serviceFulfillmentType,
+    this.symptoms,
+    this.languagesSpokenByHealthcareProfessional,
+    this.healthcareProfessionalExperience,
+    this.isServiceFulfilled,
+    this.transId,
+    this.primaryDoctor,
+    this.secondaryDoctor,
+    this.groupConsultStatus,
+    this.healthcareProfessionalDepartment,
+    this.message,
+    this.slotId,
+    this.user,
+    this.abhaId,
+    this.payment,
+    this.primaryDoctorName,
+    this.primaryDoctorHprAddress,
+    this.primaryDoctorGender,
+    this.primaryDoctorProviderURI,
+    this.secondaryDoctorName,
+    this.secondaryDoctorHprAddress,
+    this.secondaryDoctorGender,
+    this.secondaryDoctorProviderURI,
+    this.patientConsumerUrl,
+  });
 
   UpcomingAppointmentResponseModal.fromJson(Map<String, dynamic> json) {
     orderId = json['orderId'];
     categoryId = json['categoryId'];
     orderDate = json['orderDate'];
+    createDate = json['createDate'] != null ? json['createDate'] : null;
+    modifyDate = json['modifyDate'] != null ? json['modifyDate'] : null;
     healthcareServiceName = json['healthcareServiceName'];
     healthcareServiceId = json['healthcareServiceId'];
     healthcareProviderName = json['healthcareProviderName'];
@@ -106,6 +132,33 @@ class UpcomingAppointmentResponseModal {
     payment = json['payment'] != null
         ? new AppointmentPayment.fromJson(json['payment'])
         : null;
+    if (json.containsKey("primaryDoctorName")) {
+      primaryDoctorName = json['primaryDoctorName'];
+    }
+    if (json.containsKey("primaryDoctorHprAddress")) {
+      primaryDoctorHprAddress = json['primaryDoctorHprAddress'];
+    }
+    if (json.containsKey("primaryDoctorGender")) {
+      primaryDoctorGender = json['primaryDoctorGender'];
+    }
+    if (json.containsKey("primaryDoctorProviderURI")) {
+      primaryDoctorProviderURI = json['primaryDoctorProviderURI'];
+    }
+    if (json.containsKey("secondaryDoctorName")) {
+      secondaryDoctorName = json['secondaryDoctorName'];
+    }
+    if (json.containsKey("secondaryDoctorHprAddress")) {
+      secondaryDoctorHprAddress = json['secondaryDoctorHprAddress'];
+    }
+    if (json.containsKey("secondaryDoctorGender")) {
+      secondaryDoctorGender = json['secondaryDoctorGender'];
+    }
+    if (json.containsKey("secondaryDoctorProviderURI")) {
+      secondaryDoctorProviderURI = json['secondaryDoctorProviderURI'];
+    }
+    if (json.containsKey("patientConsumerUrl")) {
+      patientConsumerUrl = json['patientConsumerUrl'];
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -113,6 +166,12 @@ class UpcomingAppointmentResponseModal {
     data['orderId'] = this.orderId;
     data['categoryId'] = this.categoryId;
     data['orderDate'] = this.orderDate;
+    if (this.createDate != null) {
+      data['createDate'] = this.createDate;
+    }
+    if (this.modifyDate != null) {
+      data['modifyDate'] = this.modifyDate;
+    }
     data['healthcareServiceName'] = this.healthcareServiceName;
     data['healthcareServiceId'] = this.healthcareServiceId;
     data['healthcareProviderName'] = this.healthcareProviderName;

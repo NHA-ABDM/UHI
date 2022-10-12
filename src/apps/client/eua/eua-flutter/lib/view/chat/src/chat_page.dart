@@ -86,6 +86,7 @@ class _ChatPageState extends State<ChatPage> {
   String? _doctorGender = "";
   String? _providerUri = "";
   bool _allowSendMessage = true;
+  String? transactionID = "";
 
   // List<ChatMessageDhpModel> _messagesList = List.empty(growable: true);
   List<ChatMessageModel> _messagesList = List.empty(growable: true);
@@ -127,6 +128,7 @@ class _ChatPageState extends State<ChatPage> {
     _doctorGender = Get.arguments['doctorGender'];
     _providerUri = Get.arguments['providerUri'];
     _allowSendMessage = Get.arguments['allowSendMessage'] ?? true;
+    transactionID = Get.arguments['transactionId'];
 
     if (mounted) {
       futureListOfMessages = getChatMessages();
@@ -298,6 +300,7 @@ class _ChatPageState extends State<ChatPage> {
   Future<void> connectToStomp() async {
     // _uniqueId = const Uuid().v1();
     _chatId = "$_patientAbhaId|$_doctorHprId";
+    //_chatId = transactionID!;
 
     log("$_chatId", name: "CHAT KEY");
 
@@ -466,6 +469,7 @@ class _ChatPageState extends State<ChatPage> {
     contextModel.providerUrl = _providerUri;
     contextModel.timestamp = DateTime.now().toLocal().toUtc().toIso8601String();
     contextModel.transactionId = _uniqueId;
+    //contextModel.transactionId = transactionID;
 
     ChatMessage chatMessage = ChatMessage();
     ChatIntent chatIntent = ChatIntent();

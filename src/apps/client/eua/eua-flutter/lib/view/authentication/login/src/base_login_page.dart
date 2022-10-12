@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -14,10 +15,12 @@ import 'package:uhi_flutter_app/common/common.dart';
 import 'package:uhi_flutter_app/constants/src/strings.dart';
 import 'package:uhi_flutter_app/controller/login/login.dart';
 import 'package:uhi_flutter_app/controller/login/src/access_token_controller.dart';
+import 'package:uhi_flutter_app/controller/registration/registration.dart';
 import 'package:uhi_flutter_app/model/model.dart';
 import 'package:uhi_flutter_app/theme/theme.dart';
 import 'package:uhi_flutter_app/utils/src/shared_preferences.dart';
 import 'package:uhi_flutter_app/view/authentication/authentication.dart';
+import 'package:uhi_flutter_app/view/authentication/login/src/prominent_disclosure.dart';
 import 'package:uhi_flutter_app/view/authentication/login/src/web_view_registration.dart';
 import 'package:uhi_flutter_app/view/discovery/discovery.dart';
 import 'package:uhi_flutter_app/view/group-consultation/src/book_group_teleconsultation_page.dart';
@@ -25,6 +28,9 @@ import 'package:uhi_flutter_app/view/group-consultation/src/book_group_teleconsu
 import '../../../../constants/constants.dart';
 
 import '../../../view.dart';
+
+import '../../../../model/response/src/access_token_response_model.dart';
+import '../../../../utils/utils.dart';
 
 class BaseLoginPage extends StatefulWidget {
   const BaseLoginPage();
@@ -39,6 +45,12 @@ class _BaseLoginPageState extends State<BaseLoginPage> {
   final loginInitController = Get.put(LoginInitController());
   //final AccessTokenController commonController = Get.find();
   final accessTokenController = Get.put(AccessTokenController());
+  AadharRegistrationController _aadharRegistrationController =
+      AadharRegistrationController();
+
+  ///DATA VARIABLES
+  Future<AccessTokenResponseModel?>? futureOfAccessTokenResponse;
+  AccessTokenResponseModel? _accessTokenResponse;
 
   ///SIZE
   var width;
@@ -54,7 +66,54 @@ class _BaseLoginPageState extends State<BaseLoginPage> {
   @override
   void initState() {
     super.initState();
-    callAccessTokenApi();
+    if (mounted) {
+      futureOfAccessTokenResponse = getAccessTokenResponse();
+    }
+  }
+
+  Future<AccessTokenResponseModel?>? getAccessTokenResponse() async {
+    AccessTokenResponseModel? accessTokenResponseModel =
+        AccessTokenResponseModel();
+
+    await _aadharRegistrationController.postSessionToken();
+
+    if (_aadharRegistrationController.sessionTokenDetails != null &&
+        _aadharRegistrationController.sessionTokenDetails != "") {
+      if (_aadharRegistrationController.sessionTokenDetails?.accessToken !=
+              null &&
+          _aadharRegistrationController.sessionTokenDetails?.accessToken !=
+              "") {
+        await callAccessTokenApi();
+
+        // await _aadharRegistrationController.getAuthCert();
+
+        SharedPreferencesHelper.setRegAccessToken(
+            "${_aadharRegistrationController.sessionTokenDetails?.accessToken}");
+
+        SharedPreferencesHelper.setRegRefreshToken(
+            "${_aadharRegistrationController.sessionTokenDetails?.refreshToken}");
+
+        accessTokenResponseModel =
+            _aadharRegistrationController.sessionTokenDetails!;
+      } else {
+        DialogHelper.showErrorDialog(
+            description: AppStrings().somethingWentWrongErrorMsg);
+        return null;
+      }
+    } else if (_aadharRegistrationController.errorString != "") {
+      return null;
+    } else {
+      DialogHelper.showErrorDialog(
+          description: AppStrings().somethingWentWrongErrorMsg);
+      return null;
+    }
+
+    return accessTokenResponseModel;
+  }
+
+  Future<void> onRefresh() async {
+    setState(() {});
+    futureOfAccessTokenResponse = getAccessTokenResponse();
   }
 
   void showProgressDialog() {
@@ -149,15 +208,32 @@ class _BaseLoginPageState extends State<BaseLoginPage> {
               AppTextStyle.textBoldStyle(color: AppColors.black, fontSize: 16),
         ),
       ),
-      body: ModalProgressHUD(
-        child: buildWidgets(),
-        inAsyncCall: _loading,
-        dismissible: false,
-        progressIndicator: const CircularProgressIndicator(
-          backgroundColor: AppColors.DARK_PURPLE,
-          valueColor: AlwaysStoppedAnimation<Color>(AppColors.amountColor),
-        ),
+      body: FutureBuilder(
+        future: futureOfAccessTokenResponse,
+        builder: (context, loadingData) {
+          switch (loadingData.connectionState) {
+            case ConnectionState.waiting:
+              return CommonLoadingIndicator();
+
+            case ConnectionState.active:
+              return Text(AppStrings().loadingData);
+
+            case ConnectionState.done:
+              return loadingData.data != null ? buildWidgets() : buildWidgets();
+            default:
+              return loadingData.data != null ? buildWidgets() : buildWidgets();
+          }
+        },
       ),
+      // body: ModalProgressHUD(
+      //   child: buildWidgets(),
+      //   inAsyncCall: _loading,
+      //   dismissible: false,
+      //   progressIndicator: const CircularProgressIndicator(
+      //     backgroundColor: AppColors.DARK_PURPLE,
+      //     valueColor: AlwaysStoppedAnimation<Color>(AppColors.amountColor),
+      //   ),
+      // ),
     );
   }
 
@@ -188,6 +264,9 @@ class _BaseLoginPageState extends State<BaseLoginPage> {
                 border:
                     OutlineInputBorder(borderSide: BorderSide(), gapPadding: 0),
               ),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp("[0-9]"))
+              ],
               dropdownIconPosition: IconPosition.trailing,
               initialCountryCode: 'IN',
               countries: ['IN'],
@@ -274,7 +353,7 @@ class _BaseLoginPageState extends State<BaseLoginPage> {
           // ),
           GestureDetector(
             onTap: () {
-              Get.to(LoginWithAbhaAddressPage());
+              Get.to(LoginWithEmailPage());
             },
             child: Container(
               height: 50,
@@ -300,9 +379,7 @@ class _BaseLoginPageState extends State<BaseLoginPage> {
             height: 20,
           ),
           GestureDetector(
-            onTap: () {
-              Get.to(LoginWithAbhaAddressPage());
-            },
+            onTap: () {},
             child: Container(
               height: 50,
               width: width * 0.89,
@@ -369,8 +446,10 @@ class _BaseLoginPageState extends State<BaseLoginPage> {
           // ),
           GestureDetector(
             onTap: () {
-              Get.to(() => WebViewRegistration());
-              //Get.to(RegistrationPage());
+              //Get.to(() => WebViewRegistration());
+              //Get.to(ProminentDisclosures());
+              Get.to(RegistrationPage());
+              //Get.to(UserDetailsFormPage(sessionId: ""));
             },
             child: Center(
               child: Text(

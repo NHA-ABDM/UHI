@@ -189,7 +189,7 @@ class _MultipleDoctorResultsPageState extends State<MultipleDoctorResultsPage> {
     if (discoveryResponseModel == null ||
         discoveryResponseModel?.message == null) {
       await Timer.periodic(Duration(seconds: 1), (timer) async {
-        if (timer.tick == 3) {
+        if (timer.tick == 6) {
           _timer?.cancel();
         }
       });
@@ -241,7 +241,7 @@ class _MultipleDoctorResultsPageState extends State<MultipleDoctorResultsPage> {
     if (discoveryResponseModel == null ||
         discoveryResponseModel?.message == null) {
       await Timer.periodic(Duration(seconds: 1), (timer) async {
-        if (timer.tick == 3) {
+        if (timer.tick == 6) {
           _timer?.cancel();
         }
       });
@@ -693,10 +693,8 @@ class _MultipleDoctorResultsPageState extends State<MultipleDoctorResultsPage> {
                     description:
                         "Both doctors are same please select the different doctor");
               } else {
-                log("${jsonEncode(_fulfillmentObjDoc1)}",
-                    name: "DOCTOR 1 INFO");
-                log("${jsonEncode(_fulfillmentObjDoc2)}",
-                    name: "DOCTOR 2 INFO");
+                log("${jsonEncode(_providerUriDoc1)}", name: "DOCTOR 1 INFO");
+                log("${jsonEncode(_providerUriDoc2)}", name: "DOCTOR 2 INFO");
                 Get.to(() => MultipleDoctorCommonSlotsPage(
                       doctor1AbhaId: _fulfillmentObjDoc1?.agent?.id ?? "",
                       doctor1Name: _fulfillmentObjDoc1?.agent?.name ?? "",
@@ -902,10 +900,10 @@ class _MultipleDoctorResultsPageState extends State<MultipleDoctorResultsPage> {
                   } else {
                     if (isFirstDoctor) {
                       _fulfillmentObjDoc1 = discoveryFulfillments;
-                      _providerUriDoc2 = providerUri;
+                      _providerUriDoc1 = providerUri;
                     } else {
                       _fulfillmentObjDoc2 = discoveryFulfillments;
-                      _providerUriDoc1 = providerUri;
+                      _providerUriDoc2 = providerUri;
                     }
                     setState(() {
                       _selectedDoctorIndex = index;

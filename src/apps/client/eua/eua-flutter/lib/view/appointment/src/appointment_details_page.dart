@@ -39,6 +39,7 @@ class AppointmentDetailsPage extends StatefulWidget {
   String? uniqueId;
 
   String doctorProviderUri;
+
   AppointmentDetailsPage({
     Key? key,
     // this.bookingOnInitResponseModel,
@@ -77,7 +78,7 @@ class _DiscoveryResultsPageState extends State<AppointmentDetailsPage> {
   String? _teleconsultationFees = "0/-";
   String? _totalFees = "0/-";
   String? _appointmentDateAndTime;
-  String _uniqueId = "";
+  String? _uniqueId = "";
   int messageQueueNum = 0;
   StompClient? stompClient;
   String? abhaAddress;
@@ -127,7 +128,7 @@ class _DiscoveryResultsPageState extends State<AppointmentDetailsPage> {
 
     // _uniqueId = const Uuid().v1();
 
-    stompSocketConnection.connect(uniqueId: _uniqueId, api: postInitAPI);
+    stompSocketConnection.connect(uniqueId: _uniqueId!, api: postInitAPI);
     stompSocketConnection.onResponse = (response) {
       if (response == null) {
         _timer?.cancel();
@@ -225,20 +226,21 @@ class _DiscoveryResultsPageState extends State<AppointmentDetailsPage> {
     tags.upiId = widget.discoveryFulfillments.agent?.tags?.upiId;
     tags.patientGender = getUserDetailsResponseModel.gender;
     tags.abdmGovInGroupConsultation = "false";
+    tags.abdmGovInConsumerUrl = RequestUrls.bookingService;
 
     agent.tags = tags;
 
     fulfillment.agent = agent;
-    fulfillment.id = widget.discoveryFulfillments.id;
+    fulfillment.id = _timeSlot?.tags?.abdmGovInSlot;
     fulfillment.type = _consultationType;
 
     price.currency = "INR";
-    price.value = "1000";
+    price.value = widget.discoveryFulfillments.agent?.tags?.firstConsultation;
 
     discoveryItems.price = price;
     discoveryItems.descriptor = descriptor;
     descriptor.name = "Consultation";
-    discoveryItems.id = "1";
+    discoveryItems.id = "0";
     discoveryItems.fulfillmentId = _timeSlot?.tags?.abdmGovInSlot;
 
     Start start = Start();
@@ -255,7 +257,6 @@ class _DiscoveryResultsPageState extends State<AppointmentDetailsPage> {
     fulfillment.start = start;
     fulfillment.end = end;
     fulfillment.initTimeSlotTags = initTimeSlotTags;
-    fulfillment.id = _timeSlot?.tags?.abdmGovInSlot;
 
     order.id = _orderId;
     order.item = widget.discoveryItems;

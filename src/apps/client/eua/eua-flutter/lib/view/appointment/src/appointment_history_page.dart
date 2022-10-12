@@ -92,7 +92,6 @@ class _AppointmentHistoryPageState extends State<AppointmentHistoryPage> {
           }
         }
       }
-      log("historyList:${json.encode(appointmentHistoryList)}");
       for (int i = 0; i < appointmentHistoryList.length; i++) {
         String? orderDetailUpComingMessage = appointmentHistoryList[i]!.message;
 
@@ -101,7 +100,7 @@ class _AppointmentHistoryPageState extends State<AppointmentHistoryPage> {
                 jsonDecode(orderDetailUpComingMessage!)));
       }
     }
-
+    print("historyList:${json.encode(appointmentHistoryList)}");
     hideProgressDialog();
   }
 
@@ -195,6 +194,8 @@ class _AppointmentHistoryPageState extends State<AppointmentHistoryPage> {
 
   buildNewDoctorTile(int index) {
     String appointmentStartDate = "";
+    String appointmentBookDate = "-";
+    String appointmentBookTime = "";
     String appointmentEndDate = "";
     String appointmentStartTime = "";
     String appointmentEndTime = "";
@@ -203,8 +204,16 @@ class _AppointmentHistoryPageState extends State<AppointmentHistoryPage> {
     int duration = 0;
     String gender = "";
     var tmpStartDate;
+    var tmpBookedDate;
     var tmpEndDate;
     if (appointmentHistoryList.isNotEmpty) {
+      if (appointmentHistoryList[index]!.modifyDate != null) {
+        tmpBookedDate = appointmentHistoryList[index]!.modifyDate!;
+        appointmentBookDate =
+            DateFormat("dd MMM y").format(DateTime.parse(tmpBookedDate));
+        appointmentBookTime =
+            DateFormat("hh:mm a").format(DateTime.parse(tmpBookedDate));
+      }
       gender = appointmentHistoryList[index]!.healthcareProfessionalGender!;
       tmpStartDate =
           appointmentHistoryList[index]!.serviceFulfillmentStartTime!;
@@ -394,7 +403,7 @@ class _AppointmentHistoryPageState extends State<AppointmentHistoryPage> {
                         children: [
                           Text(
                             //"19 April 22\n  8:00pm",
-                            appointmentStartDate + "\n " + appointmentStartTime,
+                            appointmentBookDate + "\n " + appointmentBookTime,
                             style: AppTextStyle.textBoldStyle(
                                 color: AppColors.doctorExperienceColor,
                                 fontSize: 10),

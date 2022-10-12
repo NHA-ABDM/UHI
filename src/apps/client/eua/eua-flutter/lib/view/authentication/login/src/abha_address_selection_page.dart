@@ -133,6 +133,7 @@ class _ABHAAddressSelectionPageState extends State<ABHAAddressSelectionPage> {
         leading: IconButton(
           onPressed: () {
             Get.back();
+            Get.back();
           },
           icon: Icon(
             Icons.chevron_left_rounded,
@@ -215,8 +216,6 @@ class _ABHAAddressSelectionPageState extends State<ABHAAddressSelectionPage> {
                                     setState(() {
                                       showProgressDialog();
                                       _selectedOption = value!;
-                                      debugPrint(
-                                          "SelectedOption:${widget.mappedPhrAddress[index]}");
                                       callApi(widget.mappedPhrAddress[index]);
                                     });
                                   },

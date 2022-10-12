@@ -177,6 +177,11 @@ class AppStrings {
   String weight = 'weight'.tr();
   String btnContinue = 'btnContinue'.tr();
   String userAgreementDetails = 'userAgreementDetails'.tr();
+  String createYourPassword = 'createYourPassword'.tr();
+  String congratulations = 'congratulations'.tr();
+  String yourABHAAddress = 'yourABHAAddress'.tr();
+  String isCreated = 'isCreated'.tr();
+  String loginToContinue = 'loginToContinue'.tr();
 
   //REGISTRATION WITH MOBILE NUMBER
   String registrationWithMobileNumber = 'registrationWithMobileNumber'.tr();
@@ -293,4 +298,25 @@ class AppStrings {
   String gallery = 'gallery'.tr();
   String alert = 'alert'.tr();
   String emptyOTP = 'emptyOTP'.tr();
+  String generalDisclosure = 'generalDisclosure'.tr();
+  String cameraDisclosure = 'cameraDisclosure'.tr();
+  String microphoneDisclosure = 'microphoneDisclosure'.tr();
+  String microPhone = 'microPhone'.tr();
+  String storageDisclosure = 'storageDisclosure'.tr();
+  String Storage = 'Storage'.tr();
+  String smsDisclosure = 'smsDisclosure'.tr();
+  String sms = 'sms'.tr();
+  String geoLocationDisclosure = 'geoLocationDisclosure'.tr();
+  String geoLocation = 'geoLocation'.tr();
+  String sharingOfData = 'sharingOfData'.tr();
+  String sharingOfDataDisclosure = 'sharingOfDataDisclosure'.tr();
+  String accept = 'accept'.tr();
+  String decline = 'decline'.tr();
+  String userAgreementText = 'userAgreementText'.tr();
+  String createPassword = 'createPassword'.tr();
+  String confirmPassword = 'confirmPassword'.tr();
+  String abdmAt = 'abdmAt'.tr();
+  String passwordNotMatching = 'passwordNotMatching'.tr();
+  String passwordGreaterThan6 = 'passwordGreaterThan6'.tr();
+  String createNewABHAAddress = 'createNewABHAAddress'.tr();
 }

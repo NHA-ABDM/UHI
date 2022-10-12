@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:uhi_flutter_app/constants/src/strings.dart';
 import 'package:uhi_flutter_app/controller/controller.dart';
 import 'package:uhi_flutter_app/model/model.dart';
+import 'package:uhi_flutter_app/utils/src/shared_pref.dart';
 import 'package:uhi_flutter_app/view/view.dart';
 import 'package:uhi_flutter_app/model/request/src/booking_init_request_model.dart';
 import 'package:uhi_flutter_app/model/response/src/discovery_response_model.dart';
@@ -17,6 +18,8 @@ import 'package:uhi_flutter_app/theme/theme.dart';
 import 'package:uhi_flutter_app/utils/src/loading_indicator.dart';
 import 'package:uhi_flutter_app/widgets/src/doctor_details_view.dart';
 import 'package:uuid/uuid.dart';
+
+import '../../../utils/src/shared_preferences.dart';
 
 class DiscoveryResultsPage extends StatefulWidget {
   DiscoveryResponseModel? discoveryDetails;
@@ -197,8 +200,11 @@ class _DiscoveryResultsPageState extends State<DiscoveryResultsPage> {
 
   ///SEARCH API
   postSearchAPI() async {
+    _postDiscoveryDetailsController.refresh();
+
     String? deviceId = await _getId();
     // _uniqueId = const Uuid().v1();
+    SharedPreferencesHelper.setTransactionId(_uniqueId);
 
     ContextModel contextModel = ContextModel();
     contextModel.domain = "nic2004:85111";
@@ -653,6 +659,7 @@ class _DiscoveryResultsPageState extends State<DiscoveryResultsPage> {
 
   buildNewDoctorTile(int index) {
     String? providerUri;
+    String? HSPAValue = "";
     // String? priceValue;
     // List<DiscoveryItems> item = [];
     Fulfillment discoveryFulfillments = _fulfillments![index];
@@ -661,6 +668,8 @@ class _DiscoveryResultsPageState extends State<DiscoveryResultsPage> {
     //     item.add(discoveryItems![index]);
     //   }
     // }
+    HSPAValue =
+        _listOfDiscoveryResponse[index]!.message!.catalog!.descriptor!.name;
     _listOfDiscoveryResponse.forEach(
       (discoveryResponse) {
         discoveryResponse?.message?.catalog?.fulfillments
@@ -792,7 +801,7 @@ class _DiscoveryResultsPageState extends State<DiscoveryResultsPage> {
                         Padding(
                           padding: const EdgeInsets.fromLTRB(8, 0, 0, 2),
                           child: Text(
-                            "HSPA",
+                            HSPAValue ?? "-",
                             style: AppTextStyle.textBoldStyle(
                                 color: AppColors.amountColor, fontSize: 14),
                           ),

@@ -88,6 +88,7 @@ void checkMessageTypeAndOpenPage(RemoteMessage? message, {String? nextRoute}) {
       String? doctorGender = data['gender'];
       String? doctorName = data['senderName'];
       String? providerUri = data['providerUri'];
+      String? transId = data['transId'];
       debugPrint('App current route is ${Get.currentRoute}');
       if (Get.currentRoute == AppRoutes.chatPage) {
         String? chatDoctorHprId = Get.arguments['doctorHprId'];
@@ -101,6 +102,7 @@ void checkMessageTypeAndOpenPage(RemoteMessage? message, {String? nextRoute}) {
             'doctorGender': doctorGender,
             'providerUri': providerUri,
             'allowSendMessage': true,
+            'transactionId': transId,
           });
         }
       } else {

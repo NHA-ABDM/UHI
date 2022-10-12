@@ -791,10 +791,14 @@ class _MultipleDoctorAppointmentStatusPageState
                             // log("$result");
 
                             ///this is for group consultation
+                            log("Doctor 2 provider Url:${_docTwoConfirmResponse!.context!.providerUrl}");
+                            log("Doctor 1 provider Url:${_docOneConfirmResponse!.context!.providerUrl}");
                             final result = Get.toNamed(
                                 AppRoutes.groupVideoCallPage,
                                 arguments: <String, dynamic>{
                                   'initiator': {'address': userAbhaAddress},
+                                  'transactionId': _docTwoConfirmResponse!
+                                      .context!.transactionId,
                                   'primaryDoctor': {
                                     'name': _docOneConfirmResponse!.message!
                                         .order!.fulfillment!.agent!.name,
@@ -948,12 +952,21 @@ class _MultipleDoctorAppointmentStatusPageState
                           style: AppTextStyle.textBoldStyle(
                               color: AppColors.doctorNameColor, fontSize: 12),
                         ),
-                        Text(
-                          // 'MBBS/MS Cardiology',
-                          doctorEducation,
-                          style:
-                              AppTextStyle.appointmentConfirmedLightTextStyle(
-                                  color: AppColors.doctorNameColor),
+                        // Text(
+                        //   // 'MBBS/MS Cardiology',
+                        //   doctorEducation,
+                        //   style:
+                        //       AppTextStyle.appointmentConfirmedLightTextStyle(
+                        //           color: AppColors.doctorNameColor),
+                        // ),
+                        Container(
+                          width: MediaQuery.of(context).size.width * 0.56,
+                          child: Text(
+                            doctorEducation,
+                            style:
+                                AppTextStyle.appointmentConfirmedLightTextStyle(
+                                    color: AppColors.doctorNameColor),
+                          ),
                         ),
                       ],
                     ),

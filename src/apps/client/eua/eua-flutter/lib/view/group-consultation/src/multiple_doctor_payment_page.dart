@@ -372,6 +372,7 @@ class _MultipleDoctorPaymentPageState extends State<MultipleDoctorPaymentPage> {
     tags.slotId = _docOneFulfillment?.agent?.tags?.slotId;
     tags.specialtyTag = _docOneFulfillment?.agent?.tags?.specialtyTag;
     tags.upiId = _docOneFulfillment?.agent?.tags?.upiId;
+    tags.abdmGovInConsumerUrl = RequestUrls.bookingService;
 
     tags.patientName = getUserDetailsResponseModel.fullName;
     tags.patientGender = getUserDetailsResponseModel.gender;
@@ -600,6 +601,7 @@ class _MultipleDoctorPaymentPageState extends State<MultipleDoctorPaymentPage> {
     tags.slotId = _docTwoFulfillment?.agent?.tags?.slotId;
     tags.specialtyTag = _docTwoFulfillment?.agent?.tags?.specialtyTag;
     tags.upiId = _docTwoFulfillment?.agent?.tags?.upiId;
+    tags.abdmGovInConsumerUrl = RequestUrls.bookingService;
 
     tags.patientName = getUserDetailsResponseModel.fullName;
     tags.patientGender = getUserDetailsResponseModel.gender;

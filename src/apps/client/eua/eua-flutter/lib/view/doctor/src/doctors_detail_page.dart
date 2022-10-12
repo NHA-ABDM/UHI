@@ -81,7 +81,7 @@ class _DiscoveryResultsPageState extends State<DoctorsDetailPage> {
   int? _selectedTimeSlotIndex;
   TimeSlotModel? _selectedTimeSlot;
   List<String> startEndTime = [];
-  String _uniqueId = "";
+  String? _uniqueId = "";
   String city = "";
   String? startTimeInString;
   String? endTimeInString;
@@ -143,7 +143,7 @@ class _DiscoveryResultsPageState extends State<DoctorsDetailPage> {
 
     // _uniqueId = const Uuid().v1();
 
-    stompSocketConnection.connect(uniqueId: _uniqueId, api: postSearch2API);
+    stompSocketConnection.connect(uniqueId: _uniqueId!, api: postSearch2API);
     stompSocketConnection.onResponse = (response) {
       if (response == null) {
         _timer?.cancel();
@@ -244,8 +244,8 @@ class _DiscoveryResultsPageState extends State<DoctorsDetailPage> {
       TimeSlotStartTime timeSlotStartTime = TimeSlotStartTime();
       TimeSlotStartTime timeSlotEndTime = TimeSlotStartTime();
 
-      if (Jiffy(DateTime.parse(element.start!.time!.timestamp!).toUtc())
-          .isSameOrAfter(DateTime.now().toUtc())) {
+      if (Jiffy(DateTime.parse(element.start!.time!.timestamp!))
+          .isSameOrAfter(DateTime.now())) {
         timeSlotStartTime.timestamp = element.start?.time?.timestamp;
         timeSlotStart.time = timeSlotStartTime;
 
@@ -626,11 +626,14 @@ class _DiscoveryResultsPageState extends State<DoctorsDetailPage> {
             itemCount: _timeSlotList.length,
             itemBuilder: (BuildContext context, int index) {
               TimeSlotModel timeSlotModel = _timeSlotList[index];
-              String startTime = DateFormat("hh:mm a").format(
-                  DateTime.parse(timeSlotModel.start!.time!.timestamp!));
 
-              String endTime = DateFormat("hh:mm a")
-                  .format(DateTime.parse(timeSlotModel.end!.time!.timestamp!));
+              String startTime = DateFormat("hh:mm a").format(
+                  DateTime.parse(timeSlotModel.start!.time!.timestamp!)
+                      .toLocal());
+
+              String endTime = DateFormat("hh:mm a").format(
+                  DateTime.parse(timeSlotModel.end!.time!.timestamp!)
+                      .toLocal());
               return InkWell(
                   onTap: () {
                     setState(() {

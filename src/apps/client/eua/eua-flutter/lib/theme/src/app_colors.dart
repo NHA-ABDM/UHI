@@ -37,6 +37,7 @@ class AppColors {
       Color(0xFF264488);
   static const Color dividerColor = Color(0xFFF0F3F4);
   static const Color lightTextColor = Color(0xFF1B1C20);
+  static const Color agreementTextBackgroundColor = Color(0xFFF0F8FF);
 
   //Login page colors
   static const Color mobileNumberTextColor = Color(0xFF343434);

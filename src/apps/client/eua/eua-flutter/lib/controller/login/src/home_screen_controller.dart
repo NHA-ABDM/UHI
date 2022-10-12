@@ -97,6 +97,7 @@ class HomeScreenController extends GetxController with ExceptionHandler {
   }
 
   Future<void> getUpcomingAppointment(String abhaId) async {
+    log('@@@@@@@@@@@@@@@@@@@ ' + RequestUrls.getOrderDetails + abhaId);
     await BaseClient(url: RequestUrls.getOrderDetails + abhaId).get().then(
       (value) {
         if (value == null) {

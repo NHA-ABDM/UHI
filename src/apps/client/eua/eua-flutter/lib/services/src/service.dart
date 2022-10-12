@@ -62,6 +62,27 @@ class BaseClient {
     return headers;
   }
 
+  Future<Map<String, String>?> _getRegAuthHeaders(
+      {bool? withoutAccessToken}) async {
+    var headers = {
+      // "Accept": "application/json",
+      // "Content-Type": "application/json",
+      // 'Content-Language': 'mobile',
+      "expiresIn": "600",
+      "refreshExpiresIn": "1800",
+      "tokenType": "bearer"
+    };
+    ;
+    String? accessToken = await SharedPreferencesHelper.getRegAccessToken();
+    String? refreshToken = await SharedPreferencesHelper.getRegRefreshToken();
+
+    headers.putIfAbsent("accessToken", () => accessToken!);
+    headers.putIfAbsent("refreshToken", () => refreshToken!);
+
+    log("${jsonEncode(headers)}");
+    return headers;
+  }
+
   //Get request to server
   Future<dynamic> get() async {
     try {
@@ -128,6 +149,39 @@ class BaseClient {
           .post(
             Uri.parse(url!),
             headers: await (_getAuthHeaders()),
+            body: jsonEncode(body),
+          )
+          .timeout(const Duration(seconds: timeOutDuration));
+
+      return _processResponse(response);
+    } on SocketException {
+      throw SocketExceptionHandler(
+          'Socket connection error.\nPlease check your internet connection and try again.',
+          url);
+    } on TimeoutException {
+      throw RequestTimeoutException(
+          'Request timeout.\nPlease check your internet connection and try again.',
+          url);
+    } on FormatException {
+      throw FetchDataException(
+          "Something went wrong.\nServers are busy at this moment please try again.",
+          url);
+    } on HandshakeException {
+      throw NoInternetConnectionException(
+          "No internet connection.\nPlease check your internet connection and try again.",
+          url);
+    }
+  }
+
+  //Post request to server
+  Future<dynamic> postWithRegistrationHeaders() async {
+    try {
+      log("Url ${url}", name: "URL");
+
+      var response = await client
+          .post(
+            Uri.parse(url!),
+            headers: await (_getRegAuthHeaders()),
             body: jsonEncode(body),
           )
           .timeout(const Duration(seconds: timeOutDuration));

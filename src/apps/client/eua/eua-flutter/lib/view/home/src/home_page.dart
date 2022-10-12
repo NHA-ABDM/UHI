@@ -1015,6 +1015,8 @@ class _DiscoverServicesPageState extends State<HomePage>
 
   Widget appointmentHistoryView() {
     String appointmentStartDate = "";
+    String appointmentBookDate = "-";
+    String appointmentBookTime = "";
     String appointmentEndDate = "";
     String appointmentStartTime = "";
     String appointmentEndTime = "";
@@ -1024,9 +1026,17 @@ class _DiscoverServicesPageState extends State<HomePage>
     int duration = 0;
     var tmpStartDate;
     var tmpEndDate;
+    var tmpBookedDate;
     Uint8List? doctorImage;
 
     if (historyAppointmentList.isNotEmpty) {
+      if (historyAppointmentList[0]!.modifyDate != null) {
+        tmpBookedDate = historyAppointmentList[0]!.modifyDate!;
+        appointmentBookDate =
+            DateFormat("dd MMM y").format(DateTime.parse(tmpBookedDate));
+        appointmentBookTime =
+            DateFormat("hh:mm a").format(DateTime.parse(tmpBookedDate));
+      }
       tmpStartDate = historyAppointmentList[0]!.serviceFulfillmentStartTime!;
       appointmentStartDate =
           DateFormat("dd MMM y").format(DateTime.parse(tmpStartDate));
@@ -1251,9 +1261,9 @@ class _DiscoverServicesPageState extends State<HomePage>
                               children: [
                                 Text(
                                   //"19 April 22\n  8:00pm",
-                                  appointmentStartDate +
+                                  appointmentBookDate +
                                       "\n  " +
-                                      appointmentStartTime,
+                                      appointmentBookTime,
                                   style: AppTextStyle.textBoldStyle(
                                       color: AppColors.doctorExperienceColor,
                                       fontSize: 10),
@@ -1752,6 +1762,9 @@ class _DiscoverServicesPageState extends State<HomePage>
                                                   upcomingAppointmentList[0]
                                                       ?.healthcareProviderUrl,
                                               'allowSendMessage': true,
+                                              'transactionId':
+                                                  upcomingAppointmentList[0]
+                                                      ?.transId
                                             });
                                       }),
                                 ),
@@ -1828,9 +1841,45 @@ class _DiscoverServicesPageState extends State<HomePage>
   buildGroupConsultNewDoctorTile(GroupConsultAppointment response) {
     UpcomingAppointmentResponseModal? docOneResponse;
     UpcomingAppointmentResponseModal? docTwoResponse;
+    UpcomingAppointmentResponseModal? tempDocOneResponse;
+    UpcomingAppointmentResponseModal? tempDocTwoResponse;
 
-    docOneResponse = response.listOfResponses?[0];
-    docTwoResponse = response.listOfResponses?[1];
+    // if (response.listOfResponses != null &&
+    //     response.listOfResponses!.isNotEmpty) {
+    //   for (UpcomingAppointmentResponseModal? model
+    //       in response.listOfResponses!) {
+    //     if (model != null && model.primaryDoctorHprAddress != null) {
+    //       if (model.healthcareProfessionalId == model.primaryDoctorHprAddress) {
+    //         docOneResponse = model;
+    //       } else {
+    //         docTwoResponse = model;
+    //       }
+    //     } else {
+    //       int index = response.listOfResponses!.indexWhere(
+    //           (element) => element!.transId == response.listOfResponses![0]);
+    //       log("index:$index");
+    //       docTwoResponse = response.listOfResponses?[1];
+    //       docOneResponse = response.listOfResponses?[0];
+    //       break;
+    //     }
+    //   }
+    // }
+
+    tempDocOneResponse = upcomingAppointmentList[0];
+    int index = upcomingAppointmentList.indexWhere((element) =>
+        element!.transId == tempDocOneResponse!.transId &&
+        element.healthcareProfessionalId !=
+            tempDocOneResponse.healthcareProfessionalId);
+    tempDocTwoResponse = upcomingAppointmentList[index];
+
+    if (tempDocOneResponse!.healthcareProfessionalId ==
+        tempDocOneResponse.primaryDoctorHprAddress) {
+      docOneResponse = tempDocOneResponse;
+      docTwoResponse = tempDocTwoResponse;
+    } else {
+      docOneResponse = tempDocTwoResponse;
+      docTwoResponse = tempDocOneResponse;
+    }
 
     String appointmentStartDate = "";
     String appointmentEndDate = "";
@@ -1843,14 +1892,15 @@ class _DiscoverServicesPageState extends State<HomePage>
     var tmpEndDate;
     String gender = "";
     Uint8List? doctorImage;
-    String minSlotStartDateAndTime;
-    String minSlotEndDateAndTime;
+    String minSlotStartDateAndTime = "";
+    String minSlotEndDateAndTime = "";
 
     String doctorNameDocTwo = "";
     String hprIdDocTwo = "";
     String genderDocTwo = "";
     Uint8List? doctorImageTwo;
 
+    //if (docOneResponse != null && docTwoResponse != null) {
     _doctorImages.forEach((element) {
       DoctorImageModel image = DoctorImageModel.fromJson(jsonDecode(element));
       if (image.doctorHprAddress == docOneResponse?.healthcareProfessionalId) {
@@ -1901,6 +1951,7 @@ class _DiscoverServicesPageState extends State<HomePage>
     genderDocTwo = docTwoResponse.healthcareProfessionalGender ?? "";
     doctorImage =
         base64Decode(docTwoResponse.healthcareProfessionalImage ?? "");
+    // }
 
     return Container(
       width: width * 0.9,
@@ -2074,17 +2125,19 @@ class _DiscoverServicesPageState extends State<HomePage>
                 Spacing(
                   isWidth: false,
                 ),
-                Container(
-                  padding: const EdgeInsets.only(left: 25.0, right: 25),
-                  child: Text(
-                    docOneResponse.serviceFulfillmentType ==
-                            DataStrings.teleconsultation
-                        ? DataStrings.teleconsultation
-                        : AppStrings().physicalConsultationString,
-                    style: AppTextStyle.textBoldStyle(
-                        color: AppColors.testColor, fontSize: 15),
-                  ),
-                ),
+                docOneResponse != null
+                    ? Container(
+                        padding: const EdgeInsets.only(left: 25.0, right: 25),
+                        child: Text(
+                          docOneResponse.serviceFulfillmentType ==
+                                  DataStrings.teleconsultation
+                              ? DataStrings.teleconsultation
+                              : AppStrings().physicalConsultationString,
+                          style: AppTextStyle.textBoldStyle(
+                              color: AppColors.testColor, fontSize: 15),
+                        ),
+                      )
+                    : Container(),
               ],
             ),
           ),

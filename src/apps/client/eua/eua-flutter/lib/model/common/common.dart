@@ -5,3 +5,5 @@ export 'src/fcm_token_model.dart';
 export 'src/notification_message_model.dart';
 export 'src/time_slot_model.dart';
 export 'src/chat_message_encryption_model.dart';
+export 'src/generate_otp_model.dart';
+export 'src/abha_id_auth_model.dart';

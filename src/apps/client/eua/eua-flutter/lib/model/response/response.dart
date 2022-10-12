@@ -6,3 +6,6 @@ export 'src/login_confirm_response_model.dart';
 export 'src/logout_response_model.dart';
 export 'src/response_model.dart';
 export 'src/get_shared_key_response_model.dart';
+export 'src/create_phr_address_response_model.dart';
+export 'src/already_exists_phr_response_model.dart';
+export 'src/access_token_response_model.dart';

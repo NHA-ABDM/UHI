@@ -63,6 +63,7 @@ class GroupVideoCallState extends State<GroupVideoCall> {
 
   Session? _primarySession;
   Session? _secondarySession;
+  String? transactionId;
 
   @override
   void initState() {
@@ -71,6 +72,7 @@ class GroupVideoCallState extends State<GroupVideoCall> {
     debugPrint("Group video call argument:${Get.arguments}");
 
     initiator = Get.arguments['initiator'];
+    transactionId = Get.arguments['transactionId'];
     primaryDoctor = Get.arguments['primaryDoctor'];
     secondaryDoctor = Get.arguments['secondaryDoctor'];
     _primaryDoctorHprId = primaryDoctor['address'];
@@ -117,6 +119,7 @@ class GroupVideoCallState extends State<GroupVideoCall> {
       receiversName: _primaryDoctorName!,
       providerUri: _primaryDoctorProviderUri!,
       chatId: '$_patientAbhaId|$_primaryDoctorHprId',
+      //chatId: transactionId ?? '$_patientAbhaId|$_primaryDoctorHprId',
     )..connect();
     _primaryDoctorSignalling?.setStream(_localStream!);
 
@@ -193,6 +196,7 @@ class GroupVideoCallState extends State<GroupVideoCall> {
       receiversName: _secondaryDoctorName!,
       providerUri: _secondaryDoctorProviderUri!,
       chatId: '$_patientAbhaId|$_secondaryDoctorHprId',
+      //chatId: transactionId ?? '$_patientAbhaId|$_secondaryDoctorHprId',
     )..connect();
     _secondaryDoctorSignalling?.setStream(_localStream!);
 
@@ -215,6 +219,7 @@ class GroupVideoCallState extends State<GroupVideoCall> {
           }
           setState(() {
             _localRenderer.srcObject = null;
+            inCalling = false;
             _remoteSecondaryDoctorRenderer.srcObject = null;
             _secondarySession = null;
           });
@@ -348,20 +353,55 @@ class GroupVideoCallState extends State<GroupVideoCall> {
   }
 
   _speaker() {
-    setState(() {
-      isSpeaker = !isSpeaker;
-    });
+    // setState(() {
+    //   isSpeaker = !isSpeaker;
+    // });
 
-    _remotePrimaryDoctorRenderer.srcObject
-        ?.getAudioTracks()[0]
-        .enableSpeakerphone(isSpeaker);
-    _remoteSecondaryDoctorRenderer.srcObject
-        ?.getAudioTracks()[0]
-        .enableSpeakerphone(isSpeaker);
+    // _remotePrimaryDoctorRenderer.srcObject
+    //     ?.getAudioTracks()[0]
+    //     .enableSpeakerphone(isSpeaker);
+    // _remoteSecondaryDoctorRenderer.srcObject
+    //     ?.getAudioTracks()[0]
+    //     .enableSpeakerphone(isSpeaker);
+
+    for (MediaStreamTrack audioTrack
+        in _remotePrimaryDoctorRenderer.srcObject!.getAudioTracks()) {
+      if (audioTrack.enabled) {
+        // setState(() {
+        //   isSpeaker = !isSpeaker;
+        // });
+        _remotePrimaryDoctorRenderer.srcObject
+            ?.getAudioTracks()[_remotePrimaryDoctorRenderer.srcObject
+                    ?.getAudioTracks()
+                    .indexOf(audioTrack) ??
+                0]
+            .enableSpeakerphone(isSpeaker);
+        break;
+      }
+    }
+
+    for (MediaStreamTrack audioTrack
+        in _remoteSecondaryDoctorRenderer.srcObject!.getAudioTracks()) {
+      if (audioTrack.enabled) {
+        setState(() {
+          isSpeaker = !isSpeaker;
+        });
+        _remoteSecondaryDoctorRenderer.srcObject
+            ?.getAudioTracks()[_remoteSecondaryDoctorRenderer.srcObject
+                    ?.getAudioTracks()
+                    .indexOf(audioTrack) ??
+                0]
+            .enableSpeakerphone(isSpeaker);
+        break;
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    debugPrint("_primaryDoctorName:$_primaryDoctorName");
+    var doctorNameArray = _primaryDoctorName!.split("-");
+    String doctorName = doctorNameArray[1];
     width = MediaQuery.of(context).size.width;
     height = MediaQuery.of(context).size.height;
     return WillPopScope(
@@ -382,7 +422,8 @@ class GroupVideoCallState extends State<GroupVideoCall> {
                   shadowColor: Colors.black.withOpacity(0.1),
                   leading: IconButton(
                     onPressed: () {
-                      //Get.back();
+                      _hangUp();
+                      // Get.back();
                       Navigator.pop(context, false);
                     },
                     icon: Icon(
@@ -414,8 +455,8 @@ class GroupVideoCallState extends State<GroupVideoCall> {
                         child: RTCVideoView(
                           _remotePrimaryDoctorRenderer,
                           mirror: true,
-                          objectFit: RTCVideoViewObjectFit
-                              .RTCVideoViewObjectFitContain,
+                          objectFit:
+                              RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
                         ),
                       ),
                       Container(
@@ -427,8 +468,8 @@ class GroupVideoCallState extends State<GroupVideoCall> {
                         child: RTCVideoView(
                           _remoteSecondaryDoctorRenderer,
                           mirror: true,
-                          objectFit: RTCVideoViewObjectFit
-                              .RTCVideoViewObjectFitContain,
+                          objectFit:
+                              RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
                         ),
                       )
                     ]),
@@ -561,12 +602,12 @@ class GroupVideoCallState extends State<GroupVideoCall> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
-                                "You are in $_primaryDoctorName's waiting room",
+                                "You are in$doctorName's waiting room",
                                 style: AppTextStyle.textBoldStyle(
                                     color: AppColors.tileColors, fontSize: 16),
                               ),
                               Text(
-                                "Please wait, $_primaryDoctorName will let you in soon.",
+                                "Please wait,$doctorName will let you in soon.",
                                 style: AppTextStyle.textLightStyle(
                                     color: AppColors.lightTextColor,
                                     fontSize: 14),

@@ -445,7 +445,7 @@ class _DiscoveryResultsPageState extends State<MultipleDoctorCommonSlotsPage> {
 
   List<TimeSlotModel> getCommonSlots(
       List<TimeSlotModel> slots1, List<TimeSlotModel> slots2) {
-    DateTime minStartTime = DateTime.now();
+    DateTime minStartTime = DateTime.now().toLocal();
     List<TimeSlotModel> matchingSlots =
         List<TimeSlotModel>.empty(growable: true);
 
@@ -461,33 +461,52 @@ class _DiscoveryResultsPageState extends State<MultipleDoctorCommonSlotsPage> {
       checkMinSlot(slots1, slots2);
 
       slots1.forEach((s1) {
-        DateTime s1Start = DateTime.parse(s1.start!.time!.timestamp!);
-        DateTime s1End = DateTime.parse(s1.end!.time!.timestamp!);
+        DateTime s1Start = DateTime.parse(s1.start!.time!.timestamp!).toLocal();
+        DateTime s1End = DateTime.parse(s1.end!.time!.timestamp!).toLocal();
 
         if (s1Start.isBefore(minStartTime) && s1Start != minStartTime) {
           return;
         }
 
         slots2.forEach((s2) {
-          DateTime s2Start = DateTime.parse(s2.start!.time!.timestamp!);
-          DateTime s2End = DateTime.parse(s2.end!.time!.timestamp!);
+          DateTime s2Start =
+              DateTime.parse(s2.start!.time!.timestamp!).toLocal();
+          DateTime s2End = DateTime.parse(s2.end!.time!.timestamp!).toLocal();
 
           if (s2Start.isBefore(minStartTime) && s2Start != minStartTime) {
             return;
           }
 
-          if (between(s1Start, s2Start, s2End) ||
-              between(s2Start, s1Start, s1End)) {
-            if (minSlot == "s1") {
-              matchingSlots.add(s1);
-              _groupConsultTimeSlotList.add(
-                  GroupConsultTimeSlot(docOneTimeSlot: s1, docTwoTimeSlot: s2));
-            } else if (minSlot == "s2") {
-              matchingSlots.add(s2);
-              _groupConsultTimeSlotList.add(
-                  GroupConsultTimeSlot(docOneTimeSlot: s1, docTwoTimeSlot: s2));
-            }
-          }
+          /// Logic by Ganesh
+          /// Below if indicates that s1 time range is greater than s2 time range and s2 time ranges in s1 time range
+          if ((s1Start.isBefore(s2Start) || s1Start == s2Start) &&
+              (s1End.isAfter(s2End) || s1End == s2End)) {
+            debugPrint(
+                'Common slots are $s1Start - $s1End and $s2Start - $s2End');
+            matchingSlots.add(s2);
+            _groupConsultTimeSlotList.add(
+                GroupConsultTimeSlot(docOneTimeSlot: s1, docTwoTimeSlot: s2));
+          } else if ((s2Start.isBefore(s1Start) || s2Start == s1Start) &&
+              (s2End.isAfter(s1End) || s2End == s1End)) {
+            debugPrint(
+                'Common slots are $s1Start - $s1End and $s2Start - $s2End');
+            matchingSlots.add(s1);
+            _groupConsultTimeSlotList.add(
+                GroupConsultTimeSlot(docOneTimeSlot: s1, docTwoTimeSlot: s2));
+          } else {}
+
+          // if (between(s1Start, s2Start, s2End) ||
+          //     between(s2Start, s1Start, s1End)) {
+          //   if (minSlot == "s1") {
+          //     matchingSlots.add(s1);
+          //     _groupConsultTimeSlotList.add(
+          //         GroupConsultTimeSlot(docOneTimeSlot: s1, docTwoTimeSlot: s2));
+          //   } else if (minSlot == "s2") {
+          //     matchingSlots.add(s2);
+          //     _groupConsultTimeSlotList.add(
+          //         GroupConsultTimeSlot(docOneTimeSlot: s1, docTwoTimeSlot: s2));
+          //   }
+          // }
         });
       });
 
@@ -969,10 +988,12 @@ class _DiscoveryResultsPageState extends State<MultipleDoctorCommonSlotsPage> {
             itemBuilder: (BuildContext context, int index) {
               TimeSlotModel timeSlotModel = _timeSlotListCommon[index];
               String startTime = DateFormat("hh:mm a").format(
-                  DateTime.parse(timeSlotModel.start!.time!.timestamp!));
+                  DateTime.parse(timeSlotModel.start!.time!.timestamp!)
+                      .toLocal());
 
-              String endTime = DateFormat("hh:mm a")
-                  .format(DateTime.parse(timeSlotModel.end!.time!.timestamp!));
+              String endTime = DateFormat("hh:mm a").format(
+                  DateTime.parse(timeSlotModel.end!.time!.timestamp!)
+                      .toLocal());
               return InkWell(
                   onTap: () {
                     setState(() {

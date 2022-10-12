@@ -6,6 +6,10 @@ import 'package:uhi_flutter_app/theme/src/app_colors.dart';
 import 'package:uhi_flutter_app/theme/src/app_text_style.dart';
 
 class WebViewRegistration extends StatefulWidget {
+  bool? isForgotAbhaNumber;
+
+  WebViewRegistration({this.isForgotAbhaNumber});
+
   @override
   WebViewRegistrationState createState() => WebViewRegistrationState();
 }
@@ -36,13 +40,18 @@ class WebViewRegistrationState extends State<WebViewRegistration> {
         ),
         titleSpacing: 0,
         title: Text(
-          AppStrings().registration,
+          widget.isForgotAbhaNumber != null && widget.isForgotAbhaNumber == true
+              ? "Forgot ABHA Number"
+              : AppStrings().registration,
           style:
               AppTextStyle.textBoldStyle(color: AppColors.black, fontSize: 16),
         ),
       ),
       body: WebviewScaffold(
-        url: 'https://healthidsbx.abdm.gov.in/register',
+        url: widget.isForgotAbhaNumber != null &&
+                widget.isForgotAbhaNumber == true
+            ? 'https://healthidsbx.abdm.gov.in/login/recovery'
+            : 'https://healthidsbx.abdm.gov.in/register',
       ),
     );
   }

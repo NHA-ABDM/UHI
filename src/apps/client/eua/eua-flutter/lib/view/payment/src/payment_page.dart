@@ -64,7 +64,7 @@ class _PaymentPageState extends State<PaymentPage> {
   List<ApplicationMeta>? _apps;
   String? _upiAddrError;
   // ApplicationMeta? applicationMeta;
-  String _uniqueId = "";
+  String? _uniqueId = "";
   int messageQueueNum = 0;
   StompClient? stompClient;
   String? abhaAddress;
@@ -110,7 +110,6 @@ class _PaymentPageState extends State<PaymentPage> {
     _consultationType = widget.consultationType;
     _doctorImage = widget.doctorImage;
     _uniqueId = widget.uniqueId ?? const Uuid().v1();
-
   }
 
   @override
@@ -123,7 +122,7 @@ class _PaymentPageState extends State<PaymentPage> {
     BookingConfirmResponseModel? bookingConfirmResponseModel;
     // _uniqueId = const Uuid().v1();
 
-    stompSocketConnection.connect(uniqueId: _uniqueId, api: postConfirmAPI);
+    stompSocketConnection.connect(uniqueId: _uniqueId!, api: postConfirmAPI);
     stompSocketConnection.onResponse = (response) {
       if (response == null) {
         if (isBtnPressed) {
@@ -162,6 +161,15 @@ class _PaymentPageState extends State<PaymentPage> {
                   navigateToHomeAndRefresh: true,
                   doctorImage: _doctorImage,
                 ));
+            setState(() {
+              isLoadingIndicator = false;
+              isBtnPressed = false;
+            });
+            stompSocketConnection.disconnect();
+          } else {
+            DialogHelper.showErrorDialog(
+                title: AppStrings().errorString,
+                description: AppStrings().somethingWentWrongErrorMsg);
             setState(() {
               isLoadingIndicator = false;
               isBtnPressed = false;

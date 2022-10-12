@@ -352,6 +352,8 @@ class _ConsultationCompletedPageState extends State<ConsultationCompletedPage> {
                                       ?.context?.providerUrl ??
                                   "",
                               'allowSendMessage': false,
+                              'transactionId': _bookingConfirmResponseModel!
+                                  .context!.transactionId
                             });
                       }),
                 ),

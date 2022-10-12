@@ -116,15 +116,14 @@ class _UpcomingAppointmentPageState extends State<UpcomingAppointmentPage>
           i++) {
         if (homeScreenController.upcomingAppointmentResponseModal[i]!
             .serviceFulfillmentStartTime!.isNotEmpty) {
-          String startDate = homeScreenController
-              .upcomingAppointmentResponseModal[i]!
-              .serviceFulfillmentStartTime!;
+          String endDate = homeScreenController
+              .upcomingAppointmentResponseModal[i]!.serviceFulfillmentEndTime!;
           var now = new DateTime.now();
           var formatter = new DateFormat('y-MM-ddTHH:mm');
           String formattedDate = formatter.format(now);
           DateTime currentDate =
               DateFormat("y-MM-ddTHH:mm").parse(formattedDate);
-          DateTime tempStartDate = DateFormat("y-MM-ddTHH:mm").parse(startDate);
+          DateTime tempStartDate = DateFormat("y-MM-ddTHH:mm").parse(endDate);
           int duration = currentDate.difference(tempStartDate).inMinutes;
           if (duration < 0 &&
               homeScreenController.upcomingAppointmentResponseModal[i]!
@@ -284,7 +283,9 @@ class _UpcomingAppointmentPageState extends State<UpcomingAppointmentPage>
           );
   }
 
-  buildNewDoctorTile(int index) {
+  buildNewDoctorTile(
+    int index,
+  ) {
     String appointmentStartDate = "";
     String appointmentEndDate = "";
     String appointmentStartTime = "";
@@ -347,19 +348,30 @@ class _UpcomingAppointmentPageState extends State<UpcomingAppointmentPage>
         children: [
           GestureDetector(
             onTap: () {
+              int elementIndex = upcomingAppointmentList.indexWhere((element) =>
+                  element!.healthcareProfessionalId ==
+                      upcomingAppointmentList[index]!
+                          .healthcareProfessionalId &&
+                  element.orderId == upcomingAppointmentList[index]!.orderId);
+
+              int newElementIndex = bookingConfirmResponseModel.indexWhere(
+                  (element) =>
+                      element.message!.order!.id ==
+                      upcomingAppointmentList[elementIndex]!.orderId);
               Get.to(AppointmentStatusConfirmPage(
-                bookingConfirmResponseModel: bookingConfirmResponseModel[index],
-                startDateTime: upcomingAppointmentList[index]!
+                bookingConfirmResponseModel:
+                    bookingConfirmResponseModel[newElementIndex],
+                startDateTime: upcomingAppointmentList[elementIndex]!
                     .serviceFulfillmentStartTime!,
-                endDateTime:
-                    upcomingAppointmentList[index]!.serviceFulfillmentEndTime!,
-                doctorName:
-                    upcomingAppointmentList[index]!.healthcareProfessionalName!,
-                consultationType:
-                    upcomingAppointmentList[index]!.serviceFulfillmentType ==
-                            DataStrings.teleconsultation
-                        ? DataStrings.teleconsultation
-                        : DataStrings.physicalConsultation,
+                endDateTime: upcomingAppointmentList[elementIndex]!
+                    .serviceFulfillmentEndTime!,
+                doctorName: upcomingAppointmentList[elementIndex]!
+                    .healthcareProfessionalName!,
+                consultationType: upcomingAppointmentList[elementIndex]!
+                            .serviceFulfillmentType ==
+                        DataStrings.teleconsultation
+                    ? DataStrings.teleconsultation
+                    : DataStrings.physicalConsultation,
                 gender: gender,
                 navigateToHomeAndRefresh: false,
               ));
@@ -630,6 +642,8 @@ class _UpcomingAppointmentPageState extends State<UpcomingAppointmentPage>
                               'providerUri': upcomingAppointmentList[index]
                                   ?.healthcareProviderUrl,
                               'allowSendMessage': true,
+                              'transactionId':
+                                  upcomingAppointmentList[index]?.transId
                             });
                       }),
                 ),
@@ -661,9 +675,42 @@ class _UpcomingAppointmentPageState extends State<UpcomingAppointmentPage>
   buildGroupConsultNewDoctorTile(GroupConsultAppointment response) {
     UpcomingAppointmentResponseModal? docOneResponse;
     UpcomingAppointmentResponseModal? docTwoResponse;
+    UpcomingAppointmentResponseModal? tempDocOneResponse;
+    UpcomingAppointmentResponseModal? tempDocTwoResponse;
 
-    docOneResponse = response.listOfResponses?[0];
-    docTwoResponse = response.listOfResponses?[1];
+    // if (response.listOfResponses != null &&
+    //     response.listOfResponses!.isNotEmpty) {
+    //   for (UpcomingAppointmentResponseModal? model
+    //       in response.listOfResponses!) {
+    //     if (model != null && model.primaryDoctorHprAddress != null) {
+    //       if (model.healthcareProfessionalId == model.primaryDoctorHprAddress) {
+    //         docOneResponse = model;
+    //       } else {
+    //         docTwoResponse = model;
+    //       }
+    //     } else {
+    //       docTwoResponse = response.listOfResponses?[1];
+    //       docOneResponse = response.listOfResponses?[0];
+    //       break;
+    //     }
+    //   }
+    // }
+
+    tempDocOneResponse = response.listOfResponses![0];
+    // int index = upcomingAppointmentList.indexWhere((element) =>
+    //     element!.transId == tempDocOneResponse!.transId &&
+    //     element.healthcareProfessionalId !=
+    //         tempDocOneResponse.healthcareProfessionalId);
+    tempDocTwoResponse = response.listOfResponses![1];
+
+    if (tempDocOneResponse!.healthcareProfessionalId ==
+        tempDocOneResponse.primaryDoctorHprAddress) {
+      docOneResponse = tempDocOneResponse;
+      docTwoResponse = tempDocTwoResponse;
+    } else {
+      docOneResponse = tempDocTwoResponse;
+      docTwoResponse = tempDocOneResponse;
+    }
 
     String appointmentStartDate = "";
     String appointmentEndDate = "";
@@ -676,64 +723,70 @@ class _UpcomingAppointmentPageState extends State<UpcomingAppointmentPage>
     var tmpEndDate;
     String gender = "";
     Uint8List? doctorImage;
-    String minSlotStartDateAndTime;
-    String minSlotEndDateAndTime;
+    String minSlotStartDateAndTime = "";
+    String minSlotEndDateAndTime = "";
 
     String doctorNameDocTwo = "";
     String hprIdDocTwo = "";
     String genderDocTwo = "";
     Uint8List? doctorImageTwo;
 
-    _doctorImages.forEach((element) {
-      DoctorImageModel image = DoctorImageModel.fromJson(jsonDecode(element));
-      if (image.doctorHprAddress == docOneResponse?.healthcareProfessionalId) {
-        doctorImage = base64Decode(image.doctorImage ?? "");
+    if (docOneResponse != null && docTwoResponse != null) {
+      _doctorImages.forEach((element) {
+        DoctorImageModel image = DoctorImageModel.fromJson(jsonDecode(element));
+        if (image.doctorHprAddress ==
+            docOneResponse?.healthcareProfessionalId) {
+          doctorImage = base64Decode(image.doctorImage ?? "");
+        }
+      });
+
+      DateTime s1Start =
+          DateTime.parse(docOneResponse.serviceFulfillmentStartTime!);
+      DateTime s1End =
+          DateTime.parse(docOneResponse.serviceFulfillmentEndTime!);
+      DateTime s2Start =
+          DateTime.parse(docTwoResponse.serviceFulfillmentStartTime!);
+      DateTime s2End =
+          DateTime.parse(docTwoResponse.serviceFulfillmentEndTime!);
+
+      String slotName = minBetween(s1Start, s1End, s2Start, s2End);
+
+      if (slotName == "s1") {
+        minSlotStartDateAndTime = docOneResponse.serviceFulfillmentStartTime!;
+        minSlotEndDateAndTime = docOneResponse.serviceFulfillmentEndTime!;
+      } else {
+        minSlotStartDateAndTime = docTwoResponse.serviceFulfillmentStartTime!;
+        minSlotEndDateAndTime = docTwoResponse.serviceFulfillmentEndTime!;
       }
-    });
 
-    DateTime s1Start =
-        DateTime.parse(docOneResponse!.serviceFulfillmentStartTime!);
-    DateTime s1End = DateTime.parse(docOneResponse.serviceFulfillmentEndTime!);
-    DateTime s2Start =
-        DateTime.parse(docTwoResponse!.serviceFulfillmentStartTime!);
-    DateTime s2End = DateTime.parse(docTwoResponse.serviceFulfillmentEndTime!);
+      tmpStartDate = minSlotStartDateAndTime;
+      appointmentStartDate =
+          DateFormat("dd MMM y").format(DateTime.parse(tmpStartDate));
+      appointmentStartTime =
+          DateFormat("hh:mm a").format(DateTime.parse(tmpStartDate));
+      tmpEndDate = minSlotEndDateAndTime;
+      appointmentEndDate =
+          DateFormat("dd MMM y").format(DateTime.parse(tmpEndDate));
+      appointmentEndTime =
+          DateFormat("hh:mm a").format(DateTime.parse(tmpEndDate));
+      var StringArray = docOneResponse.healthcareProfessionalName!.split("-");
 
-    String slotName = minBetween(s1Start, s1End, s2Start, s2End);
+      gender = docOneResponse.healthcareProfessionalGender!;
+      doctorName = StringArray[1].replaceFirst(" ", "");
+      hprId = docOneResponse.healthcareProfessionalId ?? "";
+      DateTime tempStartDate =
+          DateFormat("y-MM-ddTHH:mm:ss").parse(tmpStartDate);
+      DateTime tempEndDate = DateFormat("y-MM-ddTHH:mm:ss").parse(tmpEndDate);
+      duration = tempEndDate.difference(tempStartDate).inMinutes;
 
-    if (slotName == "s1") {
-      minSlotStartDateAndTime = docOneResponse.serviceFulfillmentStartTime!;
-      minSlotEndDateAndTime = docOneResponse.serviceFulfillmentEndTime!;
-    } else {
-      minSlotStartDateAndTime = docTwoResponse.serviceFulfillmentStartTime!;
-      minSlotEndDateAndTime = docTwoResponse.serviceFulfillmentEndTime!;
+      doctorNameDocTwo =
+          docTwoResponse.healthcareProfessionalName!.split("-")[1].trim();
+      hprIdDocTwo = docTwoResponse.healthcareProfessionalId ?? "";
+      genderDocTwo = docTwoResponse.healthcareProfessionalGender ?? "";
+      genderDocTwo = docTwoResponse.healthcareProfessionalGender ?? "";
+      doctorImage =
+          base64Decode(docTwoResponse.healthcareProfessionalImage ?? "");
     }
-
-    tmpStartDate = minSlotStartDateAndTime;
-    appointmentStartDate =
-        DateFormat("dd MMM y").format(DateTime.parse(tmpStartDate));
-    appointmentStartTime =
-        DateFormat("hh:mm a").format(DateTime.parse(tmpStartDate));
-    tmpEndDate = minSlotEndDateAndTime;
-    appointmentEndDate =
-        DateFormat("dd MMM y").format(DateTime.parse(tmpEndDate));
-    appointmentEndTime =
-        DateFormat("hh:mm a").format(DateTime.parse(tmpEndDate));
-    var StringArray = docOneResponse.healthcareProfessionalName!.split("-");
-
-    gender = docOneResponse.healthcareProfessionalGender!;
-    doctorName = StringArray[1].replaceFirst(" ", "");
-    hprId = docOneResponse.healthcareProfessionalId ?? "";
-    DateTime tempStartDate = DateFormat("y-MM-ddTHH:mm:ss").parse(tmpStartDate);
-    DateTime tempEndDate = DateFormat("y-MM-ddTHH:mm:ss").parse(tmpEndDate);
-    duration = tempEndDate.difference(tempStartDate).inMinutes;
-
-    doctorNameDocTwo =
-        docTwoResponse.healthcareProfessionalName!.split("-")[1].trim();
-    hprIdDocTwo = docTwoResponse.healthcareProfessionalId ?? "";
-    genderDocTwo = docTwoResponse.healthcareProfessionalGender ?? "";
-    genderDocTwo = docTwoResponse.healthcareProfessionalGender ?? "";
-    doctorImage =
-        base64Decode(docTwoResponse.healthcareProfessionalImage ?? "");
 
     return Container(
       width: width * 0.9,
@@ -907,17 +960,19 @@ class _UpcomingAppointmentPageState extends State<UpcomingAppointmentPage>
                 Spacing(
                   isWidth: false,
                 ),
-                Container(
-                  padding: const EdgeInsets.only(left: 25.0, right: 25),
-                  child: Text(
-                    docOneResponse.serviceFulfillmentType ==
-                            DataStrings.teleconsultation
-                        ? DataStrings.teleconsultation
-                        : AppStrings().physicalConsultationString,
-                    style: AppTextStyle.textBoldStyle(
-                        color: AppColors.testColor, fontSize: 15),
-                  ),
-                ),
+                docOneResponse != null
+                    ? Container(
+                        padding: const EdgeInsets.only(left: 25.0, right: 25),
+                        child: Text(
+                          docOneResponse.serviceFulfillmentType ==
+                                  DataStrings.teleconsultation
+                              ? DataStrings.teleconsultation
+                              : AppStrings().physicalConsultationString,
+                          style: AppTextStyle.textBoldStyle(
+                              color: AppColors.testColor, fontSize: 15),
+                        ),
+                      )
+                    : Container(),
               ],
             ),
           ),

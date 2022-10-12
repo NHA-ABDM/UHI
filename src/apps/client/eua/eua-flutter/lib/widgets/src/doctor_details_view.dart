@@ -115,70 +115,77 @@ class _DoctorDetailsViewState extends State<DoctorDetailsView> {
                   const SizedBox(
                     height: 5,
                   ),
-                  Row(
-                    children: [
-                      Container(
-                        //width: MediaQuery.of(context).size.width * 0.48,
-                        constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width * 0.48,
-                            minWidth: 10),
-                        child: Text(
-                          education ?? "-",
-                          style: AppTextStyle.textLightStyle(
-                              color: AppColors.doctorNameColor, fontSize: 14),
-                        ),
-                      ),
-                      // Text(
-                      //   education ?? "-",
-                      //   style: AppTextStyle.textLightStyle(
-                      //       color: AppColors.doctorNameColor, fontSize: 14),
-                      // ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          onEducationTap();
-                        },
-                        child: const Icon(
-                          Icons.info,
-                          color: AppColors.doctorNameColor,
-                          size: 18,
-                        ),
-                      ),
-                    ],
-                  ),
+                  education != null
+                      ? Row(
+                          children: [
+                            Container(
+                              //width: MediaQuery.of(context).size.width * 0.48,
+                              constraints: BoxConstraints(
+                                  maxWidth:
+                                      MediaQuery.of(context).size.width * 0.48,
+                                  minWidth: 10),
+                              child: Text(
+                                education,
+                                style: AppTextStyle.textLightStyle(
+                                    color: AppColors.doctorNameColor,
+                                    fontSize: 14),
+                              ),
+                            ),
+                            // Text(
+                            //   education ?? "-",
+                            //   style: AppTextStyle.textLightStyle(
+                            //       color: AppColors.doctorNameColor, fontSize: 14),
+                            // ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                onEducationTap();
+                              },
+                              child: const Icon(
+                                Icons.info,
+                                color: AppColors.doctorNameColor,
+                                size: 18,
+                              ),
+                            ),
+                          ],
+                        )
+                      : Container(),
                   const SizedBox(
                     height: 5,
                   ),
-                  Row(
-                    children: [
-                      Container(
-                        constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width * 0.48,
-                            minWidth: 10),
-                        child: Text(
-                          specialty ?? "-",
-                          style: AppTextStyle.textNormalStyle(
-                              color: AppColors.doctorExperienceColor,
-                              fontSize: 10),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          onSpecialtyTap();
-                        },
-                        child: const Icon(
-                          Icons.info,
-                          color: AppColors.doctorNameColor,
-                          size: 18,
-                        ),
-                      ),
-                    ],
-                  ),
+                  specialty != null
+                      ? Row(
+                          children: [
+                            Container(
+                              constraints: BoxConstraints(
+                                  maxWidth:
+                                      MediaQuery.of(context).size.width * 0.48,
+                                  minWidth: 10),
+                              child: Text(
+                                specialty,
+                                style: AppTextStyle.textNormalStyle(
+                                    color: AppColors.doctorExperienceColor,
+                                    fontSize: 10),
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                onSpecialtyTap();
+                              },
+                              child: const Icon(
+                                Icons.info,
+                                color: AppColors.doctorNameColor,
+                                size: 18,
+                              ),
+                            ),
+                          ],
+                        )
+                      : Container(),
                   const SizedBox(
                     height: 10,
                   ),

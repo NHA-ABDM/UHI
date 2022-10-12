@@ -447,32 +447,35 @@ class Tags {
   String? secondaryDoctorHPRAddress;
   String? secondaryDoctorGender;
   String? secondaryDoctorProviderURI;
+  String? abdmGovInConsumerUrl;
 
-  Tags(
-      {this.experience,
-      this.specialtyTag,
-      this.medicinesTag,
-      this.followUp,
-      this.languageSpokenTag,
-      this.education,
-      this.firstConsultation,
-      this.upiId,
-      this.slotId,
-      this.hprId,
-      this.abdmGovInGroupConsultation,
-      this.abdmGovInPrimaryDoctor,
-      this.abdmGovInSecondaryDoctor,
-      this.patientName,
-      this.patientPHRAddress,
-      this.patientGender,
-      this.primaryDoctorName,
-      this.primaryDoctorHPRAddress,
-      this.primaryDoctorGender,
-      this.primaryDoctorProviderURI,
-      this.secondaryDoctorName,
-      this.secondaryDoctorHPRAddress,
-      this.secondaryDoctorGender,
-      this.secondaryDoctorProviderURI});
+  Tags({
+    this.experience,
+    this.specialtyTag,
+    this.medicinesTag,
+    this.followUp,
+    this.languageSpokenTag,
+    this.education,
+    this.firstConsultation,
+    this.upiId,
+    this.slotId,
+    this.hprId,
+    this.abdmGovInGroupConsultation,
+    this.abdmGovInPrimaryDoctor,
+    this.abdmGovInSecondaryDoctor,
+    this.patientName,
+    this.patientPHRAddress,
+    this.patientGender,
+    this.primaryDoctorName,
+    this.primaryDoctorHPRAddress,
+    this.primaryDoctorGender,
+    this.primaryDoctorProviderURI,
+    this.secondaryDoctorName,
+    this.secondaryDoctorHPRAddress,
+    this.secondaryDoctorGender,
+    this.secondaryDoctorProviderURI,
+    this.abdmGovInConsumerUrl,
+  });
 
   Tags.fromJson(Map<String, dynamic> json) {
     if (json['@abdm/gov/in/education'] != null) {
@@ -568,6 +571,10 @@ class Tags {
     if (json['@abdm/gov.in/secondaryDoctorProviderUrl'] != null) {
       secondaryDoctorProviderURI =
           json['@abdm/gov.in/secondaryDoctorProviderUrl'];
+    }
+
+    if (json['@abdm/gov.in/consumerUrl'] != null) {
+      abdmGovInConsumerUrl = json['@abdm/gov.in/consumerUrl'];
     }
   }
 
@@ -665,6 +672,10 @@ class Tags {
     if (this.secondaryDoctorProviderURI != null) {
       data['@abdm/gov.in/secondaryDoctorProviderUrl'] =
           this.secondaryDoctorProviderURI;
+    }
+
+    if (this.abdmGovInConsumerUrl != null) {
+      data['@abdm/gov.in/consumerUrl'] = this.abdmGovInConsumerUrl;
     }
 
     return data;

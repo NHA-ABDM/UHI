@@ -298,7 +298,7 @@ class _MultipleDoctorAppointmentDetailsPageState
     tags.abdmGovInSecondaryDoctor = widget.doctor2AbhaId;
     agent.tags = tags;
     fulfillment.agent = agent;
-    fulfillment.id = widget.docOneDiscoveryFulfillments.id;
+    fulfillment.id = _timeSlotDocOne?.tags?.abdmGovInSlot;
     fulfillment.type = _consultationType;
 
     price.currency = "INR";
@@ -325,7 +325,7 @@ class _MultipleDoctorAppointmentDetailsPageState
     fulfillment.start = start;
     fulfillment.end = end;
     fulfillment.initTimeSlotTags = initTimeSlotTags;
-    fulfillment.id = _timeSlotDocOne?.tags?.abdmGovInSlot;
+    // fulfillment.id = _timeSlotDocOne?.tags?.abdmGovInSlot;
 
     order.id = _orderId;
     order.item = widget.docOneDiscoveryItems;
@@ -419,7 +419,7 @@ class _MultipleDoctorAppointmentDetailsPageState
     tags.abdmGovInSecondaryDoctor = widget.doctor2AbhaId;
     agent.tags = tags;
     fulfillment.agent = agent;
-    fulfillment.id = widget.docTwoDiscoveryFulfillments.id;
+    fulfillment.id = _timeSlotDocTwo?.tags?.abdmGovInSlot;
     fulfillment.type = _consultationType;
 
     price.currency = "INR";
@@ -446,7 +446,7 @@ class _MultipleDoctorAppointmentDetailsPageState
     fulfillment.start = start;
     fulfillment.end = end;
     fulfillment.initTimeSlotTags = initTimeSlotTags;
-    fulfillment.id = _timeSlotDocTwo?.tags?.abdmGovInSlot;
+    // fulfillment.id = _timeSlotDocTwo?.tags?.abdmGovInSlot;
 
     order.id = _orderId;
     order.item = widget.docTwoDiscoveryItems;

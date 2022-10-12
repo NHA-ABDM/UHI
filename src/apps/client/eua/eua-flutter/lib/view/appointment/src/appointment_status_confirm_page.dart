@@ -739,12 +739,14 @@ class _AppointmentStatusConfirmPageState
                                     color: AppColors.doctorNameColor,
                                     fontSize: 12),
                               ),
-                              Text(
-                                // 'MBBS/MS Cardiology',
-                                doctorEducation,
-                                style: AppTextStyle
-                                    .appointmentConfirmedLightTextStyle(
-                                        color: AppColors.doctorNameColor),
+                              Container(
+                                width: MediaQuery.of(context).size.width * 0.51,
+                                child: Text(
+                                  doctorEducation,
+                                  style: AppTextStyle
+                                      .appointmentConfirmedLightTextStyle(
+                                          color: AppColors.doctorNameColor),
+                                ),
                               ),
                             ],
                           ),
@@ -826,6 +828,8 @@ class _AppointmentStatusConfirmPageState
                                     'uri': _bookingConfirmResponseModel!
                                         .context!.providerUrl,
                                   },
+                                  'transactionId': _bookingConfirmResponseModel!
+                                      .context!.transactionId
                                 });
 
                             // final result = await Navigator.push(
@@ -907,6 +911,8 @@ class _AppointmentStatusConfirmPageState
                             'providerUri': _bookingConfirmResponseModel!
                                 .context!.providerUrl,
                             'allowSendMessage': true,
+                            'transactionId': _bookingConfirmResponseModel!
+                                .context!.transactionId
                           });
                     }),
               ],

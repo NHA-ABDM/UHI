@@ -1,9 +1,20 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:uhi_flutter_app/common/common.dart';
 import 'package:uhi_flutter_app/constants/src/strings.dart';
+import 'package:uhi_flutter_app/controller/login/login.dart';
+import 'package:uhi_flutter_app/model/model.dart';
 import 'package:uhi_flutter_app/theme/theme.dart';
+import 'package:uhi_flutter_app/view/authentication/registration/src/abha_auth_methods_page.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../../../../model/common/common.dart';
+import '../../login/src/web_view_registration.dart';
 
 class RegisterWithAbhaNumberPage extends StatefulWidget {
   const RegisterWithAbhaNumberPage({Key? key}) : super(key: key);
@@ -16,8 +27,7 @@ class RegisterWithAbhaNumberPage extends StatefulWidget {
 class _RegisterWithAbhaNumberPageState
     extends State<RegisterWithAbhaNumberPage> {
   ///CONTROLLERS
-  TextEditingController searchTextEditingController = TextEditingController();
-  TextEditingController symptomsTextEditingController = TextEditingController();
+  AbhaNumberController _abhaNumberController = AbhaNumberController();
 
   ///SIZE
   var width;
@@ -27,15 +37,75 @@ class _RegisterWithAbhaNumberPageState
   bool showName = true;
   bool showSpecialty = true;
   bool showTimeSlots = true;
-  final _abhaAddressTextField = TextEditingController();
+  final _abhaNumberTextController = TextEditingController();
   final _passwordTextField = TextEditingController();
   String _selectedOption = 'ABHA Number';
   final Uri _url = Uri.parse('https://healthidsbx.abdm.gov.in/register');
+  bool _isValidate = false;
+  final _abhaFormKey = GlobalKey<FormState>();
+  bool isLoading = false;
 
   ///DATA VARIABLES
   @override
   void initState() {
     super.initState();
+  }
+
+  ///ABHA AUTH MODE API
+  postAbhaAuthModeAPI() async {
+    showProgressIndicator();
+    _abhaNumberController.refresh();
+
+    if (_abhaNumberTextController.text.isEmpty) {
+      DialogHelper.showErrorDialog(description: AppStrings().enterABHANumber);
+      hideProgressIndicator();
+
+      return;
+    }
+
+    AbhaIdAuthModel abhaIdAuthModel = AbhaIdAuthModel();
+    abhaIdAuthModel.healthIdNumber = _abhaNumberTextController.text;
+
+    log("${jsonEncode(abhaIdAuthModel)}", name: "ABHA AUTH MODE MODEL");
+
+    await _abhaNumberController.postAbhaNumberDetails(
+        abhaNumberDetails: abhaIdAuthModel);
+
+    if (_abhaNumberController.abhaNumberAckDetails != null &&
+        _abhaNumberController.abhaNumberAckDetails != "") {
+      hideProgressIndicator();
+      if (_abhaNumberController.abhaNumberAckDetails["healthIdNumber"] !=
+              null &&
+          _abhaNumberController.abhaNumberAckDetails["healthIdNumber"] != "") {
+        Get.to(() => AbhaAuthMethodsPage(
+              healthIdNumber:
+                  _abhaNumberController.abhaNumberAckDetails["healthIdNumber"],
+            ));
+      } else {
+        DialogHelper.showErrorDialog(
+            title: AppStrings().errorString,
+            description: AppStrings().somethingWentWrongErrorMsg);
+      }
+    } else if (_abhaNumberController.errorString != '') {
+      hideProgressIndicator();
+    } else {
+      hideProgressIndicator();
+      DialogHelper.showErrorDialog(
+          title: AppStrings().errorString,
+          description: AppStrings().somethingWentWrongErrorMsg);
+    }
+  }
+
+  showProgressIndicator() {
+    setState(() {
+      isLoading = true;
+    });
+  }
+
+  hideProgressIndicator() {
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
@@ -94,10 +164,15 @@ class _RegisterWithAbhaNumberPageState
                 color: Colors.white,
                 width: width * 0.88,
                 child: Form(
+                  autovalidateMode: _isValidate
+                      ? AutovalidateMode.always
+                      : AutovalidateMode.disabled,
+                  key: _abhaFormKey,
                   child: Padding(
                       padding: const EdgeInsets.symmetric(
                           vertical: 0.0, horizontal: 0),
                       child: PinCodeTextField(
+                        controller: _abhaNumberTextController,
                         textStyle:
                             const TextStyle(color: Colors.black, fontSize: 12),
                         appContext: context,
@@ -124,9 +199,10 @@ class _RegisterWithAbhaNumberPageState
                         cursorColor: Colors.black,
                         enableActiveFill: true,
                         keyboardType: TextInputType.number,
-                        onCompleted: (v) {
-                          debugPrint("Completed:$v");
-                        },
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp("[0-9]"))
+                        ],
+                        onCompleted: (v) {},
                         onChanged: (value) {
                           setState(() {
                             // currentText = value;
@@ -140,11 +216,16 @@ class _RegisterWithAbhaNumberPageState
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Text(
-                AppStrings().forgotABHANumber,
-                style: AppTextStyle.textMediumStyle(
-                    color: AppColors.paymentButtonBackgroundColor,
-                    fontSize: 16),
+              GestureDetector(
+                onTap: () {
+                  Get.to(() => WebViewRegistration(isForgotAbhaNumber: true));
+                },
+                child: Text(
+                  AppStrings().forgotABHANumber,
+                  style: AppTextStyle.textMediumStyle(
+                      color: AppColors.paymentButtonBackgroundColor,
+                      fontSize: 16),
+                ),
               ),
             ],
           ),
@@ -164,7 +245,8 @@ class _RegisterWithAbhaNumberPageState
               ),
               GestureDetector(
                 onTap: () {
-                  _launchUrl();
+                  // _launchUrl();
+                  Get.to(() => WebViewRegistration());
                 },
                 child: Padding(
                   padding: const EdgeInsets.only(top: 2.0),
@@ -183,7 +265,16 @@ class _RegisterWithAbhaNumberPageState
           ),
           Center(
             child: GestureDetector(
-              onTap: () {},
+              onTap: isLoading
+                  ? () {}
+                  : () {
+                      if (_abhaFormKey.currentState!.validate()) {
+                        setState(() {
+                          _isValidate = true;
+                        });
+                        postAbhaAuthModeAPI();
+                      }
+                    },
               child: Container(
                 height: 50,
                 width: width * 0.89,
@@ -194,11 +285,19 @@ class _RegisterWithAbhaNumberPageState
                   ),
                 ),
                 child: Center(
-                  child: Text(
-                    AppStrings().btnContinue,
-                    style: AppTextStyle.textMediumStyle(
-                        color: AppColors.white, fontSize: 16),
-                  ),
+                  child: isLoading
+                      ? SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            color: AppColors.white,
+                          ),
+                        )
+                      : Text(
+                          AppStrings().btnContinue,
+                          style: AppTextStyle.textMediumStyle(
+                              color: AppColors.white, fontSize: 16),
+                        ),
                 ),
               ),
             ),

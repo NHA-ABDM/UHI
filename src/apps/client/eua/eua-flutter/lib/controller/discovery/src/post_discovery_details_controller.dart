@@ -70,6 +70,7 @@ class PostDiscoveryDetailsController extends GetxController
   @override
   refresh() async {
     errorString = '';
+    discoveryAckDetails = null;
 
     ///POST DISCOVERY DETAILS
     // postDiscoveryDetails();

@@ -5,6 +5,8 @@ import 'package:uhi_flutter_app/theme/theme.dart';
 import 'package:uhi_flutter_app/view/authentication/authentication.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../login/src/web_view_registration.dart';
+
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({Key? key}) : super(key: key);
 
@@ -111,7 +113,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      _launchUrl();
+                      // _launchUrl();
+                      Get.to(() => WebViewRegistration());
                     },
                     child: Padding(
                       padding: const EdgeInsets.only(top: 2.0),
@@ -174,11 +177,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
             onTap: () {
               debugPrint("_selectedOption:$_selectedOption");
               if (_selectedOption == "ABHA Number") {
-                Get.to(const RegisterWithAbhaNumberPage());
+                Get.to(() => const RegisterWithAbhaNumberPage());
               } else if (_selectedOption == "Mobile Number") {
-                Get.to(const RegisterWithMobile());
+                Get.to(() => const RegisterWithMobile());
               } else {
-                Get.to(const RegisterWithEmailPage());
+                Get.to(() => const RegisterWithEmailPage());
               }
             },
             child: Container(

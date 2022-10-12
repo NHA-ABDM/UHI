@@ -4,6 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPreferencesHelper {
   static const String _token = 'tokenKey';
+  static const String _regToken = 'regTokenKey';
+  static const String _regRefreshToken = '_regRefreshToken';
   static const String abhaAddress = 'abhaAddressKey';
   static const String _authTokenHeader = 'authTokenHeader';
   static const String _userData = 'userData';
@@ -26,6 +28,26 @@ class SharedPreferencesHelper {
   static void setAccessToken(String value) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString(_token, value);
+  }
+
+  static Future<String?> getRegAccessToken() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_regToken);
+  }
+
+  static void setRegAccessToken(String value) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString(_regToken, value);
+  }
+
+  static Future<String?> getRegRefreshToken() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_regRefreshToken);
+  }
+
+  static void setRegRefreshToken(String value) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString(_regRefreshToken, value);
   }
 
   static Future<String?> getABhaAddress() async {

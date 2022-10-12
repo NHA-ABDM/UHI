@@ -52,6 +52,7 @@ class VideoCallState extends State<VideoCall> {
   String? _patientAbhaId = "";
   String? _doctorName = "";
   String? _doctorGender = "";
+  String? transactionId = "";
 
   Session? _session;
 
@@ -67,6 +68,7 @@ class VideoCallState extends State<VideoCall> {
     _doctorGender = remoteParticipant['gender'];
     _providerUri = remoteParticipant['uri'];
     //_providerUri = "http://hspasbx.abdm.gov.in";
+    transactionId = Get.arguments['transactionId'];
 
     startVideoCall();
   }
@@ -98,7 +100,10 @@ class VideoCallState extends State<VideoCall> {
       receiversName: _doctorName!,
       providerUri: _providerUri!,
       chatId: '$_patientAbhaId|$_doctorHprId',
+      //chatId: transactionId ?? '$_patientAbhaId|$_doctorHprId')
     )..connect();
+
+    debugPrint("chatId:$transactionId");
     _videoCallSignalling?.setStream(_localStream!);
 
     _videoCallSignalling?.poll();
@@ -270,13 +275,29 @@ class VideoCallState extends State<VideoCall> {
   }
 
   _speaker() {
-    setState(() {
-      isSpeaker = !isSpeaker;
-    });
+    // setState(() {
+    //   isSpeaker = !isSpeaker;
+    // });
 
-    _remoteRenderer.srcObject
-        ?.getAudioTracks()[0]
-        .enableSpeakerphone(isSpeaker);
+    // _remoteRenderer.srcObject
+    //     ?.getAudioTracks()[0]
+    //     .enableSpeakerphone(isSpeaker);
+
+    for (MediaStreamTrack audioTrack
+        in _remoteRenderer.srcObject!.getAudioTracks()) {
+      if (audioTrack.enabled) {
+        setState(() {
+          isSpeaker = !isSpeaker;
+        });
+        _remoteRenderer.srcObject
+            ?.getAudioTracks()[_remoteRenderer.srcObject
+                    ?.getAudioTracks()
+                    .indexOf(audioTrack) ??
+                0]
+            .enableSpeakerphone(isSpeaker);
+        break;
+      }
+    }
   }
 
   @override
@@ -301,7 +322,8 @@ class VideoCallState extends State<VideoCall> {
                   shadowColor: Colors.black.withOpacity(0.1),
                   leading: IconButton(
                     onPressed: () {
-                      //Get.back();
+                      _hangUp();
+                      // Get.back();
                       Navigator.pop(context, false);
                     },
                     icon: Icon(
@@ -329,12 +351,10 @@ class VideoCallState extends State<VideoCall> {
                       decoration: const BoxDecoration(
                           // color: Colors.amber,
                           ),
-                      child: RTCVideoView(
-                        _remoteRenderer,
-                        mirror: true,
-                        objectFit:
-                            RTCVideoViewObjectFit.RTCVideoViewObjectFitContain,
-                      ),
+                      child: RTCVideoView(_remoteRenderer,
+                          mirror: true,
+                          objectFit:
+                              RTCVideoViewObjectFit.RTCVideoViewObjectFitCover),
                     ),
                     Positioned(
                       bottom: 30,
@@ -439,8 +459,8 @@ class VideoCallState extends State<VideoCall> {
                         child: RTCVideoView(
                           _localRenderer,
                           mirror: true,
-                          objectFit: RTCVideoViewObjectFit
-                              .RTCVideoViewObjectFitContain,
+                          objectFit:
+                              RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
                         ),
                       ),
                     ),

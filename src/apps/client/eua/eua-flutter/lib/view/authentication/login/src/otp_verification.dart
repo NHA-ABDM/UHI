@@ -115,6 +115,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
   dispose() {
     loginVerifyController.dispose();
     loginConfirmController.dispose();
+    countdownTimer?.cancel();
     super.dispose();
   }
 
@@ -328,6 +329,9 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
                         cursorColor: Colors.black,
                         enableActiveFill: true,
                         keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp("[0-9]"))
+                        ],
                         onCompleted: (v) {
                           debugPrint("Completed:$v");
                           otpValue = v;

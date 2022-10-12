@@ -15,6 +15,13 @@ class RequestUrls {
   ///NDHM DEV ENVIRONMENT URL
   static const String ndhmDev = "https://dev.ndhm.gov.in/";
 
+  ///NDHM PRODUCTION ENVIRONMENT URL
+  static const String ndhmProd = "https://live.ndhm.gov.in/";
+
+  ///HEALTH ID NDHM BETA ENVIRONMENT URL
+  static const String healthIdNdhmBeta =
+      "https://healthidbeta.ndhm.gov.in/api/v2/";
+
   ///UHI EUA BETA ENVIRONMENT SOCKET URL
   static const String uhiEuaAbdmBetaSocket =
       "wss://uhieuabeta.abdm.gov.in/api/v1/";
@@ -130,4 +137,48 @@ class RequestUrls {
 
   ///DISTRICT LIST URL
   static String getDistrictListUrl = "${ndhmDev}cm/";
+
+  // REGISTRATION URLS
+  static String postSuggestionUrl =
+      "${ndhmDev}cm/v1/apps/create/phrAddress/suggestion";
+
+  static String postCreatePhrAddressUrl =
+      "${ndhmDev}cm/v1/apps/create/phrAddress";
+
+  static String checkIfAlreadyExistingUrl =
+      "${ndhmDev}cm/v1/apps/phrAddress/isExist";
+
+  ///**************** REGISTRATION SERVICE ****************///
+  ///GENERATE OTP
+  static String postGenerateOtpUrl = "${ndhmDev}cm/v1/apps/generate/otp";
+
+  ///VALIDATE OTP
+  static String postValidateOtpUrl = "${ndhmDev}cm/v1/apps/validate/otp";
+
+  ///REGISTRATION FORM
+  static String postRegistrationFormUrl =
+      "${ndhmDev}cm/v1/apps/registration/details";
+
+  ///ABHA AUTH MODE
+  static String postAbhaAuthMode =
+      "${ndhmDev}cm/v1/apps/registration/hid/search/auth-mode";
+
+  ///GENERATE OTP WITH AUTH MODE
+  static String postAbhaGenerateOtpWithAuthMode =
+      "${ndhmDev}cm/v1/apps/registration/hid/auth-init";
+
+  ///VALIDATE OTP WITH AUTH MODE
+  static String postAbhaValidateOtpWithAuthMode =
+      "${ndhmDev}cm/v1/apps/registration/hid/confirm-init";
+
+  ///AUTH CERTIFICATE
+  static String getAuthCert = "${healthIdNdhmBeta}auth/cert";
+
+  ///GENERATE AADHAAR OTP
+  static String postGenerateAadhaarOtp =
+      "${healthIdNdhmBeta}registration/aadhaar/generateOtp";
+
+  ///VALIDATE AADHAAR OTP
+  static String postValidateAadhaarOtp =
+      "${healthIdNdhmBeta}/registration/aadhaar/verifyOTP";
 }

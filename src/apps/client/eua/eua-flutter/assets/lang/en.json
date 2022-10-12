@@ -124,7 +124,7 @@
    "submit": "Submit",
    "userInformationAgreement": "User information agreement",
    "createAbhaAddress": "Create ABHA Address",
-   "suggestions": "Suggestions - ",
+   "suggestions": "Suggestions:",
    "agreementText": "I agree to voluntary share my identity information with NHA to create my ABHA address.",
    "registration": "Registration",
    "wantToCreateAbhaAddress": "I want to create ABHA address via",
@@ -237,7 +237,38 @@
    "Others": "Others",
    "errorUnableSelectMedia": "Unable to select media",
    "alert": "alert!",
-   "camera": "camera",
-   "gallery": "gallery",
-   "emptyOTP": "Please enter OTP"
+   "camera": "Camera",
+   "gallery": "Gallery",
+   "emptyOTP": "Please enter OTP",
+   "generalDisclosure":"The App may request access or permission to certain features from the mobile device of the user, including the camera, SMS, microphone, geo location and storage. If the user wishes to change the access or permissions, they may do so in the device's settings.",
+   "cameraDisclosure":"The camera feature has been added for the specific purpose of enabling video call during teleconsultation. The camera shall not access any other personal Information/data of the user.",
+   "microphoneDisclosure":"The microphone feature has been added for the specific purpose of enabling audio call during teleconsultation. The microphone shall not access any other personal information/data of the user.",
+   "microPhone":"Microphone",
+   "storageDisclosure":"The App uses the mobile device’s external storage to access files/documents. The App uses cache memory of the mobile device for the purpose of enabling the user to access medical & health records in the form of PDF’s or any other format which can also be downloaded by the user on mobile device. The App reads files/documents from device’s external storage to enable user to upload and share health records.",
+   "Storage":"Storage",
+   "smsDisclosure":"The accessing SMS feature has been added for the specific purpose of enabling automatic OTP confirmation, so that user does not have to enter the authentication code manually.",
+   "sms":"SMS",
+   "geoLocationDisclosure":"The purpose of capturing geo location is to allow functionality of searching of healthcare service providers nearby to the user and sharing the location of the user with healthcare provider after booking the appointment.",
+   "geoLocation":"Geo-location",
+   "sharingOfData":"Sharing of data",
+   "sharingOfDataDisclosure":"User of the App to note that ABDM does not share the personal data with other people/entity. Any sharing of personal data shall take place with free, clear, informed and specific consent of the user. No personal information or health records collected by the app will be shared or disclosed to any third party without user’s consent.",
+   "accept":"ACCEPT",
+   "decline":"DECLINE",
+   "userAgreementText":"I, hereby declare that I am voluntarily sharing my Ayushman Bharat Health Account (ABHA) Number with National Health Authority (NHA) for the sole purpose of creation of ABHA Address. I consciously choose to share my personal information (Name, Address, Date of Birth and Gender) for the creation of ABHA Address. I understand that my personal identifiable information, relevant to this transaction, will be stored by National Health Authority (NHA) solely for the purpose of creation of ABHA Address. I am aware that my personal identifiable information (Name, Address, Date of Birth and Gender) may be made available to the entities participating in the Ayushman Bharat Digital Mission (ABDM) ecosystem for enabling the healthcare services to me across India. I understand that my ABHA Number, ABHA Address can be used in any healthcare interaction across India. I reserve the right to revoke the given consent to NHA at any time at my own discretion.",
+   "abdmAt":"@sbx",
+   "createPassword": "Create Password",
+   "confirmPassword": "Confirm Password",
+   "passwordNotMatching": "Passwords are not matching",
+   "passwordGreaterThan6": "Passwords must be greater than or equals to 6",
+   "createYourPassword": "Create Your Password",
+   "congratulations": "Congratulations!",
+   "yourABHAAddress": "Your ABHA address",
+   "isCreated": "is created",
+   "loginToContinue": "Login to continue.",
+   "createNewABHAAddress": "Create new ABHA address"
+
+
+
+
+
 }

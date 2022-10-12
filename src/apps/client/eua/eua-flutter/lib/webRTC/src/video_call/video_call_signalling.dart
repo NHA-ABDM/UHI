@@ -68,7 +68,10 @@ class VideoCallSignalling {
       required this.receiversName,
       required this.receiversGender,
       required this.providerUri,
-      required this.chatId}) {}
+      required this.chatId}) {
+    debugPrint("chatId:$chatId");
+    debugPrint("providerUri:$providerUri");
+  }
 
   final _postChatMessageController = PostChatMessageController();
   // final _postChatMessageController =
@@ -400,6 +403,7 @@ class VideoCallSignalling {
     contextModel.providerUrl = providerUri;
     contextModel.timestamp = DateTime.now().toLocal().toUtc().toIso8601String();
     contextModel.transactionId = _uniqueId;
+    //contextModel.transactionId = chatId;
 
     ChatMessage chatMessage = ChatMessage();
     ChatIntent chatIntent = ChatIntent();

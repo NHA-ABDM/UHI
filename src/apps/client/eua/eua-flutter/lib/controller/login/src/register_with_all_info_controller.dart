@@ -17,6 +17,7 @@ class RegisterWithAllInfoController extends GetxController
   var errorString = '';
 
   Future<void> getStateList() async {
+    log("URL ${RequestUrls.getStateListUrl}");
     await BaseClient(url: RequestUrls.getStateListUrl).get().then(
       (value) {
         if (value == null) {
@@ -92,5 +93,7 @@ class RegisterWithAllInfoController extends GetxController
   @override
   refresh() async {
     errorString = '';
+    stateListResponseModel.clear();
+    districtListResponseModel.clear();
   }
 }
