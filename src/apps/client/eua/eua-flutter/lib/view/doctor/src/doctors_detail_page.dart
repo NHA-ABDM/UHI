@@ -26,11 +26,14 @@ import 'package:uhi_flutter_app/utils/src/shared_preferences.dart';
 import 'package:uhi_flutter_app/utils/utils.dart';
 import 'package:uhi_flutter_app/view/appointment/src/appointment_details_page.dart';
 import 'package:uhi_flutter_app/view/appointment/src/appointment_status_confirm_page.dart';
+import 'package:uhi_flutter_app/view/discovery/discovery.dart';
 import 'package:uhi_flutter_app/widgets/src/calendar_date_range_picker.dart';
 import 'package:uhi_flutter_app/widgets/src/doctor_details_view.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../observer/home_page_obsevable.dart';
+
+enum AddressType { aadhaarAddress, currentAddress }
 
 class DoctorsDetailPage extends StatefulWidget {
   Fulfillment discoveryFulfillments;
@@ -330,6 +333,8 @@ class _DiscoveryResultsPageState extends State<DoctorsDetailPage> {
         body: buildWidgets(),
         bottomSheet: GestureDetector(
           onTap: () async {
+            // showAddressDialog(context: context);
+
             log("${json.encode(_selectedTimeSlot)}", name: "TIME SLOT");
             if (_selectedTimeSlot == "" || _selectedTimeSlot == null) {
               DialogHelper.showErrorDialog(
@@ -356,6 +361,7 @@ class _DiscoveryResultsPageState extends State<DoctorsDetailPage> {
                             discoveryProviders: widget.discoveryProviders,
                             timeSlot: _selectedTimeSlot!,
                             consultationType: _consultationType,
+                            uniqueId: _uniqueId,
                           )),
                 );
                 if (result != null && result == true) {
@@ -374,6 +380,7 @@ class _DiscoveryResultsPageState extends State<DoctorsDetailPage> {
                             discoveryProviders: widget.discoveryProviders,
                             timeSlot: _selectedTimeSlot!,
                             consultationType: _consultationType,
+                            uniqueId: _uniqueId,
                           )),
                 );
                 if (result != null && result == true) {
@@ -734,5 +741,151 @@ class _DiscoveryResultsPageState extends State<DoctorsDetailPage> {
       return androidDeviceInfo.androidId; // unique ID on Android
     }
     return null;
+  }
+
+  showAddressDialog({required BuildContext context}) {
+    AddressType? _character = AddressType.aadhaarAddress;
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(builder: (context, setState) {
+          return SimpleDialog(
+            title: Text(
+              'Address',
+              style: AppTextStyle.textSemiBoldStyle(
+                color: AppColors.black,
+                fontSize: 18,
+              ),
+            ),
+            children: [
+              Container(
+                width: width * 0.85,
+              ),
+              ListTile(
+                title: Text(
+                  'Use aadhaar address',
+                  style: AppTextStyle.textNormalStyle(
+                    color: AppColors.black,
+                    fontSize: 16,
+                  ),
+                ),
+                leading: Radio<AddressType>(
+                  value: AddressType.aadhaarAddress,
+                  groupValue: _character,
+                  onChanged: (AddressType? value) {
+                    setState(() {
+                      _character = value;
+                    });
+                  },
+                ),
+              ),
+              ListTile(
+                title: Text(
+                  'Add new address',
+                  style: AppTextStyle.textNormalStyle(
+                    color: AppColors.black,
+                    fontSize: 16,
+                  ),
+                ),
+                leading: Radio<AddressType>(
+                  value: AddressType.currentAddress,
+                  groupValue: _character,
+                  onChanged: (AddressType? value) {
+                    setState(() {
+                      _character = value;
+                    });
+                  },
+                ),
+              ),
+              _character == AddressType.currentAddress
+                  ? Container(
+                      padding: EdgeInsets.all(15),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Current address',
+                            style: AppTextStyle.textSemiBoldStyle(
+                              color: AppColors.black,
+                              fontSize: 16,
+                            ),
+                          ),
+                          Spacing(isWidth: false, size: 10),
+                          TextFormField(
+                            // controller: _doctorNameOrIdTextEditingController,
+                            decoration: InputDecoration(
+                              hintText: "Address",
+                              hintStyle: AppTextStyle.textLightStyle(
+                                  color: AppColors.testColor, fontSize: 14),
+                              border: const OutlineInputBorder(),
+                            ),
+                          ),
+                          Spacing(isWidth: false, size: 10),
+                          TextFormField(
+                            // controller: _doctorNameOrIdTextEditingController,
+                            decoration: InputDecoration(
+                              hintText: "Address",
+                              hintStyle: AppTextStyle.textLightStyle(
+                                  color: AppColors.testColor, fontSize: 14),
+                              border: const OutlineInputBorder(),
+                            ),
+                          ),
+                          Spacing(isWidth: false, size: 10),
+                          TextFormField(
+                            // controller: _doctorNameOrIdTextEditingController,
+                            decoration: InputDecoration(
+                              hintText: "District",
+                              hintStyle: AppTextStyle.textLightStyle(
+                                  color: AppColors.testColor, fontSize: 14),
+                              border: const OutlineInputBorder(),
+                            ),
+                          ),
+                          Spacing(isWidth: false, size: 10),
+                          TextFormField(
+                            // controller: _doctorNameOrIdTextEditingController,
+                            decoration: InputDecoration(
+                              hintText: "State",
+                              hintStyle: AppTextStyle.textLightStyle(
+                                  color: AppColors.testColor, fontSize: 14),
+                              border: const OutlineInputBorder(),
+                            ),
+                          ),
+                          Spacing(isWidth: false, size: 10),
+                          TextFormField(
+                            // controller: _doctorNameOrIdTextEditingController,
+                            decoration: InputDecoration(
+                              hintText: "Pincode",
+                              hintStyle: AppTextStyle.textLightStyle(
+                                  color: AppColors.testColor, fontSize: 14),
+                              border: const OutlineInputBorder(),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : Container(),
+              Container(
+                width: width * 0.2,
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.DARK_PURPLE,
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: Center(
+                  child: Text(
+                    "Submit",
+                    style: AppTextStyle.textSemiBoldStyle(
+                      color: AppColors.white,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        });
+      },
+    );
   }
 }
