@@ -140,8 +140,8 @@ class GroupVideoCallPrimaryState extends State<GroupVideoCallPrimary> {
         providerUri: doctorUri!,
         consumerUri: remoteDoctorUri!,
         // consumerUri: 'http://100.96.9.171:8084/api/v1',
-        // chatId: appointmentTransactionId ?? '$remoteDoctorHprId|$doctorHprId',
-        chatId: '$remoteDoctorHprId|$doctorHprId',
+        chatId: appointmentTransactionId ?? '$remoteDoctorHprId|$doctorHprId',
+        // chatId: '$remoteDoctorHprId|$doctorHprId',
     )..connect();
     await _doctorVideoCallSignalling?.setStream(_localStream!);
 
@@ -243,8 +243,8 @@ class GroupVideoCallPrimaryState extends State<GroupVideoCallPrimary> {
         // consumerUri: 'https://uhieuasandbox.abdm.gov.in/api/v1/bookingService',//remotePatientUri!,
         consumerUri: remotePatientUri!,
         // consumerUri: RequestUrls.consumerUri,
-        // chatId: appointmentTransactionId ?? '$remotePatientAbhaId|$doctorHprId',
-        chatId: '$remotePatientAbhaId|$doctorHprId',
+        chatId: appointmentTransactionId ?? '$remotePatientAbhaId|$doctorHprId',
+        // chatId: '$remotePatientAbhaId|$doctorHprId',
     )..connect();
     await _patientVideoCallSignalling?.setStream(_localStream!);
 
@@ -365,11 +365,11 @@ class GroupVideoCallPrimaryState extends State<GroupVideoCallPrimary> {
     debugPrint('_patientVideoCallSignalling is $_patientVideoCallSignalling and patient ABHA id is $remotePatientAbhaId');
     debugPrint('_doctorVideoCallSignalling is $_doctorVideoCallSignalling');
     if (_doctorVideoCallSignalling != null) {
-      await _doctorVideoCallSignalling?.invite(
+       _doctorVideoCallSignalling?.invite(
           remoteDoctorHprId!, 'video', useScreen);
     }
     if (_patientVideoCallSignalling != null) {
-      await _patientVideoCallSignalling?.invite(
+       _patientVideoCallSignalling?.invite(
           remotePatientAbhaId!, 'video', useScreen);
     }
   }

@@ -126,9 +126,6 @@ public class StatusService implements IService {
 
         request.getMessage().setOrder(orderFromRequest);
         return Mono.just(request);
-
-
-
     }
 
     private void setCustomerDetails(OrdersModel appointmentStatus, Customer customer, Person patient) {
@@ -244,7 +241,7 @@ public class StatusService implements IService {
     }
 
     @Override
-    public Mono<String> logResponse(String result) {
+    public Mono<String> logResponse(String result, Request request) {
 
 
         LOGGER.info("OnConfirm::Log::Response:: {}", result);

@@ -40,6 +40,7 @@ class RequestUrls {
       wrapperBaseUrl + 'appointments';
   static const String getProviderHSPAAppointmentsWrapper =
       bookingServiceHackathon + 'getOrdersByHprIdAndType/';
+  // 'https://hspabeta.abdm.gov.in/api/v1/getOrdersByHprIdAndType/';
   static const String cancelProviderAppointmentWrapper =
       wrapperBaseUrl + 'cancel/appointment';
   static const String addProviderAppointmentSlotsWrapper =

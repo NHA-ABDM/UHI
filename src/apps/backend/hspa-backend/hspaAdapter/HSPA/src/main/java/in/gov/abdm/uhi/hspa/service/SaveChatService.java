@@ -114,8 +114,7 @@ public class SaveChatService implements ChatDataDb {
 
 		messagesModelSaved = saveMessage(request);
 		saveSenderAndReceiver(request);
-		LOGGER.info("Message is saved.. sending notification");
-
+		LOGGER.info("Message is saved.. sending notification .. Message Id is {}", getMessageId(request));
 
 		return messagesModelSaved;
 	}
@@ -123,13 +122,13 @@ public class SaveChatService implements ChatDataDb {
 	private void configureFileToBeSaved_Details(Request request) throws IOException {
 
 		String content_fileName = request.getContext().getMessageId()+request.getMessage().getIntent().getChat().getContent().getContent_fileName();
-		LOGGER.info("Media file type received.. File name is  ->>"+content_fileName);
+		LOGGER.info("Media file type received.. File name is  ->> {} .. Message Id is {}",content_fileName, getMessageId(request));
 		Files.createDirectories(Paths.get(uploadDir).toAbsolutePath().normalize());
 
 		writeFileToDisk(request, content_fileName);
 
 		String content_url = hspaPublicBaseUrl + downloadPath + content_fileName;
-		LOGGER.info("Setting content URL to ->> ->>"+content_url);
+		LOGGER.info("Setting content URL to ->> ->> {}" ,content_url);
 		request.getMessage().getIntent().getChat().getContent().setContent_url(content_url);
 	}
 
@@ -138,9 +137,14 @@ public class SaveChatService implements ChatDataDb {
 			String content_value = request.getMessage().getIntent().getChat().getContent().getContent_value();
 			byte[] fileBytes = Base64.decodeBase64(content_value);
 			stream.write(fileBytes);
-			LOGGER.info("File is saved.. File name is  ->>"+ content_fileName);
+			LOGGER.info("File is saved.. File name is  ->> {} .. Message Id is {}", content_fileName, getMessageId(request));
 
 		}
+	}
+
+	private String getMessageId(Request objRequest) {
+		String messageId = objRequest.getContext().getMessageId();
+		return messageId == null ? " " : messageId;
 	}
 
 	void saveSenderAndReceiver(Request request) throws Exception {
@@ -232,9 +236,7 @@ public class SaveChatService implements ChatDataDb {
 				.onStatus(HttpStatus::is5xxServerError,
 						response -> response.bodyToMono(String.class).map(Exception::new))
 				.toEntity(String.class)
-				.doOnError(throwable -> {
-					LOGGER.error("Error sending notification---"+throwable.getMessage());
-				}).subscribe(res ->LOGGER.info("Sent notification---"+res.getBody()));
+				.doOnError(throwable -> LOGGER.error("Error sending notification--- {}" ,throwable.getMessage())).subscribe(res ->LOGGER.info("Sent notification--- {}",res.getBody()));
 	}
 
 
@@ -255,7 +257,6 @@ public class SaveChatService implements ChatDataDb {
 	}
 
 	public List<PublicKeyModel> getKeyDetails(String userName) {
-		
 		return publicKeyRepository.findByUserName(userName);
 	}
 
@@ -275,8 +276,8 @@ public class SaveChatService implements ChatDataDb {
 			}
 			return skl.get(0);
 		}
-	    else
-		return null;
+		else
+			return null;
 	}
 
 

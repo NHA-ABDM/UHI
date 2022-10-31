@@ -275,6 +275,10 @@ class VideoCallSignalling {
   }
 
   void onMessage(message) async {
+    var onMessageSender = message['sender'];
+    if (onMessageSender != receiversAddress) {
+      return;
+    }
     var data = message['data'];
     switch (message['type']) {
       case 'ACK':
@@ -402,8 +406,8 @@ class VideoCallSignalling {
     contextModel.consumerUri = "http://100.65.158.41:8901/api/v1/euaService";
     contextModel.providerUrl = providerUri;
     contextModel.timestamp = DateTime.now().toLocal().toUtc().toIso8601String();
-    contextModel.transactionId = _uniqueId;
-    //contextModel.transactionId = chatId;
+    //contextModel.transactionId = _uniqueId;
+    contextModel.transactionId = chatId;
 
     ChatMessage chatMessage = ChatMessage();
     ChatIntent chatIntent = ChatIntent();
@@ -479,6 +483,7 @@ class VideoCallSignalling {
     var request = Map();
     request["type"] = event;
     request["data"] = data;
+    request["sender"] = sendersAddress;
     postMessageAPI(_encoder.convert(request));
   }
 

@@ -276,6 +276,7 @@ class _CancelAppointmentPageState extends State<CancelAppointmentPage> {
     contextModel.coreVersion = "0.7.1";
     contextModel.messageId = _uniqueId;
     contextModel.consumerId = "eua-nha";
+    contextModel.consumerUri = isOpenMrsAppointment ? RequestUrls.cancelConsumerUriSandbox : providerAppointment.patientConsumerUri;
     //contextModel.consumerUri = RequestUrls.cancelConsumerUriSandbox;
     //contextModel.providerUrl = _providerUri;
     contextModel.timestamp = DateTime.now().toLocal().toUtc().toIso8601String();

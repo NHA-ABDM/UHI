@@ -265,7 +265,9 @@
    "yourABHAAddress": "Your ABHA address",
    "isCreated": "is created",
    "loginToContinue": "Login to continue.",
-   "createNewABHAAddress": "Create new ABHA address"
+   "createNewABHAAddress": "Create new ABHA address",
+   "errorFileSize" : "Size should be less than {} MB",
+   "alertSendFile" : "Do you want to send {}"
 
 
 

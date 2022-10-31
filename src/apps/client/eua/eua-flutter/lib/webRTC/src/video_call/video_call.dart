@@ -94,14 +94,14 @@ class VideoCallState extends State<VideoCall> {
 
   void _connect() {
     _videoCallSignalling ??= VideoCallSignalling(
-      receiversAddress: _doctorHprId!,
-      sendersAddress: _patientAbhaId!,
-      receiversGender: _doctorGender!,
-      receiversName: _doctorName!,
-      providerUri: _providerUri!,
-      chatId: '$_patientAbhaId|$_doctorHprId',
-      //chatId: transactionId ?? '$_patientAbhaId|$_doctorHprId')
-    )..connect();
+        receiversAddress: _doctorHprId!,
+        sendersAddress: _patientAbhaId!,
+        receiversGender: _doctorGender!,
+        receiversName: _doctorName!,
+        providerUri: _providerUri!,
+        //chatId: '$_patientAbhaId|$_doctorHprId',
+        chatId: transactionId ?? '$_patientAbhaId|$_doctorHprId')
+      ..connect();
 
     debugPrint("chatId:$transactionId");
     _videoCallSignalling?.setStream(_localStream!);

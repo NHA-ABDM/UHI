@@ -63,14 +63,13 @@ public class SelectService implements IService {
 
     public Mono<Response> processor(@RequestBody String request) {
 
-        LOGGER.info("Processing::Search(Select)::Request:: {}", request);
         Request objRequest;
         Response ack = generateAck();
 
         try {
             objRequest = new ObjectMapper().readValue(request, Request.class);
             String messageId = objRequest.getContext().getMessageId();
-            LOGGER.info(ConstantsUtils.REQUESTER_MESSAGE_ID_IS, messageId);
+            LOGGER.info("Processing::Search(Select)::Request:: {}. Message id is {}", request, messageId);
 
             logMessageId(objRequest);
 
@@ -80,10 +79,10 @@ public class SelectService implements IService {
                 run(objRequest, request).zipWith(getAllAppointmentTypes())
                         .flatMap(pair -> getProviderAppointment(pair, objRequest))
                         .flatMap(res -> getProviderAppointments(res, objRequest))
-                        .flatMap(this::transformObject)
-                        .flatMap(mapResult -> generateCatalog(mapResult, objRequest.getMessage().getIntent().getFulfillment().getType()))
+                        .flatMap(resp -> transformObject(resp, objRequest))
+                        .flatMap(mapResult -> generateCatalog(mapResult, objRequest))
                         .flatMap(catalog ->  callOnSerach(catalog, objRequest.getContext()))
-                        .flatMap(this::logResponse)
+                        .flatMap(log -> logResponse(log, objRequest))
                         .subscribe();
             }
             else {
@@ -127,9 +126,8 @@ public class SelectService implements IService {
 
     private Mono<IntermediateAppointmentSearchModel> getProviderAppointment(Tuple2 result, Request request) {
 
-        LOGGER.info("Processing::Search(Select)::getProviderAppointment:: {}" , result);
         String messageId = request.getContext().getMessageId();
-        LOGGER.info(ConstantsUtils.REQUESTER_MESSAGE_ID_IS, messageId);
+        LOGGER.info("Processing::Search(Select)::getProviderAppointment:: {}... and Message Id is {}" , result, messageId);
 
         IntermediateAppointmentSearchModel appointmentSearchModel = new IntermediateAppointmentSearchModel();
         appointmentSearchModel.providers = new ArrayList<>();
@@ -146,7 +144,7 @@ public class SelectService implements IService {
             appointmentSearchModel.view = "full";
 
         } catch (Exception ex) {
-            LOGGER.error("Search(Select) service Get Provider Id::error::onErrorResume:: {}", ex, ex);
+            LOGGER.error("Search(Select) service Get Provider Id::error::onErrorResume:: {}... Message Id is {}", ex, messageId);
             LOGGER.info(ConstantsUtils.REQUESTER_MESSAGE_ID_IS, messageId);
         }
 
@@ -192,31 +190,33 @@ public class SelectService implements IService {
         LOGGER.info(ConstantsUtils.REQUESTER_MESSAGE_ID_IS, messageId);
     }
 
-       private Mono<List<IntermediateProviderAppointmentModel>> transformObject(String result) {
+       private Mono<List<IntermediateProviderAppointmentModel>> transformObject(String result, Request request) {
+       String messageId = request.getContext().getMessageId();
 
-        LOGGER.info("Processing::Search(Select)::transformObject:: {}", result);
+        LOGGER.info("Processing::Search(Select)::transformObject:: {}... Message Id is {}", result, messageId);
         List<IntermediateProviderAppointmentModel> collection = new ArrayList<>();
         try {
 
             collection = IntermediateBuilderUtils.BuildIntermediateProviderAppoitmentObj(result);
 
         } catch (Exception ex) {
-            LOGGER.error("Select service Transform Object::error::onErrorResume:: {}" , ex, ex);
+            LOGGER.error("Select service Transform Object::error::onErrorResume:: {}... Message Id is {}" , ex, messageId);
         }
         return Mono.just(collection);
 
     }
 
 
-     private Mono<Catalog> generateCatalog(List<IntermediateProviderAppointmentModel> collection, String appointmentServiceType) {
+     private Mono<Catalog> generateCatalog(List<IntermediateProviderAppointmentModel> collection, Request request) {
+        String messageId = request.getContext().getMessageId();
 
         Catalog catalog = new Catalog();
          try {
-            catalog = ProtocolBuilderUtils.BuildProviderCatalog(collection, appointmentServiceType);
+            catalog = ProtocolBuilderUtils.BuildProviderCatalog(collection, request.getMessage().getIntent().getFulfillment().getType());
 
         } catch (Exception ex) {
 
-            LOGGER.error("Select service generate catalog::error::onErrorResume:: {}" , ex, ex);
+            LOGGER.error("Select service generate catalog::error::onErrorResume:: {} \n Message Id is {}" , ex, messageId);
         }
         return Mono.just(catalog);
 
@@ -227,6 +227,8 @@ public class SelectService implements IService {
         Message objMessage = new Message();
         objMessage.setCatalog(catalog);
         context.setProviderId(PROVIDER_URI);
+
+        //TODO: Fix Else block
         if(context.getConsumerId().equalsIgnoreCase("eua-nha"))
             context.setProviderUri(PROVIDER_URI);
         else
@@ -245,7 +247,7 @@ public class SelectService implements IService {
                 .bodyToMono(String.class)
                 .retry(3)
                 .onErrorResume(error -> {
-                    LOGGER.error("Select Service Call on_search::error::onErrorResume:: {}", error, error);
+                    LOGGER.error("Select Service Call on_search::error::onErrorResume:: {} \n Message Id is {}", error, context.getMessageId());
                     return Mono.empty();
                 });
     }
@@ -290,9 +292,10 @@ public class SelectService implements IService {
     }
 
     @Override
-    public Mono<String> logResponse(java.lang.String result) {
+    public Mono<String> logResponse(String result, Request request) {
 
-        LOGGER.info("OnSearch(Select)::Log::Response:: {}", result);
+        String messageId = request.getContext().getMessageId();
+        LOGGER.info("OnSearch(Select)::Log::Response:: {} \n Message Id is {}", result, messageId);
 
         return Mono.just(result);
     }

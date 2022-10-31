@@ -319,4 +319,8 @@ class AppStrings {
   String passwordNotMatching = 'passwordNotMatching'.tr();
   String passwordGreaterThan6 = 'passwordGreaterThan6'.tr();
   String createNewABHAAddress = 'createNewABHAAddress'.tr();
+  String errorFileSize({required String fileSize}) =>
+      'errorFileSize'.tr(args: [fileSize]);
+  String alertSendFile({required String fileName}) =>
+      'alertSendFile'.tr(args: [fileName]);
 }

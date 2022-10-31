@@ -78,6 +78,10 @@ class GroupVideoCallSecondaryState extends State<GroupVideoCallSecondary> {
     remoteDoctorName = remoteDoctor['name'];
     remoteDoctorUri = remoteDoctor['uri'];
 
+    if(remoteDoctorName != null && remoteDoctorName!.contains(' - ')) {
+        remoteDoctorName = remoteDoctorName!.split('-').last;
+    }
+
     Wakelock.enable();
 
     startVideoCall();
@@ -120,14 +124,15 @@ class GroupVideoCallSecondaryState extends State<GroupVideoCallSecondary> {
         providerUri: remoteDoctorUri!,
         consumerUri: doctorUri!,
         // consumerUri: 'http://100.96.9.171:8084/api/v1',
-        // chatId: appointmentTransactionId ?? '$doctorHprId|$remoteDoctorHprId',
-        chatId: '$doctorHprId|$remoteDoctorHprId',
+        chatId: appointmentTransactionId ?? '$doctorHprId|$remoteDoctorHprId',
+        // chatId: '$doctorHprId|$remoteDoctorHprId',
     )..connect();
     _doctorVideoCallSignalling?.setStream(_localStream!);
 
     _doctorVideoCallSignalling?.poll();
     _doctorVideoCallSignalling?.onCallStateChange =
         (Session session, CallState state) async {
+      debugPrint('GroupVideoCallSecondary In doctor on call state change ${session.toString()} and state is $state');
       switch (state) {
         case CallState.callStateNew:
           setState(() {
@@ -176,6 +181,7 @@ class GroupVideoCallSecondaryState extends State<GroupVideoCallSecondary> {
     };
 
     _doctorVideoCallSignalling?.onPeersUpdate = ((event) {
+      debugPrint('GroupVideoCallSecondary In _doctorVideoCallSignalling onPeersUpdate');
       if (mounted) {
         setState(() {
           _doctorPeer = event['peers'];
@@ -190,11 +196,13 @@ class GroupVideoCallSecondaryState extends State<GroupVideoCallSecondary> {
     });
 
     _doctorVideoCallSignalling?.onLocalStream = ((stream) {
+      debugPrint('GroupVideoCallSecondary In _doctorVideoCallSignalling onLocalStream $stream');
       _localRenderer.srcObject = stream;
       setState(() {});
     });
 
     _doctorVideoCallSignalling?.onAddRemoteStream = ((_, stream) {
+      debugPrint('GroupVideoCallSecondary In _doctorVideoCallSignalling onAddRemoteStream $stream');
       _remoteDoctorRenderer.srcObject = stream;
       for (MediaStreamTrack audioTrack
       in _remoteDoctorRenderer.srcObject!.getAudioTracks()) {
@@ -210,6 +218,7 @@ class GroupVideoCallSecondaryState extends State<GroupVideoCallSecondary> {
     });
 
     _doctorVideoCallSignalling?.onRemoveRemoteStream = ((_, stream) {
+      debugPrint('GroupVideoCallSecondary In _doctorVideoCallSignalling onRemoveRemoteStream $stream');
       _remoteDoctorRenderer.srcObject = null;
       setState(() {});
     });
@@ -227,13 +236,14 @@ class GroupVideoCallSecondaryState extends State<GroupVideoCallSecondary> {
         // consumerUri: 'https://uhieuasandbox.abdm.gov.in/api/v1/bookingService',
         consumerUri: remotePatientUri!,
         // consumerUri: RequestUrls.consumerUri,
-        // chatId: appointmentTransactionId ?? '$remotePatientAbhaId|$doctorHprId'
-        chatId: '$remotePatientAbhaId|$doctorHprId'
+        chatId: appointmentTransactionId ?? '$remotePatientAbhaId|$doctorHprId'
+        // chatId: '$remotePatientAbhaId|$doctorHprId'
     )..connect();
     _patientVideoCallSignalling?.setStream(_localStream!);
 
     _patientVideoCallSignalling?.onCallStateChange =
         (Session session, CallState state) async {
+      debugPrint('GroupVideoCallSecondary In patient on call state change ${session.toString()} and state is $state');
       switch (state) {
         case CallState.callStateNew:
           setState(() {
@@ -243,7 +253,7 @@ class GroupVideoCallSecondaryState extends State<GroupVideoCallSecondary> {
         case CallState.callStateRinging:
           break;
         case CallState.callStateBye:
-          debugPrint('In Group Video Call Secondary Patient CallState.callStateBye');
+          debugPrint('GroupVideoCallSecondary Patient CallState.callStateBye');
           if (_waitAccept) {
             debugPrint('peer reject');
             _waitAccept = false;
@@ -272,6 +282,7 @@ class GroupVideoCallSecondaryState extends State<GroupVideoCallSecondary> {
     };
 
     _patientVideoCallSignalling?.onPeersUpdate = ((event) {
+      debugPrint('GroupVideoCallSecondary In _patientVideoCallSignalling onPeersUpdate');
       if (mounted) {
         setState(() {
           _patientPeer = event['peers'];
@@ -286,13 +297,16 @@ class GroupVideoCallSecondaryState extends State<GroupVideoCallSecondary> {
     });
 
     _patientVideoCallSignalling?.onLocalStream = ((stream) {
+      debugPrint('GroupVideoCallSecondary _patientVideoCallSignalling onLocalStream $stream');
       _localRenderer.srcObject = stream;
     });
 
     _patientVideoCallSignalling?.onAddRemoteStream = ((_, stream) {
+      debugPrint('GroupVideoCallSecondary In _patientVideoCallSignalling onAddRemoteStream');
       _remotePatientRenderer.srcObject = stream;
       for (MediaStreamTrack audioTrack
       in _remotePatientRenderer.srcObject!.getAudioTracks()) {
+        debugPrint('GroupVideoCallSecondary In _patientVideoCallSignalling onAddRemoteStream getAudioTracks');
         if(audioTrack.enabled) {
           _remotePatientRenderer.srcObject
               ?.getAudioTracks()[_remotePatientRenderer.srcObject
@@ -301,10 +315,13 @@ class GroupVideoCallSecondaryState extends State<GroupVideoCallSecondary> {
           break;
         }
       }
-      setState(() {});
+      setState(() {
+        debugPrint('GroupVideoCallSecondary In _patientVideoCallSignalling onAddRemoteStream setState');
+      });
     });
 
     _patientVideoCallSignalling?.onRemoveRemoteStream = ((_, stream) {
+      debugPrint('GroupVideoCallSecondary _patientVideoCallSignalling?.onRemoveRemoteStream $stream');
       _remotePatientRenderer.srcObject = null;
       setState(() {});
     });
@@ -313,6 +330,7 @@ class GroupVideoCallSecondaryState extends State<GroupVideoCallSecondary> {
   Future<bool?> _showAcceptDialog() {
     return showDialog<bool?>(
       context: context,
+      barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
           title: Text(
@@ -357,7 +375,9 @@ class GroupVideoCallSecondaryState extends State<GroupVideoCallSecondary> {
   }
 
   _invitePatient(bool useScreen) async {
+    debugPrint('GroupVideoCallSecondary _invitePatient');
     if (_patientVideoCallSignalling != null) {
+      debugPrint('GroupVideoCallSecondary _invitePatient _patientVideoCallSignalling != null');
       _patientVideoCallSignalling?.invite(
           remotePatientAbhaId!, 'video', useScreen);
     }
@@ -392,43 +412,51 @@ class GroupVideoCallSecondaryState extends State<GroupVideoCallSecondary> {
   _speaker() {
     isSpeaker = !isSpeaker;
 
-    for (MediaStreamTrack audioTrack
-        in _remoteDoctorRenderer.srcObject!.getAudioTracks()) {
-      debugPrint(
-          'Group consultation secondary In audioTrack ${audioTrack.enabled} --> ${audioTrack.label} ---> ${audioTrack.kind} ---> ${audioTrack.muted} ---> ${audioTrack.toString()}');
+    if(_remoteDoctorRenderer.srcObject != null) {
+      for (MediaStreamTrack audioTrack
+      in _remoteDoctorRenderer.srcObject!.getAudioTracks()) {
+        debugPrint(
+            'GroupVideoCallSecondary _remoteDoctorRenderer Group consultation secondary In audioTrack ${audioTrack
+                .enabled} --> ${audioTrack.label} ---> ${audioTrack
+                .kind} ---> ${audioTrack.muted} ---> ${audioTrack.toString()}');
 
-      if (audioTrack.enabled) {
-        /*setState(() {
+        if (audioTrack.enabled) {
+          /*setState(() {
           isSpeaker = !isSpeaker;
         });*/
-        _remoteDoctorRenderer.srcObject
-            ?.getAudioTracks()[_remoteDoctorRenderer.srcObject
-                    ?.getAudioTracks()
-                    .indexOf(audioTrack) ??
-                0]
-            .enableSpeakerphone(isSpeaker);
-        break;
+          _remoteDoctorRenderer.srcObject
+              ?.getAudioTracks()[_remoteDoctorRenderer.srcObject
+              ?.getAudioTracks()
+              .indexOf(audioTrack) ??
+              0]
+              .enableSpeakerphone(isSpeaker);
+          break;
+        }
       }
     }
     /*_remoteDoctorRenderer.srcObject
         ?.getAudioTracks()[0]
         .enableSpeakerphone(isSpeaker);*/
-    for (MediaStreamTrack audioTrack
-        in _remotePatientRenderer.srcObject!.getAudioTracks()) {
-      debugPrint(
-          'Group consultation secondary In audioTrack ${audioTrack.enabled} --> ${audioTrack.label} ---> ${audioTrack.kind} ---> ${audioTrack.muted} ---> ${audioTrack.toString()}');
+    if(_remotePatientRenderer.srcObject != null) {
+      for (MediaStreamTrack audioTrack
+      in _remotePatientRenderer.srcObject!.getAudioTracks()) {
+        debugPrint(
+            'GroupVideoCallSecondary _remotePatientRenderer Group consultation secondary In audioTrack ${audioTrack
+                .enabled} --> ${audioTrack.label} ---> ${audioTrack
+                .kind} ---> ${audioTrack.muted} ---> ${audioTrack.toString()}');
 
-      if (audioTrack.enabled) {
-        /*setState(() {
+        if (audioTrack.enabled) {
+          /*setState(() {
           isSpeaker = !isSpeaker;
         });*/
-        _remotePatientRenderer.srcObject
-            ?.getAudioTracks()[_remotePatientRenderer.srcObject
-                    ?.getAudioTracks()
-                    .indexOf(audioTrack) ??
-                0]
-            .enableSpeakerphone(isSpeaker);
-        break;
+          _remotePatientRenderer.srcObject
+              ?.getAudioTracks()[_remotePatientRenderer.srcObject
+              ?.getAudioTracks()
+              .indexOf(audioTrack) ??
+              0]
+              .enableSpeakerphone(isSpeaker);
+          break;
+        }
       }
     }
 

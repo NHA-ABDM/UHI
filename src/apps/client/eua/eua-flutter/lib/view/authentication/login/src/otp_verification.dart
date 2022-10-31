@@ -32,11 +32,13 @@ class OTPVerificationPage extends StatefulWidget {
   String? emailId;
   String? fcmToken;
   bool? isFromMobile;
+  String? transactionId;
 
   OTPVerificationPage(
       {this.mobileNumber,
       this.emailId,
       @required this.isFromMobile,
+      this.transactionId,
       this.fcmToken});
 
   @override
@@ -140,13 +142,13 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
   }
 
   callApi() async {
+    debugPrint("transactionId in post verify:${widget.transactionId}");
     loginVerifyController.refresh();
-    String? transactionId = await SharedPreferencesHelper.getTransactionId();
     LoginVerifyRequestModel loginVerifyRequestModel = LoginVerifyRequestModel();
     Encrypted encrypted = await encryptOTPNumber();
     loginVerifyRequestModel.authCode = encrypted.base64;
     loginVerifyRequestModel.requesterId = "phr_001";
-    loginVerifyRequestModel.transactionId = transactionId;
+    loginVerifyRequestModel.transactionId = widget.transactionId;
 
     await loginVerifyController.postVerify(
         loginDetails: loginVerifyRequestModel);
@@ -161,11 +163,10 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
   navigateToLinkAccountPage() {
     stopTimer();
     if (mappedPhrAddress!.length > 1) {
-      SharedPreferencesHelper.setTransactionId(
-          loginVerifyController.loginVerifyResponseModel?.transactionId!);
       Get.to(ABHAAddressSelectionPage(
         mappedPhrAddress: mappedPhrAddress!,
         fcmToken: widget.fcmToken,
+        transactionId: widget.transactionId,
       ));
     } else {
       showProgressDialog();
@@ -175,11 +176,10 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
 
   callAuthenticationOfAbhaAddressApi(String selectedAbhaAddress) async {
     loginConfirmController.refresh();
-    String? transactionId = await SharedPreferencesHelper.getTransactionId();
     LoginConfirmRequestModel confirmRequestModel = LoginConfirmRequestModel();
     confirmRequestModel.patientId = selectedAbhaAddress;
     confirmRequestModel.requesterId = "phr_001";
-    confirmRequestModel.transactionId = transactionId;
+    confirmRequestModel.transactionId = widget.transactionId;
 
     await loginConfirmController.postConfirm(loginDetails: confirmRequestModel);
     hideProgressDialog();

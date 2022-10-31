@@ -35,4 +35,21 @@ public class ConstantsUtils {
     public static final String IDENTIFIER = "identifier";
     public static final String DISPLAY = "display";
     public static final String RESULTS = "results";
+    public static final Object ABDM_GOV_IN_PRIMARY_DOCTOR_NAME =  "@abdm/gov.in/primaryDoctorName";
+    public static final Object ABDM_GOV_IN_PRIMARY_DOCTOR_HPR =  "@abdm/gov.in/primaryHprAddress";
+    public static final Object ABDM_GOV_IN_PRIMARY_DOCTOR_PROVIDER_URL = "@abdm/gov.in/primaryDoctorProviderUrl";
+    public static final Object ABDM_GOV_IN_PRIMARY_DOCTOR_GENDER =  "@abdm/gov.in/primaryDoctorGender";
+
+    public static final Object ABDM_GOV_IN_SECONDARY_DOCTOR_NAME =  "@abdm/gov.in/secondaryDoctorName";
+    public static final Object ABDM_GOV_IN_SECONDARY_DOCTOR_HPR =  "@abdm/gov.in/secondaryHprAddress";
+    public static final Object ABDM_GOV_IN_SECONDARY_DOCTOR_PROVIDER_URL = "@abdm/gov.in/secondaryDoctorProviderUrl";
+    public static final Object ABDM_GOV_IN_SECONDARY_GENDER =  "@abdm/gov.in/secondaryDoctorGender";
+
+    public static final String ABDM_GOV_IN_PATIENT_GENDER = "@abdm/gov.in/patientGender";
+
+    public static final String ABDM_GOV_IN_CONSUMER_URL = "@abdm/gov.in/consumerUrl";
+
+
+	public static final Object ABDM_GOV_IN_GROUPCONSULT = "@abdm/gov.in/groupConsultation";
+	public static final String False = "false";
 }

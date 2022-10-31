@@ -58,7 +58,7 @@ dependencies:
   file_picker: ^4.6.1
   firebase_core: ^1.18.0
   firebase_messaging: ^11.4.2
-  flutter_local_notifications: ^9.5.0
+  flutter_local_notifications:
   flutter_chat_ui: ^1.5.0
   mime: ^1.0.2
   open_file: ^3.2.1
@@ -75,6 +75,7 @@ dependencies:
   multi_select_flutter: ^4.1.2
   scroll_to_index:
   rect_getter: ^1.1.0
+  flutter_pdfview: ^1.2.1
 
 dev_dependencies:
   flutter_test:

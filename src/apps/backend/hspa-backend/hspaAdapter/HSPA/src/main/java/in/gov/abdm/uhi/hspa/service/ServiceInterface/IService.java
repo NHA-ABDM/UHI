@@ -9,5 +9,5 @@ public interface IService {
     Mono<Response> processor(@RequestBody String json) throws Exception;
     Mono<String> run(Request request, String s) throws Exception;
 
-    Mono<String> logResponse(String result);
+    Mono<String> logResponse(String result, Request request);
 }

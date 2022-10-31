@@ -18,9 +18,13 @@ import '../../../../model/common/src/fcm_token_model.dart';
 class ABHAAddressSelectionPage extends StatefulWidget {
   List<String> mappedPhrAddress;
   String? fcmToken;
+  String? transactionId;
 
   ABHAAddressSelectionPage(
-      {Key? key, required this.mappedPhrAddress, this.fcmToken})
+      {Key? key,
+      required this.mappedPhrAddress,
+      this.fcmToken,
+      this.transactionId})
       : super(key: key);
 
   @override
@@ -68,11 +72,10 @@ class _ABHAAddressSelectionPageState extends State<ABHAAddressSelectionPage> {
   ///APIs
   callApi(String selectedAbhaAddress) async {
     loginConfirmController.refresh();
-    String? transactionId = await SharedPreferencesHelper.getTransactionId();
     LoginConfirmRequestModel confirmRequestModel = LoginConfirmRequestModel();
     confirmRequestModel.patientId = selectedAbhaAddress;
     confirmRequestModel.requesterId = "phr_001";
-    confirmRequestModel.transactionId = transactionId;
+    confirmRequestModel.transactionId = widget.transactionId;
 
     await loginConfirmController.postConfirm(loginDetails: confirmRequestModel);
     hideProgressDialog();

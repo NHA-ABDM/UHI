@@ -111,6 +111,9 @@ class _MultipleDoctorAppointmentDetailsPageState
   BookingOnInitResponseModel? _docOneInitResponse;
   BookingOnInitResponseModel? _docTwoInitResponse;
 
+  String? _docOneProviderUri;
+  String? _docTwoProviderUri;
+
   Future<List<BookingOnInitResponseModel?>>? futureInitResponse;
   StompSocketConnection stompSocketConnection = StompSocketConnection();
 
@@ -136,6 +139,8 @@ class _MultipleDoctorAppointmentDetailsPageState
     _uniqueId = widget.uniqueId != "" ? widget.uniqueId : const Uuid().v1();
     _appointmentStartDateAndTime = widget.appointmentStartTime;
     _appointmentEndDateAndTime = widget.appointmentEndTime;
+    _docOneProviderUri = widget.docOneProviderUri;
+    _docTwoProviderUri = widget.docTwoProviderUri;
 
     if (mounted) {
       futureInitResponse = getResponseOfMultipleDoctors();
@@ -296,6 +301,35 @@ class _MultipleDoctorAppointmentDetailsPageState
     tags.abdmGovInGroupConsultation = "true";
     tags.abdmGovInPrimaryDoctor = widget.doctor1AbhaId;
     tags.abdmGovInSecondaryDoctor = widget.doctor2AbhaId;
+
+    tags.education = _docOneDiscoveryFulfillments?.agent?.tags?.education;
+    tags.experience = _docOneDiscoveryFulfillments?.agent?.tags?.experience;
+    tags.firstConsultation =
+        _docOneDiscoveryFulfillments?.agent?.tags?.firstConsultation;
+    tags.followUp = _docOneDiscoveryFulfillments?.agent?.tags?.followUp;
+    tags.hprId = _docOneDiscoveryFulfillments?.agent?.tags?.hprId;
+    tags.languageSpokenTag =
+        _docOneDiscoveryFulfillments?.agent?.tags?.languageSpokenTag;
+    tags.medicinesTag = _docOneDiscoveryFulfillments?.agent?.tags?.medicinesTag;
+    tags.slotId = _docOneDiscoveryFulfillments?.agent?.tags?.slotId;
+    tags.specialtyTag = _docOneDiscoveryFulfillments?.agent?.tags?.specialtyTag;
+    tags.upiId = _docOneDiscoveryFulfillments?.agent?.tags?.upiId;
+    tags.abdmGovInConsumerUrl = RequestUrls.bookingService;
+
+    tags.patientName = getUserDetailsResponseModel.fullName;
+    tags.patientGender = getUserDetailsResponseModel.gender;
+    tags.patientPHRAddress = abhaAddress;
+
+    tags.primaryDoctorGender = _docOneDiscoveryFulfillments?.agent?.gender;
+    tags.primaryDoctorHPRAddress = _docOneDiscoveryFulfillments?.agent?.id;
+    tags.primaryDoctorName = _docOneDiscoveryFulfillments?.agent?.name;
+    tags.primaryDoctorProviderURI = _docOneProviderUri;
+
+    tags.secondaryDoctorGender = _docTwoDiscoveryFulfillments?.agent?.gender;
+    tags.secondaryDoctorHPRAddress = _docTwoDiscoveryFulfillments?.agent?.id;
+    tags.secondaryDoctorName = _docTwoDiscoveryFulfillments?.agent?.name;
+    tags.secondaryDoctorProviderURI = _docTwoProviderUri;
+
     agent.tags = tags;
     fulfillment.agent = agent;
     fulfillment.id = _timeSlotDocOne?.tags?.abdmGovInSlot;
@@ -417,6 +451,35 @@ class _MultipleDoctorAppointmentDetailsPageState
     tags.abdmGovInGroupConsultation = "true";
     tags.abdmGovInPrimaryDoctor = widget.doctor1AbhaId;
     tags.abdmGovInSecondaryDoctor = widget.doctor2AbhaId;
+
+    tags.education = _docTwoDiscoveryFulfillments?.agent?.tags?.education;
+    tags.experience = _docTwoDiscoveryFulfillments?.agent?.tags?.experience;
+    tags.firstConsultation =
+        _docTwoDiscoveryFulfillments?.agent?.tags?.firstConsultation;
+    tags.followUp = _docTwoDiscoveryFulfillments?.agent?.tags?.followUp;
+    tags.hprId = _docTwoDiscoveryFulfillments?.agent?.tags?.hprId;
+    tags.languageSpokenTag =
+        _docTwoDiscoveryFulfillments?.agent?.tags?.languageSpokenTag;
+    tags.medicinesTag = _docTwoDiscoveryFulfillments?.agent?.tags?.medicinesTag;
+    tags.slotId = _docTwoDiscoveryFulfillments?.agent?.tags?.slotId;
+    tags.specialtyTag = _docTwoDiscoveryFulfillments?.agent?.tags?.specialtyTag;
+    tags.upiId = _docTwoDiscoveryFulfillments?.agent?.tags?.upiId;
+    tags.abdmGovInConsumerUrl = RequestUrls.bookingService;
+
+    tags.patientName = getUserDetailsResponseModel.fullName;
+    tags.patientGender = getUserDetailsResponseModel.gender;
+    tags.patientPHRAddress = abhaAddress;
+
+    tags.primaryDoctorGender = _docOneDiscoveryFulfillments?.agent?.gender;
+    tags.primaryDoctorHPRAddress = _docOneDiscoveryFulfillments?.agent?.id;
+    tags.primaryDoctorName = _docOneDiscoveryFulfillments?.agent?.name;
+    tags.primaryDoctorProviderURI = _docOneProviderUri;
+
+    tags.secondaryDoctorGender = _docTwoDiscoveryFulfillments?.agent?.gender;
+    tags.secondaryDoctorHPRAddress = _docTwoDiscoveryFulfillments?.agent?.id;
+    tags.secondaryDoctorName = _docTwoDiscoveryFulfillments?.agent?.name;
+    tags.secondaryDoctorProviderURI = _docTwoProviderUri;
+
     agent.tags = tags;
     fulfillment.agent = agent;
     fulfillment.id = _timeSlotDocTwo?.tags?.abdmGovInSlot;

@@ -116,8 +116,8 @@ class VideoCallState extends State<VideoCall> {
         // consumerUri: 'https://uhieuasandbox.abdm.gov.in/api/v1/bookingService',
         consumerUri: patientUri!,
         // consumerUri: RequestUrls.consumerUri,
-        // chatId: appointmentTransactionId ?? '$patientAbhaId|$doctorHprId',
-        chatId: '$patientAbhaId|$doctorHprId',
+        chatId: appointmentTransactionId ?? '$patientAbhaId|$doctorHprId',
+        // chatId: '$patientAbhaId|$doctorHprId',
     )..connect();
     _videoCallSignalling?.setStream(_localStream!);
 

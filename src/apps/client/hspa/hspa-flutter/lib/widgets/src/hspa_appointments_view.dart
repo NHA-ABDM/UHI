@@ -118,8 +118,8 @@ class HSPAAppointmentsView extends StatelessWidget {
                                         .abhaId;
                                     String? patientName = providerAppointment
                                         .patientName;
-                                    //TODO this needs to be changed as we would required patient gender from API end
                                     String? patientGender = providerAppointment
+                                        .patientGender ?? providerAppointment
                                         .healthcareProfessionalGender;
                                     /*Get.to(
                                       () => ChatPage(
@@ -174,6 +174,7 @@ class HSPAAppointmentsView extends StatelessWidget {
                                         String? patientName = providerAppointment
                                             .patientName;
                                         String? patientGender = providerAppointment
+                                            .patientGender ?? providerAppointment
                                             .healthcareProfessionalGender;
 
                                         /*Get.toNamed(AppRoutes.chatPage, arguments: {

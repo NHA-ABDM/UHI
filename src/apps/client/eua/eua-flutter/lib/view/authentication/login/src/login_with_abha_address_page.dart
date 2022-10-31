@@ -110,15 +110,14 @@ class _LoginWithAbhaAddressPageState extends State<LoginWithAbhaAddressPage> {
   }
 
   callPasswordApi() async {
-    SharedPreferencesHelper.setTransactionId(
-        loginInitController.loginInitResponseModel?.transactionId!);
     loginInitController.refresh();
-    String? transactionId = await SharedPreferencesHelper.getTransactionId();
+
     LoginVerifyRequestModel loginVerifyRequestModel = LoginVerifyRequestModel();
     Encrypted encrypted = await encryptPassword();
     loginVerifyRequestModel.authCode = encrypted.base64;
     loginVerifyRequestModel.requesterId = "phr_001";
-    loginVerifyRequestModel.transactionId = transactionId;
+    loginVerifyRequestModel.transactionId =
+        loginInitController.loginInitResponseModel?.transactionId!;
     await loginInitController.postAbhaAddressAuthConfirm(
         loginDetails: loginVerifyRequestModel);
     hideProgressDialog();

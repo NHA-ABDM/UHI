@@ -118,8 +118,8 @@ class GroupVideoCallState extends State<GroupVideoCall> {
       receiversGender: _primaryDoctorGender!,
       receiversName: _primaryDoctorName!,
       providerUri: _primaryDoctorProviderUri!,
-      chatId: '$_patientAbhaId|$_primaryDoctorHprId',
-      //chatId: transactionId ?? '$_patientAbhaId|$_primaryDoctorHprId',
+      //chatId: '$_patientAbhaId|$_primaryDoctorHprId',
+      chatId: transactionId ?? '$_patientAbhaId|$_primaryDoctorHprId',
     )..connect();
     _primaryDoctorSignalling?.setStream(_localStream!);
 
@@ -195,8 +195,8 @@ class GroupVideoCallState extends State<GroupVideoCall> {
       receiversGender: _secondaryDoctorGender!,
       receiversName: _secondaryDoctorName!,
       providerUri: _secondaryDoctorProviderUri!,
-      chatId: '$_patientAbhaId|$_secondaryDoctorHprId',
-      //chatId: transactionId ?? '$_patientAbhaId|$_secondaryDoctorHprId',
+      //chatId: '$_patientAbhaId|$_secondaryDoctorHprId',
+      chatId: transactionId ?? '$_patientAbhaId|$_secondaryDoctorHprId',
     )..connect();
     _secondaryDoctorSignalling?.setStream(_localStream!);
 

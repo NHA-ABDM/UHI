@@ -451,17 +451,25 @@ public class IntermediateBuilderUtils {
         Optional<Start> valueStart;
         Optional<End> valueEnd;
         Map<String, String> valueTags;
-        Map<String, String> specialityTags;
+        Map<String, String> specialityTags=null;
+        String facilitySearch="";
         if (intent.isPresent()) {
-            try {
-                valueName = request.getMessage().getIntent().getFulfillment().getAgent().getName();
-                valueHPRID = request.getMessage().getIntent().getFulfillment().getAgent().getCred();
+            try {            	
+                
                 valueType = request.getMessage().getIntent().getFulfillment().getType();
                 valueStart = Optional.ofNullable(request.getMessage().getIntent().getFulfillment().getStart());
                 valueEnd = Optional.ofNullable(request.getMessage().getIntent().getFulfillment().getEnd());
                 valueTags = request.getMessage().getIntent().getFulfillment().getTags();
-                specialityTags = request.getMessage().getIntent().getFulfillment().getAgent().getTags();
-
+                if(request.getMessage().getIntent().getFulfillment().getAgent()!=null)
+                {
+                	valueName = request.getMessage().getIntent().getFulfillment().getAgent().getName();
+                    valueHPRID = request.getMessage().getIntent().getFulfillment().getAgent().getCred();
+                	specialityTags = request.getMessage().getIntent().getFulfillment().getAgent().getTags();     
+                }
+                if(request.getMessage().getIntent().getCategory()!=null)
+                {
+                	facilitySearch= request.getMessage().getIntent().getCategory().getDescriptor().getName();
+                }
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_TIME_PATTERN);
                 listOfParams.put(ConstantsUtils.FROM_DATE, "");
                 listOfParams.put(ConstantsUtils.TO_DATE, "");
@@ -508,10 +516,15 @@ public class IntermediateBuilderUtils {
                     }
                 }
                 if(specialityTags != null) {
-                     if (specialityTags.get(ConstantsUtils.ABDM_GOV_IN_SPECIALITY_TAG) != null) {
+                    if (specialityTags.get(ConstantsUtils.ABDM_GOV_IN_SPECIALITY_TAG) != null) {
                         listOfParams.put(ConstantsUtils.SPECIALITY, specialityTags.get(ConstantsUtils.ABDM_GOV_IN_SPECIALITY_TAG));
                     }
                 }
+                if(facilitySearch != null && !(facilitySearch.equalsIgnoreCase("")) ) {
+                	listOfParams.put(ConstantsUtils.SPECIALITY, facilitySearch);
+                   }
+               
+                
 
 
 

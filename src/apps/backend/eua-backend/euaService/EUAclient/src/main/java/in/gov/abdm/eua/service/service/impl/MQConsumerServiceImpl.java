@@ -10,7 +10,6 @@ import in.gov.abdm.eua.service.dto.dhp.MqMessageTO;
 import in.gov.abdm.eua.service.exceptions.PhrException400;
 import in.gov.abdm.eua.service.exceptions.PhrException500;
 import in.gov.abdm.eua.service.service.MQConsumerService;
-import in.gov.abdm.uhi.common.dto.Error;
 import org.bouncycastle.jcajce.spec.EdDSAParameterSpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +47,9 @@ public class MQConsumerServiceImpl implements MQConsumerService {
     @Value("${spring.header.encrypt.subscriberId}")
     private String subscriberId;
 
+    @Value("${spring.header.encrypt.publicKey}")
+    private String publicKey;
+
 
 
     final
@@ -71,7 +73,7 @@ public class MQConsumerServiceImpl implements MQConsumerService {
 
     @PostConstruct
     private void urlDisplay() {
-        LOGGER.info(" POST CONSTRUCT abdmGatewayUrl is "+abdmGatewayUrl);
+        LOGGER.info(" POST CONSTRUCT abdmGatewayUrl is {}",abdmGatewayUrl);
     }
 
     @Override
@@ -80,15 +82,15 @@ public class MQConsumerServiceImpl implements MQConsumerService {
 
         url = getAppropriateUrl(request, bookignServiceUrl);
         url = url.concat("/"+request.getContext().getAction());
-        LOGGER.info("URL in MQCOnsumerService is "+url);
-        LOGGER.info("Context.Action is  "+request.getContext().getAction());
-        LOGGER.info("Message ID is "+ request.getContext().getMessageId());
+        LOGGER.info("URL in MQCOnsumerService is {} ",url);
+        LOGGER.info("Context.Action is {}",request.getContext().getAction());
+        LOGGER.info("Message ID is {}", request.getContext().getMessageId());
 
         HttpHeaders headers = new HttpHeaders();
         if(headersEncrypted != null) {
             String headersString = removeCurlyBracesAndHeaderEqualsSigns(headersEncrypted);
             headers.add("Authorization", headersString);
-            LOGGER.info("Headers are ->>>>>>>>"+ headersString);
+            LOGGER.info("Headers are ->>>>>>>> {}", headersString);
         }
 
         Consumer<HttpHeaders> consumer = it -> it.addAll(headers);
@@ -104,14 +106,14 @@ public class MQConsumerServiceImpl implements MQConsumerService {
                 .onStatus(HttpStatus::is5xxServerError,
                         response -> response.bodyToMono(String.class).flatMap(error -> Mono.error(new PhrException500(error))))
                 .bodyToMono(AckResponseDTO.class)
-                .onErrorResume(errorFromGateway -> getErrorSchemaReady(errorFromGateway,errorFromGateway.getMessage()));
+                .onErrorResume(this::getErrorSchemaReady);
 
         String finalUrl = url;
 
         ackResponseMono.doOnNext(res -> {
-            LOGGER.info("Inside subscribe :: URL is :: "+ finalUrl);
-            LOGGER.info("Response from webclient call is ====> "+res);
-            sendAckOrNack_ToWebClient(request.getContext().getMessageId(), res);
+            LOGGER.info("Inside subscribe :: URL is :: {}", finalUrl);
+            LOGGER.info("Response from webclient call is ====> {}",res);
+            sendAckOrNackToWebClient(request.getContext().getMessageId(), res);
         });
 
         return ackResponseMono;
@@ -119,8 +121,8 @@ public class MQConsumerServiceImpl implements MQConsumerService {
 
     private String removeCurlyBracesAndHeaderEqualsSigns(Map<String, String> headersEncrypted) {
         String headersString = String.valueOf(headersEncrypted);
-        headersString = headersString.replaceAll("\\}","");
-        headersString = headersString.replaceAll("\\{", "");
+        headersString = headersString.replace("\\}","");
+        headersString = headersString.replace("\\{", "");
         return headersString;
     }
 
@@ -130,15 +132,15 @@ public class MQConsumerServiceImpl implements MQConsumerService {
         boolean isBookingServiceUrlPresent = null != bookignServiceUrl;
 
         if(isProviderNotNull) {
-            LOGGER.info("providerUrl :: "+ request.getContext().getProviderUri());
+            LOGGER.info("providerUrl :: {}", request.getContext().getProviderUri());
             url = request.getContext().getProviderUri();
         }else {
-            LOGGER.info("GatewayUrl :: "+ abdmGatewayUrl);
+            LOGGER.info("GatewayUrl :: {}", abdmGatewayUrl);
             url = abdmGatewayUrl;
         }
 
         if(isBookingServiceUrlPresent) {
-            LOGGER.info("BookingServiceUrl :: "+ bookignServiceUrl);
+            LOGGER.info("BookingServiceUrl :: {}", bookignServiceUrl);
                 url = bookignServiceUrl;
         }
         return url;
@@ -146,19 +148,19 @@ public class MQConsumerServiceImpl implements MQConsumerService {
 
     @Override
     public void prepareAndSendNackResponse(String nack, String messageId) {
-        LOGGER.info("Exception occurred. Message ID is "+ messageId+" Sending NACK response");
+        LOGGER.info("Exception occurred. Message ID is {}{}", messageId," Sending NACK response");
 
-        Mono<AckResponseDTO> error = getErrorSchemaReady(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR), nack);
-        error.subscribe(err -> {
-            sendAckOrNack_ToWebClient(messageId,err);
-        });
+        Mono<AckResponseDTO> error = getErrorSchemaReady(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
+        if(error != null) {
+            error.subscribe(err -> sendAckOrNackToWebClient(messageId, err));
+        }
     }
 
 
     @Override
     @RabbitListener(queues = ConstantsUtils.QUEUE_EUA_TO_GATEWAY)
     public void euaToGatewayConsumer(MqMessageTO request) throws IOException {
-        LOGGER.info("Message read from MQ EUA_TO_GATEWAY::" + request.getResponse());
+        LOGGER.info("Message read from MQ EUA_TO_GATEWAY::{}" , request.getResponse());
 
         EuaRequestBody requestClass = objectMapper.readValue(request.getResponse(), EuaRequestBody.class);
         PrivateKey privateKey = cryptService.getPrivateKey(EdDSAParameterSpec.Ed25519, headerPrivateKey);
@@ -166,19 +168,17 @@ public class MQConsumerServiceImpl implements MQConsumerService {
 
         verifyParams(request, headersEncrypted);
 
-
         if(ConstantsUtils.ON_INIT_ENDPOINT.equals(requestClass.getContext().getAction()) && ConstantsUtils.ON_CONFIRM_ENDPOINT.equals(requestClass.getContext().getAction())) {
             getAckResponseEntity(requestClass, ConstantsUtils.BOOKING_SERVICE_URL, headersEncrypted).subscribe();
-
         }
         else{
             getAckResponseEntity(requestClass, null, headersEncrypted).subscribe();
         }
     }
 
-    private void verifyParams(MqMessageTO request, Map<String, String> headersEncrypted) throws JsonProcessingException {
-        String publicKey = "MCowBQYDK2VwAyEAQCWv0rw/WPtm3xLcXChk0/Px8yNK9l2AcyoQWXbHsD8=";
-
+    private void verifyParams(MqMessageTO request, Map<String, String> headersEncrypted)  {
+//        String publicKeyLocal = "MCowBQYDK2VwAyEAK42D8Zn1mHJOXes8XhO3kPDvn0a9ld1Zrc1xyKxgdUE=";
+        String publicKeyLocal = "MCowBQYDK2VwAyEAQCWv0rw/WPtm3xLcXChk0/Px8yNK9l2AcyoQWXbHsD8=";
 
         String payload = request.getResponse();
         long created = Long.parseLong(headersEncrypted.get("created"));
@@ -186,21 +186,21 @@ public class MQConsumerServiceImpl implements MQConsumerService {
         String hashedSigningString = cryptService.generateBlakeHash(cryptService.getSigningString(created, expires, payload));
 
         String signature = headersEncrypted.get("signature");
-        LOGGER.info("Verfication result|" + cryptService.verifySignature1(signature, hashedSigningString, publicKey));
+        LOGGER.info("Verfication result|{}", cryptService.verifySignature1(signature, hashedSigningString, publicKeyLocal));
     }
 
     @Override
     @RabbitListener(queues = ConstantsUtils.QUEUE_GATEWAY_TO_EUA)
     public void gatewayToEuaConsumer(MqMessageTO response) throws JsonProcessingException {
-        LOGGER.info("Message read from MQ GATEWAY_TO_EUA::" + response);
+        LOGGER.info("Message read from MQ GATEWAY_TO_EUA::{}", response);
 
         EuaRequestBody responseClass = objectMapper.readValue(response.getResponse(), EuaRequestBody.class);
 
         messagingTemplate.convertAndSendToUser(responseClass.getContext().getMessageId(),"/queue/specific-user", response);
     }
 
-    private Mono<AckResponseDTO> getErrorSchemaReady(Throwable error, String errorMessage)  {
-        LOGGER.error("MQConsumerService::error::onErrorResume::" + error.getMessage());
+    private Mono<AckResponseDTO> getErrorSchemaReady(Throwable error)  {
+        LOGGER.error("MQConsumerService::error::onErrorResume::{}", error.getMessage());
 
         AckResponseDTO ackResponseErr = null;
         try {
@@ -227,9 +227,8 @@ public class MQConsumerServiceImpl implements MQConsumerService {
     }
 
 
-    private void sendAckOrNack_ToWebClient(String messageId, AckResponseDTO err) {
-    	LOGGER.info("sendAckOrNack_ToWebClient "+messageId+"     "+err);
+    private void sendAckOrNackToWebClient(String messageId, AckResponseDTO err) {
+    	LOGGER.info("sendAckOrNackToWebClient {} error {}",messageId,err);
         messagingTemplate.convertAndSendToUser(messageId, ConstantsUtils.QUEUE_SPECIFIC_USER, err);
     }
-
 }

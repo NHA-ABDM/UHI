@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -27,8 +28,6 @@ public class CancelService implements IService {
     private static final String API_RESOURCE_APPOINTMENT_TIMESLOT = "appointmentscheduling/timeslot";
     private static final String API_RESOURCE_APPOINTMENT_TYPE = "appointmentscheduling/appointmenttype?v=custom:uuid,name&q=";
     private static final Logger LOGGER = LogManager.getLogger(CancelService.class);
-    @Value("${spring.abdm_eua_url}")
-    String EUA_URL;    
     @Value("${spring.openmrs_baselink}")
     String OPENMRS_BASE_LINK;
     @Value("${spring.openmrs_api}")
@@ -120,15 +119,15 @@ public class CancelService implements IService {
     	Request objRequest = new Request();
         Response ack = generateAck();
 
-        LOGGER.info("Processing::Cancel::Request:: {}" , request);
         try {
             objRequest = new ObjectMapper().readValue(request, Request.class);
+            LOGGER.info("Processing::Cancel::Request:: {}, Message Id is {}" , request, getMessageId(objRequest));
+
             Request finalObjRequest = objRequest;
-            logMessageId(objRequest);
             run(finalObjRequest, request);
 
         } catch (Exception ex) {
-            LOGGER.error("Cancel Service process::error::onErrorResume:: {}", ex, ex);
+            LOGGER.error("Cancel Service process::error::onErrorResume:: {}, Message Id is {}", ex, getMessageId(objRequest));
             ack = generateNack(ex);
 
         }
@@ -155,8 +154,8 @@ public class CancelService implements IService {
         	 }
         	 else
         	 {
-        		 LOGGER.info("Order Not found in db {}", request);
-        		 return   generateNackString();
+        		 LOGGER.info("Order Not found in db {}, .. Message Id is {}", request, getMessageId(request));
+        		 return generateNackString();
         	 }
         	 
          }
@@ -170,7 +169,8 @@ public class CancelService implements IService {
         	getAppointmentDetails(appointmentID)     	
                     .flatMap(result->cancelAppointment(result,finalappointmentId))
                     .flatMap(result->callOnCancel(result,request))
-                    .flatMap(result->purgeAppointment(finalappointmentId,request))
+                    .flatMap(result->cancelSecondOrder(request, result))
+                    .flatMap(reulut->purgeAppointment(finalappointmentId,request))
                     .subscribe();
     
         return response;
@@ -208,8 +208,9 @@ public class CancelService implements IService {
     
     
     
-    private Mono<String> callOnCancel(String result, Request request) {
-
+    private Mono<OrdersModel> callOnCancel(String result, Request request)  {
+    	Mono<String> oncancel=null;
+    	OrdersModel order=null;
     	if(result.contains("uuid"))
     	{
         request.getContext().setAction("on_cancel");         
@@ -220,66 +221,125 @@ public class CancelService implements IService {
             Map<String, String> fulfillmentTagsMap=request.getMessage().getOrder().getFulfillment().getTags();               
             String key = fulfillmentTagsMap.get("@abdm/gov.in/cancelledby");
             List<OrdersModel> orders=null;
-            if(key.equalsIgnoreCase(ConstantsUtils.PATIENT))
-            {           
-                 orders= paymentService.getOrderDetailsByOrderId(orderId);    
-            }
-            else if(key.contains("doctor"))
-            {
-            	orders= paymentService.getOrderDetailsByAppointmentId(orderId); 
-            }
+            orders = getOrdersBasedOnPersonCancelling(orderId, key, orders);
    		request.getContext().setProviderUri(PROVIDER_URI);
-   		request.getContext().setConsumerUri(EUA_URL);
-   			 if(!(orders != null && orders.isEmpty()))
-                {
-                	OrdersModel order= orders != null ? orders.get(0) : null;                                  
-                     order.setIsServiceFulfilled("CANCELLED");
-                     paymentService.saveOrderInDB(order);                   
-                     request.getMessage().getOrder().setId(order.getOrderId());
-                     if(key.equalsIgnoreCase(ConstantsUtils.PATIENT))
-                     {   
-                    	 WebClient on_webclient = WebClient.create();
-                    	 on_webclient.post().uri(NOTIFICATION_SERVICE_BASE_URL+"/sendCancelNotification")
-                    	 .body(BodyInserters.fromValue(order))
-                    	 .retrieve()
-                    	 .onStatus(HttpStatus::is4xxClientError,
-      		            response -> response.bodyToMono(String.class).map(Exception::new))
-                    	 .onStatus(HttpStatus::is5xxServerError,
-      		            response -> response.bodyToMono(String.class).map(Exception::new))
-                    	 .toEntity(String.class)
-                    	 .doOnError(throwable -> {
-                    		 LOGGER.error("Error sending notification--- {}" ,throwable.getMessage());
-                    	 }).subscribe(res ->LOGGER.info("Sent notification--- {}" ,res.getBody()));
-                     }
-	
-                }
-   			 
-                     
-
-        WebClient on_webclient = WebClient.create();
-
-        return on_webclient.post()
-                .uri(EUA_URL + "/on_cancel")
-                .body(BodyInserters.fromValue(request))
-                .retrieve()
-                .bodyToMono(String.class)
-                .retry(3)
-                .onErrorResume(error -> {
-                    LOGGER.error("Cancel Service call on cancel:: {}", error, error);
-                    return Mono.empty(); //TODO:Add appropriate response
-                });
+   			 order = callNotificatonService(request, order, key, orders);
+        oncancel = callOnCancelWebClient(request);       
+        return Mono.just(order);       
+        
     }
     else
     	{
-    		 LOGGER.error("Error while cancelling appointment " );
-    	}
-    	
-    	 return Mono.just("callOnCancel error");
+    		 LOGGER.error("Error while cancelling appointment \n Message Id is {}", getMessageId(request) );
+    		 return Mono.just(null);
+    	}   	
     }
 
-    private void logMessageId(Request objRequest) {
+
+	private Mono<String> cancelSecondOrder(Request request, OrdersModel order) {
+		  Map<String, String> fulfillmentTagsMap=request.getMessage().getOrder().getFulfillment().getTags();     
+		 String key = fulfillmentTagsMap.get("@abdm/gov.in/cancelledby");
+		 boolean isDoctor = key.contains("doctor");
+		if(isDoctor)
+        {
+        
+        List<OrdersModel> od=paymentService.getOrderDetailsByTransactionId(order.getTransId());
+  	   String ordId=order.getOrderId();
+			List<OrdersModel> otherDrOrder = od
+					  .stream()
+					  .filter(c -> !(c.getOrderId().equalsIgnoreCase(ordId)) && c.getIsServiceFulfilled().equalsIgnoreCase(ConstantsUtils.CONFIRMED))
+					  .toList();
+			if(!otherDrOrder.isEmpty())
+			{
+				
+				OrdersModel grporder1=otherDrOrder.get(0);	
+				
+				request.getMessage().getOrder().setId(grporder1.getOrderId());
+				request.getMessage().getOrder().setState(ConstantsUtils.CANCELLED);
+				request.getMessage().getOrder().getFulfillment().getTags().put("@abdm/gov.in/cancelledby",ConstantsUtils.PATIENT);
+				request.getContext().setAction(ConstantsUtils.CANCEL);
+				ObjectMapper objectMapper = new ObjectMapper();					
+				try {
+					processor(objectMapper.writeValueAsString(request));
+				} catch (JsonProcessingException e) {
+				
+					 LOGGER.error(e.getMessage());
+				}
+					
+			
+			}
+        }
+		return Mono.empty();
+	}
+
+
+	private Mono<String> callOnCancelWebClient(Request request) {
+		Mono<String> oncancel;
+		
+       
+        oncancel= webClient.post()
+                .uri(request.getContext().getConsumerUri() + "/on_cancel")
+                .body(BodyInserters.fromValue(request))
+                .retrieve()
+                .bodyToMono(String.class)   
+				.retry(3)
+                .onErrorResume(error -> {
+                    LOGGER.error("Cancel Service call on cancel:: {} \n Message Id is {}", error, getMessageId(request));
+                    return Mono.empty(); //TODO:Add appropriate response
+                })				
+                ;
+        oncancel.subscribe(e-> LOGGER.info("%%%%%%%%%%%%%%%"+e));
+        
+		return oncancel;
+	}
+
+
+	private OrdersModel callNotificatonService(Request request, OrdersModel order, String key,
+			List<OrdersModel> orders) {
+		if(!(orders.isEmpty()))
+		    {
+		    	 order= orders != null ? orders.get(0) : null;
+		        if (order != null) {
+		            order.setIsServiceFulfilled("CANCELLED");
+
+		            paymentService.saveOrderInDB(order);
+		            request.getMessage().getOrder().setId(order.getOrderId());
+		            if (key.equalsIgnoreCase(ConstantsUtils.PATIENT)) {
+		                WebClient on_webclient = WebClient.create();
+		                on_webclient.post().uri(NOTIFICATION_SERVICE_BASE_URL + "/sendCancelNotification")
+		                        .body(BodyInserters.fromValue(order))
+		                        .retrieve()
+		                        .onStatus(HttpStatus::is4xxClientError,
+		                                response -> response.bodyToMono(String.class).map(Exception::new))
+		                        .onStatus(HttpStatus::is5xxServerError,
+		                                response -> response.bodyToMono(String.class).map(Exception::new))
+		                        .toEntity(String.class)
+		                        .doOnError(throwable -> LOGGER.error("Error sending notification--- {} .. Message Id is {}", throwable.getMessage(), getMessageId(request))).subscribe(res -> LOGGER.info("Sent notification--- {} .. Message Id is {}", getMessageId(request), res.getBody()));
+		            }
+		        }
+		        else {
+		            LOGGER.error("CancelService :: callOnCancel :: error .. Orders are null.. Message Id is {}", getMessageId(request));
+		        }
+		    }
+		return order;
+	}
+
+
+	private List<OrdersModel> getOrdersBasedOnPersonCancelling(String orderId, String key, List<OrdersModel> orders) {
+		if(key.equalsIgnoreCase(ConstantsUtils.PATIENT))
+		{           
+		     orders= paymentService.getOrderDetailsByOrderId(orderId);    
+		}
+		else if(key.contains("doctor"))
+		{
+			orders= paymentService.getOrderDetailsByAppointmentId(orderId); 
+		}
+		return orders;
+	}
+
+    private String getMessageId(Request objRequest) {
         String messageId = objRequest.getContext().getMessageId();
-        LOGGER.info(ConstantsUtils.REQUESTER_MESSAGE_ID_IS, messageId);
+        return messageId == null ? " " : messageId;
     }
     
     private Mono<String> purgeAppointment(String appointmentId,Request request) {
@@ -301,10 +361,9 @@ public class CancelService implements IService {
         return Mono.just("error");
     }
 
-    public Mono<String> logResponse(String result) {
 
-        LOGGER.info("OnCancel::Log::Response:: {}", result);
-
+    public Mono<String> logResponse(String result, Request request) {
+        LOGGER.info("OnCancel::Log::Response:: {}, \n Message Id is ", result, getMessageId(request));
         return Mono.just(result);
     }
 

@@ -10,6 +10,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
@@ -35,14 +36,9 @@ public class HSPApplication {
 
        SpringApplication.run(HSPApplication.class, args);
        ApplicationContext context = new AnnotationConfigApplicationContext(EhCacheConfiguration.class);
-      //  ((ConfigurableApplicationContext)context).close();
+        ((ConfigurableApplicationContext)context).close();
     }
 
-    @Bean
-    public ObjectMapper mapper() {
-        return new ObjectMapper();
-
-    }
 
     @Bean
     public WebClient getWebClient() throws SSLException {

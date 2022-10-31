@@ -32,6 +32,22 @@
 			<artifactId>spring-cloud-starter-circuitbreaker-reactor-resilience4j</artifactId>
 			<version>2.1.2</version>
 		</dependency>
+		<!--	Parameter names	-->
+		<dependency>
+			<groupId>com.fasterxml.jackson.module</groupId>
+			<artifactId>jackson-module-parameter-names</artifactId>
+		</dependency>
+
+		<!--	Java 8 Datatypes	-->
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jdk8</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>io.github.resilience4j</groupId>
 			<artifactId>resilience4j-micrometer</artifactId>
@@ -135,7 +151,6 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>
 			<artifactId>jackson-datatype-jsr310</artifactId>
-			<version>2.13.3</version>
 		</dependency>
 		<dependency>
 			<groupId>io.springfox</groupId>

@@ -78,6 +78,7 @@ dependencies:
   flutter_launcher_icons: ^0.10.0
   wakelock: ^0.6.2
   collection: ^1.15.0
+  flutter_pdfview: ^1.2.1
 
 dev_dependencies:
   flutter_test:

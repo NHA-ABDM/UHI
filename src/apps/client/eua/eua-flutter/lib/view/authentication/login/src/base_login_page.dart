@@ -176,16 +176,16 @@ class _BaseLoginPageState extends State<BaseLoginPage> {
     await loginInitController.postInitAuth(loginDetails: initRequestModel);
     hideProgressDialog();
     loginInitController.loginInitResponseModel != null
-        ? navigateToOtpVerificationPage()
+        ? navigateToOtpVerificationPage(
+            loginInitController.loginInitResponseModel!.transactionId)
         : null;
   }
 
-  navigateToOtpVerificationPage() {
-    SharedPreferencesHelper.setTransactionId(
-        loginInitController.loginInitResponseModel?.transactionId!);
+  navigateToOtpVerificationPage(String? transactionId) {
     Get.to(OTPVerificationPage(
       mobileNumber: mobileNumberTextEditingController.text,
       isFromMobile: true,
+      transactionId: transactionId,
     ));
   }
 

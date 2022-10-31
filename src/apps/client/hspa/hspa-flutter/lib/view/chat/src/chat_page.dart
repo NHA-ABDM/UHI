@@ -7,13 +7,14 @@ import 'package:cryptography/cryptography.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hspa_app/constants/src/app_constants.dart';
 import 'package:hspa_app/constants/src/get_pages.dart';
 import 'package:hspa_app/settings/src/preferences.dart';
 import 'package:hspa_app/utils/src/utility.dart';
+import 'package:hspa_app/widgets/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:mime/mime.dart';
-import 'package:open_file/open_file.dart';
 import 'package:stomp_dart_client/stomp.dart';
 import 'package:stomp_dart_client/stomp_config.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
@@ -28,12 +29,12 @@ import '../../../controller/src/get_shared_key_controller.dart';
 import '../../../controller/src/post_chat_message_controller.dart';
 import '../../../model/response/src/get_shared_key_response_model.dart';
 import '../../../model/src/chat_message_dhp_model.dart';
-import '../../../model/src/chat_message_encryption_model.dart';
 import '../../../model/src/chat_message_model.dart';
 import '../../../model/src/context_model.dart';
 import '../../../model/src/doctor_profile.dart';
 import '../../../theme/src/app_colors.dart';
 import '../../../theme/src/app_text_style.dart';
+import '../../../widgets/src/new_confirmation_dialog.dart';
 import '../../../widgets/src/vertical_spacing.dart';
 
 class ChatPage extends StatefulWidget {
@@ -89,6 +90,7 @@ class ChatPageState extends State<ChatPage> {
   final algorithm = AesCtr.with256bits(macAlgorithm: Hmac.sha256());
 
   ///FILE SHARING
+  String? _filePath;
   String? _fileName;
   String? base64EncodeFile;
 
@@ -266,8 +268,8 @@ class ChatPageState extends State<ChatPage> {
 
   connectToStomp() async {
     // _uniqueId = const Uuid().v1();
-    _chatId = "$patientAbhaId|$doctorHprId";
-      // _chatId = appointmentTransactionId ?? "$patientAbhaId|$doctorHprId";
+    // _chatId = "$patientAbhaId|$doctorHprId";
+      _chatId = appointmentTransactionId ?? "$patientAbhaId|$doctorHprId";
 
     debugPrint('chat key is $_chatId');
 
@@ -372,6 +374,7 @@ class ChatPageState extends State<ChatPage> {
         chatMessage.contentUrl = chatMessageModel
             .message?.intent?.chat?.content?.contentUrl;
       }
+      chatMessage.fileName = chatMessageModel.message?.intent?.chat?.content?.contentFilePath;
     }
     return chatMessage;
   }
@@ -394,8 +397,8 @@ class ChatPageState extends State<ChatPage> {
     contextModel.consumerUri = RequestUrls.consumerUri;
     //contextModel.providerUrl = _providerUri;
     contextModel.timestamp = DateTime.now().toLocal().toUtc().toIso8601String();
-    contextModel.transactionId = _uniqueId;
-    // contextModel.transactionId = appointmentTransactionId;
+    // contextModel.transactionId = _uniqueId;
+    contextModel.transactionId = appointmentTransactionId;
 
     ChatMessage chatMessage = ChatMessage();
     ChatIntent chatIntent = ChatIntent();
@@ -415,6 +418,7 @@ class ChatPageState extends State<ChatPage> {
       content.contentValue = base64EncodeFile;
       content.contentType = 'media';
       content.contentFilename = _fileName ?? 'img';
+      content.contentFilePath = _filePath ?? 'img';
     } else {
       String? encryptedMessage = await Utility.encryptMessage(
           message: _chatMsgTextEditingController.text.isNotEmpty
@@ -494,6 +498,7 @@ class ChatPageState extends State<ChatPage> {
         _chatMsgTextEditingController.clear();
         isLoading = false;
 
+        _filePath = null;
         _fileName = null;
         base64EncodeFile = null;
       });
@@ -503,6 +508,7 @@ class ChatPageState extends State<ChatPage> {
         "NACK") {
       setState(() {
         isLoading = false;
+        _filePath = null;
         _fileName = null;
         base64EncodeFile = null;
       });
@@ -510,6 +516,7 @@ class ChatPageState extends State<ChatPage> {
     } else if (_postChatMessageController.errorString.isNotEmpty) {
       setState(() {
         isLoading = false;
+        _filePath = null;
         _fileName = null;
         base64EncodeFile = null;
       });
@@ -517,6 +524,7 @@ class ChatPageState extends State<ChatPage> {
     } else {
       setState(() {
         isLoading = false;
+        _filePath = null;
         _fileName = null;
         base64EncodeFile = null;
       });
@@ -660,9 +668,10 @@ class ChatPageState extends State<ChatPage> {
                       text: _messagesList[index].contentValue ?? "");*/
                   return InkWell(
                     onTap: () {
-                      if(_messagesList[index].contentType != null && _messagesList[index].contentType == 'media') {
+                      handleCardOnTap(_messagesList[index]);
+                      /*if(_messagesList[index].contentType != null && _messagesList[index].contentType == 'media') {
                         Get.toNamed(AppRoutes.showSelectedMediaPage, arguments: {'media' : _messagesList[index].contentUrl, 'isUpload' : false});
-                      }
+                      }*/
                     },
                     child: buildSenderMessageNew(
                         chatMessageModel: _messagesList[index]),
@@ -672,9 +681,10 @@ class ChatPageState extends State<ChatPage> {
                       text: _messagesList[index].contentValue ?? "");*/
                   return InkWell(
                     onTap: () {
-                      if(_messagesList[index].contentType != null && _messagesList[index].contentType == 'media') {
+                      handleCardOnTap(_messagesList[index]);
+                      /*if(_messagesList[index].contentType != null && _messagesList[index].contentType == 'media') {
                         Get.toNamed(AppRoutes.showSelectedMediaPage, arguments: {'media' : _messagesList[index].contentUrl, 'isUpload' : false});
-                      }
+                      }*/
                     },
                     child: buildReceiverMessageNew(
                         chatMessageModel: _messagesList[index]),
@@ -739,7 +749,13 @@ class ChatPageState extends State<ChatPage> {
                 chatMessageModel.contentValue ?? '',
                 style: AppTextStyle.textSemiBoldStyle(color: AppColors.senderTextColor, fontSize: 14),
               ): chatMessageModel.contentType == 'media'
-                  ? buildMediaWidget(mediaUrl: (chatMessageModel.contentValue == null || chatMessageModel.contentValue!.isEmpty) ? chatMessageModel.contentUrl : chatMessageModel.contentValue)
+                  ? buildMediaWidget(
+                  mediaUrl: (chatMessageModel.contentValue == null
+                      || chatMessageModel.contentValue!.isEmpty)
+                      ? chatMessageModel.contentUrl
+                      : chatMessageModel.contentValue,
+                fileName: chatMessageModel.fileName
+              )
                   : Container(),
               VerticalSpacing(size: 2,),
               Text(
@@ -812,7 +828,8 @@ class ChatPageState extends State<ChatPage> {
                             mediaUrl: (chatMessageModel.contentValue == null ||
                                     chatMessageModel.contentValue!.isEmpty)
                                 ? chatMessageModel.contentUrl
-                                : chatMessageModel.contentValue)
+                                : chatMessageModel.contentValue, isSender: false,
+                    fileName: chatMessageModel.fileName)
                         : Container(),
                 VerticalSpacing(size: 2,),
                 Text(
@@ -830,18 +847,27 @@ class ChatPageState extends State<ChatPage> {
     );
   }
 
-  buildMediaWidget({required String? mediaUrl}) {
+  buildMediaWidget({required String? mediaUrl, required String? fileName, bool isSender = true}) {
+    debugPrint('Media url is $mediaUrl');
+    bool isImage = Utility.getIsImage(mediaUrl: mediaUrl);
+
     Uint8List? base64DecodedFile;
     if (mediaUrl != null && !mediaUrl.contains("http")) {
       base64DecodedFile = base64Decode(mediaUrl);
+      if(fileName != null) {
+        isImage = Utility.getIsImage(mediaUrl: fileName);
+      }
     }
-    return Container(
+
+    return isImage ?
+    Container(
       constraints: BoxConstraints(
           minHeight: 150,
           maxHeight: 250,
           minWidth: width * 0.12,
           maxWidth: width * 0.7),
-      child: base64DecodedFile == null
+      child:
+      base64DecodedFile == null
           ? Image.network(
               mediaUrl!,
               errorBuilder: (context, obj, stackTrace) {
@@ -849,7 +875,39 @@ class ChatPageState extends State<ChatPage> {
               },
             )
           : Image.memory(base64DecodedFile),
-    );
+    ) : showFileWidget(mediaUrl: mediaUrl, isSender: isSender, fileName: fileName);
+  }
+
+  showFileWidget({required String? mediaUrl, required bool isSender, required String? fileName}){
+    late String mediaFileName;
+    if(mediaUrl != null && mediaUrl.isNotEmpty) {
+      mediaFileName = mediaUrl
+          .split('/')
+          .last;
+    }
+    if(fileName != null && fileName.isNotEmpty) {
+      mediaFileName = fileName.split('/').last;
+    }
+      return Row(
+        children: [
+          Icon(Icons.picture_as_pdf, color: isSender ? AppColors.senderTextColor : AppColors.white,),
+          Spacing(),
+          Expanded(child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                mediaFileName,
+                style: AppTextStyle.textSemiBoldStyle(
+                    color: isSender ? AppColors.senderTextColor : AppColors.white, fontSize: 14),
+              )
+            ],
+          )),
+          Spacing(),
+        ],
+      );
+
+    return Container();
   }
 
   generateBottomWidget() {
@@ -1032,10 +1090,11 @@ class ChatPageState extends State<ChatPage> {
                         ),
                       ),
                     ),
-                    /*Expanded(
+                    Expanded(
                       child: GestureDetector(
                         onTap: () {
                           Navigator.of(context).pop();
+                          // DialogHelper.showComingSoonView();
                           _handleFileSelection();
                         },
                         child: Column(
@@ -1051,7 +1110,7 @@ class ChatPageState extends State<ChatPage> {
                           ],
                         ),
                       ),
-                    ),*/
+                    ),
                   ],
                 ),
               );
@@ -1099,57 +1158,141 @@ class ChatPageState extends State<ChatPage> {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf'],
-      allowMultiple: false
+      allowMultiple: false,
+      withData: true,
+      withReadStream: true
     );
 
     if (result != null && result.files.single.path != null) {
-      ///TODO handle send file logic
-      /*final message = types.FileMessage(
-        author: _user,
-        createdAt: DateTime.now().millisecondsSinceEpoch,
-        id: const Uuid().v4(),
-        mimeType: lookupMimeType(result.files.single.path!),
-        name: result.files.single.name,
-        size: result.files.single.size,
-        uri: result.files.single.path!,
-      );
 
-      _addMessage(message);*/
+      debugPrint('Selected pdf file details are -->');
+      debugPrint('Files are --> ${result.files}');
+      debugPrint('Mime type --> ${lookupMimeType(result.files.single.name)}');
+      debugPrint('File Name --> ${result.files.single.name}');
+      debugPrint('Size is --> ${Utility.getFileSize(fileSizeInBytes:result.files.single.size).toStringAsFixed(2)} MB');
+      debugPrint('uri --> ${result.files.single.path!}');
+      debugPrint('Bytes are --> ${result.files.single.bytes}');
+      debugPrint('File is --> ${result.files.single}');
+
+      double fileSizeInMb = Utility.getFileSize(fileSizeInBytes:result.files.single.size);
+      if(fileSizeInMb <= AppConstants.fileSize) {
+        showConfirmFileShareDialog(result);
+        /*base64EncodeFile = base64Encode(result.files.single.bytes!);
+        _filePath = result.files.single.path;
+        _fileName = result.files.single.name;
+        debugPrint('base64EncodeFile is --> $base64EncodeFile');
+        debugPrint('_fileName is --> $_fileName');
+
+        setState(() {
+          isLoading = true;
+        });
+        postMessageAPI();*/
+      } else {
+        Get.snackbar(
+            AppStrings().alert, AppStrings().errorFileSize(fileSize: AppConstants.fileSize.toStringAsFixed(2)),
+            // backgroundColor: AppColors.tileColors,
+            // colorText: AppColors.white
+        );
+      }
     }
+  }
+
+  void showConfirmFileShareDialog(FilePickerResult result) {
+    NewConfirmationDialog(
+        context: context,
+        title: AppStrings().alert,
+        titleTextStyle:
+        AppTextStyle.textBoldStyle(color: AppColors.black, fontSize: 18),
+        showSubtitle: false,
+        description: AppStrings().alertSendFile(fileName: result.files.single.name),
+        submitButtonText: AppStrings().btnSend,
+        onCancelTap: () {
+          Navigator.pop(context);
+        },
+        onSubmitTap: () {
+          Navigator.of(context).pop();
+          base64EncodeFile = base64Encode(result.files.single.bytes!);
+          _filePath = result.files.single.path;
+          _fileName = result.files.single.name;
+          debugPrint('base64EncodeFile is --> $base64EncodeFile');
+          debugPrint('_fileName is --> $_fileName');
+
+          setState(() {
+            isLoading = true;
+          });
+          postMessageAPI();
+        }).showAlertDialog();
   }
 
   void _handleImageSelection({required ImageSource source}) async {
     final result = await ImagePicker().pickImage(
-      imageQuality: 70,
-      maxWidth: 1440,
+      /*imageQuality: 70,
+      maxWidth: 1440,*/
       source: source,
     );
 
     if (result != null) {
       final bytes = await result.readAsBytes();
       final image = await decodeImageFromList(bytes);
-      base64EncodeFile = base64Encode(bytes);
-      _fileName = result.name;
-      bool isUpload = await Get.toNamed(AppRoutes.showSelectedMediaPage, arguments: {'media' : base64EncodeFile, 'isUpload' : true});
-      if(isUpload) {
-        if (_chatMsgTextEditingController.text.trim().isNotEmpty
-            || (base64EncodeFile != null && _fileName != null && _fileName!.isNotEmpty)) {
-          setState(() {
-            isLoading = true;
-          });
-          postMessageAPI();
+
+      double fileSizeInMb = Utility.getFileSize(fileSizeInBytes: await result.length());
+      debugPrint('Image size is $fileSizeInMb');
+      if(fileSizeInMb <= AppConstants.imageSize) {
+        base64EncodeFile = base64Encode(bytes);
+        _filePath = result.path;
+        _fileName = result.name;
+        bool isUpload = await Get.toNamed(AppRoutes.showSelectedMediaPage,
+            arguments: {'media': base64EncodeFile, 'isUpload': true});
+        if (isUpload) {
+          if (_chatMsgTextEditingController.text
+              .trim()
+              .isNotEmpty
+              || (base64EncodeFile != null && _fileName != null &&
+                  _fileName!.isNotEmpty)) {
+            setState(() {
+              isLoading = true;
+            });
+            postMessageAPI();
+          } else {}
         } else {
+          setState(() {
+            base64EncodeFile = null;
+            _filePath = null;
+            _fileName = null;
+          });
         }
       } else {
-        setState(() {
-          base64EncodeFile = null;
-          _fileName = null;
-        });
+        Get.snackbar(
+          AppStrings().alert, AppStrings().errorFileSize(fileSize: AppConstants.imageSize.toStringAsFixed(2)),
+          // backgroundColor: AppColors.tileColors,
+          // colorText: AppColors.white
+        );
       }
       // await OpenFile.open(result.path);
 
     } else {
       Get.snackbar(AppStrings().alert, AppStrings().errorUnableSelectMedia);
+    }
+  }
+
+  handleCardOnTap(ChatMessageModel chatMessageModel) async{
+    if(chatMessageModel.contentType != null && chatMessageModel.contentType == 'media') {
+      String? mediaUrl = chatMessageModel.fileName ?? ((chatMessageModel.contentValue == null ||
+          chatMessageModel.contentValue!.isEmpty)
+          ? chatMessageModel.contentUrl
+          : chatMessageModel.contentValue);
+      bool isImage = Utility.getIsImage(
+          mediaUrl: mediaUrl);
+      if(isImage) {
+        Get.toNamed(AppRoutes.showSelectedMediaPage, arguments: {
+          'media': chatMessageModel.contentUrl,
+          'isUpload': false
+        });
+      } else {
+        Get.toNamed(AppRoutes.pdfViewPage, arguments: {
+          'mediaUrl': mediaUrl
+        });
+      }
     }
   }
 }

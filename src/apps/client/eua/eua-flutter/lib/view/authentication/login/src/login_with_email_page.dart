@@ -94,14 +94,17 @@ class _LoginWithEmailPageState extends State<LoginWithEmailPage> {
     await loginInitController.postInitAuth(loginDetails: initRequestModel);
     hideProgressDialog();
     loginInitController.loginInitResponseModel != null
-        ? navigateToOtpVerificationPage()
+        ? navigateToOtpVerificationPage(
+            loginInitController.loginInitResponseModel!.transactionId)
         : null;
   }
 
-  navigateToOtpVerificationPage() {
+  navigateToOtpVerificationPage(String? transactionId) {
+    debugPrint("transactionId in Auth init:$transactionId");
     Get.to(OTPVerificationPage(
       emailId: emailTextFieldController.text,
       isFromMobile: false,
+      transactionId: transactionId,
     ));
   }
 

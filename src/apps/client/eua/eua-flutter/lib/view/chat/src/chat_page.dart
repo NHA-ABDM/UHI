@@ -4,12 +4,14 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:cryptography/cryptography.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:mime/mime.dart';
 import 'package:stomp_dart_client/stomp.dart';
 import 'package:stomp_dart_client/stomp_config.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
@@ -28,9 +30,11 @@ import 'package:uhi_flutter_app/utils/utils.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../common/src/get_pages.dart';
+import '../../../constants/src/app_constants.dart';
 import '../../../constants/src/request_urls.dart';
 import '../../../constants/src/strings.dart';
 import '../../../controller/controller.dart';
+import '../../../widgets/src/new_confirmation_dialog.dart';
 
 class ChatPage extends StatefulWidget {
   // String? doctorHprId;
@@ -105,6 +109,7 @@ class _ChatPageState extends State<ChatPage> {
 
   ///FILE SHARING
   String? _fileName;
+  String? _filePath;
   String? base64EncodeFile;
   String? selectedBase64EncodeFile;
 
@@ -163,9 +168,9 @@ class _ChatPageState extends State<ChatPage> {
     DateTime now = DateTime.now();
     DateTime justNow = DateTime.now().subtract(const Duration(minutes: 1));
     DateTime localDateTime = startDateTime.toLocal();
-    if (!localDateTime.difference(justNow).isNegative) {
-      return 'Just now';
-    }
+    // if (!localDateTime.difference(justNow).isNegative) {
+    //   return 'Just now';
+    // }
 
     String roughTimeString = DateFormat('jm').format(startDateTime);
     if (localDateTime.day == now.day &&
@@ -299,8 +304,8 @@ class _ChatPageState extends State<ChatPage> {
 
   Future<void> connectToStomp() async {
     // _uniqueId = const Uuid().v1();
-    _chatId = "$_patientAbhaId|$_doctorHprId";
-    //_chatId = transactionID!;
+    //_chatId = "$_patientAbhaId|$_doctorHprId";
+    _chatId = transactionID!;
 
     log("$_chatId", name: "CHAT KEY");
 
@@ -435,7 +440,10 @@ class _ChatPageState extends State<ChatPage> {
         chatMessage.contentUrl =
             chatMessageModel.message?.intent?.chat?.content?.contentUrl;
       }
+      chatMessage.fileName =
+          chatMessageModel.message?.intent?.chat?.content?.contentFilePath;
     }
+
     return chatMessage;
   }
 
@@ -468,8 +476,8 @@ class _ChatPageState extends State<ChatPage> {
     contextModel.consumerUri = "http://100.65.158.41:8901/api/v1/euaService";
     contextModel.providerUrl = _providerUri;
     contextModel.timestamp = DateTime.now().toLocal().toUtc().toIso8601String();
-    contextModel.transactionId = _uniqueId;
-    //contextModel.transactionId = transactionID;
+    //contextModel.transactionId = _uniqueId;
+    contextModel.transactionId = transactionID;
 
     ChatMessage chatMessage = ChatMessage();
     ChatIntent chatIntent = ChatIntent();
@@ -488,6 +496,7 @@ class _ChatPageState extends State<ChatPage> {
       content.contentValue = base64EncodeFile;
       content.contentType = 'media';
       content.contentFilename = _fileName ?? 'img';
+      content.contentFilePath = _filePath ?? 'img';
     } else {
       try {
         encryptedMessage = await _encryptMessage(
@@ -586,6 +595,7 @@ class _ChatPageState extends State<ChatPage> {
       setState(() {
         selectedBase64EncodeFile = base64EncodeFile;
         _fileName = null;
+        _filePath = null;
         base64EncodeFile = null;
         isLoading = false;
       });
@@ -595,6 +605,7 @@ class _ChatPageState extends State<ChatPage> {
       setState(() {
         isLoading = false;
         _fileName = null;
+        _filePath = null;
         base64EncodeFile = null;
       });
       DialogHelper.showErrorDialog(description: "Message not sent.");
@@ -602,6 +613,7 @@ class _ChatPageState extends State<ChatPage> {
       setState(() {
         isLoading = false;
         _fileName = null;
+        _filePath = null;
         base64EncodeFile = null;
       });
       DialogHelper.showErrorDialog(description: "Message not sent.");
@@ -609,6 +621,7 @@ class _ChatPageState extends State<ChatPage> {
       setState(() {
         isLoading = false;
         _fileName = null;
+        _filePath = null;
         base64EncodeFile = null;
       });
       DialogHelper.showErrorDialog(description: "Message not sent.");
@@ -857,6 +870,28 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
+  handleCardOnTap(ChatMessageModel chatMessageModel,
+      {bool isSender = true}) async {
+    if (chatMessageModel.contentType != null &&
+        chatMessageModel.contentType == 'media') {
+      String? mediaUrl = chatMessageModel.fileName ??
+          ((chatMessageModel.contentValue == null ||
+                  chatMessageModel.contentValue!.isEmpty)
+              ? chatMessageModel.contentUrl
+              : chatMessageModel.contentValue);
+      bool isImage = getIsImage(mediaUrl: mediaUrl);
+      if (isImage) {
+        Get.toNamed(AppRoutes.showSelectedMediaPage, arguments: {
+          'media': isSender ? selectedBase64EncodeFile : '',
+          'isUpload': false,
+          'mediaUrl': mediaUrl,
+        });
+      } else {
+        Get.toNamed(AppRoutes.pdfViewPage, arguments: {'mediaUrl': mediaUrl});
+      }
+    }
+  }
+
   buildReceiverMessageNew({required ChatMessageModel chatMessageModel}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -872,7 +907,6 @@ class _ChatPageState extends State<ChatPage> {
                 borderRadius: BorderRadius.only(
                     topRight: Radius.circular(16),
                     topLeft: Radius.circular(16),
-                    //bottomLeft: Radius.circular(16),
                     bottomRight: Radius.circular(16))),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -886,26 +920,31 @@ class _ChatPageState extends State<ChatPage> {
                     : chatMessageModel.contentType == 'media'
                         ? GestureDetector(
                             onTap: () {
-                              String? mediaUrl =
-                                  (chatMessageModel.contentValue == null ||
-                                          chatMessageModel
-                                              .contentValue!.isEmpty)
-                                      ? chatMessageModel.contentUrl
-                                      : chatMessageModel.contentValue;
-                              print("Receiver Image clicked");
-                              Get.toNamed(AppRoutes.showSelectedMediaPage,
-                                  arguments: {
-                                    'media': '',
-                                    'mediaUrl': mediaUrl,
-                                    'isUpload': false
-                                  });
+                              // String? mediaUrl =
+                              //     (chatMessageModel.contentValue == null ||
+                              //             chatMessageModel
+                              //                 .contentValue!.isEmpty)
+                              //         ? chatMessageModel.contentUrl
+                              //         : chatMessageModel.contentValue;
+                              // print("Receiver Image clicked");
+                              // Get.toNamed(AppRoutes.showSelectedMediaPage,
+                              //     arguments: {
+                              //       'media': '',
+                              //       'mediaUrl': mediaUrl,
+                              //       'isUpload': false
+                              //     });
+                              handleCardOnTap(chatMessageModel,
+                                  isSender: false);
                             },
                             child: buildMediaWidget(
                                 mediaUrl: (chatMessageModel.contentValue ==
                                             null ||
                                         chatMessageModel.contentValue!.isEmpty)
                                     ? chatMessageModel.contentUrl
-                                    : chatMessageModel.contentValue))
+                                    : chatMessageModel.contentValue,
+                                fileName: chatMessageModel.fileName,
+                                isSender: false),
+                          )
                         : Container(),
                 SizedBox(
                   height: 2,
@@ -953,25 +992,30 @@ class _ChatPageState extends State<ChatPage> {
                     : chatMessageModel.contentType == 'media'
                         ? GestureDetector(
                             onTap: () {
-                              String? mediaUrl =
-                                  (chatMessageModel.contentValue == null ||
-                                          chatMessageModel
-                                              .contentValue!.isEmpty)
-                                      ? chatMessageModel.contentUrl
-                                      : chatMessageModel.contentValue;
-                              Get.toNamed(AppRoutes.showSelectedMediaPage,
-                                  arguments: {
-                                    'media': selectedBase64EncodeFile,
-                                    'mediaUrl': mediaUrl,
-                                    'isUpload': false
-                                  });
+                              // String? mediaUrl =
+                              //     (chatMessageModel.contentValue == null ||
+                              //             chatMessageModel
+                              //                 .contentValue!.isEmpty)
+                              //         ? chatMessageModel.contentUrl
+                              //         : chatMessageModel.contentValue;
+                              // Get.toNamed(AppRoutes.showSelectedMediaPage,
+                              //     arguments: {
+                              //       'media': selectedBase64EncodeFile,
+                              //       'mediaUrl': mediaUrl,
+                              //       'isUpload': false
+                              //     });
+
+                              handleCardOnTap(
+                                chatMessageModel,
+                              );
                             },
                             child: buildMediaWidget(
                                 mediaUrl: (chatMessageModel.contentValue ==
                                             null ||
                                         chatMessageModel.contentValue!.isEmpty)
                                     ? chatMessageModel.contentUrl
-                                    : chatMessageModel.contentValue),
+                                    : chatMessageModel.contentValue,
+                                fileName: chatMessageModel.fileName),
                           )
                         : Container(),
                 SizedBox(
@@ -991,26 +1035,95 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  buildMediaWidget({required String? mediaUrl}) {
+  buildMediaWidget(
+      {required String? mediaUrl,
+      required String? fileName,
+      bool isSender = true}) {
     Uint8List? base64DecodedFile;
+    // if (mediaUrl != null && !mediaUrl.contains("http")) {
+    //   base64DecodedFile = base64Decode(mediaUrl);
+    // }
+    bool isImage = getIsImage(mediaUrl: mediaUrl);
     if (mediaUrl != null && !mediaUrl.contains("http")) {
       base64DecodedFile = base64Decode(mediaUrl);
+      if (fileName != null) {
+        isImage = getIsImage(mediaUrl: fileName);
+      }
     }
-    return Container(
-      constraints: BoxConstraints(
-          minHeight: 150,
-          maxHeight: 250,
-          minWidth: width * 0.12,
-          maxWidth: width * 0.7),
-      child: base64DecodedFile == null
-          ? Image.network(
-              mediaUrl!,
-              errorBuilder: (context, obj, stackTrace) {
-                return Image.asset('assets/images/dummy_image.jpeg');
-              },
+    // return Container(
+    //   constraints: BoxConstraints(
+    //       minHeight: 150,
+    //       maxHeight: 250,
+    //       minWidth: width * 0.12,
+    //       maxWidth: width * 0.7),
+    //   child: base64DecodedFile == null
+    //       ? Image.network(
+    //           mediaUrl!,
+    //           errorBuilder: (context, obj, stackTrace) {
+    //             return Image.asset('assets/images/dummy_image.jpeg');
+    //           },
+    //         )
+    //       : Image.memory(base64DecodedFile),
+    // );
+    return isImage
+        ? Container(
+            constraints: BoxConstraints(
+                minHeight: 150,
+                maxHeight: 250,
+                minWidth: width * 0.12,
+                maxWidth: width * 0.7),
+            child: base64DecodedFile == null
+                ? Image.network(
+                    mediaUrl!,
+                    errorBuilder: (context, obj, stackTrace) {
+                      return Image.asset('assets/images/dummy_image.jpeg');
+                    },
+                  )
+                : Image.memory(base64DecodedFile),
+          )
+        : showFileWidget(
+            mediaUrl: mediaUrl, isSender: isSender, fileName: fileName);
+  }
+
+  showFileWidget(
+      {required String? mediaUrl,
+      required bool isSender,
+      required String? fileName}) {
+    late String mediaFileName;
+    if (mediaUrl != null && mediaUrl.isNotEmpty) {
+      mediaFileName = mediaUrl.split('/').last;
+    }
+    if (fileName != null && fileName.isNotEmpty) {
+      mediaFileName = fileName.split('/').last;
+    }
+    return Row(
+      children: [
+        Icon(
+          Icons.picture_as_pdf,
+          color: AppColors.white,
+        ),
+        SizedBox(
+          width: 10,
+        ),
+        Expanded(
+            child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              mediaFileName,
+              style: AppTextStyle.textSemiBoldStyle(
+                  color: isSender ? Color(0xFF264488) : AppColors.white,
+                  fontSize: 14),
             )
-          : Image.memory(base64DecodedFile),
+          ],
+        )),
+        SizedBox(
+          width: 10,
+        )
+      ],
     );
+    return Container();
   }
 
   generateBottomWidget() {
@@ -1180,58 +1293,92 @@ class _ChatPageState extends State<ChatPage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              GestureDetector(
-                onTap: () {
-                  _handleImageSelection(source: ImageSource.camera);
-                  Navigator.of(context).pop();
-                },
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundColor: AppColors.amountColor,
-                      child: Icon(
-                        Icons.camera,
-                        color: AppColors.white,
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    _handleImageSelection(source: ImageSource.camera);
+                    Navigator.of(context).pop();
+                  },
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircleAvatar(
+                        radius: 30,
+                        backgroundColor: AppColors.amountColor,
+                        child: Icon(
+                          Icons.camera,
+                          color: AppColors.white,
+                        ),
                       ),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Text(
-                      AppStrings().camera,
-                      style: AppTextStyle.textMediumStyle(
-                          fontSize: 16, color: AppColors.titleTextColor),
-                    )
-                  ],
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        AppStrings().camera,
+                        style: AppTextStyle.textMediumStyle(
+                            fontSize: 16, color: AppColors.titleTextColor),
+                      )
+                    ],
+                  ),
                 ),
               ),
-              GestureDetector(
-                onTap: () {
-                  _handleImageSelection(source: ImageSource.gallery);
-                  Navigator.of(context).pop();
-                },
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundColor: AppColors.amountColor,
-                      child: Icon(
-                        Icons.folder,
-                        color: AppColors.white,
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    _handleImageSelection(source: ImageSource.gallery);
+                    Navigator.of(context).pop();
+                  },
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircleAvatar(
+                        radius: 30,
+                        backgroundColor: AppColors.amountColor,
+                        child: Icon(
+                          Icons.folder,
+                          color: AppColors.white,
+                        ),
                       ),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Text(
-                      AppStrings().gallery,
-                      style: AppTextStyle.textMediumStyle(
-                          fontSize: 16, color: AppColors.titleTextColor),
-                    )
-                  ],
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        AppStrings().gallery,
+                        style: AppTextStyle.textMediumStyle(
+                            fontSize: 16, color: AppColors.titleTextColor),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    // DialogHelper.showComingSoonView();
+                    _handleFileSelection();
+                  },
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircleAvatar(
+                        radius: 30,
+                        backgroundColor: AppColors.amountColor,
+                        child: Icon(
+                          Icons.insert_drive_file,
+                          color: AppColors.white,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        "Document",
+                        style: AppTextStyle.textMediumStyle(
+                            fontSize: 16, color: AppColors.titleTextColor),
+                      )
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -1239,6 +1386,63 @@ class _ChatPageState extends State<ChatPage> {
         );
       })),
     );
+  }
+
+  void _handleFileSelection() async {
+    final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf'],
+        allowMultiple: false,
+        withData: true,
+        withReadStream: true);
+
+    if (result != null && result.files.single.path != null) {
+      double fileSizeInMb =
+          getFileSize(fileSizeInBytes: result.files.single.size);
+      if (fileSizeInMb <= AppConstants.fileSize) {
+        showConfirmFileShareDialog(result);
+      } else {
+        Get.snackbar(
+          AppStrings().alert,
+          AppStrings().errorFileSize(
+              fileSize: AppConstants.fileSize.toStringAsFixed(2)),
+        );
+      }
+
+      // base64EncodeFile = base64Encode(result.files.single.bytes!);
+      // _filePath = result.files.single.path;
+      // _fileName = result.files.single.name;
+      // debugPrint('base64EncodeFile is --> $base64EncodeFile');
+      // debugPrint('_fileName is --> $_fileName');
+      // setState(() {
+      //   isLoading = true;
+      // });
+      // postMessageAPI();
+    }
+  }
+
+  void showConfirmFileShareDialog(FilePickerResult result) {
+    NewConfirmationDialog(
+        context: context,
+        title: AppStrings().alert,
+        description:
+            AppStrings().alertSendFile(fileName: result.files.single.name),
+        submitButtonText: "Send",
+        onCancelTap: () {
+          Navigator.pop(context);
+        },
+        onSubmitTap: () {
+          Navigator.of(context).pop();
+          base64EncodeFile = base64Encode(result.files.single.bytes!);
+          _filePath = result.files.single.path;
+          _fileName = result.files.single.name;
+          debugPrint('base64EncodeFile is --> $base64EncodeFile');
+          debugPrint('_fileName is --> $_fileName');
+          setState(() {
+            isLoading = true;
+          });
+          postMessageAPI();
+        }).showAlertDialog();
   }
 
   void _handleImageSelection({required ImageSource source}) async {
@@ -1250,31 +1454,41 @@ class _ChatPageState extends State<ChatPage> {
     if (result != null) {
       final bytes = await result.readAsBytes();
       final image = await decodeImageFromList(bytes);
-      base64EncodeFile = base64Encode(bytes);
-      _fileName = result.name;
-      bool isUpload = await Get.toNamed(AppRoutes.showSelectedMediaPage,
-          arguments: {
-            'media': base64EncodeFile,
-            'mediaUrl': '',
-            'isUpload': true
-          });
-      if (isUpload) {
-        if (_chatMsgTextEditingController.text.trim().isNotEmpty ||
-            (base64EncodeFile != null &&
-                _fileName != null &&
-                _fileName!.isNotEmpty)) {
+      double fileSizeInMb = getFileSize(fileSizeInBytes: await result.length());
+      if (fileSizeInMb <= AppConstants.imageSize) {
+        base64EncodeFile = base64Encode(bytes);
+        _fileName = result.name;
+        _filePath = result.path;
+        bool isUpload = await Get.toNamed(AppRoutes.showSelectedMediaPage,
+            arguments: {
+              'media': base64EncodeFile,
+              'mediaUrl': '',
+              'isUpload': true
+            });
+        if (isUpload) {
+          if (_chatMsgTextEditingController.text.trim().isNotEmpty ||
+              (base64EncodeFile != null &&
+                  _fileName != null &&
+                  _fileName!.isNotEmpty)) {
+            setState(() {
+              isLoading = true;
+            });
+            postMessageAPI();
+          } else {}
+        } else {
           setState(() {
-            isLoading = true;
+            base64EncodeFile = null;
+            _fileName = null;
+            _filePath = null;
           });
-          postMessageAPI();
-        } else {}
+        }
       } else {
-        setState(() {
-          base64EncodeFile = null;
-          _fileName = null;
-        });
+        Get.snackbar(
+          AppStrings().alert,
+          AppStrings().errorFileSize(
+              fileSize: AppConstants.imageSize.toStringAsFixed(2)),
+        );
       }
-      // await OpenFile.open(result.path);
     } else {
       Get.snackbar(AppStrings().alert, AppStrings().errorUnableSelectMedia);
     }
@@ -1335,5 +1549,22 @@ class _ChatPageState extends State<ChatPage> {
         ),
       ],
     );
+  }
+
+  bool getIsImage({required String? mediaUrl}) {
+    final mimeType = lookupMimeType(mediaUrl ?? '');
+    debugPrint('Mime type is $mimeType');
+    bool isImage = false;
+    if (mimeType != null && mimeType.startsWith('image/')) {
+      isImage = true;
+    }
+    return isImage;
+  }
+
+  double getFileSize({required int fileSizeInBytes}) {
+    double fileSize = 0;
+    double fileSizInKB = fileSizeInBytes / 1024;
+    fileSize = fileSizInKB / 1024;
+    return fileSize;
   }
 }

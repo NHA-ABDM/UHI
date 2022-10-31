@@ -311,5 +311,9 @@
   "labelSMS" : "SMS",
   "descSMS" : "The accessing SMS feature has been added for the specific purpose of enabling automatic OTP confirmation, so that user does not have to enter the authentication code manually.",
   "labelSharingOfData" : "Sharing of data",
-  "descSharingOfData" : "User of the App to note that ABDM does not share the personal data with other people/entity. Any sharing of personal data shall take place with free, clear, informed and specific consent of the user. No personal information or health records collected by the app will be shared or disclosed to any third party without user’s consent."
+  "descSharingOfData" : "User of the App to note that ABDM does not share the personal data with other people/entity. Any sharing of personal data shall take place with free, clear, informed and specific consent of the user. No personal information or health records collected by the app will be shared or disclosed to any third party without user’s consent.",
+  "errorFileSize" : "Size should be less than {} MB",
+  "alertSendFile" : "Do you want to send {}",
+  "labelInDoctorsWaitingRoom" : "You are in {}'s waiting room",
+  "labelWaitInDoctorsWaitingRoom" : "Please wait, {} will let you in soon."
 }

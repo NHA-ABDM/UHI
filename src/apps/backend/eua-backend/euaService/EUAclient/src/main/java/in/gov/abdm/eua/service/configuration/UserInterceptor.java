@@ -35,6 +35,5 @@ public class UserInterceptor implements ChannelInterceptor {
             }
         }
         return message;
-
     }
 }

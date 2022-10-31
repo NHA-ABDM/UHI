@@ -31,9 +31,15 @@ class RegistrationRequestModel {
         ? new RegistrationDateOfBirth.fromJson(json['dateOfBirth'])
         : null;
     districtCode = json['districtCode'];
-    email = json['email'];
+    if (json['email'] != null) {
+      email = json['email'];
+    }
+
     gender = json['gender'];
-    mobile = json['mobile'];
+    if (json['mobile'] != null) {
+      mobile = json['mobile'];
+    }
+
     name = json['name'] != null
         ? new RegistrationName.fromJson(json['name'])
         : null;
@@ -50,9 +56,15 @@ class RegistrationRequestModel {
       data['dateOfBirth'] = this.dateOfBirth!.toJson();
     }
     data['districtCode'] = this.districtCode;
-    data['email'] = this.email;
+    if (this.email != null) {
+      data['email'] = this.email;
+    }
+
     data['gender'] = this.gender;
-    data['mobile'] = this.mobile;
+    if (this.mobile != null) {
+      data['mobile'] = this.mobile;
+    }
+
     if (this.name != null) {
       data['name'] = this.name!.toJson();
     }

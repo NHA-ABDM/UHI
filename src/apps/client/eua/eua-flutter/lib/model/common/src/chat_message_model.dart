@@ -8,6 +8,8 @@ class ChatMessageModel {
   String? time;
   String? consumerUrl;
   String? providerUrl;
+  String? fileName;
+
   ChatMessageModel(
       {this.contentId,
       this.sender,
@@ -17,7 +19,8 @@ class ChatMessageModel {
       this.contentUrl,
       this.time,
       this.consumerUrl,
-      this.providerUrl});
+      this.providerUrl,
+      this.fileName});
   ChatMessageModel.fromJson(Map<String, dynamic> json) {
     contentId = json['contentId'];
     sender = json['sender'];
@@ -28,6 +31,9 @@ class ChatMessageModel {
     time = json['time'];
     consumerUrl = json['consumerUrl'];
     providerUrl = json['providerUrl'];
+    if (json.containsKey('fileName')) {
+      fileName = json['fileName'];
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -41,6 +47,7 @@ class ChatMessageModel {
     data['time'] = time;
     data['consumerUrl'] = consumerUrl;
     data['providerUrl'] = providerUrl;
+    data['fileName'] = fileName;
     return data;
   }
 }

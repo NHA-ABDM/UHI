@@ -8,7 +8,7 @@ import 'app_exception.dart';
 
 class BaseClient {
   ///Timout duration
-  static const int timeOutDuration = 20;
+  static const int timeOutDuration = 90;
 
   final String? url;
   final dynamic body;

@@ -5,6 +5,7 @@ class ChatMessageModel {
   String? contentValue;
   String? contentType;
   String? contentUrl;
+  String? fileName;
   String? time;
   String? consumerUrl;
   String? providerUrl;
@@ -16,6 +17,7 @@ class ChatMessageModel {
       this.contentValue,
       this.contentType,
       this.contentUrl,
+      this.fileName,
       this.time,
       this.consumerUrl,
       this.providerUrl});
@@ -27,6 +29,9 @@ class ChatMessageModel {
     contentValue = json['contentValue'];
     contentType = json['contentType'];
     contentUrl = json['contentUrl'];
+    if(json.containsKey('fileName')) {
+      fileName = json['fileName'];
+    }
     time = json['time'];
     consumerUrl = json['consumerUrl'];
     providerUrl = json['providerUrl'];
@@ -40,6 +45,7 @@ class ChatMessageModel {
     data['contentValue'] = contentValue;
     data['contentType'] = contentType;
     data['contentUrl'] = contentUrl;
+    data['fileName'] = fileName;
     data['time'] = time;
     data['consumerUrl'] = consumerUrl;
     data['providerUrl'] = providerUrl;

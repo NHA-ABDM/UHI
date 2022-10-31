@@ -150,17 +150,23 @@ class Content {
   String? contentType;
   String? contentUrl;
   String? contentFilename;
+  String? contentFilePath;
+
   Content(
       {this.contentId,
       this.contentValue,
       this.contentType,
-      this.contentFilename});
+      this.contentFilename,
+      this.contentFilePath});
   Content.fromJson(Map<String, dynamic> json) {
     contentId = json['content_id'];
     contentValue = json['content_value'];
     contentType = json['content_type'];
     contentUrl = json['content_url'];
     contentFilename = json['content_fileName'];
+    if (json.containsKey('contentFilePath')) {
+      contentFilePath = json['contentFilePath'];
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -170,6 +176,7 @@ class Content {
     data['content_type'] = contentType;
     data['content_url'] = contentUrl;
     data['content_fileName'] = contentFilename;
+    data['content_filePath'] = contentFilePath;
     return data;
   }
 }

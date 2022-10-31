@@ -64,6 +64,7 @@ class _UserDetailsFormPageState extends State<UserDetailsFormPage> {
     "Please select gender",
     "Male",
     "Female",
+    "Other"
   ];
   String _genderDropdownValue = "Please select gender";
   List<String> _stateList = [];
@@ -114,12 +115,13 @@ class _UserDetailsFormPageState extends State<UserDetailsFormPage> {
 
     if (_infoController.districtListResponseModel.isNotEmpty) {
       hideProgressIndicator();
+      _districtList.add("Please select district");
       _districtAndCodeList.addAll(_infoController.districtListResponseModel);
       _districtAndCodeList = _districtAndCodeList.toSet().toList();
       _districtList =
           _districtAndCodeList.map((e) => e?.name ?? "").toSet().toList();
-      // _districtList.insert(0, "select district");
-      // _districtDropdownValue = _districtList[0];
+      _districtList.add("Please select district");
+      _districtDropdownValue = "Please select district";
     } else {
       hideProgressIndicator();
     }
@@ -134,25 +136,18 @@ class _UserDetailsFormPageState extends State<UserDetailsFormPage> {
   postRegistrationDetails() async {
     if (_firstNameTextController.text.isEmpty ||
         _dateOfBirthTextController.text.isEmpty ||
+        _dateOfBirthTextController.text == "Please select birth date" ||
         _genderDropdownValue.isEmpty ||
         _genderDropdownValue == "Please select gender" ||
         _addressTextController.text.isEmpty ||
         _stateDropdownValue!.isEmpty ||
         _districtDropdownValue!.isEmpty ||
+        _districtDropdownValue! == "Please select district" ||
         _pinCodeTextController.text.isEmpty) {
-      if (widget.mobileNumber == null && widget.mobileNumber == "") {
-        if (_mobileNumberTextController.text.isEmpty) {
-          hideProgressIndicator();
+      hideProgressIndicator();
 
-          DialogHelper.showErrorDialog(
-              description: "Please fill all the required fields.");
-        }
-      } else {
-        hideProgressIndicator();
-
-        DialogHelper.showErrorDialog(
-            description: "Please fill all the required fields.");
-      }
+      DialogHelper.showErrorDialog(
+          description: "Please fill all the required fields.");
       return;
     } else if (!_agreementCheckboxValue) {
       hideProgressIndicator();
@@ -190,36 +185,7 @@ class _UserDetailsFormPageState extends State<UserDetailsFormPage> {
     dateOfBirth.year = _dateOfBirth.year;
     registrationRequest.dateOfBirth = dateOfBirth;
     registrationRequest.districtCode = district?.code;
-    if (_emailIdTextController.text.isEmpty &&
-        widget.emailId != null &&
-        widget.emailId != "") {
-      try {
-        Encrypted encrypted = await encryptEmailId();
-        registrationRequest.email = encrypted.base64;
-      } catch (error) {
-        DialogHelper.showErrorDialog(
-            title: AppStrings().errorString,
-            description: AppStrings().somethingWentWrongErrorMsg);
-        return;
-      }
-    } else {
-      registrationRequest.email = _emailIdTextController.text;
-    }
-
-    registrationRequest.gender = _genderDropdownValue == "Other"
-        ? _genderDropdownValue
-        : _genderDropdownValue[0];
-
-    try {
-      Encrypted encrypted = await encryptMobileNumber();
-      registrationRequest.mobile = encrypted.base64;
-    } catch (error) {
-      DialogHelper.showErrorDialog(
-          title: AppStrings().errorString,
-          description: AppStrings().somethingWentWrongErrorMsg);
-      return;
-    }
-
+    registrationRequest.gender = _genderDropdownValue[0];
     name.first = _firstNameTextController.text;
     name.middle = _middleNameTextController.text;
     name.last = _lastNameTextController.text;
@@ -227,6 +193,39 @@ class _UserDetailsFormPageState extends State<UserDetailsFormPage> {
     registrationRequest.pinCode = _pinCodeTextController.text;
     registrationRequest.sessionId = widget.sessionId;
     registrationRequest.stateCode = state?.stateCode;
+
+    if (widget.isFromMobile != null && widget.isFromMobile!) {
+      Encrypted encrypted = await encryptDate(widget.mobileNumber!);
+      registrationRequest.mobile = encrypted.base64;
+    } else {
+      Encrypted encrypted = await encryptDate(widget.emailId!);
+      registrationRequest.email = encrypted.base64;
+    }
+
+    if (_emailIdTextController.text.isNotEmpty) {
+      try {
+        Encrypted encrypted = await encryptDate(_emailIdTextController.text);
+        registrationRequest.email = encrypted.base64;
+      } catch (error) {
+        DialogHelper.showErrorDialog(
+            title: AppStrings().errorString,
+            description: AppStrings().somethingWentWrongErrorMsg);
+        return;
+      }
+    }
+
+    if (_mobileNumberTextController.text.isNotEmpty) {
+      try {
+        Encrypted encrypted =
+            await encryptDate(_mobileNumberTextController.text);
+        registrationRequest.mobile = encrypted.base64;
+      } catch (error) {
+        DialogHelper.showErrorDialog(
+            title: AppStrings().errorString,
+            description: AppStrings().somethingWentWrongErrorMsg);
+        return;
+      }
+    }
 
     log("${jsonEncode(registrationRequest)}", name: "REGISTRATION MODEL");
 
@@ -242,6 +241,7 @@ class _UserDetailsFormPageState extends State<UserDetailsFormPage> {
       if (sessionId.isNotEmpty) {
         Get.to(() => ChooseNewAbhaAddress(
               sessionId: sessionId,
+              isFromMobile: widget.isFromMobile,
             ));
       }
     } else if (_registrationController.errorString != "") {
@@ -256,7 +256,7 @@ class _UserDetailsFormPageState extends State<UserDetailsFormPage> {
   }
 
   ///ENCRYPT MOBILE NUMBER
-  Future<Encrypted> encryptMobileNumber() async {
+  Future<Encrypted> encryptDate(String inputData) async {
     var pubKey = await rootBundle.load("assets/keys/public.pem");
     String dir = (await getApplicationDocumentsDirectory()).path;
 
@@ -266,24 +266,23 @@ class _UserDetailsFormPageState extends State<UserDetailsFormPage> {
     final encryptedString = Encrypter(RSA(
       publicKey: publicKey,
     ));
-    final encrypted = encryptedString
-        .encrypt(widget.mobileNumber ?? _mobileNumberTextController.text);
+    final encrypted = encryptedString.encrypt(inputData);
     return encrypted;
   }
 
-  Future<Encrypted> encryptEmailId() async {
-    var pubKey = await rootBundle.load("assets/keys/public.pem");
-    String dir = (await getApplicationDocumentsDirectory()).path;
+  // Future<Encrypted> encryptEmailId() async {
+  //   var pubKey = await rootBundle.load("assets/keys/public.pem");
+  //   String dir = (await getApplicationDocumentsDirectory()).path;
 
-    writeToFile(pubKey, '$dir/public.pem');
-    final publicKey =
-        await parseKeyFromFile<RSAPublicKey>(File('$dir/public.pem').path);
-    final encryptedString = Encrypter(RSA(
-      publicKey: publicKey,
-    ));
-    final encrypted = encryptedString.encrypt(widget.emailId ?? "");
-    return encrypted;
-  }
+  //   writeToFile(pubKey, '$dir/public.pem');
+  //   final publicKey =
+  //       await parseKeyFromFile<RSAPublicKey>(File('$dir/public.pem').path);
+  //   final encryptedString = Encrypter(RSA(
+  //     publicKey: publicKey,
+  //   ));
+  //   final encrypted = encryptedString.encrypt(_emailIdTextController.text);
+  //   return encrypted;
+  // }
 
   Future writeToFile(ByteData data, String path) {
     final buffer = data.buffer;
@@ -487,7 +486,7 @@ class _UserDetailsFormPageState extends State<UserDetailsFormPage> {
                         ? Container()
                         : textFieldWithOutsideLabel(
                             label: "Email ID",
-                            isRequired: true,
+                            isRequired: false,
                             controller: _emailIdTextController,
                             validator: _emailIdTextController.text.isNotEmpty
                                 ? (input) => (input ?? "").isValidEmail()
@@ -670,7 +669,7 @@ class _UserDetailsFormPageState extends State<UserDetailsFormPage> {
           decoration: InputDecoration(
             hintText: controller.text.isNotEmpty
                 ? "${controller.text}"
-                : "${DateFormat("dd MMMM yyyy").format(DateTime.now())}",
+                : "Please select birth date",
             border: OutlineInputBorder(),
           ),
           onTap: () {
@@ -706,9 +705,6 @@ class _UserDetailsFormPageState extends State<UserDetailsFormPage> {
     required List<String> dropdownList,
     bool? loadingIndicator,
   }) {
-    debugPrint("label:$label");
-    debugPrint("dropdownValue:$dropdownValue");
-
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -914,6 +910,9 @@ class _UserDetailsFormPageState extends State<UserDetailsFormPage> {
                 hideProgressIndicator();
               }
             },
+      // onTap: () {
+      //   postRegistrationDetails();
+      // },
       child: Container(
         padding: EdgeInsets.all(15),
         decoration: BoxDecoration(

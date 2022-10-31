@@ -448,13 +448,40 @@ public class HSPAController {
 		return new ResponseEntity<>(getOrderDetails,HttpStatus.OK);		
 	}
 	
-	@GetMapping(path = "/getOrdersByHprIdAndType/{hprid}/{aType}")
-	public ResponseEntity<List<OrdersModel>> getOrderByHpridAndType(@PathVariable("hprid") String hprid,@PathVariable("aType") String aType){	
-		LOGGER.info("inside Get order by hprid and type");
-		List<OrdersModel> getOrderDetails = paymentService.getOrderDetailsByHprIdAndType(hprid,aType);		
-		return new ResponseEntity<>(getOrderDetails,HttpStatus.OK);		
-	}
+	@GetMapping(path = "/getOrdersByHprIdAndType/{hprid}")
+	public ResponseEntity<List<OrdersModel>> getOrderByHpridAndType(@PathVariable("hprid") String hprid,
+                                                                    @RequestParam(value ="limit",defaultValue="100",required=false)Integer limit,
+                                                                    @RequestParam(value ="aType", required = false)String aType,
+                                                                    @RequestParam(value ="startDate", required = false) String startDate,
+                                                                    @RequestParam(value ="endDate", required = false) String endDate,
+                                                                    @RequestParam(value ="sort", required = false) String sort,
+                                                                    @RequestParam(value ="state", required = false) String state) {
+        LOGGER.info("inside Get order by hprid and type");
 
+        List<OrdersModel> getOrderDetails = null;
+        try {
+            getOrderDetails = paymentService.getOrderDetailsByFilterParams(hprid, aType, limit, startDate, endDate, sort, state);
+        } catch (Exception e) {
+            LOGGER.error("HSPAController :: /getOrdersByHprIdAndType/{hprid}:: error {}", e.getMessage());
+            OrdersModel error = new OrdersModel();
+            ServiceResponseDTO messagesDTO = new ServiceResponseDTO();
+            ErrorResponseDTO errorResponseDTO =  new ErrorResponseDTO();
+            errorResponseDTO.setErrorString(e.getMessage());
+            errorResponseDTO.setCode("500");
+            errorResponseDTO.setPath("HSPAController");
+            messagesDTO.setError(errorResponseDTO);
+            error.setError(errorResponseDTO);
+            List<OrdersModel> errorDto = new ArrayList<>();
+            errorDto.add(error);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDto);
+        }
+        return new ResponseEntity<>(getOrderDetails, HttpStatus.OK);
+    }
 
-
+    @GetMapping(path = "/getOrdersByHprIdAndType/{hprid}/{aType}")
+    public ResponseEntity<List<OrdersModel>> getOrderByHpridAndType(@PathVariable("hprid") String hprid,@PathVariable("aType") String aType){
+        LOGGER.info("inside Get order by hprid and type");
+        List<OrdersModel> getOrderDetails = paymentService.getOrderDetailsByHprIdAndType(hprid,aType);
+        return new ResponseEntity<>(getOrderDetails,HttpStatus.OK);
+    }
 }

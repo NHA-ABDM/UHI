@@ -51,22 +51,31 @@ public class ConfirmService implements IService {
     String GATEWAY_URI;
     @Value("${spring.provider_uri}")
     String PROVIDER_URI;
-    @Autowired
+    final
     WebClient webClient;
-    @Autowired
+    final
     ObjectMapper mapper;
 
-    @Autowired
+    final
     CacheManager cacheManager;
 
-    @Autowired
+    final
     SaveChatService chatIndb;
 
-    @Autowired
+    final
     PaymentService paymentService;
     
-    @Autowired
+    final
     CancelService cancelService;
+
+    public ConfirmService(WebClient webClient, ObjectMapper mapper, CacheManager cacheManager, SaveChatService chatIndb, PaymentService paymentService, CancelService cancelService) {
+        this.webClient = webClient;
+        this.mapper = mapper;
+        this.cacheManager = cacheManager;
+        this.chatIndb = chatIndb;
+        this.paymentService = paymentService;
+        this.cancelService = cancelService;
+    }
 
 
     private static Response generateAck(ObjectMapper mapper) {
@@ -101,15 +110,16 @@ public class ConfirmService implements IService {
     @Override
     public Mono<Response> processor(String request) {
         new Request();
-        Request objRequest;
+        Request objRequest = null;
         Response ack = generateAck(mapper);
 
-        LOGGER.info("Processing::Confirm::Request:: {}" , request);
 
         try {
             objRequest = new ObjectMapper().readValue(request, Request.class);
+            LOGGER.info("Processing::Confirm::Request:: {} .. Message Id is {}" , request, getMessageId(objRequest));
+
             String typeFulfillment = objRequest.getMessage().getOrder().getFulfillment().getType();
-            logMessageId(objRequest);
+
             if(typeFulfillment.equalsIgnoreCase(ConstantsUtils.TELECONSULTATION) || typeFulfillment.equalsIgnoreCase(ConstantsUtils.PHYSICAL_CONSULTATION) || typeFulfillment.equalsIgnoreCase(ConstantsUtils.GROUP_CONSULTATION)) {
                 setTeleconsultationInCaseOfGroupConsultation(typeFulfillment, objRequest);
                 run(objRequest, request);
@@ -118,7 +128,7 @@ public class ConfirmService implements IService {
             }
 
         } catch (Exception ex) {
-            LOGGER.error("Confirm Service process::error::onErrorResume:: {}", ex, ex);
+            LOGGER.error("Confirm Service process::error::onErrorResume:: {} .. Message Id is {}", ex, getMessageId(objRequest));
             ack = generateNack(mapper, ex);
 
         }
@@ -132,16 +142,16 @@ public class ConfirmService implements IService {
         String paymentStatus = request.getMessage().getOrder().getPayment().getStatus();
         Mono<String> response = Mono.empty();
 
-        if (paymentStatus.equals("PAID")) {
+        if (paymentStatus.equalsIgnoreCase("PAID") || paymentStatus.equalsIgnoreCase("FREE")) {
             getPatientDetails(request).zipWith(getAllAppointmentTypes(request))
                     .flatMap(result -> getPatinetandAppointment(result, request))
                     .flatMap(this::createAppointment)
                     .flatMap(result -> callOnConfirm(result, request))
-                    .flatMap(this::logResponse)
+                    .flatMap(log -> logResponse(log , request))
                     .subscribe();
         } else {
 
-            LOGGER.info("Processing::Search::Run::Not Paid! {}" , request);
+            LOGGER.info("Processing::Search::Run::Not Paid! {}.. Message Id is {}" , request, getMessageId(request));
             callOnConfirm("", request);
         }
 
@@ -185,25 +195,24 @@ public class ConfirmService implements IService {
             patientModel = IntermediateBuilderUtils.BuildIntermediatePatientAppoitmentObj(result.getT2().toString(), result.getT1().toString(), request.getMessage().getOrder());
 
         } catch (Exception ex) {
-            LOGGER.error("Select service Get Provider Id::error::onErrorResume::" + ex);
+            LOGGER.error("Select service Get Provider Id::error::onErrorResume:: {} .. Message Id is {}", ex, getMessageId(request));
         }
-        System.out.println("getPatinetandAppointment###############" + patientModel);
         return Mono.just(patientModel);
     }
 
-    private void logMessageId(Request objRequest) {
+    private String getMessageId(Request objRequest) {
         String messageId = objRequest.getContext().getMessageId();
-        LOGGER.info(ConstantsUtils.REQUESTER_MESSAGE_ID_IS, messageId);
+        return messageId == null ? " " : messageId;
     }
 
-    private boolean checkIfSlotAvaiable(Request request) {
+    private boolean checkIfSlotAvailable(Request request) {
         AtomicReference<Boolean> isBooked = new AtomicReference<>(true);
         Cache cache = cacheManager.getCache("slotCache");
         Mono<String> existingAppointment = checkValidAppointment(request);
         existingAppointment.flatMap(result -> {
                     if (result.contains("\"countOfAppointments\": 1")) {
                         isBooked.set(false);
-                    } else if (cache.get(request.getMessage().getOrder().getFulfillment().getId()) != null) {
+                    } else if (cache != null && cache.get(request.getMessage().getOrder().getFulfillment().getId()) != null) {
                         isBooked.set(false);
                     }
 
@@ -226,11 +235,10 @@ public class ConfirmService implements IService {
 
     private Mono<String> createAppointment(List<IntermediatePatientAppointmentModel> collection) {
 
-        if (collection.size() > 0) {
+        if (!collection.isEmpty()) {
             appointment appointment = IntermediateBuilderUtils.BuildAppointmentModel(collection.get(0));
 
             String searchEndPoint = OPENMRS_BASE_LINK + OPENMRS_API + API_RESOURCE_APPOINTMENT;
-            System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
             return webClient.post()
                     .uri(searchEndPoint)
                     .body(BodyInserters.fromValue(appointment))
@@ -268,7 +276,7 @@ public class ConfirmService implements IService {
             try {
                 paymentService.saveDataInDb(uuid, request, ConstantsUtils.ON_CONFIRM);
 
-                LOGGER.info("Request sent to on_conform" + request);
+                LOGGER.info("Request sent to on_confirm {} .. Message Id is {}", request, getMessageId(request));
                 WebClient on_webclient = WebClient.create();
 
                 return callOnConfirmWebClient(request, on_webclient);
@@ -277,13 +285,13 @@ public class ConfirmService implements IService {
             }
 
         } else {
-            LOGGER.error("Error calling on_confirm, Result is {}", result);
+            LOGGER.error("Error calling on_confirm, Result is {}. Message Id is {}", result, getMessageId(request));
             List<OrdersModel> od=paymentService.getOrderDetailsByTransactionId(request.getContext().getTransactionId());
      	   String orderId=request.getMessage().getOrder().getId();
  			List<OrdersModel> otherDrOrder = od
  					  .stream()
  					  .filter(c -> !c.getOrderId().equalsIgnoreCase(orderId) && c.getIsServiceFulfilled().equalsIgnoreCase(ConstantsUtils.CONFIRMED))
- 					  .collect(Collectors.toList());
+ 					  .toList();
  			if(!otherDrOrder.isEmpty())
  			{
  				
@@ -318,7 +326,7 @@ public class ConfirmService implements IService {
                 .bodyToMono(String.class)
                 .retry(3)
                 .onErrorResume(error -> {
-                    LOGGER.error("confirm Service call on confirm::" + error);
+                    LOGGER.error("confirm Service call on confirm:: {} .. Message Id is {}", error, getMessageId(request));
                     return Mono.empty(); //TODO:Add appropriate response
                 });
     }
@@ -347,7 +355,7 @@ public class ConfirmService implements IService {
     }
 
     private String setOrderStatus(String result, Request request, String uuid) {
-        if (!checkIfSlotAvaiable(request)) {
+        if (!checkIfSlotAvailable(request)) {
             request.getMessage().getOrder().setState("FAILED");
         } else if (result.contains("uuid")) {
             request.getMessage().getOrder().setState("CONFIRMED");
@@ -358,9 +366,9 @@ public class ConfirmService implements IService {
         return uuid;
     }
 
-    public Mono<String> logResponse(String result) {
+    public Mono<String> logResponse(String result, Request request) {
 
-        LOGGER.info("OnConfirm::Log::Response::" + result);
+        LOGGER.info("OnConfirm::Log::Response:: {} \n Message Id is {}", result, getMessageId(request));
 
         return Mono.just(result);
     }

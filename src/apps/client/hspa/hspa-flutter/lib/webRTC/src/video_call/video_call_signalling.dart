@@ -143,7 +143,7 @@ class VideoCallSignalling {
   }
 
   Future<void> onConnect(StompFrame frame) async {
-    await stompClient?.subscribe(
+     stompClient?.subscribe(
       destination: '/msg/queue/specific-user',
       callback: (frame) async {
         if (frame.body != null) {
@@ -161,12 +161,14 @@ class VideoCallSignalling {
   }
 
   void onMessage(messageContent, ChatMessageDhpModel chatMessage) async {
+    debugPrint('VideoCall In Video_call_signaling onMessage $messageContent and chat message dhp is ${messageContent.toString()}');
     var data = messageContent['data'];
     var onMessageSender = messageContent['sender'];
     debugPrint('onMessage: onMessageSender is $onMessageSender');
     debugPrint(
         'onMessage: ${messageContent['type']} sent by ${chatMessage.message?.intent?.chat?.sender?.person?.name}');
-    if (onMessageSender == sendersAddress) {
+    // if (onMessageSender == sendersAddress) {
+    if (onMessageSender != receiversAddress) {
       return;
     }
     switch (messageContent['type']) {
@@ -222,9 +224,13 @@ class VideoCallSignalling {
           var description = data['description'];
           var sessionId = data['session_id'];
           var session = _sessions[sessionId];
-          session?.pc?.setRemoteDescription(
-              RTCSessionDescription(description['sdp'], description['type']));
-          onCallStateChange?.call(session!, CallState.callStateConnected);
+          debugPrint('VideoCall Answer session list is  $_sessions');
+          debugPrint('VideoCall Answer session id is $sessionId and session is $session');
+          if(session!= null) {
+            session.pc?.setRemoteDescription(
+                RTCSessionDescription(description['sdp'], description['type']));
+            onCallStateChange?.call(session, CallState.callStateConnected);
+          }
         }
         counter = 0;
         break;
@@ -417,8 +423,8 @@ class VideoCallSignalling {
     contextModel.consumerUri = consumerUri;
     contextModel.providerUrl = providerUri;
     contextModel.timestamp = DateTime.now().toLocal().toUtc().toIso8601String();
-    contextModel.transactionId =  _uniqueId;
-    // contextModel.transactionId = chatId;
+    // contextModel.transactionId =  _uniqueId;
+    contextModel.transactionId = chatId;
 
     ChatMessage chatMessage = ChatMessage();
     ChatIntent chatIntent = ChatIntent();
@@ -471,8 +477,8 @@ class VideoCallSignalling {
     if (_postChatMessageController
             .chatMessageAckDetails?.message?.ack?.status ==
         "ACK") {
-      ChatMessageModel chatMessage =
-          await getChatMessageObject(chatMessageModel);
+      /*ChatMessageModel chatMessage =
+          await getChatMessageObject(chatMessageModel);*/
 
       _postChatMessageController.refresh();
     }
@@ -584,7 +590,7 @@ class VideoCallSignalling {
       // This delay is needed to allow enough time to try an ICE candidate
       // before skipping to the next one. 1 second is just an heuristic value
       // and should be thoroughly tested in your own environment.
-      if (counter < 10) {
+      if (counter < 20) {
         counter = counter + 1;
         await Future.delayed(const Duration(seconds: 1), () {
           _send('CANDIDATE', {

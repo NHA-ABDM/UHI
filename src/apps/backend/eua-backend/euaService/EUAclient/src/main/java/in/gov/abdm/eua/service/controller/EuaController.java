@@ -21,13 +21,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Tag(name = "EUA service", description = "These APIs are intended to be used for service discovery and booking. Subsequent calls shall be redirected to UHI gateway and/or HSPA")
@@ -86,17 +84,19 @@ public class EuaController {
 					@ApiResponse(description = "Internal error", responseCode = "500", content = @Content)
 			}
 	)
-	public ResponseEntity<AckResponseDTO> onSearch(@RequestBody String onSearchRequestString) throws JsonProcessingException {
+	public ResponseEntity<AckResponseDTO> onSearch(@RequestBody String onSearchRequestString, @RequestHeader Map<String, String> headers) throws JsonProcessingException {
 		LOGGER.info("Inside on_search API");
+
+		headers.entrySet().forEach(h -> LOGGER.info("Header {}",h));
+
 		try {
 			EuaRequestBody onSearchRequest = getEuaRequestBody(onSearchRequestString);
 			ResponseEntity<AckResponseDTO> onSearchAck = getResponseEntityForErrorCases(onSearchRequest, objectMapper);
 			if (onSearchAck != null) return onSearchAck;
-
-			LOGGER.info("Message ID is " + onSearchRequest.getContext().getMessageId());
+			LOGGER.info("Message ID is {}", onSearchRequest.getContext().getMessageId());
 			String requestMessageId = onSearchRequest.getContext().getMessageId();
 
-			LOGGER.info("Request Body :" + onSearchRequestString);
+			LOGGER.info("Request Body : {}", onSearchRequestString);
 			String consumerId = onSearchRequest.getContext().getConsumerId();
 			String action = onSearchRequest.getContext().getAction();
 			MqMessageTO message = euaService.extractMessage(onSearchRequestString, consumerId, requestMessageId, action);
@@ -334,7 +334,6 @@ public class EuaController {
 			mqService.prepareAndSendNackResponse(ConstantsUtils.NACK_RESPONSE, requestMessageId);
 			return getNackResponseResponseEntityWithoutMono();
 		}
-
 		return searchAck;
 	}
 

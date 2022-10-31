@@ -264,7 +264,9 @@
    "yourABHAAddress": "आपका आभा पता",
    "isCreated": "बन गया है।",
    "loginToContinue": "जारी रखने के लिए लॉगिन करें।",
-   "createNewABHAAddress": "नया आभा पता बनाएं"
+   "createNewABHAAddress": "नया आभा पता बनाएं",
+   "errorFileSize" : "साइज {} एमबी . से कम होना चाहिए",
+   "alertSendFile" : "क्या आप {} भेजना चाहते हैं"
 
 
 }

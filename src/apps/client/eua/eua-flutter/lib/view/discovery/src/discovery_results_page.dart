@@ -22,18 +22,6 @@ import 'package:uuid/uuid.dart';
 import '../../../utils/src/shared_preferences.dart';
 
 class DiscoveryResultsPage extends StatefulWidget {
-  DiscoveryResponseModel? discoveryDetails;
-  List? languages;
-  String? systemOfMed;
-  String? speciality;
-  String? doctorName;
-  String? doctorHprId;
-  String? hospitalOrClinic;
-  String? searchType;
-  String? startTime;
-  String? endTime;
-  String? consultationType;
-
   DiscoveryResultsPage({
     Key? key,
     @required this.discoveryDetails,
@@ -49,6 +37,18 @@ class DiscoveryResultsPage extends StatefulWidget {
     this.consultationType,
   }) : super(key: key);
 
+  String? consultationType;
+  DiscoveryResponseModel? discoveryDetails;
+  String? doctorHprId;
+  String? doctorName;
+  String? endTime;
+  String? hospitalOrClinic;
+  List? languages;
+  String? searchType;
+  String? speciality;
+  String? startTime;
+  String? systemOfMed;
+
   @override
   State<DiscoveryResultsPage> createState() => _DiscoveryResultsPageState();
 }
@@ -56,58 +56,58 @@ class DiscoveryResultsPage extends StatefulWidget {
 enum SortBy { yearsOfExperience, noOfTeleconsultations, price }
 
 class _DiscoveryResultsPageState extends State<DiscoveryResultsPage> {
+  List<DiscoveryItems>? discoveryItems = [];
+  Future<List<DiscoveryResponseModel?>>? futureDiscoveryResponse;
+  var height;
+  var isPortrait;
+  DiscoveryMessage? message;
+
   ///CONTROLLERS
   TextEditingController searchTextEditingController = TextEditingController();
+
+  SortBy? selectedSortValue;
+  bool showName = true;
+  bool showSortOptions = false;
+  bool showSpecialty = true;
+  bool showTimeSlots = true;
+  StompSocketConnection stompSocketConnection = StompSocketConnection();
   TextEditingController symptomsTextEditingController = TextEditingController();
-  final _postDiscoveryDetailsController =
-      Get.put(PostDiscoveryDetailsController());
 
   ///SIZE
   var width;
-  var height;
-  var isPortrait;
+
+  String? _consultationType;
+  DiscoveryResponseModel? _discoveryResponse;
+  String? _doctorHprId;
+  String? _doctorName;
+  String? _endTime;
+  List<Fulfillment>? _fulfillments = [];
+  String? _hospitalOrClinic;
 
   ///SEARCH PARAMS
   List? _languages;
-  String? _systemOfMed;
-  String? _speciality;
-  String? _doctorName;
-  String? _doctorHprId;
-  String? _hospitalOrClinic;
-  String? _searchType;
-  String? _startTime;
-  String? _endTime;
-  String _uniqueId = "";
-  String? _consultationType;
 
-  DiscoveryResponseModel? _discoveryResponse;
   List<DiscoveryResponseModel?> _listOfDiscoveryResponse =
       List.empty(growable: true);
-  Future<List<DiscoveryResponseModel?>>? futureDiscoveryResponse;
-  StompSocketConnection stompSocketConnection = StompSocketConnection();
 
-  bool showName = true;
-  bool showSpecialty = true;
-  bool showTimeSlots = true;
-  bool showSortOptions = false;
-  SortBy? selectedSortValue;
   bool _loading = false;
-  List<Fulfillment>? _fulfillments = [];
-  List<DiscoveryItems>? discoveryItems = [];
-  DiscoveryMessage? message;
+  final _postDiscoveryDetailsController =
+      Get.put(PostDiscoveryDetailsController());
 
+  String? _searchType;
+  String? _speciality;
+  String? _startTime;
+  String? _systemOfMed;
   Timer? _timer;
+  String _uniqueId = "";
 
-  void showProgressDialog() {
-    setState(() {
-      _loading = true;
-    });
-  }
-
-  void hideProgressDialog() {
-    setState(() {
-      _loading = false;
-    });
+  @override
+  void dispose() {
+    _fulfillments?.clear();
+    _listOfDiscoveryResponse.clear();
+    stompSocketConnection.disconnect();
+    _timer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -134,13 +134,16 @@ class _DiscoveryResultsPageState extends State<DiscoveryResultsPage> {
     }
   }
 
-  @override
-  void dispose() {
-    _fulfillments?.clear();
-    _listOfDiscoveryResponse.clear();
-    stompSocketConnection.disconnect();
-    _timer?.cancel();
-    super.dispose();
+  void showProgressDialog() {
+    setState(() {
+      _loading = true;
+    });
+  }
+
+  void hideProgressDialog() {
+    setState(() {
+      _loading = false;
+    });
   }
 
   Future<List<DiscoveryResponseModel?>> getDiscoveryResponse() async {
@@ -294,6 +297,365 @@ class _DiscoveryResultsPageState extends State<DiscoveryResultsPage> {
     } else {
       return false;
     }
+  }
+
+  buildWidgets(Object? data) {
+    if (_listOfDiscoveryResponse.isEmpty) {
+      data = data as List;
+      // _discoveryResponse = data as DiscoveryResponseModel;
+      // fulfillments = _discoveryResponse?.message?.catalog?.fulfillments;
+
+      data.forEach((element) {
+        element = element as DiscoveryResponseModel;
+        if (element.message != null) {
+          _listOfDiscoveryResponse.add(element);
+        }
+      });
+
+      _listOfDiscoveryResponse = _listOfDiscoveryResponse.toSet().toList();
+
+      _listOfDiscoveryResponse.forEach((element) {
+        if (element?.message?.catalog?.fulfillments != null) {
+          _fulfillments?.addAll(
+              element?.message?.catalog?.fulfillments as Iterable<Fulfillment>);
+        }
+      });
+
+      _fulfillments = _fulfillments?.toSet().toList();
+
+      // message = _discoveryResponse?.message;
+    }
+
+    return _fulfillments != null && _fulfillments!.isNotEmpty
+        ? RefreshIndicator(
+            onRefresh: onRefresh,
+            child: Container(
+              width: width,
+              height: height,
+              color: AppColors.backgroundWhiteColorFBFCFF,
+              // padding: const EdgeInsets.fromLTRB(8, 16, 16, 16),
+              child: Column(
+                children: [
+                  buildDoctorsList(),
+                ],
+              ),
+            ),
+          )
+        : RefreshIndicator(
+            onRefresh: onRefresh,
+            child: Stack(
+              children: [
+                ListView(),
+                Container(
+                  padding: EdgeInsets.all(15),
+                  child: Center(
+                    child: Text(
+                      AppStrings().noDoctorAvailable,
+                      style: TextStyle(
+                          fontFamily: "Poppins",
+                          fontStyle: FontStyle.normal,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16.0),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+  }
+
+  buildDoctorsList() {
+    return Expanded(
+      child: ListView.separated(
+        itemCount: _fulfillments!.length,
+        physics: const AlwaysScrollableScrollPhysics(),
+        itemBuilder: (context, index) {
+          return buildNewDoctorTile(index);
+        },
+        separatorBuilder: (context, index) {
+          return const SizedBox(
+            height: 20,
+          );
+        },
+        padding: EdgeInsets.fromLTRB(15, 15, 15, 80),
+      ),
+    );
+    // : Expanded(
+    //     child: Container(
+    //       child: Center(
+    //         child: Text(
+    //           AppStrings().noDoctorAvailable,
+    //           style: TextStyle(
+    //               fontFamily: "Poppins",
+    //               fontStyle: FontStyle.normal,
+    //               fontWeight: FontWeight.w500,
+    //               fontSize: 16.0),
+    //           textAlign: TextAlign.center,
+    //         ),
+    //       ),
+    //     ),
+    //   );
+  }
+
+  buildNewDoctorTile(int index) {
+    String? providerUri;
+    String? HSPAValue = "";
+    // String? priceValue;
+    // List<DiscoveryItems> item = [];
+    Fulfillment discoveryFulfillments = _fulfillments![index];
+    // if (discoveryItems![index].price!.value != null) {
+    //   if (discoveryFulfillments.id == discoveryItems![index].fulfillmentId) {
+    //     item.add(discoveryItems![index]);
+    //   }
+    // }
+    HSPAValue = _listOfDiscoveryResponse[0]!.message!.catalog!.descriptor!.name;
+    _listOfDiscoveryResponse.forEach(
+      (discoveryResponse) {
+        discoveryResponse?.message?.catalog?.fulfillments
+            ?.forEach((fullfillment) {
+          if (fullfillment.agent?.id == _fulfillments?[index].agent?.id) {
+            providerUri = discoveryResponse.context?.providerUrl;
+          }
+        });
+      },
+    );
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: AppShadows.shadow3,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          DoctorDetailsView(
+            doctorName: discoveryFulfillments.agent?.name,
+            doctorAbhaId: discoveryFulfillments.agent?.id,
+            tags: discoveryFulfillments.agent!.tags,
+            gender: discoveryFulfillments.agent?.gender,
+            profileImage: discoveryFulfillments.agent?.image,
+          ),
+          const SizedBox(
+            height: 5,
+          ),
+          // Padding(
+          //   padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //     children: [
+          //       RichText(
+          //         text: TextSpan(
+          //           text: AppStrings.teleconsultVaue,
+          //           style: AppTextStyle.textSemiBoldStyle(
+          //               color: AppColors.black, fontSize: 14),
+          //           children: [
+          //             TextSpan(
+          //               text: AppStrings.teleconsultText,
+          //               style: AppTextStyle.textLightStyle(
+          //                   color: AppColors.infoIconColor, fontSize: 12),
+          //             ),
+          //           ],
+          //         ),
+          //       ),
+          //       RichText(
+          //         text: TextSpan(
+          //           text: AppStrings.onTimePercentage,
+          //           style: AppTextStyle.textSemiBoldStyle(
+          //               color: AppColors.black, fontSize: 14),
+          //           children: [
+          //             TextSpan(
+          //               text: AppStrings.onTimeText,
+          //               style: AppTextStyle.textLightStyle(
+          //                   color: AppColors.infoIconColor, fontSize: 12),
+          //             ),
+          //           ],
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
+          Container(
+            height: 1,
+            width: width,
+            color: const Color.fromARGB(255, 238, 238, 238),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          Container(
+            margin: const EdgeInsets.fromLTRB(8, 0, 8, 10),
+            width: width,
+            height: 31,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: 1,
+              physics: const ClampingScrollPhysics(),
+              itemBuilder: (context, index) {
+                // if (item[index].price!.value != null) {
+                //   priceValue = item[index].price?.value;
+                // }
+                return GestureDetector(
+                  onTap: () {
+                    Get.to(() => DoctorsDetailPage(
+                          // discoveryFulfillments: discoveryFulfillments,
+                          //discoveryItems: item[index],
+                          // discoveryProviders: widget.discoveryDetails!.message!
+                          //     .catalog!.providers![0],
+                          doctorAbhaId: discoveryFulfillments.agent!.id!,
+                          doctorName: discoveryFulfillments.agent!.name!,
+                          // doctorProviderUri: _listOfDiscoveryResponse[index]
+                          //         ?.context
+                          //         ?.providerUrl ??
+                          //     "",
+                          doctorProviderUri: providerUri ?? "",
+                          discoveryFulfillments: discoveryFulfillments,
+                          consultationType: _consultationType!,
+                          isRescheduling: false,
+                          uniqueId: _uniqueId,
+                        ));
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 20),
+                    decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: AppColors.tileColors)),
+                    height: 31,
+                    width: 130,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(8, 0, 0, 2),
+                          child: Text(
+                            "₹ " +
+                                discoveryFulfillments
+                                    .agent!.tags!.firstConsultation!,
+                            style: AppTextStyle.textBoldStyle(
+                                color: AppColors.amountColor, fontSize: 14),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(8, 0, 0, 2),
+                          child: Text(
+                            HSPAValue ?? "-",
+                            style: AppTextStyle.textBoldStyle(
+                                color: AppColors.amountColor, fontSize: 14),
+                          ),
+                        ),
+                        // Image.asset(
+                        //   'assets/images/esanjivani-logo.png',
+                        //   height: 30,
+                        //   width: 70,
+                        // ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+              separatorBuilder: (context, index) {
+                return const SizedBox(
+                  height: 20,
+                );
+              },
+            ),
+          ),
+          // Padding(
+          //   padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
+          //   child: Row(
+          //     // alignment: WrapAlignment.spaceBetween,
+          //     // direction: Axis.horizontal,
+          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //     children: [
+          //       GestureDetector(
+          //         onTap: () {
+          //           Get.to(() => const DoctorsDetailPage());
+          //         },
+          //         child: Container(
+          //           decoration: BoxDecoration(
+          //               color: AppColors.white,
+          //               borderRadius: BorderRadius.circular(20),
+          //               border: Border.all(color: AppColors.tileColors)),
+          //           height: 31,
+          //           width: 130,
+          //           child: Row(
+          //             children: [
+          //               Padding(
+          //                 padding: const EdgeInsets.fromLTRB(8, 0, 0, 2),
+          //                 child: Text(
+          //                   "Rs900",
+          //                   style: AppTextStyle.textBoldStyle(
+          //                       color: AppColors.amountColor, fontSize: 14),
+          //                 ),
+          //               ),
+          //               Image.asset(
+          //                 'assets/images/esanjivani-logo.png',
+          //                 height: 30,
+          //                 width: 70,
+          //               ),
+          //             ],
+          //           ),
+          //         ),
+          //       ),
+          //       const SizedBox(
+          //         width: 10,
+          //       ),
+          //       GestureDetector(
+          //         onTap: () {
+          //           Get.to(() => const DoctorsDetailPage());
+          //         },
+          //         child: Container(
+          //           decoration: BoxDecoration(
+          //               color: AppColors.white,
+          //               borderRadius: BorderRadius.circular(20),
+          //               border: Border.all(color: AppColors.tileColors)),
+          //           height: 31,
+          //           width: 130,
+          //           child: Row(
+          //             children: [
+          //               Padding(
+          //                 padding: const EdgeInsets.fromLTRB(8, 0, 8, 2),
+          //                 child: Text(
+          //                   "Rs500",
+          //                   style: AppTextStyle.textBoldStyle(
+          //                       color: AppColors.amountColor, fontSize: 14),
+          //                 ),
+          //               ),
+          //               Image.asset(
+          //                 'assets/images/Practo-logo.png',
+          //                 height: 30,
+          //                 width: 50,
+          //               ),
+          //             ],
+          //           ),
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
+        ],
+      ),
+    );
+  }
+
+  generateRadioButton({
+    required SortBy value,
+    required String label,
+    required Function(SortBy? value) onTap,
+  }) {
+    return RadioListTile<SortBy>(
+      groupValue: selectedSortValue,
+      value: value,
+      onChanged: onTap,
+      title: Text(
+        label,
+        style: AppTextStyle.textMediumStyle(
+            fontSize: 14, color: AppColors.doctorNameColor),
+      ),
+    );
   }
 
   Future<String?> _getId() async {
@@ -554,366 +916,6 @@ class _DiscoveryResultsPageState extends State<DiscoveryResultsPage> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  buildWidgets(Object? data) {
-    if (_listOfDiscoveryResponse.isEmpty) {
-      data = data as List;
-      // _discoveryResponse = data as DiscoveryResponseModel;
-      // fulfillments = _discoveryResponse?.message?.catalog?.fulfillments;
-
-      data.forEach((element) {
-        element = element as DiscoveryResponseModel;
-        if (element.message != null) {
-          _listOfDiscoveryResponse.add(element);
-        }
-      });
-
-      _listOfDiscoveryResponse = _listOfDiscoveryResponse.toSet().toList();
-
-      _listOfDiscoveryResponse.forEach((element) {
-        if (element?.message?.catalog?.fulfillments != null) {
-          _fulfillments?.addAll(
-              element?.message?.catalog?.fulfillments as Iterable<Fulfillment>);
-        }
-      });
-
-      _fulfillments = _fulfillments?.toSet().toList();
-
-      // message = _discoveryResponse?.message;
-    }
-
-    return _fulfillments != null && _fulfillments!.isNotEmpty
-        ? RefreshIndicator(
-            onRefresh: onRefresh,
-            child: Container(
-              width: width,
-              height: height,
-              color: AppColors.backgroundWhiteColorFBFCFF,
-              // padding: const EdgeInsets.fromLTRB(8, 16, 16, 16),
-              child: Column(
-                children: [
-                  buildDoctorsList(),
-                ],
-              ),
-            ),
-          )
-        : RefreshIndicator(
-            onRefresh: onRefresh,
-            child: Stack(
-              children: [
-                ListView(),
-                Container(
-                  padding: EdgeInsets.all(15),
-                  child: Center(
-                    child: Text(
-                      AppStrings().noDoctorAvailable,
-                      style: TextStyle(
-                          fontFamily: "Poppins",
-                          fontStyle: FontStyle.normal,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 16.0),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-  }
-
-  buildDoctorsList() {
-    return Expanded(
-      child: ListView.separated(
-        itemCount: _fulfillments!.length,
-        physics: const AlwaysScrollableScrollPhysics(),
-        itemBuilder: (context, index) {
-          return buildNewDoctorTile(index);
-        },
-        separatorBuilder: (context, index) {
-          return const SizedBox(
-            height: 20,
-          );
-        },
-        padding: EdgeInsets.fromLTRB(15, 15, 15, 80),
-      ),
-    );
-    // : Expanded(
-    //     child: Container(
-    //       child: Center(
-    //         child: Text(
-    //           AppStrings().noDoctorAvailable,
-    //           style: TextStyle(
-    //               fontFamily: "Poppins",
-    //               fontStyle: FontStyle.normal,
-    //               fontWeight: FontWeight.w500,
-    //               fontSize: 16.0),
-    //           textAlign: TextAlign.center,
-    //         ),
-    //       ),
-    //     ),
-    //   );
-  }
-
-  buildNewDoctorTile(int index) {
-    String? providerUri;
-    String? HSPAValue = "";
-    // String? priceValue;
-    // List<DiscoveryItems> item = [];
-    Fulfillment discoveryFulfillments = _fulfillments![index];
-    // if (discoveryItems![index].price!.value != null) {
-    //   if (discoveryFulfillments.id == discoveryItems![index].fulfillmentId) {
-    //     item.add(discoveryItems![index]);
-    //   }
-    // }
-    HSPAValue =
-        _listOfDiscoveryResponse[index]!.message!.catalog!.descriptor!.name;
-    _listOfDiscoveryResponse.forEach(
-      (discoveryResponse) {
-        discoveryResponse?.message?.catalog?.fulfillments
-            ?.forEach((fullfillment) {
-          if (fullfillment.agent?.id == _fulfillments?[index].agent?.id) {
-            providerUri = discoveryResponse.context?.providerUrl;
-          }
-        });
-      },
-    );
-
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: AppShadows.shadow3,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          DoctorDetailsView(
-            doctorName: discoveryFulfillments.agent?.name,
-            doctorAbhaId: discoveryFulfillments.agent?.id,
-            tags: discoveryFulfillments.agent!.tags,
-            gender: discoveryFulfillments.agent?.gender,
-            profileImage: discoveryFulfillments.agent?.image,
-          ),
-          const SizedBox(
-            height: 5,
-          ),
-          // Padding(
-          //   padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-          //   child: Row(
-          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //     children: [
-          //       RichText(
-          //         text: TextSpan(
-          //           text: AppStrings.teleconsultVaue,
-          //           style: AppTextStyle.textSemiBoldStyle(
-          //               color: AppColors.black, fontSize: 14),
-          //           children: [
-          //             TextSpan(
-          //               text: AppStrings.teleconsultText,
-          //               style: AppTextStyle.textLightStyle(
-          //                   color: AppColors.infoIconColor, fontSize: 12),
-          //             ),
-          //           ],
-          //         ),
-          //       ),
-          //       RichText(
-          //         text: TextSpan(
-          //           text: AppStrings.onTimePercentage,
-          //           style: AppTextStyle.textSemiBoldStyle(
-          //               color: AppColors.black, fontSize: 14),
-          //           children: [
-          //             TextSpan(
-          //               text: AppStrings.onTimeText,
-          //               style: AppTextStyle.textLightStyle(
-          //                   color: AppColors.infoIconColor, fontSize: 12),
-          //             ),
-          //           ],
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // ),
-          Container(
-            height: 1,
-            width: width,
-            color: const Color.fromARGB(255, 238, 238, 238),
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          Container(
-            margin: const EdgeInsets.fromLTRB(8, 0, 8, 10),
-            width: width,
-            height: 31,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: 1,
-              physics: const ClampingScrollPhysics(),
-              itemBuilder: (context, index) {
-                // if (item[index].price!.value != null) {
-                //   priceValue = item[index].price?.value;
-                // }
-                return GestureDetector(
-                  onTap: () {
-                    Get.to(() => DoctorsDetailPage(
-                          // discoveryFulfillments: discoveryFulfillments,
-                          //discoveryItems: item[index],
-                          // discoveryProviders: widget.discoveryDetails!.message!
-                          //     .catalog!.providers![0],
-                          doctorAbhaId: discoveryFulfillments.agent!.id!,
-                          doctorName: discoveryFulfillments.agent!.name!,
-                          // doctorProviderUri: _listOfDiscoveryResponse[index]
-                          //         ?.context
-                          //         ?.providerUrl ??
-                          //     "",
-                          doctorProviderUri: providerUri ?? "",
-                          discoveryFulfillments: discoveryFulfillments,
-                          consultationType: _consultationType!,
-                          isRescheduling: false,
-                          uniqueId: _uniqueId,
-                        ));
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 20),
-                    decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: AppColors.tileColors)),
-                    height: 31,
-                    width: 130,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(8, 0, 0, 2),
-                          child: Text(
-                            "₹ " +
-                                discoveryFulfillments
-                                    .agent!.tags!.firstConsultation!,
-                            style: AppTextStyle.textBoldStyle(
-                                color: AppColors.amountColor, fontSize: 14),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(8, 0, 0, 2),
-                          child: Text(
-                            HSPAValue ?? "-",
-                            style: AppTextStyle.textBoldStyle(
-                                color: AppColors.amountColor, fontSize: 14),
-                          ),
-                        ),
-                        // Image.asset(
-                        //   'assets/images/esanjivani-logo.png',
-                        //   height: 30,
-                        //   width: 70,
-                        // ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-              separatorBuilder: (context, index) {
-                return const SizedBox(
-                  height: 20,
-                );
-              },
-            ),
-          ),
-          // Padding(
-          //   padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
-          //   child: Row(
-          //     // alignment: WrapAlignment.spaceBetween,
-          //     // direction: Axis.horizontal,
-          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //     children: [
-          //       GestureDetector(
-          //         onTap: () {
-          //           Get.to(() => const DoctorsDetailPage());
-          //         },
-          //         child: Container(
-          //           decoration: BoxDecoration(
-          //               color: AppColors.white,
-          //               borderRadius: BorderRadius.circular(20),
-          //               border: Border.all(color: AppColors.tileColors)),
-          //           height: 31,
-          //           width: 130,
-          //           child: Row(
-          //             children: [
-          //               Padding(
-          //                 padding: const EdgeInsets.fromLTRB(8, 0, 0, 2),
-          //                 child: Text(
-          //                   "Rs900",
-          //                   style: AppTextStyle.textBoldStyle(
-          //                       color: AppColors.amountColor, fontSize: 14),
-          //                 ),
-          //               ),
-          //               Image.asset(
-          //                 'assets/images/esanjivani-logo.png',
-          //                 height: 30,
-          //                 width: 70,
-          //               ),
-          //             ],
-          //           ),
-          //         ),
-          //       ),
-          //       const SizedBox(
-          //         width: 10,
-          //       ),
-          //       GestureDetector(
-          //         onTap: () {
-          //           Get.to(() => const DoctorsDetailPage());
-          //         },
-          //         child: Container(
-          //           decoration: BoxDecoration(
-          //               color: AppColors.white,
-          //               borderRadius: BorderRadius.circular(20),
-          //               border: Border.all(color: AppColors.tileColors)),
-          //           height: 31,
-          //           width: 130,
-          //           child: Row(
-          //             children: [
-          //               Padding(
-          //                 padding: const EdgeInsets.fromLTRB(8, 0, 8, 2),
-          //                 child: Text(
-          //                   "Rs500",
-          //                   style: AppTextStyle.textBoldStyle(
-          //                       color: AppColors.amountColor, fontSize: 14),
-          //                 ),
-          //               ),
-          //               Image.asset(
-          //                 'assets/images/Practo-logo.png',
-          //                 height: 30,
-          //                 width: 50,
-          //               ),
-          //             ],
-          //           ),
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // ),
-        ],
-      ),
-    );
-  }
-
-  generateRadioButton({
-    required SortBy value,
-    required String label,
-    required Function(SortBy? value) onTap,
-  }) {
-    return RadioListTile<SortBy>(
-      groupValue: selectedSortValue,
-      value: value,
-      onChanged: onTap,
-      title: Text(
-        label,
-        style: AppTextStyle.textMediumStyle(
-            fontSize: 14, color: AppColors.doctorNameColor),
       ),
     );
   }

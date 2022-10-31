@@ -16,8 +16,10 @@ import '../../../../common/common.dart';
 
 class ChooseNewAbhaAddress extends StatefulWidget {
   String sessionId;
+  bool? isFromMobile;
 
-  ChooseNewAbhaAddress({Key? key, required this.sessionId}) : super(key: key);
+  ChooseNewAbhaAddress({Key? key, required this.sessionId, this.isFromMobile})
+      : super(key: key);
 
   @override
   State<ChooseNewAbhaAddress> createState() => _ChooseNewAbhaAddressState();
@@ -125,7 +127,9 @@ class _ChooseNewAbhaAddressState extends State<ChooseNewAbhaAddress> {
           constraints: const BoxConstraints(),
         ),
         title: Text(
-          AppStrings().registrationWithMobileNumber,
+          widget.isFromMobile!
+              ? AppStrings().registrationWithMobileNumber
+              : AppStrings().registrationWithEmail,
           style:
               AppTextStyle.textBoldStyle(color: AppColors.black, fontSize: 18),
         ),

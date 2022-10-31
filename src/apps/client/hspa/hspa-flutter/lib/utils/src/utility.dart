@@ -9,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
+import 'package:mime/mime.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pointycastle/asymmetric/api.dart';
 
@@ -61,9 +62,10 @@ class Utility {
     DateTime justNow = DateTime.now().subtract(const Duration(minutes: 1));
     DateTime localDateTime = startDateTime.toLocal();
 
-    if (!localDateTime.difference(justNow).isNegative) {
+    /// Hiding now as we are not handling timer logic that should update it after some time
+    /*if (!localDateTime.difference(justNow).isNegative) {
       return 'Just now';
-    }
+    }*/
 
     String roughTimeString = DateFormat('jm').format(startDateTime);
     if (localDateTime.day == now.day && localDateTime.month == now.month && localDateTime.year == now.year) {
@@ -215,5 +217,22 @@ class Utility {
     DateFormat format = DateFormat('MMMM d');
     displayDate = format.format(date);
     return displayDate;
+  }
+
+  static bool getIsImage({required String? mediaUrl}) {
+    final mimeType = lookupMimeType(mediaUrl??'');
+    debugPrint('Mime type is $mimeType');
+    bool isImage = false;
+    if(mimeType != null && mimeType.startsWith('image/')) {
+      isImage = true;
+    }
+    return isImage;
+  }
+
+  static double getFileSize({required int fileSizeInBytes}) {
+    double fileSize = 0;
+    double fileSizInKB = fileSizeInBytes / 1024;
+    fileSize = fileSizInKB/1024;
+    return fileSize;
   }
 }

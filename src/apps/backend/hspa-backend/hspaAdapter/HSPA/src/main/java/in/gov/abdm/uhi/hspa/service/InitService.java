@@ -77,7 +77,7 @@ public class InitService implements IService {
 
     @Override
     public Mono<Response> processor(String request) {
-        Request objRequest;
+        Request objRequest = null;
         Response ack = generateAck();
         try {
             objRequest = new ObjectMapper().readValue(request, Request.class);
@@ -85,14 +85,15 @@ public class InitService implements IService {
 
             ////TODO: If provider not found donot add patient
             String typeFulfillment = objRequest.getMessage().getOrder().getFulfillment().getType();
-            logMessageId(objRequest);
+            LOGGER.info("Processing::Init::Request:: {}.. Message Id is {}", request, getMessageId(objRequest));
+
             if(typeFulfillment.equalsIgnoreCase(ConstantsUtils.TELECONSULTATION) || typeFulfillment.equalsIgnoreCase(ConstantsUtils.PHYSICAL_CONSULTATION) || typeFulfillment.equalsIgnoreCase(ConstantsUtils.GROUP_CONSULTATION)) {
                 setTeleconsultationInCaseOfGroupConsultation(typeFulfillment, objRequest);
                 findPatient(finalObjRequest)
                         .flatMap(result -> createPatient(result, finalObjRequest))
                         .flatMap(result -> createResponse(result, finalObjRequest))
                         .flatMap(this::callOnInit)
-                        .flatMap(this::logResponse)
+                        .flatMap(log -> logResponse(log, finalObjRequest))
                         .subscribe();
             }
             else{
@@ -101,7 +102,7 @@ public class InitService implements IService {
 
 
         } catch (Exception ex) {
-            LOGGER.error("Init Service process::error::onErrorResume:: {}" , ex, ex);
+            LOGGER.error("Init Service process::error::onErrorResume:: {} .. Message Id is {}" , ex, getMessageId(objRequest));
             ack = generateNack(ex);
 
         }
@@ -166,9 +167,9 @@ public class InitService implements IService {
                 .exchangeToMono(clientResponse -> clientResponse.bodyToMono(String.class));
     }
 
-    private void logMessageId(Request objRequest) {
+    private String getMessageId(Request objRequest) {
         String messageId = objRequest.getContext().getMessageId();
-        LOGGER.info(ConstantsUtils.REQUESTER_MESSAGE_ID_IS, messageId);
+        return messageId == null ? " " : messageId;
     }
 
     private Mono<String> callOnInit(Request request) {
@@ -187,7 +188,7 @@ public class InitService implements IService {
                 .bodyToMono(String.class)
                 .retry(3)
                 .onErrorResume(error -> {
-                    LOGGER.error("Init Service call on init:: {}", error, error);
+                    LOGGER.error("Init Service call on init:: {} .. Message Id {}", error,  getMessageId(request));
                     return Mono.empty(); //TODO:Add appropriate response
                 });
     }
@@ -210,10 +211,9 @@ public class InitService implements IService {
     }
 
     @Override
-    public Mono<String> logResponse(java.lang.String result) {
+    public Mono<String> logResponse(String result, Request request) {
 
-        LOGGER.info("OnInit::Log::Response:: {}" , result);
-
+        LOGGER.info("OnInit::Log::Response:: {} \n Message Id is {}" , result,  getMessageId(request));
         return Mono.just(result);
     }
 

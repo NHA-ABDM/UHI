@@ -42,6 +42,7 @@ public class EuaConfiguration {
         return ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
             LOGGER.info("Request: {} {}", clientRequest.method(), clientRequest.url());
             clientRequest.headers().forEach((name, values) -> values.forEach(value -> LOGGER.info("{}={}", name, value)));
+            LOGGER.info(String.valueOf(clientRequest.body()));
             return Mono.just(clientRequest);
         });
     }

@@ -25,6 +25,7 @@ import '../../view/authentication/src/register_provider_page.dart';
 import '../../view/authentication/src/select_hpr_id_page.dart';
 import '../../view/authentication/src/sign_up_with_aadhaar.dart';
 import '../../view/chat/src/chat_page.dart';
+import '../../view/chat/src/pdf_view_page.dart';
 import '../../view/chat/src/show_selected_media_page.dart';
 import '../../view/dashboard/src/change_language_page.dart';
 import '../../view/dashboard/src/notification_settings_page.dart';
@@ -87,6 +88,7 @@ class AppRoutes {
   static const String videoCall = '/video_call';
   static const String groupVideoCallPrimary = '/group_video_call_primary';
   static const String groupVideoCallSecondary = '/group_video_call_secondary';
+  static const String pdfViewPage = '/pdf_view_page';
 
   static void toNamed(
     String route, {
@@ -304,6 +306,11 @@ appRoutes() => [
         name: AppRoutes.groupVideoCallSecondary,
         page: () => const GroupVideoCallSecondary(),
         transition: Utility.pageTransition,
+      ),
+      GetPage(
+          name: AppRoutes.pdfViewPage,
+          page: () => const PdfViewPage(),
+          transition: Utility.pageTransition,
       ),
     ];
 

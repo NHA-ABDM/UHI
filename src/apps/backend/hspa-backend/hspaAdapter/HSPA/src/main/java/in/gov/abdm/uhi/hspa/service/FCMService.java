@@ -1,8 +1,6 @@
 package in.gov.abdm.uhi.hspa.service;
 
 import com.google.firebase.messaging.*;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import in.gov.abdm.uhi.hspa.dto.PushNotificationRequestDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +18,8 @@ public class FCMService {
     public void sendMessageToToken(PushNotificationRequestDTO request)
             throws InterruptedException, ExecutionException {
         Message message = getPreconfiguredMessageToToken(request);
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        String jsonOutput = gson.toJson(message);
         String response = sendAndGetResponse(message);
-        logger.info("Sent message to token. Device token: " + request.getToken() + ", " + response);
+        logger.info("Sent message to token. Device token: {} , {} ", request.getToken() , response);
     }
     
     private String sendAndGetResponse(Message message) throws InterruptedException, ExecutionException {
