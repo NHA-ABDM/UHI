@@ -11,7 +11,7 @@
 
 package in.gov.abdm.uhi.discovery.controller;
 
-import in.gov.abdm.uhi.discovery.service.ResponderService;
+import javax.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,34 +20,39 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import in.gov.abdm.uhi.discovery.entity.RequestRoot;
+import in.gov.abdm.uhi.discovery.service.ResponderService;
+import io.swagger.annotations.Api;
 import reactor.core.publisher.Mono;
 
-import javax.validation.Valid;
-
-@Validated
 @RestController
 @RequestMapping("/api/v1")
+@Api(value = "On_Search Responder", description = "Accepter for all the on_search response from the HSPAs")
+@Validated
 public class ResponderController {
 
-    private static final Logger LOGGER = LogManager.getLogger(ResponderController.class);
+	private static final Logger LOGGER = LogManager.getLogger(ResponderController.class);
 
-    @Autowired
-    ResponderService responderService;
+	@Autowired
+	ResponderService responderService;
 
-    @PostMapping(value = "/on_search", consumes = "application/json", produces = "application/json")
-    public Mono<String> search(@Valid @RequestBody String request) {
-        LOGGER.info("Responder::called");
+	@PostMapping(value = "/on_search", consumes = "application/json", produces = "application/json")
+	public Mono<String> onSearch(@Valid @RequestBody String request) {
+		Mono<String> response = null;
+		try {
+			ObjectMapper obj = new ObjectMapper();
+			 RequestRoot reqroot = obj.readValue(request, RequestRoot.class);
+			LOGGER.info("Responder::called::{}", request.trim());
 
-        Mono<String> response = Mono.just("Response Empty");
+			response = responderService.processor(request,reqroot);
 
-        try {
-            response = responderService.processor(request);
-        } catch (Exception ex) {
-            LOGGER.info("Responder::error::" + request);
-            LOGGER.error("Responder::error::" + ex);
-        }
+		} catch (Exception ex) {
+			LOGGER.info("Responder::error::{}", request);
+			LOGGER.error("Responder::error::{}", ex);
+		}
 
-        return response;
-    }
+		return response;
+	}
 
 }

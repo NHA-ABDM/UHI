@@ -1,0 +1,4 @@
+in/gov/abdm/uhi/controller/GatewayController.class
+in/gov/abdm/uhi/configuration/SwaggerSpecConfig.class
+in/gov/abdm/uhi/GatewayApplication.class
+in/gov/abdm/uhi/configuration/LoggingFilter.class

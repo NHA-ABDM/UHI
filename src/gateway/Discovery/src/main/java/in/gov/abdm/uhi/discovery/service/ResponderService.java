@@ -11,57 +11,72 @@
 
 package in.gov.abdm.uhi.discovery.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import in.gov.abdm.uhi.discovery.controller.ResponderController;
-import in.gov.abdm.uhi.discovery.entity.RequestRoot;
+import java.net.URISyntaxException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import in.gov.abdm.uhi.common.dto.Response;
+import in.gov.abdm.uhi.discovery.controller.ResponderController;
+import in.gov.abdm.uhi.discovery.entity.RequestRoot;
+import in.gov.abdm.uhi.discovery.exception.GatewayException;
+import in.gov.abdm.uhi.discovery.security.SignatureUtility;
+import in.gov.abdm.uhi.discovery.utility.GatewayUtility;
 import reactor.core.publisher.Mono;
-
-import java.net.URISyntaxException;
 
 @Service
 public class ResponderService {
 
-    private static final Logger LOGGER = LogManager.getLogger(ResponderController.class);
+	@Autowired
+	SignatureUtility signatureUtility;
+	
+	@Autowired
+	WebClient getWebClient;
 
-    public Mono<String> processor(String request) throws URISyntaxException {
+	@Autowired
+	GatewayUtility gatewayUtil;
 
-        Mono<String> onSearchForward = null;
-        ObjectMapper mapper = new ObjectMapper();
-        RequestRoot message = null;
-        String targetURI = "";
-        try {
-            message = mapper.readValue(request, RequestRoot.class);
-            targetURI = message.getContext().getConsumer_uri();
+	@Value("${spring.application.isHeaderEnabled}")
+	Boolean isHeaderEnabled;
 
-        } catch (JsonProcessingException ex) {
+	private static final Logger LOGGER = LogManager.getLogger(ResponderController.class);
 
-            LOGGER.error("RequesterService::error::processor::" + ex);
-        }
+	public Mono<String> processor(String strrequest, RequestRoot reqroot) throws URISyntaxException {
 
-        WebClient client = WebClient.create(targetURI);
-        try {
-            onSearchForward = client.post().uri("/on_search")
-                    // .header("Authorization", "Bearer MY_SECRET_TOKEN") TODO: Add appropriate
-                    // header
-                    .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
-                    .body(BodyInserters.fromValue(message)).retrieve().bodyToMono(String.class)
-                    .onErrorResume(error -> {
-                        LOGGER.error("ResponderService::error::onSearchForward::" + error);
-                        return Mono.just("Failed on_search request"); //TODO:Add appropriate response
-                    });
+		Mono<String> onSearchForward = null;
+		String targetURI = "";
 
-        } catch (Exception ex) {
+		
+		try {
+			targetURI = reqroot.getContext().getConsumerUri();
+			LOGGER.info("{} | Consumer ID |{}", reqroot.getContext().getMessageId(), targetURI);
+			onSearchForward = getWebClient.post().uri(targetURI + "/on_search").contentType(MediaType.APPLICATION_JSON)
+					.accept(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(strrequest))
+					// .header("X-Gateway-Authorization",
+					// isHeaderEnabled?signatureUtility.getGatewayHeaders(request):"")
+					.header("X-Gateway-Authorization", "X-Gateway-Authorization").retrieve()
+					.onStatus(HttpStatus::is4xxClientError,
+							resp -> resp.bodyToMono(String.class)
+									.flatMap(error -> Mono.error(new GatewayException(error))))
+					.onStatus(HttpStatus::is5xxServerError,
+							resp -> resp.bodyToMono(String.class)
+									.flatMap(error -> Mono.error(new GatewayException(error))))
+					.bodyToMono(Response.class).onErrorResume(error -> {
+						LOGGER.error("{} Responder Service::error::onErrorResume::{}",
+								reqroot.getContext().getMessageId(), error);
+						return gatewayUtil.generateNack(error);
+					}).thenReturn(gatewayUtil.generateAck()).log();
 
-            throw ex;
-        }
-        return onSearchForward;
-    }
+		} catch (Exception ex) {
+
+			throw ex;
+		}
+		return onSearchForward;
+	}
 
 }

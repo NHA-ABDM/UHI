@@ -11,9 +11,10 @@
 
 package in.gov.abdm.uhi.discovery;
 
-import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
-import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
-import io.github.resilience4j.timelimiter.TimeLimiterConfig;
+import java.time.Duration;
+
+import javax.net.ssl.SSLException;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
@@ -21,7 +22,17 @@ import org.springframework.cloud.circuitbreaker.resilience4j.ReactiveResilience4
 import org.springframework.cloud.circuitbreaker.resilience4j.Resilience4JConfigBuilder;
 import org.springframework.cloud.client.circuitbreaker.Customizer;
 import org.springframework.context.annotation.Bean;
-import java.time.Duration;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
+import org.springframework.web.reactive.function.client.WebClient;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import io.github.resilience4j.timelimiter.TimeLimiterConfig;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import reactor.netty.http.client.HttpClient;
+
 @SpringBootApplication
 @EnableCaching
 public class DiscoveryApplication {
@@ -41,5 +52,23 @@ public class DiscoveryApplication {
 							.slowCallRateThreshold(5).slowCallRateThreshold(2).build()).build());
 		};
 	}
-
+	
+//	@Bean
+//	public WebClient getWebClient() {
+//		WebClient webClient = WebClient.builder()
+//				 .clientConnector(new ReactorClientHttpConnector()).build();
+//		return webClient;
+//	}
+	
+	
+	@Bean public WebClient getWebClient() throws SSLException { SslContext
+	      sslContext = SslContextBuilder .forClient()
+	      .trustManager(InsecureTrustManagerFactory.INSTANCE) .build();	      
+	      HttpClient httpClient = HttpClient.create().secure(t ->
+	      t.sslContext(sslContext));	      
+	      return WebClient.builder() .clientConnector(new
+	      ReactorClientHttpConnector(httpClient))
+	      .exchangeStrategies(ExchangeStrategies.builder() .codecs(configure ->
+	      configure .defaultCodecs() .maxInMemorySize(16 * 1024 * 1024)) .build())
+	      .build(); }
 }

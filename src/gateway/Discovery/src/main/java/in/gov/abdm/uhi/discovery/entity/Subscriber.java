@@ -11,7 +11,9 @@
 
 package in.gov.abdm.uhi.discovery.entity;
 
+import lombok.Data;
 
+@Data
 public class Subscriber {
 
 	private Integer participant_id;

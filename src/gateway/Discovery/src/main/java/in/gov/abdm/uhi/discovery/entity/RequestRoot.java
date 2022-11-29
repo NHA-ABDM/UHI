@@ -11,24 +11,30 @@
 
 package in.gov.abdm.uhi.discovery.entity;
 
-import in.gov.abdm.uhi.discovery.service.beans.ContextRoot;
-import in.gov.abdm.uhi.discovery.service.beans.MessageRoot;
+import javax.validation.Valid;
 
-public class RequestRoot {
-	private MessageRoot messageRoot;
-	private ContextRoot contextRoot;
-	public MessageRoot getMessage() {
-		return messageRoot;
-	}
-	public void setMessage(MessageRoot messageRoot) {
-		this.messageRoot = messageRoot;
-	}
-	public ContextRoot getContext() {
-		return contextRoot;
-	}
-	public void setContext(ContextRoot contextRoot) {
-		this.contextRoot = contextRoot;
-	}
-	
-	
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import in.gov.abdm.uhi.common.dto.Context;
+import in.gov.abdm.uhi.common.dto.Error;
+import in.gov.abdm.uhi.common.dto.Message;
+import in.gov.abdm.uhi.common.dto.MessageRoot;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+
+public class RequestRoot{
+
+	@Valid
+	private Message message;
+	@Valid
+	private Context context;
+	//private Error error;
+
 }

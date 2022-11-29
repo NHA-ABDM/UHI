@@ -1,0 +1,656 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "context": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        },
+        "core_version": {
+          "type": "string"
+        },
+        "message_id": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "consumer_id": {
+          "type": "string"
+        },
+        "consumer_uri": {
+          "type": "string"
+        },
+        "transaction_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "domain",
+        "country",
+        "city",
+        "action",
+        "core_version",
+        "message_id",
+        "timestamp",
+        "consumer_id",
+        "consumer_uri",
+        "transaction_id"
+      ]
+    },
+    "message": {
+      "type": "object",
+      "properties": {
+        "catalog": {
+          "type": "object",
+          "properties": {
+            "descriptor": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
+            "providers": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "descriptor": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    },
+                    "categories": {
+                      "type": "array",
+                      "items": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "descriptor": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "name"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "descriptor"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "descriptor": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "name"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "descriptor"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "descriptor": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "name"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "descriptor"
+                          ]
+                        }
+                      ]
+                    },
+                    "fulfillments": {
+                      "type": "array",
+                      "items": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "person": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "gender": {
+                                  "type": "string"
+                                },
+                                "image": {
+                                  "type": "string"
+                                },
+                                "cred": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "name",
+                                "gender",
+                                "image",
+                                "cred"
+                              ]
+                            },
+                            "start": {
+                              "type": "object",
+                              "properties": {
+                                "time": {
+                                  "type": "object",
+                                  "properties": {
+                                    "timestamp": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "timestamp"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "time"
+                              ]
+                            },
+                            "end": {
+                              "type": "object",
+                              "properties": {
+                                "time": {
+                                  "type": "object",
+                                  "properties": {
+                                    "timestamp": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "timestamp"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "time"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "type",
+                            "person",
+                            "start",
+                            "end"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "person": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "gender": {
+                                  "type": "string"
+                                },
+                                "image": {
+                                  "type": "string"
+                                },
+                                "cred": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "name",
+                                "gender",
+                                "image",
+                                "cred"
+                              ]
+                            },
+                            "start": {
+                              "type": "object",
+                              "properties": {
+                                "time": {
+                                  "type": "object",
+                                  "properties": {
+                                    "timestamp": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "timestamp"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "time"
+                              ]
+                            },
+                            "end": {
+                              "type": "object",
+                              "properties": {
+                                "time": {
+                                  "type": "object",
+                                  "properties": {
+                                    "timestamp": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "timestamp"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "time"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "type",
+                            "person",
+                            "start",
+                            "end"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "person": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "gender": {
+                                  "type": "string"
+                                },
+                                "image": {
+                                  "type": "string"
+                                },
+                                "cred": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "name",
+                                "gender",
+                                "image",
+                                "cred"
+                              ]
+                            },
+                            "start": {
+                              "type": "object",
+                              "properties": {
+                                "time": {
+                                  "type": "object",
+                                  "properties": {
+                                    "timestamp": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "timestamp"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "time"
+                              ]
+                            },
+                            "end": {
+                              "type": "object",
+                              "properties": {
+                                "time": {
+                                  "type": "object",
+                                  "properties": {
+                                    "timestamp": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "timestamp"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "time"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "type",
+                            "person",
+                            "start",
+                            "end"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "person": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "gender": {
+                                  "type": "string"
+                                },
+                                "image": {
+                                  "type": "string"
+                                },
+                                "cred": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "name",
+                                "gender",
+                                "image",
+                                "cred"
+                              ]
+                            },
+                            "start": {
+                              "type": "object",
+                              "properties": {
+                                "time": {
+                                  "type": "object",
+                                  "properties": {
+                                    "timestamp": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "timestamp"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "time"
+                              ]
+                            },
+                            "end": {
+                              "type": "object",
+                              "properties": {
+                                "time": {
+                                  "type": "object",
+                                  "properties": {
+                                    "timestamp": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "timestamp"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "time"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "type",
+                            "person",
+                            "start",
+                            "end"
+                          ]
+                        }
+                      ]
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "descriptor": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "name"
+                              ]
+                            },
+                            "category_id": {
+                              "type": "string"
+                            },
+                            "fulfillment_id": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "descriptor",
+                            "category_id",
+                            "fulfillment_id"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "descriptor": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "name"
+                              ]
+                            },
+                            "category_id": {
+                              "type": "string"
+                            },
+                            "fulfillment_id": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "descriptor",
+                            "category_id",
+                            "fulfillment_id"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "descriptor": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "name"
+                              ]
+                            },
+                            "category_id": {
+                              "type": "string"
+                            },
+                            "fulfillment_id": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "descriptor",
+                            "category_id",
+                            "fulfillment_id"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "descriptor": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "name"
+                              ]
+                            },
+                            "category_id": {
+                              "type": "string"
+                            },
+                            "fulfillment_id": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "descriptor",
+                            "category_id",
+                            "fulfillment_id"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "descriptor",
+                    "categories",
+                    "fulfillments",
+                    "items"
+                  ]
+                }
+              ]
+            }
+          },
+          "required": [
+            "descriptor",
+            "providers"
+          ]
+        }
+      },
+      "required": [
+        "catalog"
+      ]
+    }
+  },
+  "required": [
+    "context",
+    "message"
+  ]
+}
