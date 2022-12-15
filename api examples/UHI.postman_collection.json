@@ -1,0 +1,1664 @@
+{
+	"info": {
+		"_postman_id": "a7210530-21dd-4d85-a7a7-871a50a192bd",
+		"name": "UHI",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11132902"
+	},
+	"item": [
+		{
+			"name": "First/Gateway Search",
+			"item": [
+				{
+					"name": "search",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Gateway-Authorization",
+								"value": "{{auth_value}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"search\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n    \"message_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n    \"timestamp\": \"2022-07-05T15:24:35\",\n    \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\"\n  },\n  \"message\": {\n    \"intent\": {\n      \"item\": {\n        \"descriptor\": {\n          \"code\": \"Consultation\",\n          \"name\": \"Consultation\"\n        }\n      },\n      \"fulfillment\": {\n        \"agent\": {\n          \"name\": \"ganesh\"\n        },\n        \"start\": {\n          \"time\": {\n            \"timestamp\": \"2022-07-15T00:00:00\"\n          }\n        },\n        \"end\": {\n          \"time\": {\n            \"timestamp\": \"2022-07-16T00:00:00\"\n          }\n        },\n        \"type\": \"Online\"\n      }\n    }\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{sandboxgateway}}/api/v1/search",
+							"host": [
+								"{{sandboxgateway}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"search"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Search by name",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"search\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n    \"message_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n    \"timestamp\": \"2022-07-05T15:24:35\",\n    \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\"\n  },\n  \"message\": {\n    \"intent\": {\n      \"item\": {\n        \"descriptor\": {\n          \"code\": \"Consultation\",\n          \"name\": \"Consultation\"\n        }\n      },\n      \"fulfillment\": {\n        \"agent\": {\n          \"name\": \"ganesh\"\n        },\n        \"start\": {\n          \"time\": {\n            \"timestamp\": \"2022-07-15T00:00:00\"\n          }\n        },\n        \"end\": {\n          \"time\": {\n            \"timestamp\": \"2022-07-16T00:00:00\"\n          }\n        },\n        \"type\": \"Online\"\n      }\n    }\n  }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{sandboxgateway}}/api/v1/search",
+									"host": [
+										"{{sandboxgateway}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"search"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"message\": {\n        \"ack\": {\n            \"status\": \"ACK\"\n        }\n    },\n    \"error\": {}\n}"
+						},
+						{
+							"name": "Search by HPRID",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"search\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n    \"message_id\": \"dfa04e10-63ec-11ed-9f98-49dd5c7c4d8a\",\n    \"timestamp\": \"2022-11-14T07:20:54.005277Z\",\n    \"transaction_id\": \"dfa04e10-63ec-11ed-9f98-49dd5c7c4d8a\"\n  },\n  \"message\": {\n    \"intent\": {\n      \"fulfillment\": {\n        \"agent\": {\n          \"id\": \"ganeshborse@hpr.ndhm\"\n        },\n        \"start\": {\n          \"time\": {\n            \"timestamp\": \"2022-07-22T13:21:41\"\n          }\n        },\n        \"end\": {\n          \"time\": {\n            \"timestamp\": \"2022-07-22T23:59:59\"\n          }\n        },\n        \"type\": \"Online\"\n      },\n      \"item\": {\n        \"descriptor\": {\n          \"code\": \"Consultation\",\n          \"name\": \"Consultation\"\n        }\n      }\n    }\n  }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{sandboxgateway}}/api/v1/search",
+									"host": [
+										"{{sandboxgateway}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"search"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"message\": {\n        \"ack\": {\n            \"status\": \"ACK\"\n        }\n    },\n    \"error\": {}\n}"
+						},
+						{
+							"name": "Search by Speciality",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"search\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n    \"message_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n    \"timestamp\": \"2022-07-05T15:24:35\",\n    \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\"\n  },\n  \"message\": {\n    \"intent\": {\n      \"category\": {\n        \"descriptor\": {\n          \"code\": \"CARDIOLOGY\",\n          \"name\": \"CARDIOLOGY\"\n        }\n      },\n      \"fulfillment\": {\n        \"type\": \"Online\",\n        \"start\": {\n          \"time\": {\n            \"timestamp\": \"2022-07-15T00:00:00\"\n          }\n        },\n        \"end\": {\n          \"time\": {\n            \"timestamp\": \"2022-07-16T00:00:00\"\n          }\n        }\n      },\n      \"item\": {\n        \"descriptor\": {\n          \"code\": \"Consultation\",\n          \"name\": \"Consultation\"\n        }\n      }\n    }\n  }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{sandboxgateway}}/api/v1/search",
+									"host": [
+										"{{sandboxgateway}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"search"
+									]
+								}
+							},
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"message\": {\n        \"ack\": {\n            \"status\": \"ACK\"\n        }\n    },\n    \"error\": {}\n}"
+						},
+						{
+							"name": "search by name and speciality",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"search\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n    \"message_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n    \"timestamp\": \"2022-07-05T15:24:35\",\n    \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\"\n  },\n  \"message\": {\n    \"intent\": {\n      \"category\": {\n        \"descriptor\": {\n          \"code\": \"CARDIOLOGY\",\n          \"name\": \"CARDIOLOGY\"\n        }\n      },\n      \"fulfillment\": {\n        \"agent\": {\n          \"name\": \"ganesh\"\n        },\n        \"type\": \"Online\"\n      },\n      \"item\": {\n        \"descriptor\": {\n          \"code\": \"Consultation\",\n          \"name\": \"Consultation\"\n        }\n      }\n    }\n  }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{sandboxgateway}}/api/v1/search",
+									"host": [
+										"{{sandboxgateway}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"search"
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "search by doctor and facility",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"search\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n    \"message_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n    \"timestamp\": \"2022-07-05T15:24:35\",\n    \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\"\n  },\n  \"message\": {\n    \"intent\": {\n      \"provider\": {\n        \"descriptor\": {\n          \"name\": \"Test Hospital\"\n        }\n      },\n      \"category\": {\n        \"descriptor\": {\n          \"code\": \"CARDIOLOGY\",\n          \"name\": \"CARDIOLOGY\"\n        }\n      },\n      \"fulfillment\": {\n        \"agent\": {\n          \"name\": \"ganesh\"\n        },\n        \"type\": \"Online\"\n      },\n      \"item\": {\n        \"descriptor\": {\n          \"code\": \"Consultation\",\n          \"name\": \"Consultation\"\n        }\n      }\n    }\n  }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{sandboxgateway}}/api/v1/search",
+									"host": [
+										"{{sandboxgateway}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"search"
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "search by provider facility and specilty",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"search\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n    \"message_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n    \"timestamp\": \"2022-07-05T15:24:35\",\n    \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\"\n  },\n  \"message\": {\n    \"intent\": {\n      \"provider\": {\n        \"descriptor\": {\n          \"name\": \"Test Hospital\"\n        }\n      },\n      \"category\": {\n        \"descriptor\": {\n          \"code\": \"CARDIOLOGY\",\n          \"name\": \"CARDIOLOGY\"\n        }\n      },\n      \"fulfillment\": {\n        \"type\": \"Online\",\n        \"start\": {\n          \"time\": {\n            \"timestamp\": \"2022-07-15T00:00:00\"\n          }\n        },\n        \"end\": {\n          \"time\": {\n            \"timestamp\": \"2022-07-16T00:00:00\"\n          }\n        }\n      },\n      \"item\": {\n        \"descriptor\": {\n          \"code\": \"Consultation\",\n          \"name\": \"Consultation\"\n        }\n      }\n    }\n  }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{sandboxgateway}}/api/v1/search",
+									"host": [
+										"{{sandboxgateway}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"search"
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						}
+					]
+				},
+				{
+					"name": "on_search",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Gateway-Authorization",
+								"value": "{{auth_value}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"on_search\",\n    \"timestamp\": \"2022-07-05T15:24:35\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://100.65.158.41:8901/api/v1/euaService\",\n    \"provider_id\": \"hspa-nha\",\n    \"provider_uri\": \"https://hspasbx.abdm.gov.in/api/v1\",\n    \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n    \"message_id\": \"e9\"\n  },\n  \"message\": {\n    \"catalog\": {\n      \"descriptor\": {\n        \"name\": \"Ref HSPA\",\n        \"images\": \"HSPA IMAGE\",\n        \"short_desc\": \"Reference HSPA Test hospital\",\n        \"long_desc\": \"Expert institution providing patient treatment with specialized health science and auxiliary healthcare staff and extraordinary medical equipments.\"\n      },\n      \"providers\": [\n        {\n          \"id\": \"1\",\n          \"descriptor\": {\n            \"name\": \"Test Hospital\",\n            \"short_desc\": \"Expertise in every field with renowned staff.\",\n            \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n          },\n          \"categories\": [\n            {\n              \"id\": \"1\",\n              \"parent_category_id\": \"101\",\n              \"descriptor\": {\n                \"name\": \"Cardiology\",\n                \"code\": \"CARDIOLOGY\"\n              }\n            },\n            {\n              \"id\": \"101\",\n              \"descriptor\": {\n                \"name\": \"Allopathy\",\n                \"code\": \"ALLOPATHY\"\n              }\n            },\n            {\n              \"id\": \"0\",\n              \"parent_category_id\": \"101\",\n              \"descriptor\": {\n                \"name\": \"General Medicine, Pharmacy, Dental surgery\",\n                \"code\": \"GENERAL MEDICINE, PHARMACY, DENTAL SURGERY\"\n              }\n            }\n          ],\n          \"fulfillments\": [\n            {\n              \"id\": \"0\",\n              \"type\": \"Online\",\n              \"agent\": {\n                \"id\": \"ganeshborse@hpr.abdm\",\n                \"name\": \"Ganesh Vikram Borse\",\n                \"gender\": \"M\",\n                \"tags\": {\n                  \"@abdm/gov/in/experience\": \"10.0\",\n                  \"@abdm/gov/in/languages\": \"Hindi, English\",\n                  \"@abdm/gov/in/education\": \"MBBS, BDS\",\n                  \"@abdm/gov/in/hpr_id\": \"73-5232-1888-8686\"\n                }\n              }\n            },\n            {\n              \"id\": \"1\",\n              \"type\": \"Online\",\n              \"agent\": {\n                \"id\": \"ganeshborse@hpr.ndhm\",\n                \"name\": \"Ganesh Vikram Borse\",\n                \"gender\": \"M\",\n                \"tags\": {\n                  \"@abdm/gov/in/experience\": \"5.0\",\n                  \"@abdm/gov/in/languages\": \"Eng, Hin\",\n                  \"@abdm/gov/in/education\": \"MBBS\",\n                  \"@abdm/gov/in/hpr_id\": \"73-5232-1888-8686\"\n                }\n              }\n            }\n          ],\n          \"items\": [\n            {\n              \"id\": \"0\",\n              \"descriptor\": {\n                \"name\": \"Consultation\"\n              },\n              \"price\": {\n                \"currency\": \"INR\",\n                \"value\": \"20.0\"\n              },\n              \"category_id\": \"0\",\n              \"fulfillment_id\": \"0\"\n            },\n            {\n              \"id\": \"1\",\n              \"descriptor\": {\n                \"name\": \"Consultation\"\n              },\n              \"price\": {\n                \"currency\": \"INR\",\n                \"value\": \"300.0\"\n              },\n              \"category_id\": \"1\",\n              \"fulfillment_id\": \"1\"\n            }\n          ],\n          \"location\": {\n            \"id\": \"1\",\n            \"descriptor\": {\n              \"name\": \"Test Hospital\",\n              \"short_desc\": \"Expertise in every field with renowned staff.\",\n              \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n            },\n            \"city\": {\n              \"name\": \"Delhi\",\n              \"code\": \"011\"\n            },\n            \"country\": {\n              \"name\": \"INDIA\",\n              \"code\": \"+91\"\n            },\n            \"gps\": \"18.5246036,73.792927\",\n            \"address\": \"3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001\"\n          }\n        }\n      ]\n    }\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{sandboxgateway}}/api/v1/on_search",
+							"host": [
+								"{{sandboxgateway}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"on_search"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "1st on_search response for search with Specialty",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"on_search\",\n    \"timestamp\": \"2022-07-05T15:24:35\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://100.65.158.41:8901/api/v1/euaService\",\n    \"provider_id\": \"hspa-nha\",\n    \"provider_uri\": \"https://hspasbx.abdm.gov.in/api/v1\",\n    \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n    \"message_id\": \"e9\"\n  },\n  \"message\": {\n    \"catalog\": {\n      \"descriptor\": {\n        \"name\": \"Ref HSPA\",\n        \"images\": \"HSPA IMAGE\",\n        \"short_desc\": \"Reference HSPA Test hospital\",\n        \"long_desc\": \"Expert institution providing patient treatment with specialized health science and auxiliary healthcare staff and extraordinary medical equipments.\"\n      },\n      \"providers\": [\n        {\n          \"id\": \"1\",\n          \"descriptor\": {\n            \"name\": \"Test Hospital\",\n            \"short_desc\": \"Expertise in every field with renowned staff.\",\n            \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n          },\n          \"categories\": [\n            {\n              \"id\": \"1\",\n              \"parent_category_id\": \"101\",\n              \"descriptor\": {\n                \"name\": \"Cardiology\",\n                \"code\": \"CARDIOLOGY\"\n              }\n            },\n            {\n              \"id\": \"101\",\n              \"descriptor\": {\n                \"name\": \"Allopathy\",\n                \"code\": \"ALLOPATHY\"\n              }\n            },\n            {\n              \"id\": \"0\",\n              \"parent_category_id\": \"101\",\n              \"descriptor\": {\n                \"name\": \"General Medicine, Pharmacy, Dental surgery\",\n                \"code\": \"GENERAL MEDICINE, PHARMACY, DENTAL SURGERY\"\n              }\n            }\n          ],\n          \"fulfillments\": [\n            {\n              \"id\": \"0\",\n              \"type\": \"Online\",\n              \"agent\": {\n                \"id\": \"ganeshborse@hpr.abdm\",\n                \"name\": \"Ganesh Vikram Borse\",\n                \"gender\": \"M\",\n                \"tags\": {\n                  \"@abdm/gov/in/experience\": \"10.0\",\n                  \"@abdm/gov/in/languages\": \"Hindi, English\",\n                  \"@abdm/gov/in/education\": \"MBBS, BDS\",\n                  \"@abdm/gov/in/hpr_id\": \"73-5232-1888-8686\"\n                }\n              }\n            },\n            {\n              \"id\": \"1\",\n              \"type\": \"Online\",\n              \"agent\": {\n                \"id\": \"ganeshborse@hpr.ndhm\",\n                \"name\": \"Ganesh Vikram Borse\",\n                \"gender\": \"M\",\n                \"tags\": {\n                  \"@abdm/gov/in/experience\": \"5.0\",\n                  \"@abdm/gov/in/languages\": \"Eng, Hin\",\n                  \"@abdm/gov/in/education\": \"MBBS\",\n                  \"@abdm/gov/in/hpr_id\": \"73-5232-1888-8686\"\n                }\n              }\n            }\n          ],\n          \"items\": [\n            {\n              \"id\": \"0\",\n              \"descriptor\": {\n                \"name\": \"Consultation\"\n              },\n              \"price\": {\n                \"currency\": \"INR\",\n                \"value\": \"20.0\"\n              },\n              \"category_id\": \"0\",\n              \"fulfillment_id\": \"0\"\n            },\n            {\n              \"id\": \"1\",\n              \"descriptor\": {\n                \"name\": \"Consultation\"\n              },\n              \"price\": {\n                \"currency\": \"INR\",\n                \"value\": \"300.0\"\n              },\n              \"category_id\": \"1\",\n              \"fulfillment_id\": \"1\"\n            }\n          ],\n          \"location\": {\n            \"id\": \"1\",\n            \"descriptor\": {\n              \"name\": \"Test Hospital\",\n              \"short_desc\": \"Expertise in every field with renowned staff.\",\n              \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n            },\n            \"city\": {\n              \"name\": \"Delhi\",\n              \"code\": \"011\"\n            },\n            \"country\": {\n              \"name\": \"INDIA\",\n              \"code\": \"+91\"\n            },\n            \"gps\": \"18.5246036,73.792927\",\n            \"address\": \"3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001\"\n          }\n        }\n      ]\n    }\n  }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{sandboxgateway}}/api/v1/on_search",
+									"host": [
+										"{{sandboxgateway}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"on_search"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": {\r\n        \"ack\": {\r\n            \"status\": \"ACK\"\r\n        }\r\n    },\r\n    \"error\": {}\r\n}"
+						},
+						{
+							"name": "1st on_search response for Doctor and Specialty",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"on_search\",\n    \"timestamp\": \"2022-07-05T15:24:35\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n    \"provider_id\": \"hspa-nha\",\n    \"provider_uri\": \"https://hspasbx.abdm.gov.in/api/v1\",\n    \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n    \"message_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\"\n  },\n  \"message\": {\n    \"catalog\": {\n      \"descriptor\": {\n        \"name\": \"Ref HSPA\",\n        \"images\": \"HSPA IMAGE\",\n        \"short_desc\": \"Reference HSPA Test hospital\",\n        \"long_desc\": \"Expert institution providing patient treatment with specialized health science and auxiliary healthcare staff and extraordinary medical equipments.\"\n      },\n      \"providers\": [\n        {\n          \"id\": \"1\",\n          \"descriptor\": {\n            \"name\": \"Test Hospital\",\n            \"short_desc\": \"Expertise in every field with renowned staff.\",\n            \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n          },\n          \"categories\": [\n            {\n              \"id\": \"0\",\n              \"parent_category_id\": \"101\",\n              \"descriptor\": {\n                \"name\": \"Cardiology\",\n                \"code\": \"CARDIOLOGY\"\n              }\n            },\n            {\n              \"id\": \"101\",\n              \"descriptor\": {\n                \"name\": \"Allopathy\",\n                \"code\": \"ALLOPATHY\"\n              }\n            }\n          ],\n          \"fulfillments\": [\n            {\n              \"id\": \"0\",\n              \"type\": \"Physical\",\n              \"agent\": {\n                \"id\": \"ganeshborse@hpr.ndhm\",\n                \"name\": \"Ganesh Vikram Borse\",\n                \"gender\": \"M\",\n                \"tags\": {\n                  \"@abdm/gov/in/experience\": \"5.0\",\n                  \"@abdm/gov/in/languages\": \"Eng, Hin\",\n                  \"@abdm/gov/in/education\": \"MBBS\",\n                  \"@abdm/gov/in/hpr_id\": \"73-5232-1888-8686\"\n                }\n              }\n            }\n          ],\n          \"items\": [\n            {\n              \"id\": \"0\",\n              \"descriptor\": {\n                \"name\": \"Consultation\"\n              },\n              \"price\": {\n                \"currency\": \"INR\",\n                \"value\": \"300.0\"\n              },\n              \"category_id\": \"0\",\n              \"fulfillment_id\": \"0\"\n            }\n          ],\n          \"location\": {\n            \"id\": \"1\",\n            \"descriptor\": {\n              \"name\": \"Test Hospital\",\n              \"short_desc\": \"Expertise in every field with renowned staff.\",\n              \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n            },\n            \"city\": {\n              \"name\": \"Delhi\",\n              \"code\": \"011\"\n            },\n            \"country\": {\n              \"name\": \"INDIA\",\n              \"code\": \"+91\"\n            },\n            \"gps\": \"18.5246036,73.792927\",\n            \"address\": \"3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001\"\n          }\n        }\n      ]\n    }\n  }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{sandboxgateway}}/api/v1/on_search",
+									"host": [
+										"{{sandboxgateway}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"on_search"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": {\r\n        \"ack\": {\r\n            \"status\": \"ACK\"\r\n        }\r\n    },\r\n    \"error\": {}\r\n}"
+						},
+						{
+							"name": "1st on_search response for Doctor and Facility",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"on_search\",\n    \"timestamp\": \"2022-07-05T15:24:35\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n    \"provider_id\": \"hspa-nha\",\n    \"provider_uri\": \"https://hspasbx.abdm.gov.in/api/v1\",\n    \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n    \"message_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\"\n  },\n  \"message\": {\n    \"catalog\": {\n      \"descriptor\": {\n        \"name\": \"Ref HSPA\",\n        \"images\": \"HSPA IMAGE\",\n        \"short_desc\": \"Reference HSPA Test hospital\",\n        \"long_desc\": \"Expert institution providing patient treatment with specialized health science and auxiliary healthcare staff and extraordinary medical equipments.\"\n      },\n      \"providers\": [\n        {\n          \"id\": \"1\",\n          \"descriptor\": {\n            \"name\": \"Test Hospital\",\n            \"short_desc\": \"Expertise in every field with renowned staff.\",\n            \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n          },\n          \"categories\": [\n            {\n              \"id\": \"0\",\n              \"parent_category_id\": \"101\",\n              \"descriptor\": {\n                \"name\": \"Cardiology\",\n                \"code\": \"CARDIOLOGY\"\n              }\n            },\n            {\n              \"id\": \"101\",\n              \"descriptor\": {\n                \"name\": \"Allopathy\",\n                \"code\": \"ALLOPATHY\"\n              }\n            }\n          ],\n          \"fulfillments\": [\n            {\n              \"id\": \"0\",\n              \"type\": \"Online\",\n              \"agent\": {\n                \"id\": \"ganeshborse@hpr.ndhm\",\n                \"name\": \"Ganesh Vikram Borse\",\n                \"gender\": \"M\",\n                \"tags\": {\n                  \"@abdm/gov/in/experience\": \"5.0\",\n                  \"@abdm/gov/in/languages\": \"Eng, Hin\",\n                  \"@abdm/gov/in/education\": \"MBBS\",\n                  \"@abdm/gov/in/hpr_id\": \"73-5232-1888-8686\"\n                }\n              }\n            }\n          ],\n          \"items\": [\n            {\n              \"id\": \"0\",\n              \"descriptor\": {\n                \"name\": \"Consultation\"\n              },\n              \"price\": {\n                \"currency\": \"INR\",\n                \"value\": \"300.0\"\n              },\n              \"category_id\": \"0\",\n              \"fulfillment_id\": \"0\"\n            }\n          ],\n          \"location\": {\n            \"id\": \"1\",\n            \"descriptor\": {\n              \"name\": \"Test Hospital\",\n              \"short_desc\": \"Expertise in every field with renowned staff.\",\n              \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n            },\n            \"city\": {\n              \"name\": \"Delhi\",\n              \"code\": \"011\"\n            },\n            \"country\": {\n              \"name\": \"INDIA\",\n              \"code\": \"+91\"\n            },\n            \"gps\": \"18.5246036,73.792927\",\n            \"address\": \"3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001\"\n          }\n        }\n      ]\n    }\n  }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{sandboxgateway}}/api/v1/on_search",
+									"host": [
+										"{{sandboxgateway}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"on_search"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": {\r\n        \"ack\": {\r\n            \"status\": \"ACK\"\r\n        }\r\n    },\r\n    \"error\": {}\r\n}"
+						},
+						{
+							"name": "1st on_search response for HPR address",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"on_search\",\n    \"timestamp\": \"2022-11-14T07:20:54.005277Z\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n    \"provider_id\": \"hspa-nha\",\n    \"provider_uri\": \"https://hspasbx.abdm.gov.in/api/v1\",\n    \"transaction_id\": \"dfa04e10-63ec-11ed-9f98-49dd5c7c4d8a\",\n    \"message_id\": \"dfa04e10-63ec-11ed-9f98-49dd5c7c4d8a\"\n  },\n  \"message\": {\n    \"catalog\": {\n      \"descriptor\": {\n        \"name\": \"Ref HSPA\",\n        \"images\": \"HSPA IMAGE\",\n        \"short_desc\": \"Reference HSPA Test hospital\",\n        \"long_desc\": \"Expert institution providing patient treatment with specialized health science and auxiliary healthcare staff and extraordinary medical equipments.\"\n      },\n      \"providers\": [\n        {\n          \"id\": \"1\",\n          \"descriptor\": {\n            \"name\": \"Test Hospital\",\n            \"short_desc\": \"Expertise in every field with renowned staff.\",\n            \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n          },\n          \"categories\": [\n            {\n              \"id\": \"209\",\n              \"parent_category_id\": \"101\",\n              \"descriptor\": {\n                \"name\": \"Dental surgery\",\n                \"code\": \"DENTAL SURGERY\"\n              }\n            },\n            {\n              \"id\": \"101\",\n              \"descriptor\": {\n                \"name\": \"Allopathy\",\n                \"code\": \"ALLOPATHY\"\n              }\n            }\n          ],\n          \"fulfillments\": [\n            {\n              \"id\": \"0\",\n              \"type\": \"Online\",\n              \"agent\": {\n                \"id\": \"ganeshborse@hpr.abdm\",\n                \"name\": \"Ganesh Vikram Borse\",\n                \"gender\": \"M\",\n                \"tags\": {\n                  \"@abdm/gov/in/experience\": \"10.0\",\n                  \"@abdm/gov/in/languages\": \"Hindi, English\",\n                  \"@abdm/gov/in/education\": \"MBBS, BDS\",\n                  \"@abdm/gov/in/hpr_id\": \"73-5232-1888-8686\"\n                }\n              }\n            }\n          ],\n          \"items\": [\n            {\n              \"id\": \"0\",\n              \"descriptor\": {\n                \"name\": \"Consultation\"\n              },\n              \"price\": {\n                \"currency\": \"INR\",\n                \"value\": \"20.0\"\n              },\n              \"category_id\": \"209\",\n              \"fulfillment_id\": \"0\"\n            }\n          ],\n          \"location\": {\n            \"id\": \"1\",\n            \"descriptor\": {\n              \"name\": \"Test Hospital\",\n              \"short_desc\": \"Expertise in every field with renowned staff.\",\n              \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n            },\n            \"city\": {\n              \"name\": \"Delhi\",\n              \"code\": \"011\"\n            },\n            \"country\": {\n              \"name\": \"INDIA\",\n              \"code\": \"+91\"\n            },\n            \"gps\": \"18.5246036,73.792927\",\n            \"address\": \"3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001\"\n          }\n        }\n      ]\n    }\n  }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{sandboxgateway}}/api/v1/on_search",
+									"host": [
+										"{{sandboxgateway}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"on_search"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": {\r\n        \"ack\": {\r\n            \"status\": \"ACK\"\r\n        }\r\n    },\r\n    \"error\": {}\r\n}"
+						},
+						{
+							"name": "1st on_search response for Doctor name",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"on_search\",\n    \"timestamp\": \"2022-07-05T15:24:35\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://100.65.158.41:8901/api/v1/euaService\",\n    \"provider_id\": \"hspa-nha\",\n    \"provider_uri\": \"https://hspasbx.abdm.gov.in/api/v1\",\n    \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n    \"message_id\": \"e9\"\n  },\n  \"message\": {\n    \"catalog\": {\n      \"descriptor\": {\n        \"name\": \"Ref HSPA\",\n        \"images\": \"HSPA IMAGE\",\n        \"short_desc\": \"Reference HSPA Test hospital\",\n        \"long_desc\": \"Expert institution providing patient treatment with specialized health science and auxiliary healthcare staff and extraordinary medical equipments.\"\n      },\n      \"providers\": [\n        {\n          \"id\": \"1\",\n          \"descriptor\": {\n            \"name\": \"Test Hospital\",\n            \"short_desc\": \"Expertise in every field with renowned staff.\",\n            \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n          },\n          \"categories\": [\n            {\n              \"id\": \"201\",\n              \"parent_category_id\": \"101\",\n              \"descriptor\": {\n                \"name\": \"Cardiology\",\n                \"code\": \"CARDIOLOGY\"\n              }\n            },\n            {\n              \"id\": \"101\",\n              \"descriptor\": {\n                \"name\": \"Allopathy\",\n                \"code\": \"ALLOPATHY\"\n              }\n            }\n          ],\n          \"fulfillments\": [\n            {\n              \"id\": \"0\",\n              \"type\": \"Online\",\n              \"agent\": {\n                \"id\": \"amodborse@hpr.abdm\",\n                \"name\": \"Amod Borse\",\n                \"gender\": \"M\",\n                \"tags\": {\n                  \"@abdm/gov/in/experience\": \"5.0\",\n                  \"@abdm/gov/in/languages\": \"Eng, Hin\",\n                  \"@abdm/gov/in/education\": \"MBBS\",\n                  \"@abdm/gov/in/hpr_id\": \"73-4331-9088-8684\"\n                }\n              }\n            },\n            {\n              \"id\": \"1\",\n              \"type\": \"Online\",\n              \"agent\": {\n                \"id\": \"amodjoshi@hpr.ndhm\",\n                \"name\": \"Amod Suresh Joshi\",\n                \"gender\": \"M\",\n                \"tags\": {\n                  \"@abdm/gov/in/experience\": \"12.0\",\n                  \"@abdm/gov/in/languages\": \"Eng, Hin\",\n                  \"@abdm/gov/in/education\": \"MBBS, MD\",\n                  \"@abdm/gov/in/hpr_id\": \"71-5362-8737-7250\"\n                }\n              }\n            }\n          ],\n          \"items\": [\n            {\n              \"id\": \"0\",\n              \"descriptor\": {\n                \"name\": \"Consultation\"\n              },\n              \"price\": {\n                \"currency\": \"INR\",\n                \"value\": \"300.0\"\n              },\n              \"category_id\": \"201\",\n              \"fulfillment_id\": \"0\"\n            },\n            {\n              \"id\": \"1\",\n              \"descriptor\": {\n                \"name\": \"Consultation\"\n              },\n              \"price\": {\n                \"currency\": \"INR\",\n                \"value\": \"0.0\"\n              },\n              \"category_id\": \"201\",\n              \"fulfillment_id\": \"1\"\n            }\n          ],\n          \"location\": {\n            \"id\": \"1\",\n            \"descriptor\": {\n              \"name\": \"Test Hospital\",\n              \"short_desc\": \"Expertise in every field with renowned staff.\",\n              \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n            },\n            \"city\": {\n              \"name\": \"Delhi\",\n              \"code\": \"011\"\n            },\n            \"country\": {\n              \"name\": \"INDIA\",\n              \"code\": \"+91\"\n            },\n            \"gps\": \"18.5246036,73.792927\",\n            \"address\": \"3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001\"\n          }\n        }\n      ]\n    }\n  }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{sandboxgateway}}/api/v1/on_search",
+									"host": [
+										"{{sandboxgateway}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"on_search"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": {\r\n        \"ack\": {\r\n            \"status\": \"ACK\"\r\n        }\r\n    },\r\n    \"error\": {}\r\n}"
+						},
+						{
+							"name": "1st on_search response for Second Onsearch",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"on_search\",\n    \"timestamp\": \"2022-11-14T07:20:54.005277Z\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n    \"provider_id\": \"hspa-nha\",\n    \"provider_uri\": \"https://hspasbx.abdm.gov.in/api/v1\",\n    \"transaction_id\": \"dfa04e10-63ec-11ed-9f98-49dd5c7c4d8a\",\n    \"message_id\": \"dfa04e10-63ec-11ed-9f98-49dd5c7c4d8a\"\n  },\n  \"message\": {\n    \"catalog\": {\n      \"descriptor\": {\n        \"name\": \"Ref HSPA\",\n        \"short_desc\": \"Reference HSPA Test hospital\",\n        \"long_desc\": \"Expert institution providing patient treatment with specialized health science and auxiliary healthcare staff and extraordinary medical equipment.\"\n      },\n      \"providers\": [\n        {\n          \"id\": \"1\",\n          \"descriptor\": {\n            \"name\": \"Test Hospital\",\n            \"short_desc\": \"Expertise in every field with renowned staff.\",\n            \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n          },\n          \"fulfillments\": [\n            {\n              \"id\": \"d8fbcb3b-aad0-4a41-9938-97265466511a\",\n              \"type\": \"Online\",\n              \"agent\": {\n                \"id\": \"ganeshborse@hpr.ndhm\",\n                \"name\": \"Ganesh Vikram Borse\",\n                \"gender\": \"M\"\n              },\n              \"start\": {\n                \"time\": {\n                  \"timestamp\": \"2022-12-05T15:30:00\"\n                }\n              },\n              \"end\": {\n                \"time\": {\n                  \"timestamp\": \"2022-12-05T15:45:00\"\n                }\n              },\n              \"quote\": {\n                \"price\": {\n                  \"currency\": \"INR\"\n                }\n              }\n            },\n            {\n              \"id\": \"cd125181-9403-4807-b1bd-0eca97edbf59\",\n              \"type\": \"Online\",\n              \"agent\": {\n                \"id\": \"ganeshborse@hpr.ndhm\",\n                \"name\": \"Ganesh Vikram Borse\",\n                \"gender\": \"M\"\n              },\n              \"start\": {\n                \"time\": {\n                  \"timestamp\": \"2022-12-05T15:45:00\"\n                }\n              },\n              \"end\": {\n                \"time\": {\n                  \"timestamp\": \"2022-12-05T16:00:00\"\n                }\n              },\n              \"quote\": {\n                \"price\": {\n                  \"currency\": \"INR\"\n                }\n              }\n            },\n            {\n              \"id\": \"23347e3c-8b5e-48bf-a068-d4f7b4931b19\",\n              \"type\": \"Online\",\n              \"agent\": {\n                \"id\": \"ganeshborse@hpr.ndhm\",\n                \"name\": \"Ganesh Vikram Borse\",\n                \"gender\": \"M\"\n              },\n              \"start\": {\n                \"time\": {\n                  \"timestamp\": \"2022-12-05T16:00:00\"\n                }\n              },\n              \"end\": {\n                \"time\": {\n                  \"timestamp\": \"2022-12-05T16:15:00\"\n                }\n              },\n              \"quote\": {\n                \"price\": {\n                  \"currency\": \"INR\"\n                }\n              }\n            },\n            {\n              \"id\": \"19646021-3c91-4e74-bf71-313fc5d4d3db\",\n              \"type\": \"Online\",\n              \"agent\": {\n                \"id\": \"ganeshborse@hpr.ndhm\",\n                \"name\": \"Ganesh Vikram Borse\",\n                \"gender\": \"M\"\n              },\n              \"start\": {\n                \"time\": {\n                  \"timestamp\": \"2022-12-05T16:15:00\"\n                }\n              },\n              \"end\": {\n                \"time\": {\n                  \"timestamp\": \"2022-12-05T16:30:00\"\n                }\n              },\n              \"quote\": {\n                \"price\": {\n                  \"currency\": \"INR\"\n                }\n              }\n            }\n          ],\n          \"location\": {\n            \"id\": \"1\",\n            \"descriptor\": {\n              \"name\": \"Test Hospital\",\n              \"short_desc\": \"Expertise in every field with renowned staff.\",\n              \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n            },\n            \"city\": {\n              \"name\": \"Delhi\",\n              \"code\": \"011\"\n            },\n            \"country\": {\n              \"name\": \"INDIA\",\n              \"code\": \"+91\"\n            },\n            \"gps\": \"18.5246036,73.792927\",\n            \"address\": \"3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001\"\n          }\n        }\n      ]\n    }\n  }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{sandboxgateway}}/api/v1/on_search",
+									"host": [
+										"{{sandboxgateway}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"on_search"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": {\r\n        \"ack\": {\r\n            \"status\": \"ACK\"\r\n        }\r\n    },\r\n    \"error\": {}\r\n}"
+						},
+						{
+							"name": "1st on_search response for Facility and specialty",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"on_search\",\n    \"timestamp\": \"2022-07-05T15:24:35\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n    \"provider_id\": \"hspa-nha\",\n    \"provider_uri\": \"https://hspasbx.abdm.gov.in/api/v1\",\n    \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n    \"message_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\"\n  },\n  \"message\": {\n    \"catalog\": {\n      \"descriptor\": {\n        \"name\": \"Ref HSPA\",\n        \"images\": \"HSPA IMAGE\",\n        \"short_desc\": \"Reference HSPA Test hospital\",\n        \"long_desc\": \"Expert institution providing patient treatment with specialized health science and auxiliary healthcare staff and extraordinary medical equipments.\"\n      },\n      \"providers\": [\n        {\n          \"id\": \"1\",\n          \"descriptor\": {\n            \"name\": \"Test Hospital\",\n            \"short_desc\": \"Expertise in every field with renowned staff.\",\n            \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n          },\n          \"categories\": [\n            {\n              \"id\": \"201\",\n              \"parent_category_id\": \"101\",\n              \"descriptor\": {\n                \"name\": \"Cardiology\",\n                \"code\": \"CARDIOLOGY\"\n              }\n            },\n            {\n              \"id\": \"101\",\n              \"descriptor\": {\n                \"name\": \"Allopathy\",\n                \"code\": \"ALLOPATHY\"\n              }\n            }\n          ],\n          \"fulfillments\": [\n            {\n              \"id\": \"0\",\n              \"type\": \"Physical\",\n              \"agent\": {\n                \"id\": \"amodborse@hpr.abdm\",\n                \"name\": \"Amod Borse\",\n                \"gender\": \"M\",\n                \"tags\": {\n                  \"@abdm/gov/in/experience\": \"5.0\",\n                  \"@abdm/gov/in/languages\": \"Eng, Hin\",\n                  \"@abdm/gov/in/education\": \"MBBS\",\n                  \"@abdm/gov/in/hpr_id\": \"73-4331-9088-8684\"\n                }\n              }\n            },\n            {\n              \"id\": \"1\",\n              \"type\": \"Physical\",\n              \"agent\": {\n                \"id\": \"ganeshborse@hpr.ndhm\",\n                \"name\": \"Ganesh Vikram Borse\",\n                \"gender\": \"M\",\n                \"tags\": {\n                  \"@abdm/gov/in/experience\": \"5.0\",\n                  \"@abdm/gov/in/languages\": \"Eng, Hin\",\n                  \"@abdm/gov/in/education\": \"MBBS\",\n                  \"@abdm/gov/in/hpr_id\": \"73-5232-1888-8686\"\n                }\n              }\n            }\n          ],\n          \"items\": [\n            {\n              \"id\": \"0\",\n              \"descriptor\": {\n                \"name\": \"Consultation\"\n              },\n              \"price\": {\n                \"currency\": \"INR\",\n                \"value\": \"300.0\"\n              },\n              \"category_id\": \"201\",\n              \"fulfillment_id\": \"0\"\n            },\n            {\n              \"id\": \"1\",\n              \"descriptor\": {\n                \"name\": \"Consultation\"\n              },\n              \"price\": {\n                \"currency\": \"INR\",\n                \"value\": \"300.0\"\n              },\n              \"category_id\": \"201\",\n              \"fulfillment_id\": \"1\"\n            }\n          ],\n          \"location\": {\n            \"id\": \"1\",\n            \"descriptor\": {\n              \"name\": \"Test Hospital\",\n              \"short_desc\": \"Expertise in every field with renowned staff.\",\n              \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n            },\n            \"city\": {\n              \"name\": \"Delhi\",\n              \"code\": \"011\"\n            },\n            \"country\": {\n              \"name\": \"INDIA\",\n              \"code\": \"+91\"\n            },\n            \"gps\": \"18.5246036,73.792927\",\n            \"address\": \"3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001\"\n          }\n        }\n      ]\n    }\n  }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{sandboxgateway}}/api/v1/on_search",
+									"host": [
+										"{{sandboxgateway}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"on_search"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": {\r\n        \"ack\": {\r\n            \"status\": \"ACK\"\r\n        }\r\n    },\r\n    \"error\": {}\r\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "EUA On Search",
+			"item": [
+				{
+					"name": "on_search",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Gateway-Authorization",
+								"value": "{{auth_value}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{sandboxgateway}}/api/v1/on_search",
+							"host": [
+								"{{sandboxgateway}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"on_search"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "1st on_search response for search with Specialty",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"on_search\",\n    \"timestamp\": \"2022-07-05T15:24:35\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://100.65.158.41:8901/api/v1/euaService\",\n    \"provider_id\": \"hspa-nha\",\n    \"provider_uri\": \"https://hspasbx.abdm.gov.in/api/v1\",\n    \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n    \"message_id\": \"e9\"\n  },\n  \"message\": {\n    \"catalog\": {\n      \"descriptor\": {\n        \"name\": \"Ref HSPA\",\n        \"images\": \"HSPA IMAGE\",\n        \"short_desc\": \"Reference HSPA Test hospital\",\n        \"long_desc\": \"Expert institution providing patient treatment with specialized health science and auxiliary healthcare staff and extraordinary medical equipments.\"\n      },\n      \"providers\": [\n        {\n          \"id\": \"1\",\n          \"descriptor\": {\n            \"name\": \"Test Hospital\",\n            \"short_desc\": \"Expertise in every field with renowned staff.\",\n            \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n          },\n          \"categories\": [\n            {\n              \"id\": \"1\",\n              \"parent_category_id\": \"101\",\n              \"descriptor\": {\n                \"name\": \"Cardiology\",\n                \"code\": \"CARDIOLOGY\"\n              }\n            },\n            {\n              \"id\": \"101\",\n              \"descriptor\": {\n                \"name\": \"Allopathy\",\n                \"code\": \"ALLOPATHY\"\n              }\n            },\n            {\n              \"id\": \"0\",\n              \"parent_category_id\": \"101\",\n              \"descriptor\": {\n                \"name\": \"General Medicine, Pharmacy, Dental surgery\",\n                \"code\": \"GENERAL MEDICINE, PHARMACY, DENTAL SURGERY\"\n              }\n            }\n          ],\n          \"fulfillments\": [\n            {\n              \"id\": \"0\",\n              \"type\": \"Online\",\n              \"agent\": {\n                \"id\": \"ganeshborse@hpr.abdm\",\n                \"name\": \"Ganesh Vikram Borse\",\n                \"gender\": \"M\",\n                \"tags\": {\n                  \"@abdm/gov/in/experience\": \"10.0\",\n                  \"@abdm/gov/in/languages\": \"Hindi, English\",\n                  \"@abdm/gov/in/education\": \"MBBS, BDS\",\n                  \"@abdm/gov/in/hpr_id\": \"73-5232-1888-8686\"\n                }\n              }\n            },\n            {\n              \"id\": \"1\",\n              \"type\": \"Online\",\n              \"agent\": {\n                \"id\": \"ganeshborse@hpr.ndhm\",\n                \"name\": \"Ganesh Vikram Borse\",\n                \"gender\": \"M\",\n                \"tags\": {\n                  \"@abdm/gov/in/experience\": \"5.0\",\n                  \"@abdm/gov/in/languages\": \"Eng, Hin\",\n                  \"@abdm/gov/in/education\": \"MBBS\",\n                  \"@abdm/gov/in/hpr_id\": \"73-5232-1888-8686\"\n                }\n              }\n            }\n          ],\n          \"items\": [\n            {\n              \"id\": \"0\",\n              \"descriptor\": {\n                \"name\": \"Consultation\"\n              },\n              \"price\": {\n                \"currency\": \"INR\",\n                \"value\": \"20.0\"\n              },\n              \"category_id\": \"0\",\n              \"fulfillment_id\": \"0\"\n            },\n            {\n              \"id\": \"1\",\n              \"descriptor\": {\n                \"name\": \"Consultation\"\n              },\n              \"price\": {\n                \"currency\": \"INR\",\n                \"value\": \"300.0\"\n              },\n              \"category_id\": \"1\",\n              \"fulfillment_id\": \"1\"\n            }\n          ],\n          \"location\": {\n            \"id\": \"1\",\n            \"descriptor\": {\n              \"name\": \"Test Hospital\",\n              \"short_desc\": \"Expertise in every field with renowned staff.\",\n              \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n            },\n            \"city\": {\n              \"name\": \"Delhi\",\n              \"code\": \"011\"\n            },\n            \"country\": {\n              \"name\": \"INDIA\",\n              \"code\": \"+91\"\n            },\n            \"gps\": \"18.5246036,73.792927\",\n            \"address\": \"3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001\"\n          }\n        }\n      ]\n    }\n  }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{eua_base_url}}/api/v1/euaService/on_search",
+									"host": [
+										"{{eua_base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"euaService",
+										"on_search"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": {\r\n        \"ack\": {\r\n            \"status\": \"ACK\"\r\n        }\r\n    },\r\n    \"error\": {}\r\n}"
+						},
+						{
+							"name": "1st on_search response for Doctor and Specialty",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"on_search\",\n    \"timestamp\": \"2022-07-05T15:24:35\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n    \"provider_id\": \"hspa-nha\",\n    \"provider_uri\": \"https://hspasbx.abdm.gov.in/api/v1\",\n    \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n    \"message_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\"\n  },\n  \"message\": {\n    \"catalog\": {\n      \"descriptor\": {\n        \"name\": \"Ref HSPA\",\n        \"images\": \"HSPA IMAGE\",\n        \"short_desc\": \"Reference HSPA Test hospital\",\n        \"long_desc\": \"Expert institution providing patient treatment with specialized health science and auxiliary healthcare staff and extraordinary medical equipments.\"\n      },\n      \"providers\": [\n        {\n          \"id\": \"1\",\n          \"descriptor\": {\n            \"name\": \"Test Hospital\",\n            \"short_desc\": \"Expertise in every field with renowned staff.\",\n            \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n          },\n          \"categories\": [\n            {\n              \"id\": \"0\",\n              \"parent_category_id\": \"101\",\n              \"descriptor\": {\n                \"name\": \"Cardiology\",\n                \"code\": \"CARDIOLOGY\"\n              }\n            },\n            {\n              \"id\": \"101\",\n              \"descriptor\": {\n                \"name\": \"Allopathy\",\n                \"code\": \"ALLOPATHY\"\n              }\n            }\n          ],\n          \"fulfillments\": [\n            {\n              \"id\": \"0\",\n              \"type\": \"Physical\",\n              \"agent\": {\n                \"id\": \"ganeshborse@hpr.ndhm\",\n                \"name\": \"Ganesh Vikram Borse\",\n                \"gender\": \"M\",\n                \"tags\": {\n                  \"@abdm/gov/in/experience\": \"5.0\",\n                  \"@abdm/gov/in/languages\": \"Eng, Hin\",\n                  \"@abdm/gov/in/education\": \"MBBS\",\n                  \"@abdm/gov/in/hpr_id\": \"73-5232-1888-8686\"\n                }\n              }\n            }\n          ],\n          \"items\": [\n            {\n              \"id\": \"0\",\n              \"descriptor\": {\n                \"name\": \"Consultation\"\n              },\n              \"price\": {\n                \"currency\": \"INR\",\n                \"value\": \"300.0\"\n              },\n              \"category_id\": \"0\",\n              \"fulfillment_id\": \"0\"\n            }\n          ],\n          \"location\": {\n            \"id\": \"1\",\n            \"descriptor\": {\n              \"name\": \"Test Hospital\",\n              \"short_desc\": \"Expertise in every field with renowned staff.\",\n              \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n            },\n            \"city\": {\n              \"name\": \"Delhi\",\n              \"code\": \"011\"\n            },\n            \"country\": {\n              \"name\": \"INDIA\",\n              \"code\": \"+91\"\n            },\n            \"gps\": \"18.5246036,73.792927\",\n            \"address\": \"3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001\"\n          }\n        }\n      ]\n    }\n  }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{eua_base_url}}/api/v1/euaService/on_search",
+									"host": [
+										"{{eua_base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"euaService",
+										"on_search"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": {\r\n        \"ack\": {\r\n            \"status\": \"ACK\"\r\n        }\r\n    },\r\n    \"error\": {}\r\n}"
+						},
+						{
+							"name": "1st on_search response for Doctor and Facility",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"on_search\",\n    \"timestamp\": \"2022-07-05T15:24:35\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n    \"provider_id\": \"hspa-nha\",\n    \"provider_uri\": \"https://hspasbx.abdm.gov.in/api/v1\",\n    \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n    \"message_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\"\n  },\n  \"message\": {\n    \"catalog\": {\n      \"descriptor\": {\n        \"name\": \"Ref HSPA\",\n        \"images\": \"HSPA IMAGE\",\n        \"short_desc\": \"Reference HSPA Test hospital\",\n        \"long_desc\": \"Expert institution providing patient treatment with specialized health science and auxiliary healthcare staff and extraordinary medical equipments.\"\n      },\n      \"providers\": [\n        {\n          \"id\": \"1\",\n          \"descriptor\": {\n            \"name\": \"Test Hospital\",\n            \"short_desc\": \"Expertise in every field with renowned staff.\",\n            \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n          },\n          \"categories\": [\n            {\n              \"id\": \"0\",\n              \"parent_category_id\": \"101\",\n              \"descriptor\": {\n                \"name\": \"Cardiology\",\n                \"code\": \"CARDIOLOGY\"\n              }\n            },\n            {\n              \"id\": \"101\",\n              \"descriptor\": {\n                \"name\": \"Allopathy\",\n                \"code\": \"ALLOPATHY\"\n              }\n            }\n          ],\n          \"fulfillments\": [\n            {\n              \"id\": \"0\",\n              \"type\": \"Online\",\n              \"agent\": {\n                \"id\": \"ganeshborse@hpr.ndhm\",\n                \"name\": \"Ganesh Vikram Borse\",\n                \"gender\": \"M\",\n                \"tags\": {\n                  \"@abdm/gov/in/experience\": \"5.0\",\n                  \"@abdm/gov/in/languages\": \"Eng, Hin\",\n                  \"@abdm/gov/in/education\": \"MBBS\",\n                  \"@abdm/gov/in/hpr_id\": \"73-5232-1888-8686\"\n                }\n              }\n            }\n          ],\n          \"items\": [\n            {\n              \"id\": \"0\",\n              \"descriptor\": {\n                \"name\": \"Consultation\"\n              },\n              \"price\": {\n                \"currency\": \"INR\",\n                \"value\": \"300.0\"\n              },\n              \"category_id\": \"0\",\n              \"fulfillment_id\": \"0\"\n            }\n          ],\n          \"location\": {\n            \"id\": \"1\",\n            \"descriptor\": {\n              \"name\": \"Test Hospital\",\n              \"short_desc\": \"Expertise in every field with renowned staff.\",\n              \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n            },\n            \"city\": {\n              \"name\": \"Delhi\",\n              \"code\": \"011\"\n            },\n            \"country\": {\n              \"name\": \"INDIA\",\n              \"code\": \"+91\"\n            },\n            \"gps\": \"18.5246036,73.792927\",\n            \"address\": \"3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001\"\n          }\n        }\n      ]\n    }\n  }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{eua_base_url}}/api/v1/euaService/on_search",
+									"host": [
+										"{{eua_base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"euaService",
+										"on_search"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": {\r\n        \"ack\": {\r\n            \"status\": \"ACK\"\r\n        }\r\n    },\r\n    \"error\": {}\r\n}"
+						},
+						{
+							"name": "1st on_search response for HPR address",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"on_search\",\n    \"timestamp\": \"2022-11-14T07:20:54.005277Z\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n    \"provider_id\": \"hspa-nha\",\n    \"provider_uri\": \"https://hspasbx.abdm.gov.in/api/v1\",\n    \"transaction_id\": \"dfa04e10-63ec-11ed-9f98-49dd5c7c4d8a\",\n    \"message_id\": \"dfa04e10-63ec-11ed-9f98-49dd5c7c4d8a\"\n  },\n  \"message\": {\n    \"catalog\": {\n      \"descriptor\": {\n        \"name\": \"Ref HSPA\",\n        \"images\": \"HSPA IMAGE\",\n        \"short_desc\": \"Reference HSPA Test hospital\",\n        \"long_desc\": \"Expert institution providing patient treatment with specialized health science and auxiliary healthcare staff and extraordinary medical equipments.\"\n      },\n      \"providers\": [\n        {\n          \"id\": \"1\",\n          \"descriptor\": {\n            \"name\": \"Test Hospital\",\n            \"short_desc\": \"Expertise in every field with renowned staff.\",\n            \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n          },\n          \"categories\": [\n            {\n              \"id\": \"209\",\n              \"parent_category_id\": \"101\",\n              \"descriptor\": {\n                \"name\": \"Dental surgery\",\n                \"code\": \"DENTAL SURGERY\"\n              }\n            },\n            {\n              \"id\": \"101\",\n              \"descriptor\": {\n                \"name\": \"Allopathy\",\n                \"code\": \"ALLOPATHY\"\n              }\n            }\n          ],\n          \"fulfillments\": [\n            {\n              \"id\": \"0\",\n              \"type\": \"Online\",\n              \"agent\": {\n                \"id\": \"ganeshborse@hpr.abdm\",\n                \"name\": \"Ganesh Vikram Borse\",\n                \"gender\": \"M\",\n                \"tags\": {\n                  \"@abdm/gov/in/experience\": \"10.0\",\n                  \"@abdm/gov/in/languages\": \"Hindi, English\",\n                  \"@abdm/gov/in/education\": \"MBBS, BDS\",\n                  \"@abdm/gov/in/hpr_id\": \"73-5232-1888-8686\"\n                }\n              }\n            }\n          ],\n          \"items\": [\n            {\n              \"id\": \"0\",\n              \"descriptor\": {\n                \"name\": \"Consultation\"\n              },\n              \"price\": {\n                \"currency\": \"INR\",\n                \"value\": \"20.0\"\n              },\n              \"category_id\": \"209\",\n              \"fulfillment_id\": \"0\"\n            }\n          ],\n          \"location\": {\n            \"id\": \"1\",\n            \"descriptor\": {\n              \"name\": \"Test Hospital\",\n              \"short_desc\": \"Expertise in every field with renowned staff.\",\n              \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n            },\n            \"city\": {\n              \"name\": \"Delhi\",\n              \"code\": \"011\"\n            },\n            \"country\": {\n              \"name\": \"INDIA\",\n              \"code\": \"+91\"\n            },\n            \"gps\": \"18.5246036,73.792927\",\n            \"address\": \"3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001\"\n          }\n        }\n      ]\n    }\n  }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{eua_base_url}}/api/v1/euaService/on_search",
+									"host": [
+										"{{eua_base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"euaService",
+										"on_search"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": {\r\n        \"ack\": {\r\n            \"status\": \"ACK\"\r\n        }\r\n    },\r\n    \"error\": {}\r\n}"
+						},
+						{
+							"name": "1st on_search response for Doctor name",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"on_search\",\n    \"timestamp\": \"2022-07-05T15:24:35\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://100.65.158.41:8901/api/v1/euaService\",\n    \"provider_id\": \"hspa-nha\",\n    \"provider_uri\": \"https://hspasbx.abdm.gov.in/api/v1\",\n    \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n    \"message_id\": \"e9\"\n  },\n  \"message\": {\n    \"catalog\": {\n      \"descriptor\": {\n        \"name\": \"Ref HSPA\",\n        \"images\": \"HSPA IMAGE\",\n        \"short_desc\": \"Reference HSPA Test hospital\",\n        \"long_desc\": \"Expert institution providing patient treatment with specialized health science and auxiliary healthcare staff and extraordinary medical equipments.\"\n      },\n      \"providers\": [\n        {\n          \"id\": \"1\",\n          \"descriptor\": {\n            \"name\": \"Test Hospital\",\n            \"short_desc\": \"Expertise in every field with renowned staff.\",\n            \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n          },\n          \"categories\": [\n            {\n              \"id\": \"201\",\n              \"parent_category_id\": \"101\",\n              \"descriptor\": {\n                \"name\": \"Cardiology\",\n                \"code\": \"CARDIOLOGY\"\n              }\n            },\n            {\n              \"id\": \"101\",\n              \"descriptor\": {\n                \"name\": \"Allopathy\",\n                \"code\": \"ALLOPATHY\"\n              }\n            }\n          ],\n          \"fulfillments\": [\n            {\n              \"id\": \"0\",\n              \"type\": \"Online\",\n              \"agent\": {\n                \"id\": \"amodborse@hpr.abdm\",\n                \"name\": \"Amod Borse\",\n                \"gender\": \"M\",\n                \"tags\": {\n                  \"@abdm/gov/in/experience\": \"5.0\",\n                  \"@abdm/gov/in/languages\": \"Eng, Hin\",\n                  \"@abdm/gov/in/education\": \"MBBS\",\n                  \"@abdm/gov/in/hpr_id\": \"73-4331-9088-8684\"\n                }\n              }\n            },\n            {\n              \"id\": \"1\",\n              \"type\": \"Online\",\n              \"agent\": {\n                \"id\": \"amodjoshi@hpr.ndhm\",\n                \"name\": \"Amod Suresh Joshi\",\n                \"gender\": \"M\",\n                \"tags\": {\n                  \"@abdm/gov/in/experience\": \"12.0\",\n                  \"@abdm/gov/in/languages\": \"Eng, Hin\",\n                  \"@abdm/gov/in/education\": \"MBBS, MD\",\n                  \"@abdm/gov/in/hpr_id\": \"71-5362-8737-7250\"\n                }\n              }\n            }\n          ],\n          \"items\": [\n            {\n              \"id\": \"0\",\n              \"descriptor\": {\n                \"name\": \"Consultation\"\n              },\n              \"price\": {\n                \"currency\": \"INR\",\n                \"value\": \"300.0\"\n              },\n              \"category_id\": \"201\",\n              \"fulfillment_id\": \"0\"\n            },\n            {\n              \"id\": \"1\",\n              \"descriptor\": {\n                \"name\": \"Consultation\"\n              },\n              \"price\": {\n                \"currency\": \"INR\",\n                \"value\": \"0.0\"\n              },\n              \"category_id\": \"201\",\n              \"fulfillment_id\": \"1\"\n            }\n          ],\n          \"location\": {\n            \"id\": \"1\",\n            \"descriptor\": {\n              \"name\": \"Test Hospital\",\n              \"short_desc\": \"Expertise in every field with renowned staff.\",\n              \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n            },\n            \"city\": {\n              \"name\": \"Delhi\",\n              \"code\": \"011\"\n            },\n            \"country\": {\n              \"name\": \"INDIA\",\n              \"code\": \"+91\"\n            },\n            \"gps\": \"18.5246036,73.792927\",\n            \"address\": \"3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001\"\n          }\n        }\n      ]\n    }\n  }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{eua_base_url}}/api/v1/euaService/on_search",
+									"host": [
+										"{{eua_base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"euaService",
+										"on_search"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": {\r\n        \"ack\": {\r\n            \"status\": \"ACK\"\r\n        }\r\n    },\r\n    \"error\": {}\r\n}"
+						},
+						{
+							"name": "1st on_search response for Second Onsearch",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"on_search\",\n    \"timestamp\": \"2022-11-14T07:20:54.005277Z\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n    \"provider_id\": \"hspa-nha\",\n    \"provider_uri\": \"https://hspasbx.abdm.gov.in/api/v1\",\n    \"transaction_id\": \"dfa04e10-63ec-11ed-9f98-49dd5c7c4d8a\",\n    \"message_id\": \"dfa04e10-63ec-11ed-9f98-49dd5c7c4d8a\"\n  },\n  \"message\": {\n    \"catalog\": {\n      \"descriptor\": {\n        \"name\": \"Ref HSPA\",\n        \"short_desc\": \"Reference HSPA Test hospital\",\n        \"long_desc\": \"Expert institution providing patient treatment with specialized health science and auxiliary healthcare staff and extraordinary medical equipment.\"\n      },\n      \"providers\": [\n        {\n          \"id\": \"1\",\n          \"descriptor\": {\n            \"name\": \"Test Hospital\",\n            \"short_desc\": \"Expertise in every field with renowned staff.\",\n            \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n          },\n          \"fulfillments\": [\n            {\n              \"id\": \"d8fbcb3b-aad0-4a41-9938-97265466511a\",\n              \"type\": \"Online\",\n              \"agent\": {\n                \"id\": \"ganeshborse@hpr.ndhm\",\n                \"name\": \"Ganesh Vikram Borse\",\n                \"gender\": \"M\"\n              },\n              \"start\": {\n                \"time\": {\n                  \"timestamp\": \"2022-12-05T15:30:00\"\n                }\n              },\n              \"end\": {\n                \"time\": {\n                  \"timestamp\": \"2022-12-05T15:45:00\"\n                }\n              },\n              \"quote\": {\n                \"price\": {\n                  \"currency\": \"INR\"\n                }\n              }\n            },\n            {\n              \"id\": \"cd125181-9403-4807-b1bd-0eca97edbf59\",\n              \"type\": \"Online\",\n              \"agent\": {\n                \"id\": \"ganeshborse@hpr.ndhm\",\n                \"name\": \"Ganesh Vikram Borse\",\n                \"gender\": \"M\"\n              },\n              \"start\": {\n                \"time\": {\n                  \"timestamp\": \"2022-12-05T15:45:00\"\n                }\n              },\n              \"end\": {\n                \"time\": {\n                  \"timestamp\": \"2022-12-05T16:00:00\"\n                }\n              },\n              \"quote\": {\n                \"price\": {\n                  \"currency\": \"INR\"\n                }\n              }\n            },\n            {\n              \"id\": \"23347e3c-8b5e-48bf-a068-d4f7b4931b19\",\n              \"type\": \"Online\",\n              \"agent\": {\n                \"id\": \"ganeshborse@hpr.ndhm\",\n                \"name\": \"Ganesh Vikram Borse\",\n                \"gender\": \"M\"\n              },\n              \"start\": {\n                \"time\": {\n                  \"timestamp\": \"2022-12-05T16:00:00\"\n                }\n              },\n              \"end\": {\n                \"time\": {\n                  \"timestamp\": \"2022-12-05T16:15:00\"\n                }\n              },\n              \"quote\": {\n                \"price\": {\n                  \"currency\": \"INR\"\n                }\n              }\n            },\n            {\n              \"id\": \"19646021-3c91-4e74-bf71-313fc5d4d3db\",\n              \"type\": \"Online\",\n              \"agent\": {\n                \"id\": \"ganeshborse@hpr.ndhm\",\n                \"name\": \"Ganesh Vikram Borse\",\n                \"gender\": \"M\"\n              },\n              \"start\": {\n                \"time\": {\n                  \"timestamp\": \"2022-12-05T16:15:00\"\n                }\n              },\n              \"end\": {\n                \"time\": {\n                  \"timestamp\": \"2022-12-05T16:30:00\"\n                }\n              },\n              \"quote\": {\n                \"price\": {\n                  \"currency\": \"INR\"\n                }\n              }\n            }\n          ],\n          \"location\": {\n            \"id\": \"1\",\n            \"descriptor\": {\n              \"name\": \"Test Hospital\",\n              \"short_desc\": \"Expertise in every field with renowned staff.\",\n              \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n            },\n            \"city\": {\n              \"name\": \"Delhi\",\n              \"code\": \"011\"\n            },\n            \"country\": {\n              \"name\": \"INDIA\",\n              \"code\": \"+91\"\n            },\n            \"gps\": \"18.5246036,73.792927\",\n            \"address\": \"3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001\"\n          }\n        }\n      ]\n    }\n  }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{eua_base_url}}/api/v1/euaService/on_search",
+									"host": [
+										"{{eua_base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"euaService",
+										"on_search"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": {\r\n        \"ack\": {\r\n            \"status\": \"ACK\"\r\n        }\r\n    },\r\n    \"error\": {}\r\n}"
+						},
+						{
+							"name": "1st on_search response for Facility and specialty",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"on_search\",\n    \"timestamp\": \"2022-07-05T15:24:35\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n    \"provider_id\": \"hspa-nha\",\n    \"provider_uri\": \"https://hspasbx.abdm.gov.in/api/v1\",\n    \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n    \"message_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\"\n  },\n  \"message\": {\n    \"catalog\": {\n      \"descriptor\": {\n        \"name\": \"Ref HSPA\",\n        \"images\": \"HSPA IMAGE\",\n        \"short_desc\": \"Reference HSPA Test hospital\",\n        \"long_desc\": \"Expert institution providing patient treatment with specialized health science and auxiliary healthcare staff and extraordinary medical equipments.\"\n      },\n      \"providers\": [\n        {\n          \"id\": \"1\",\n          \"descriptor\": {\n            \"name\": \"Test Hospital\",\n            \"short_desc\": \"Expertise in every field with renowned staff.\",\n            \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n          },\n          \"categories\": [\n            {\n              \"id\": \"201\",\n              \"parent_category_id\": \"101\",\n              \"descriptor\": {\n                \"name\": \"Cardiology\",\n                \"code\": \"CARDIOLOGY\"\n              }\n            },\n            {\n              \"id\": \"101\",\n              \"descriptor\": {\n                \"name\": \"Allopathy\",\n                \"code\": \"ALLOPATHY\"\n              }\n            }\n          ],\n          \"fulfillments\": [\n            {\n              \"id\": \"0\",\n              \"type\": \"Physical\",\n              \"agent\": {\n                \"id\": \"amodborse@hpr.abdm\",\n                \"name\": \"Amod Borse\",\n                \"gender\": \"M\",\n                \"tags\": {\n                  \"@abdm/gov/in/experience\": \"5.0\",\n                  \"@abdm/gov/in/languages\": \"Eng, Hin\",\n                  \"@abdm/gov/in/education\": \"MBBS\",\n                  \"@abdm/gov/in/hpr_id\": \"73-4331-9088-8684\"\n                }\n              }\n            },\n            {\n              \"id\": \"1\",\n              \"type\": \"Physical\",\n              \"agent\": {\n                \"id\": \"ganeshborse@hpr.ndhm\",\n                \"name\": \"Ganesh Vikram Borse\",\n                \"gender\": \"M\",\n                \"tags\": {\n                  \"@abdm/gov/in/experience\": \"5.0\",\n                  \"@abdm/gov/in/languages\": \"Eng, Hin\",\n                  \"@abdm/gov/in/education\": \"MBBS\",\n                  \"@abdm/gov/in/hpr_id\": \"73-5232-1888-8686\"\n                }\n              }\n            }\n          ],\n          \"items\": [\n            {\n              \"id\": \"0\",\n              \"descriptor\": {\n                \"name\": \"Consultation\"\n              },\n              \"price\": {\n                \"currency\": \"INR\",\n                \"value\": \"300.0\"\n              },\n              \"category_id\": \"201\",\n              \"fulfillment_id\": \"0\"\n            },\n            {\n              \"id\": \"1\",\n              \"descriptor\": {\n                \"name\": \"Consultation\"\n              },\n              \"price\": {\n                \"currency\": \"INR\",\n                \"value\": \"300.0\"\n              },\n              \"category_id\": \"201\",\n              \"fulfillment_id\": \"1\"\n            }\n          ],\n          \"location\": {\n            \"id\": \"1\",\n            \"descriptor\": {\n              \"name\": \"Test Hospital\",\n              \"short_desc\": \"Expertise in every field with renowned staff.\",\n              \"long_desc\": \"We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.\"\n            },\n            \"city\": {\n              \"name\": \"Delhi\",\n              \"code\": \"011\"\n            },\n            \"country\": {\n              \"name\": \"INDIA\",\n              \"code\": \"+91\"\n            },\n            \"gps\": \"18.5246036,73.792927\",\n            \"address\": \"3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001\"\n          }\n        }\n      ]\n    }\n  }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{eua_base_url}}/api/v1/euaService/on_search",
+									"host": [
+										"{{eua_base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"euaService",
+										"on_search"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": {\r\n        \"ack\": {\r\n            \"status\": \"ACK\"\r\n        }\r\n    },\r\n    \"error\": {}\r\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "HSPA Init",
+			"item": [
+				{
+					"name": "init",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"context\": {\r\n    \"domain\": \"nic2004:85111\",\r\n    \"country\": \"IND\",\r\n    \"city\": \"std:080\",\r\n    \"action\": \"init\",\r\n    \"core_version\": \"0.7.1\",\r\n    \"consumer_id\": \"eua-nha\",\r\n    \"consumer_uri\": \"http://100.65.158.41:8901/api/v1/euaService\",\r\n    \"message_id\": \"559667a0-6576-11ed-83d2-db6676a4d91e\",\r\n    \"timestamp\": \"2022-11-20T06:17:34.858358Z\",\r\n    \"provider_uri\": \"https://hspasbx.abdm.gov.in/api/v1\",\r\n    \"transaction_id\": \"559667a0-6576-11ed-83d2-db6676a4d91e\"\r\n  },\r\n  \"message\": {\r\n    \"order\": {\r\n      \"provider\": {\r\n        \"id\": \"1\"\r\n      },\r\n      \"item\": {\r\n        \"id\": \"0\",\r\n        \"descriptor\": {\r\n          \"code\": \"Consultation\",\r\n          \"name\": \"Consultation\"\r\n        },\r\n        \"price\": {\r\n          \"currency\": \"INR\",\r\n          \"value\": \"500.0\"\r\n        }\r\n      },\r\n      \"fulfillment\": {\r\n        \"id\": \"4fb27b0d-5dfa-4854-9f46-1cd85be0d98e\",\r\n        \"type\": \"Online\",\r\n        \"agent\": {\r\n          \"id\": \"satish123@hpr.ndhm\",\r\n          \"name\": \"Satish Udhavrao Chonde\",\r\n          \"gender\": \"M\",\r\n          \"tags\": {\r\n            \"@abdm/gov/in/education\": \"MBBS\",\r\n            \"@abdm/gov/in/experience\": \"10.0\",\r\n            \"@abdm/gov/in/languages\": \"Hindi, Marathi, English\",\r\n            \"@abdm/gov/in/hpr_id\": \"71-4453-8853-6840\",\r\n            \"@abdm/gov.in/groupConsultation\": \"false\"\r\n          }\r\n        },\r\n        \"start\": {\r\n          \"time\": {\r\n            \"timestamp\": \"2022-11-16T12:00:00\"\r\n          }\r\n        },\r\n        \"end\": {\r\n          \"time\": {\r\n            \"timestamp\": \"2022-11-16T12:30:00\"\r\n          }\r\n        }\r\n      },\r\n      \"billing\": {\r\n        \"name\": \"Satish Udhavrao Chonde\",\r\n        \"address\": {\r\n          \"door\": \"\",\r\n          \"name\": \"Satish Udhavrao Chonde\",\r\n          \"locality\": \"C/O Udhavrao Chonde At abhinav nagar kandhar po kandhar tq kandhar Kandhar\",\r\n          \"city\": \"Nanded\",\r\n          \"state\": \"Maharashtra\",\r\n          \"country\": \"INDIA\"\r\n        },\r\n        \"phone\": \"9511225358\"\r\n      },\r\n      \"customer\": {\r\n        \"person\": {\r\n          \"gender\": \"M\",\r\n          \"dob\": \"2022-11-21\",\r\n          \"dayOfBirth\": 21,\r\n          \"monthOfBirth\": 11,\r\n          \"yearOfBirth\": 2022\r\n        },\r\n        \"id\": \"satishc661994@sbx\"\r\n      },\r\n      \"payment\": {\r\n        \"params\": {\r\n          \"redirect_url\": \"www.callmyeua.com/payment/done? transaction_id=1& order_id=1& order_status=success& payment_status=success\"\r\n        }\r\n      }\r\n    }\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{hspa_base_url}}/api/v1/init",
+							"host": [
+								"{{hspa_base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"init"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "EUA On Init",
+			"item": [
+				{
+					"name": "on_init",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"context\": {\r\n        \"domain\": \"nic2004:85111\",\r\n        \"country\": \"IND\",\r\n        \"city\": \"std:080\",\r\n        \"action\": \"on_init\",\r\n        \"timestamp\": \"2022-11-20T06:17:34.858358Z\",\r\n        \"core_version\": \"0.7.1\",\r\n        \"consumer_id\": \"eua-nha\",\r\n        \"consumer_uri\": \"https://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\r\n        \"provider_id\": \"hspa-nha\",\r\n        \"provider_uri\": \"https://hspasbx.abdm.gov.in/api/v1\",\r\n        \"transaction_id\": \"559667a0-6576-11ed-83d2-db6676a4d91e\",\r\n        \"message_id\": \"559667a0-6576-11ed-83d2-db6676a4d91e\"\r\n    },\r\n    \"message\": {\r\n        \"order\": {\r\n            \"id\": \"1730-386853-6695\",\r\n            \"provider\": {\r\n                \"id\": \"1\"\r\n            },\r\n            \"item\": {\r\n                \"id\": \"0\",\r\n                \"descriptor\": {\r\n                    \"code\": \"Consultation\",\r\n                    \"name\": \"Consultation\"\r\n                },\r\n                \"price\": {\r\n                    \"currency\": \"INR\",\r\n                    \"value\": \"500.0\"\r\n                }\r\n            },\r\n            \"fulfillment\": {\r\n                \"id\": \"4fb27b0d-5dfa-4854-9f46-1cd85be0d98e\",\r\n                \"type\": \"Online\",\r\n                \"agent\": {\r\n                    \"id\": \"satish123@hpr.ndhm\",\r\n                    \"name\": \"Satish Udhavrao Chonde\",\r\n                    \"gender\": \"M\",\r\n                    \"tags\": {\r\n                        \"@abdm/gov/in/education\": \"MBBS\",\r\n                        \"@abdm/gov/in/experience\": \"10.0\",\r\n                        \"@abdm/gov/in/languages\": \"Hindi, Marathi, English\",\r\n                        \"@abdm/gov/in/hpr_id\": \"71-4453-8853-6840\",\r\n                        \"@abdm/gov.in/groupConsultation\": \"false\"\r\n                    }\r\n                },\r\n                \"start\": {\r\n                    \"time\": {\r\n                        \"timestamp\": \"2022-11-16T12:00:00\"\r\n                    }\r\n                },\r\n                \"end\": {\r\n                    \"time\": {\r\n                        \"timestamp\": \"2022-11-16T12:30:00\"\r\n                    }\r\n                }\r\n            },\r\n            \"billing\": {\r\n                \"name\": \"Satish Udhavrao Chonde\",\r\n                \"address\": {\r\n                    \"door\": \"\",\r\n                    \"name\": \"Satish Udhavrao Chonde\",\r\n                    \"locality\": \"C/O Udhavrao Chonde At abhinav nagar kandhar po kandhar tq kandhar Kandhar\",\r\n                    \"city\": \"Nanded\",\r\n                    \"state\": \"Maharashtra\",\r\n                    \"country\": \"INDIA\"\r\n                },\r\n                \"phone\": \"9511225358\"\r\n            },\r\n            \"quote\": {\r\n                \"price\": {\r\n                    \"currency\": \"INR\",\r\n                    \"value\": \"300.0\"\r\n                },\r\n                \"breakup\": [\r\n                    {\r\n                        \"title\": \"Consultation\",\r\n                        \"price\": {\r\n                            \"currency\": \"INR\",\r\n                            \"value\": \"300.0\"\r\n                        }\r\n                    },\r\n                    {\r\n                        \"title\": \"CGST @ 5%\",\r\n                        \"price\": {\r\n                            \"currency\": \"INR\",\r\n                            \"value\": \"0\"\r\n                        }\r\n                    },\r\n                    {\r\n                        \"title\": \"SGST @ 5%\",\r\n                        \"price\": {\r\n                            \"currency\": \"INR\",\r\n                            \"value\": \"0\"\r\n                        }\r\n                    },\r\n                    {\r\n                        \"title\": \"Registration\",\r\n                        \"price\": {\r\n                            \"currency\": \"INR\",\r\n                            \"value\": \"0\"\r\n                        }\r\n                    }\r\n                ]\r\n            },\r\n            \"customer\": {\r\n                \"person\": {\r\n                    \"gender\": \"M\",\r\n                    \"dob\": \"2022-11-21\",\r\n                    \"dayOfBirth\": 21,\r\n                    \"monthOfBirth\": 11,\r\n                    \"yearOfBirth\": 2022\r\n                },\r\n                \"id\": \"satishc661994@sbx\"\r\n            },\r\n            \"payment\": {\r\n                \"uri\": \"https://api.bpp.com/pay?amt=100&txn_id=ksh87yriuro34iyr3p4&mode=upi&vpa=doctor@upi\",\r\n                \"type\": \"ON-ORDER\",\r\n                \"status\": \"NOT-PAID\",\r\n                \"params\": {\r\n                    \"redirect_url\": \"www.callmyeua.com/payment/done? transaction_id=1& order_id=1& order_status=success& payment_status=success\"\r\n                }\r\n            }\r\n        }\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{eua_base_url}}/api/v1/euaService/on_init",
+							"host": [
+								"{{eua_base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"euaService",
+								"on_init"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "HSPA Confirm",
+			"item": [
+				{
+					"name": "confirm",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"confirm\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://100.65.158.41:8901/api/v1/euaService\",\n    \"message_id\": \"27d06780-59dc-11ed-b4f7-1714b7644c84\",\n    \"timestamp\": \"2022-11-05T12:05:27\",\n    \"provider_id\": \"hspa-nha\",\n    \"provider_uri\": \"https://hspasbx.abdm.gov.in/api/v1\",\n    \"transaction_id\": \"27d06780-59dc-11ed-b4f7-1714b7644c84\"\n  },\n  \"message\": {\n    \"order\": {\n      \"id\": \"8441-696786-1042\",\n      \"item\": {\n        \"id\": \"0\",\n        \"descriptor\": {\n          \"code\": \"Consultation\",\n          \"name\": \"Consultation\"\n        }\n      },\n      \"fulfillment\": {\n        \"id\": \"1479e965-52d0-4b19-8615-dde81e45432a\",\n        \"type\": \"Online\",\n        \"agent\": {\n          \"id\": \"ganeshborse@hpr.ndhm\",\n          \"name\": \"Ganesh Vikram Borse\",\n          \"gender\": \"M\",\n          \"tags\": {\n            \"@abdm/gov/in/education\": \"MBBS\",\n            \"@abdm/gov/in/experience\": \"5.0\",\n            \"@abdm/gov/in/languages\": \"Eng, Hin\",\n            \"@abdm/gov/in/hpr_id\": \"73-5232-1888-8686\",\n            \"@abdm/gov.in/groupConsultation\": \"false\"\n          }\n        },\n        \"start\": {\n          \"time\": {\n            \"timestamp\": \"2022-11-01T18:30:00\"\n          }\n        },\n        \"end\": {\n          \"time\": {\n            \"timestamp\": \"2022-11-01T19:00:00\"\n          }\n        },\n        \"tags\": {\n          \"@abdm/gov.in/patient_key\": \"[159, 248, 220, 195, 187, 221, 217, 26, 236, 136, 151, 89, 126, 130, 238, 52, 205, 85, 227, 64, 252, 213, 209, 207, 56, 212, 244, 15, 210, 7, 188, 14]\"\n        }\n      },\n      \"billing\": {\n        \"name\": \"Vishal Umakant Swami\",\n        \"address\": {\n          \"door\": \"\",\n          \"name\": \"C/O Umakant Swami someshwar nagar Parli\",\n          \"locality\": \"\",\n          \"state\": \"Maharashtra\",\n          \"country\": \"INDIA\",\n          \"area_code\": \"431515\"\n        },\n        \"email\": \"vswami241@gmail.com\",\n        \"phone\": \"7721043046\"\n      },\n      \"quote\": {\n        \"price\": {\n          \"currency\": \"INR\",\n          \"value\": \"300.0\"\n        },\n        \"breakup\": [\n          {\n            \"title\": \"Consultation\",\n            \"price\": {\n              \"currency\": \"INR\",\n              \"value\": \"300.0\"\n            }\n          },\n          {\n            \"title\": \"CGST @ 5%\",\n            \"price\": {\n              \"currency\": \"INR\",\n              \"value\": \"0\"\n            }\n          },\n          {\n            \"title\": \"SGST @ 5%\",\n            \"price\": {\n              \"currency\": \"INR\",\n              \"value\": \"0\"\n            }\n          },\n          {\n            \"title\": \"Registration\",\n            \"price\": {\n              \"currency\": \"INR\",\n              \"value\": \"0\"\n            }\n          }\n        ]\n      },\n      \"payment\": {\n        \"uri\": \"https://api.bpp.com/pay?amt=1500&txn_id=ksh87yriuro34iyr3p4&mode=upi&vpa=sana.bhatt@upi\",\n        \"tl_method\": \"http/get\",\n        \"params\": {\n          \"amount\": \"300.0\",\n          \"mode\": \"UPI\",\n          \"vpa\": \"ganeshvborse@icici\",\n          \"transaction_id\": \"\",\n          \"redirect_url\": \"www.callmyeua.com/payment/done? transaction_id=1& order_id=1& order_status=success& payment_status=success\"\n        },\n        \"type\": \"ON-ORDER\",\n        \"status\": \"PAID\"\n      },\n      \"customer\": {\n        \"person\": {\n          \"gender\": \"M\",\n          \"dob\": \"2022-11-21\",\n          \"dayOfBirth\": 21,\n          \"monthOfBirth\": 11,\n          \"yearOfBirth\": 2022\n        },\n        \"id\": \"satishc661994@sbx\"\n      },\n      \"provider\": {\n        \"id\": \"1\"\n      }\n    }\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{hspa_base_url}}/api/v1/confirm",
+							"host": [
+								"{{hspa_base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"confirm"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "EUA On Confirm",
+			"item": [
+				{
+					"name": "on_confirm",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"context\": {\r\n    \"domain\": \"nic2004:85111\",\r\n    \"country\": \"IND\",\r\n    \"city\": \"std:080\",\r\n    \"action\": \"on_confirm\",\r\n    \"core_version\": \"0.7.1\",\r\n    \"consumer_id\": \"eua-nha\",\r\n    \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\r\n    \"message_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\r\n    \"timestamp\": \"2022-07-05T15:24:35.481906\",\r\n    \"provider_id\": \"hspa-nha\",\r\n    \"provider_uri\": \"http://hspasbx.abdm.gov.in/api/v1\",\r\n    \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\"\r\n  },\r\n  \"message\": {\r\n    \"order\": {\r\n      \"id\": \"8441-696786-1042\",\r\n      \"state\": \"CONFIRMED\",\r\n      \"item\": {\r\n        \"id\": \"1\",\r\n        \"descriptor\": {\r\n          \"code\": \"Consultation\",\r\n          \"name\": \"Consultation\"\r\n        }\r\n      },\r\n      \"fulfillment\": {\r\n        \"id\": \"d680dd36-1d0d-43c6-96c4-dec0f06008ea\",\r\n        \"type\": \"Online\",\r\n        \"agent\": {\r\n          \"id\": \"ganeshborse@hpr.ndhm\",\r\n          \"name\": \"Ganesh Vikram Borse\",\r\n          \"gender\": \"F\",\r\n          \"tags\": {\r\n            \"@abdm/gov/in/education\": \"MBBS,MS\",\r\n            \"@abdm/gov/in/experience\": \"15.0\",\r\n            \"@abdm/gov/in/languages\": \"English, Hindi, Marathi\",\r\n            \"@abdm/gov/in/hpr_id\": \"71-0623-3144-1604\"\r\n          }\r\n        },\r\n        \"start\": {\r\n          \"time\": {\r\n            \"timestamp\": \"2022-09-15T15:00:00\"\r\n          }\r\n        },\r\n        \"end\": {\r\n          \"time\": {\r\n            \"timestamp\": \"2022-09-15T15:15:00\"\r\n          }\r\n        },\r\n        \"tags\": {\r\n          \"@abdm/gov.in/doctors_key\": \"[73, 52, 18, 69, 97, 198, 26, 138, 217, 154, 50, 28, 111, 252, 155, 188, 192, 62, 49, 207, 101, 199, 237, 198, 95, 11, 249, 140, 238, 81, 246, 111]\",\r\n          \"@abdm/gov.in/patient_key\": \"[109, 52, 18, 69, 97, 198, 26, 138, 217, 154, 50, 28, 111, 394, 155, 153, 192, 62, 49, 207, 101, 199, 237, 198, 95, 11, 249, 140, 238, 81, 246, 111]\",\r\n          \"@abdm/gov.in/teleconsultation/uri\": \"www.callmyhspa.com/tele\"\r\n        }\r\n      },\r\n      \"billing\": {\r\n        \"name\": \"Manish Pravin Kahane\",\r\n        \"address\": {\r\n          \"door\": \"\",\r\n          \"name\": \" Flat no. 702, C Wing, The One Society Siddhivinayak Vihar Bhugaon, bavdhan Pirangut\",\r\n          \"locality\": \"\",\r\n          \"city\": \"Pune\",\r\n          \"state\": \"Maharashtra\",\r\n          \"country\": \"INDIA\",\r\n          \"area_code\": \"412115\"\r\n        },\r\n        \"email\": \"manishkahane12@gmail.com\",\r\n        \"phone\": \"9730498995\"\r\n      },\r\n      \"quote\": {\r\n        \"price\": {\r\n          \"currency\": \"INR\",\r\n          \"value\": \"1000\"\r\n        },\r\n        \"breakup\": [\r\n          {\r\n            \"title\": \"Consultation\",\r\n            \"price\": {\r\n              \"currency\": \"INR\",\r\n              \"value\": \"1000\"\r\n            }\r\n          },\r\n          {\r\n            \"title\": \"CGST @ 5%\",\r\n            \"price\": {\r\n              \"currency\": \"INR\",\r\n              \"value\": \"0\"\r\n            }\r\n          },\r\n          {\r\n            \"title\": \"SGST @ 5%\",\r\n            \"price\": {\r\n              \"currency\": \"INR\",\r\n              \"value\": \"0\"\r\n            }\r\n          },\r\n          {\r\n            \"title\": \"Registration\",\r\n            \"price\": {\r\n              \"currency\": \"INR\",\r\n              \"value\": \"0\"\r\n            }\r\n          }\r\n        ]\r\n      },\r\n      \"customer\": {\r\n        \"person\": {\r\n          \"gender\": \"M\",\r\n          \"dob\": \"2022-11-21\",\r\n          \"dayOfBirth\": 21,\r\n          \"monthOfBirth\": 11,\r\n          \"yearOfBirth\": 2022\r\n        },\r\n        \"id\": \"satishc661994@sbx\"\r\n      },\r\n      \"payment\": {\r\n        \"uri\": \"https://api.bpp.com/pay?amt=1500&txn_id=ksh87yriuro34iyr3p4&mode=upi&vpa=sana.bhatt@upi\",\r\n        \"type\": \"ON-ORDER\",\r\n        \"status\": \"PAID\",\r\n        \"tl_method\": \"http/get\",\r\n        \"params\": {\r\n          \"transaction_id\": \"\",\r\n          \"amount\": \"1000\",\r\n          \"mode\": \"UPI\",\r\n          \"vpa\": \"xyz@ghh\",\r\n          \"redirect_url\": \"www.callmyeua.com/payment/done? transaction_id=1& order_id=1& order_status=success& payment_status=success\"\r\n        }\r\n      },\r\n      \"provider\": {\r\n        \"id\": \"1\"\r\n      }\r\n    }\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{eua_base_url}}/api/v1/euaService/on_confirm",
+							"host": [
+								"{{eua_base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"euaService",
+								"on_confirm"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "HSPA/EUA Message",
+			"item": [
+				{
+					"name": "on_message EUA",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"context\": {\n        \"domain\": \"nic2004:85111\",\n        \"country\": \"IND\",\n        \"city\": \"std:080\",\n        \"action\": \"on_message\",\n        \"core_version\": \"0.7.1\",\n        \"consumer_id\": \"eua-nha\",\n        \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n        \"message_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n        \"timestamp\": \"2022-07-05T15:24:35.481906Z\",\n        \"provider_uri\": \"http://hspasbx.abdm.gov.in/api/v1\",\n        \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\"\n    },\n    \"message\": {\n        \"intent\": {\n            \"chat\": {\n                \"sender\": {\n                    \"person\": {\n                        \"name\": \"Akshay Dadaji Dhondge\",\n                        \"gender\": \"M\",\n                        \"image\": \"image link / base64 coded image\",\n                        \"id\": \"akshaydhondge@sbx\"\n                    }\n                },\n                \"receiver\": {\n                    \"person\": {\n                        \"name\": \"Ganesh Vikram Borse\",\n                        \"gender\": \"M\",\n                        \"image\": \"image link / base64 coded image\",\n                        \"id\": \"ganeshborse@hpr.ndhm\"\n                    }\n                },\n                \"content\": {\n                    \"content_id\": \"52216af0-42e1-11ed-a4b6-873d4ad3e26c\",\n                    \"content_value\": \"{\\\"type\\\":\\\"CANDIDATE\\\",\\\"data\\\":{\\\"to\\\":\\\"ganeshborse@hpr.ndhm\\\",\\\"from\\\":\\\"\\\",\\\"candidate\\\":{\\\"sdpMLineIndex\\\":0,\\\"sdpMid\\\":\\\"0\\\",\\\"candidate\\\":\\\"candidate:1355446498 1 udp 25108223 216.39.253.10 40045 typ relay raddr 103.177.129.21 rport 56294 generation 0 ufrag rlf3 network-id 1 network-cost 10\\\"},\\\"session_id\\\":\\\"ganeshborse@hpr.ndhm-akshaydhondge@sbx\\\"}}\",\n                    \"content_type\": \"video_call_signalling\"\n                },\n                \"time\": {\n                    \"timestamp\": \"2022-10-03T11:35:03\"\n                }\n            }\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{eua_base_url}}/api/v1/euaService/on_message",
+							"host": [
+								"{{eua_base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"euaService",
+								"on_message"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Video call signalling",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"context\": {\n        \"domain\": \"nic2004:85111\",\n        \"country\": \"IND\",\n        \"city\": \"std:080\",\n        \"action\": \"on_message\",\n        \"core_version\": \"0.7.1\",\n        \"consumer_id\": \"eua-nha\",\n        \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n        \"message_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n        \"timestamp\": \"2022-07-05T15:24:35.481906Z\",\n        \"provider_uri\": \"http://hspasbx.abdm.gov.in/api/v1\",\n        \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\"\n    },\n    \"message\": {\n        \"intent\": {\n            \"chat\": {\n                \"sender\": {\n                    \"person\": {\n                        \"name\": \"Akshay Dadaji Dhondge\",\n                        \"gender\": \"M\",\n                        \"image\": \"image link / base64 coded image\",\n                        \"id\": \"akshaydhondge@sbx\"\n                    }\n                },\n                \"receiver\": {\n                    \"person\": {\n                        \"name\": \"Ganesh Vikram Borse\",\n                        \"gender\": \"M\",\n                        \"image\": \"image link / base64 coded image\",\n                        \"id\": \"ganeshborse@hpr.ndhm\"\n                    }\n                },\n                \"content\": {\n                    \"content_id\": \"52216af0-42e1-11ed-a4b6-873d4ad3e26c\",\n                    \"content_value\": \"{\\\"type\\\":\\\"CANDIDATE\\\",\\\"data\\\":{\\\"to\\\":\\\"ganeshborse@hpr.ndhm\\\",\\\"from\\\":\\\"\\\",\\\"candidate\\\":{\\\"sdpMLineIndex\\\":0,\\\"sdpMid\\\":\\\"0\\\",\\\"candidate\\\":\\\"candidate:1355446498 1 udp 25108223 216.39.253.10 40045 typ relay raddr 103.177.129.21 rport 56294 generation 0 ufrag rlf3 network-id 1 network-cost 10\\\"},\\\"session_id\\\":\\\"ganeshborse@hpr.ndhm-akshaydhondge@sbx\\\"}}\",\n                    \"content_type\": \"video_call_signalling\"\n                },\n                \"time\": {\n                    \"timestamp\": \"2022-10-03T11:35:03\"\n                }\n            }\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{eua_base_url}}/api/v1/euaService/on_message",
+									"host": [
+										"{{eua_base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"euaService",
+										"on_message"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": {\r\n        \"ack\": {\r\n            \"status\": \"ACK\"\r\n        }\r\n    },\r\n    \"error\": {}\r\n}"
+						},
+						{
+							"name": "Text message",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"context\": {\n        \"domain\": \"nic2004:85111\",\n        \"country\": \"IND\",\n        \"city\": \"std:080\",\n        \"action\": \"on_message\",\n        \"core_version\": \"0.7.1\",\n        \"consumer_id\": \"eua-nha\",\n        \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n        \"message_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n        \"timestamp\": \"2022-07-05T15:24:35.481906Z\",\n        \"provider_uri\": \"http://hspasbx.abdm.gov.in/api/v1\",\n        \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\"\n    },\n    \"message\": {\n        \"intent\": {\n            \"chat\": {\n                \"sender\": {\n                    \"person\": {\n                        \"name\": \"Manish Pravin Kahane\",\n                        \"gender\": \"M\",\n                        \"image\": \"image link / base64 coded image\",\n                        \"id\": \"manishkahane1992@sbx\"\n                    }\n                },\n                \"receiver\": {\n                    \"person\": {\n                        \"name\": \"Santosh Ramchandra Jagtap\",\n                        \"gender\": \"M\",\n                        \"image\": \"image link / base64 coded image\",\n                        \"id\": \"santoshjagtap@hpr.ndhm\"\n                    }\n                },\n                \"content\": {\n                    \"content_id\": \"e616e100-42e0-11ed-b5d7-51ae9d37b46f\",\n                    \"content_value\": \"{\\\"cipher_text\\\":[23,162,74,105,185,88],\\\"nonce\\\":[33,29,210,14,186,57,229,151,121,96,44,214,50,233,226,163],\\\"mac_bytes\\\":[85,184,213,254,106,150,18,26,131,9,118,68,24,161,13,173,105,21,168,102,61,81,254,74,229,82,57,233,86,79,111,184]}\",\n                    \"content_type\": \"text\"\n                },\n                \"time\": {\n                    \"timestamp\": \"2022-10-03T11:32:01\"\n                }\n            }\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{eua_base_url}}/api/v1/euaService/on_message",
+									"host": [
+										"{{eua_base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"euaService",
+										"on_message"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": {\r\n        \"ack\": {\r\n            \"status\": \"ACK\"\r\n        }\r\n    },\r\n    \"error\": {}\r\n}"
+						},
+						{
+							"name": "Media sharing",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"context\": {\n       \"domain\": \"nic2004:85111\",\n        \"country\": \"IND\",\n        \"city\": \"std:080\",\n        \"action\": \"on_message\",\n        \"core_version\": \"0.7.1\",\n        \"consumer_id\": \"eua-nha\",\n        \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n        \"message_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n        \"timestamp\": \"2022-07-05T15:24:35.481906Z\",\n        \"provider_uri\": \"http://hspasbx.abdm.gov.in/api/v1\",\n        \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\"\n    },\n    \"message\": {\n        \"intent\": {\n            \"chat\": {\n                \"sender\": {\n                    \"person\": {\n                        \"name\": \"Akshay Dadaji Dhondge\",\n                        \"gender\": \"M\",\n                        \"image\": \"image link / base64 coded image\",\n                        \"id\": \"akshaydhondge@sbx\"\n                    }\n                },\n                \"receiver\": {\n                    \"person\": {\n                        \"name\": \"Ganesh Vikram Borse\",\n                        \"gender\": \"M\",\n                        \"image\": \"image link / base64 coded image\",\n                        \"id\": \"ganeshborse@hpr.ndhm\"\n                    }\n                },\n                \"content\": {\n                    \"content_id\": \"52216af0-42e1-11ed-a4b6-873d4ad3e26c\",\n                    \"content_value\": \"{\\\"type\\\":\\\"CANDIDATE\\\",\\\"data\\\":{\\\"to\\\":\\\"ganeshborse@hpr.ndhm\\\",\\\"from\\\":\\\"\\\",\\\"candidate\\\":{\\\"sdpMLineIndex\\\":0,\\\"sdpMid\\\":\\\"0\\\",\\\"candidate\\\":\\\"candidate:1355446498 1 udp 25108223 216.39.253.10 40045 typ relay raddr 103.177.129.21 rport 56294 generation 0 ufrag rlf3 network-id 1 network-cost 10\\\"},\\\"session_id\\\":\\\"ganeshborse@hpr.ndhm-akshaydhondge@sbx\\\"}}\",\n                    \"content_type\": \"media\"\n                },\n                \"time\": {\n                    \"timestamp\": \"2022-10-03T11:35:03\"\n                }\n            }\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{eua_base_url}}/api/v1/euaService/on_message",
+									"host": [
+										"{{eua_base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"euaService",
+										"on_message"
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": {\r\n        \"ack\": {\r\n            \"status\": \"ACK\"\r\n        }\r\n    },\r\n    \"error\": {}\r\n}"
+						}
+					]
+				},
+				{
+					"name": "on_message HSPA",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"context\": {\n        \"domain\": \"nic2004:85111\",\n        \"country\": \"IND\",\n        \"city\": \"std:080\",\n        \"action\": \"on_message\",\n        \"core_version\": \"0.7.1\",\n        \"consumer_id\": \"eua-nha\",\n        \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n        \"message_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n        \"timestamp\": \"2022-07-05T15:24:35.481906Z\",\n        \"provider_uri\": \"http://hspasbx.abdm.gov.in/api/v1\",\n        \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\"\n    },\n    \"message\": {\n        \"intent\": {\n            \"chat\": {\n                \"sender\": {\n                    \"person\": {\n                        \"name\": \"Akshay Dadaji Dhondge\",\n                        \"gender\": \"M\",\n                        \"image\": \"image link / base64 coded image\",\n                        \"id\": \"akshaydhondge@sbx\"\n                    }\n                },\n                \"receiver\": {\n                    \"person\": {\n                        \"name\": \"Ganesh Vikram Borse\",\n                        \"gender\": \"M\",\n                        \"image\": \"image link / base64 coded image\",\n                        \"id\": \"ganeshborse@hpr.ndhm\"\n                    }\n                },\n                \"content\": {\n                    \"content_id\": \"52216af0-42e1-11ed-a4b6-873d4ad3e26c\",\n                    \"content_value\": \"{\\\"type\\\":\\\"CANDIDATE\\\",\\\"data\\\":{\\\"to\\\":\\\"ganeshborse@hpr.ndhm\\\",\\\"from\\\":\\\"\\\",\\\"candidate\\\":{\\\"sdpMLineIndex\\\":0,\\\"sdpMid\\\":\\\"0\\\",\\\"candidate\\\":\\\"candidate:1355446498 1 udp 25108223 216.39.253.10 40045 typ relay raddr 103.177.129.21 rport 56294 generation 0 ufrag rlf3 network-id 1 network-cost 10\\\"},\\\"session_id\\\":\\\"ganeshborse@hpr.ndhm-akshaydhondge@sbx\\\"}}\",\n                    \"content_type\": \"video_call_signalling\"\n                },\n                \"time\": {\n                    \"timestamp\": \"2022-10-03T11:35:03\"\n                }\n            }\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{hspa_base_url}}/api/v1/on_message",
+							"host": [
+								"{{hspa_base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"on_message"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Video call signalling",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"context\": {\n        \"domain\": \"nic2004:85111\",\n        \"country\": \"IND\",\n        \"city\": \"std:080\",\n        \"action\": \"on_message\",\n        \"core_version\": \"0.7.1\",\n        \"consumer_id\": \"eua-nha\",\n        \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n        \"message_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n        \"timestamp\": \"2022-07-05T15:24:35.481906Z\",\n        \"provider_uri\": \"http://hspasbx.abdm.gov.in/api/v1\",\n        \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\"\n    },\n    \"message\": {\n        \"intent\": {\n            \"chat\": {\n                \"sender\": {\n                    \"person\": {\n                        \"name\": \"Akshay Dadaji Dhondge\",\n                        \"gender\": \"M\",\n                        \"image\": \"image link / base64 coded image\",\n                        \"id\": \"akshaydhondge@sbx\"\n                    }\n                },\n                \"receiver\": {\n                    \"person\": {\n                        \"name\": \"Ganesh Vikram Borse\",\n                        \"gender\": \"M\",\n                        \"image\": \"image link / base64 coded image\",\n                        \"id\": \"ganeshborse@hpr.ndhm\"\n                    }\n                },\n                \"content\": {\n                    \"content_id\": \"52216af0-42e1-11ed-a4b6-873d4ad3e26c\",\n                    \"content_value\": \"{\\\"type\\\":\\\"CANDIDATE\\\",\\\"data\\\":{\\\"to\\\":\\\"ganeshborse@hpr.ndhm\\\",\\\"from\\\":\\\"\\\",\\\"candidate\\\":{\\\"sdpMLineIndex\\\":0,\\\"sdpMid\\\":\\\"0\\\",\\\"candidate\\\":\\\"candidate:1355446498 1 udp 25108223 216.39.253.10 40045 typ relay raddr 103.177.129.21 rport 56294 generation 0 ufrag rlf3 network-id 1 network-cost 10\\\"},\\\"session_id\\\":\\\"ganeshborse@hpr.ndhm-akshaydhondge@sbx\\\"}}\",\n                    \"content_type\": \"video_call_signalling\"\n                },\n                \"time\": {\n                    \"timestamp\": \"2022-10-03T11:35:03\"\n                }\n            }\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{hspa_base_url}}/api/v1/on_message",
+									"host": [
+										"{{hspa_base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"on_message"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": {\r\n        \"ack\": {\r\n            \"status\": \"ACK\"\r\n        }\r\n    },\r\n    \"error\": {}\r\n}"
+						},
+						{
+							"name": "Text message",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"context\": {\n        \"domain\": \"nic2004:85111\",\n        \"country\": \"IND\",\n        \"city\": \"std:080\",\n        \"action\": \"on_message\",\n        \"core_version\": \"0.7.1\",\n        \"consumer_id\": \"eua-nha\",\n        \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n        \"message_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n        \"timestamp\": \"2022-07-05T15:24:35.481906Z\",\n        \"provider_uri\": \"http://hspasbx.abdm.gov.in/api/v1\",\n        \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\"\n    },\n    \"message\": {\n        \"intent\": {\n            \"chat\": {\n                \"sender\": {\n                    \"person\": {\n                        \"name\": \"Manish Pravin Kahane\",\n                        \"gender\": \"M\",\n                        \"image\": \"image link / base64 coded image\",\n                        \"id\": \"manishkahane1992@sbx\"\n                    }\n                },\n                \"receiver\": {\n                    \"person\": {\n                        \"name\": \"Santosh Ramchandra Jagtap\",\n                        \"gender\": \"M\",\n                        \"image\": \"image link / base64 coded image\",\n                        \"id\": \"santoshjagtap@hpr.ndhm\"\n                    }\n                },\n                \"content\": {\n                    \"content_id\": \"e616e100-42e0-11ed-b5d7-51ae9d37b46f\",\n                    \"content_value\": \"{\\\"cipher_text\\\":[23,162,74,105,185,88],\\\"nonce\\\":[33,29,210,14,186,57,229,151,121,96,44,214,50,233,226,163],\\\"mac_bytes\\\":[85,184,213,254,106,150,18,26,131,9,118,68,24,161,13,173,105,21,168,102,61,81,254,74,229,82,57,233,86,79,111,184]}\",\n                    \"content_type\": \"text\"\n                },\n                \"time\": {\n                    \"timestamp\": \"2022-10-03T11:32:01\"\n                }\n            }\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{hspa_base_url}}/api/v1/on_message",
+									"host": [
+										"{{hspa_base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"on_message"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": {\r\n        \"ack\": {\r\n            \"status\": \"ACK\"\r\n        }\r\n    },\r\n    \"error\": {}\r\n}"
+						},
+						{
+							"name": "Media sharing",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"context\": {\n       \"domain\": \"nic2004:85111\",\n        \"country\": \"IND\",\n        \"city\": \"std:080\",\n        \"action\": \"on_message\",\n        \"core_version\": \"0.7.1\",\n        \"consumer_id\": \"eua-nha\",\n        \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n        \"message_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n        \"timestamp\": \"2022-07-05T15:24:35.481906Z\",\n        \"provider_uri\": \"http://hspasbx.abdm.gov.in/api/v1\",\n        \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\"\n    },\n    \"message\": {\n        \"intent\": {\n            \"chat\": {\n                \"sender\": {\n                    \"person\": {\n                        \"name\": \"Akshay Dadaji Dhondge\",\n                        \"gender\": \"M\",\n                        \"image\": \"image link / base64 coded image\",\n                        \"id\": \"akshaydhondge@sbx\"\n                    }\n                },\n                \"receiver\": {\n                    \"person\": {\n                        \"name\": \"Ganesh Vikram Borse\",\n                        \"gender\": \"M\",\n                        \"image\": \"image link / base64 coded image\",\n                        \"id\": \"ganeshborse@hpr.ndhm\"\n                    }\n                },\n                \"content\": {\n                    \"content_id\": \"52216af0-42e1-11ed-a4b6-873d4ad3e26c\",\n                    \"content_value\": \"{\\\"type\\\":\\\"CANDIDATE\\\",\\\"data\\\":{\\\"to\\\":\\\"ganeshborse@hpr.ndhm\\\",\\\"from\\\":\\\"\\\",\\\"candidate\\\":{\\\"sdpMLineIndex\\\":0,\\\"sdpMid\\\":\\\"0\\\",\\\"candidate\\\":\\\"candidate:1355446498 1 udp 25108223 216.39.253.10 40045 typ relay raddr 103.177.129.21 rport 56294 generation 0 ufrag rlf3 network-id 1 network-cost 10\\\"},\\\"session_id\\\":\\\"ganeshborse@hpr.ndhm-akshaydhondge@sbx\\\"}}\",\n                    \"content_type\": \"media\"\n                },\n                \"time\": {\n                    \"timestamp\": \"2022-10-03T11:35:03\"\n                }\n            }\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{hspa_base_url}}/api/v1/on_message",
+									"host": [
+										"{{hspa_base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"on_message"
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": {\r\n        \"ack\": {\r\n            \"status\": \"ACK\"\r\n        }\r\n    },\r\n    \"error\": {}\r\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "1st Search HSPA",
+			"item": [
+				{
+					"name": "search",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Gateway-Authorization",
+								"value": "{{auth_value}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"search\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n    \"message_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n    \"timestamp\": \"2022-07-05T15:24:35\",\n    \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\"\n  },\n  \"message\": {\n    \"intent\": {\n      \"item\": {\n        \"descriptor\": {\n          \"code\": \"Consultation\",\n          \"name\": \"Consultation\"\n        }\n      },\n      \"fulfillment\": {\n        \"agent\": {\n          \"name\": \"ganesh\"\n        },\n        \"start\": {\n          \"time\": {\n            \"timestamp\": \"2022-07-15T00:00:00\"\n          }\n        },\n        \"end\": {\n          \"time\": {\n            \"timestamp\": \"2022-07-16T00:00:00\"\n          }\n        },\n        \"type\": \"Online\"\n      }\n    }\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{hspa_base_url}}/api/v1/search",
+							"host": [
+								"{{hspa_base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"search"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Search by name",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"search\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n    \"message_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n    \"timestamp\": \"2022-07-05T15:24:35\",\n    \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\"\n  },\n  \"message\": {\n    \"intent\": {\n      \"item\": {\n        \"descriptor\": {\n          \"code\": \"Consultation\",\n          \"name\": \"Consultation\"\n        }\n      },\n      \"fulfillment\": {\n        \"agent\": {\n          \"name\": \"ganesh\"\n        },\n        \"start\": {\n          \"time\": {\n            \"timestamp\": \"2022-07-15T00:00:00\"\n          }\n        },\n        \"end\": {\n          \"time\": {\n            \"timestamp\": \"2022-07-16T00:00:00\"\n          }\n        },\n        \"type\": \"Online\"\n      }\n    }\n  }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{hspa_base_url}}/api/v1/search",
+									"host": [
+										"{{hspa_base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"search"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"message\": {\n        \"ack\": {\n            \"status\": \"ACK\"\n        }\n    },\n    \"error\": {}\n}"
+						},
+						{
+							"name": "Search by HPRID",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"search\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n    \"message_id\": \"dfa04e10-63ec-11ed-9f98-49dd5c7c4d8a\",\n    \"timestamp\": \"2022-11-14T07:20:54.005277Z\",\n    \"transaction_id\": \"dfa04e10-63ec-11ed-9f98-49dd5c7c4d8a\"\n  },\n  \"message\": {\n    \"intent\": {\n      \"fulfillment\": {\n        \"agent\": {\n          \"id\": \"ganeshborse@hpr.ndhm\"\n        },\n        \"start\": {\n          \"time\": {\n            \"timestamp\": \"2022-07-22T13:21:41\"\n          }\n        },\n        \"end\": {\n          \"time\": {\n            \"timestamp\": \"2022-07-22T23:59:59\"\n          }\n        },\n        \"type\": \"Online\"\n      },\n      \"item\": {\n        \"descriptor\": {\n          \"code\": \"Consultation\",\n          \"name\": \"Consultation\"\n        }\n      }\n    }\n  }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{hspa_base_url}}/api/v1/search",
+									"host": [
+										"{{hspa_base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"search"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"message\": {\n        \"ack\": {\n            \"status\": \"ACK\"\n        }\n    },\n    \"error\": {}\n}"
+						},
+						{
+							"name": "Search by Speciality",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"search\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n    \"message_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n    \"timestamp\": \"2022-07-05T15:24:35\",\n    \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\"\n  },\n  \"message\": {\n    \"intent\": {\n      \"category\": {\n        \"descriptor\": {\n          \"code\": \"CARDIOLOGY\",\n          \"name\": \"CARDIOLOGY\"\n        }\n      },\n      \"fulfillment\": {\n        \"type\": \"Online\",\n        \"start\": {\n          \"time\": {\n            \"timestamp\": \"2022-07-15T00:00:00\"\n          }\n        },\n        \"end\": {\n          \"time\": {\n            \"timestamp\": \"2022-07-16T00:00:00\"\n          }\n        }\n      },\n      \"item\": {\n        \"descriptor\": {\n          \"code\": \"Consultation\",\n          \"name\": \"Consultation\"\n        }\n      }\n    }\n  }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{hspa_base_url}}/api/v1/search",
+									"host": [
+										"{{hspa_base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"search"
+									]
+								}
+							},
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"message\": {\n        \"ack\": {\n            \"status\": \"ACK\"\n        }\n    },\n    \"error\": {}\n}"
+						},
+						{
+							"name": "search by name and speciality",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"search\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n    \"message_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n    \"timestamp\": \"2022-07-05T15:24:35\",\n    \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\"\n  },\n  \"message\": {\n    \"intent\": {\n      \"category\": {\n        \"descriptor\": {\n          \"code\": \"CARDIOLOGY\",\n          \"name\": \"CARDIOLOGY\"\n        }\n      },\n      \"fulfillment\": {\n        \"agent\": {\n          \"name\": \"ganesh\"\n        },\n        \"type\": \"Online\"\n      },\n      \"item\": {\n        \"descriptor\": {\n          \"code\": \"Consultation\",\n          \"name\": \"Consultation\"\n        }\n      }\n    }\n  }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{hspa_base_url}}/api/v1/search",
+									"host": [
+										"{{hspa_base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"search"
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "search by doctor and facility",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"search\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n    \"message_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n    \"timestamp\": \"2022-07-05T15:24:35\",\n    \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\"\n  },\n  \"message\": {\n    \"intent\": {\n      \"provider\": {\n        \"descriptor\": {\n          \"name\": \"Test Hospital\"\n        }\n      },\n      \"category\": {\n        \"descriptor\": {\n          \"code\": \"CARDIOLOGY\",\n          \"name\": \"CARDIOLOGY\"\n        }\n      },\n      \"fulfillment\": {\n        \"agent\": {\n          \"name\": \"ganesh\"\n        },\n        \"type\": \"Online\"\n      },\n      \"item\": {\n        \"descriptor\": {\n          \"code\": \"Consultation\",\n          \"name\": \"Consultation\"\n        }\n      }\n    }\n  }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{hspa_base_url}}/api/v1/search",
+									"host": [
+										"{{hspa_base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"search"
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "search by provider facility and specilty",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"search\",\n    \"core_version\": \"0.7.1\",\n    \"consumer_id\": \"eua-nha\",\n    \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\n    \"message_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\",\n    \"timestamp\": \"2022-07-05T15:24:35\",\n    \"transaction_id\": \"e9a19230-f951-11ec-b135-53aea776f66b\"\n  },\n  \"message\": {\n    \"intent\": {\n      \"provider\": {\n        \"descriptor\": {\n          \"name\": \"Test Hospital\"\n        }\n      },\n      \"category\": {\n        \"descriptor\": {\n          \"code\": \"CARDIOLOGY\",\n          \"name\": \"CARDIOLOGY\"\n        }\n      },\n      \"fulfillment\": {\n        \"type\": \"Online\",\n        \"start\": {\n          \"time\": {\n            \"timestamp\": \"2022-07-15T00:00:00\"\n          }\n        },\n        \"end\": {\n          \"time\": {\n            \"timestamp\": \"2022-07-16T00:00:00\"\n          }\n        }\n      },\n      \"item\": {\n        \"descriptor\": {\n          \"code\": \"Consultation\",\n          \"name\": \"Consultation\"\n        }\n      }\n    }\n  }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{hspa_base_url}}/api/v1/search",
+									"host": [
+										"{{hspa_base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"search"
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						}
+					]
+				},
+				{
+					"name": "Second Search",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"context\": {\r\n    \"domain\": \"nic2004:85111\",\r\n    \"country\": \"IND\",\r\n    \"city\": \"std:080\",\r\n    \"action\": \"search\",\r\n    \"core_version\": \"0.7.1\",\r\n    \"consumer_id\": \"eua-nha\",\r\n    \"consumer_uri\": \"http://uhieuasandbox.abdm.gov.in/api/v1/euaService\",\r\n    \"message_id\": \"dfa04e10-63ec-11ed-9f98-49dd5c7c4d8a\",\r\n    \"timestamp\": \"2022-11-14T07:20:54.005277Z\",\r\n    \"transaction_id\": \"dfa04e10-63ec-11ed-9f98-49dd5c7c4d8a\"\r\n  },\r\n  \"message\": {\r\n    \"intent\": {\r\n      \"provider\": {\r\n        \"id\": \"1\",\r\n        \"categories\": [\r\n          {\r\n            \"id\": 0,\r\n            \"parent_category_id\": \"1\",\r\n            \"descriptor\": {\r\n              \"code\": \"CARDIOLOGY\",\r\n              \"name\": \"CARDIOLOGY\"\r\n            }\r\n          },\r\n          {\r\n            \"id\": \"1\",\r\n            \"descriptor\": {\r\n              \"code\": \"ALLOPATHY\",\r\n              \"name\": \"ALLOPATHY\"\r\n            }\r\n          }\r\n        ],\r\n        \"fulfillments\": [\r\n          {\r\n            \"agent\": {\r\n              \"id\": \"ganeshborse@hpr.ndhm\"\r\n            },\r\n            \"start\": {\r\n              \"time\": {\r\n                \"timestamp\": \"2022-07-22T13:21:41\"\r\n              }\r\n            },\r\n            \"end\": {\r\n              \"time\": {\r\n                \"timestamp\": \"2022-07-22T23:59:59\"\r\n              }\r\n            },\r\n            \"type\": \"Online\"\r\n          }\r\n        ],\r\n        \"items\": [\r\n          {\r\n            \"category_id\": \"0\",\r\n            \"fulfillment_id\": \"1\",\r\n            \"descriptor\": {\r\n              \"code\": \"Consultation\",\r\n              \"name\": \"Consultation\"\r\n            }\r\n          }\r\n        ]\r\n      }\r\n    }\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{hspa_base_url}}/api/v1/search",
+							"host": [
+								"{{hspa_base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"search"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "eua_base_url",
+			"value": "https://uhieuasandbox.abdm.gov.in",
+			"type": "string"
+		},
+		{
+			"key": "auth_value",
+			"value": "value",
+			"type": "string"
+		},
+		{
+			"key": "gateway_base_url",
+			"value": "http://121.242.73.120:8083",
+			"type": "string"
+		},
+		{
+			"key": "hspa_base_url",
+			"value": "https://hspasbx.abdm.gov.in",
+			"type": "string"
+		},
+		{
+			"key": "sandboxgateway",
+			"value": "https://uhigatewaysandbox.abdm.gov.in",
+			"type": "string"
+		}
+	]
+}

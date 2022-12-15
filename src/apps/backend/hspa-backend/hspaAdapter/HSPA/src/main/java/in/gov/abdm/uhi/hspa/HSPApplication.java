@@ -1,6 +1,5 @@
 package in.gov.abdm.uhi.hspa;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import in.gov.abdm.uhi.hspa.configuration.EhCacheConfiguration;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
@@ -34,14 +33,14 @@ public class HSPApplication {
 
     public static void main(String[] args) {
 
-       SpringApplication.run(HSPApplication.class, args);
-       ApplicationContext context = new AnnotationConfigApplicationContext(EhCacheConfiguration.class);
-        ((ConfigurableApplicationContext)context).close();
+        SpringApplication.run(HSPApplication.class, args);
+        ApplicationContext context = new AnnotationConfigApplicationContext(EhCacheConfiguration.class);
+        ((ConfigurableApplicationContext) context).close();
     }
 
 
     @Bean
-    public WebClient getWebClient() throws SSLException {
+    public WebClient webClient() throws SSLException {
         SslContext sslContext = SslContextBuilder
                 .forClient()
                 .trustManager(InsecureTrustManagerFactory.INSTANCE)
@@ -58,6 +57,20 @@ public class HSPApplication {
                                 .defaultCodecs()
                                 .maxInMemorySize(16 * 1024 * 1024))
                         .build())
+                .build();
+    }
+
+    @Bean
+    public WebClient euaWebClient() throws SSLException {
+        SslContext
+                sslContext = SslContextBuilder.forClient()
+                .trustManager(InsecureTrustManagerFactory.INSTANCE).build();
+        HttpClient httpClient = HttpClient.create().secure(t ->
+                t.sslContext(sslContext));
+        return WebClient.builder().clientConnector(new
+                        ReactorClientHttpConnector(httpClient))
+                .exchangeStrategies(ExchangeStrategies.builder().codecs(configure ->
+                        configure.defaultCodecs().maxInMemorySize(16 * 1024 * 1024)).build())
                 .build();
     }
 }

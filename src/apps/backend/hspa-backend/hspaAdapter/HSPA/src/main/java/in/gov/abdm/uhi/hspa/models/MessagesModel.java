@@ -21,13 +21,13 @@ public class MessagesModel {
     @Id
     @Column(name = "content_id")
     private String contentId;
-    
+
     @Column(name = "sender")
     private String sender;
-    
+
     @Column(name = "receiver")
     private String receiver;
-    
+
     @Column(name = "time")
     private LocalDateTime time;
 
@@ -37,14 +37,14 @@ public class MessagesModel {
     @Column(name = "provider_url")
     private String providerUrl;
 
-    @Column(name = "content_value",length = 50000)
+    @Column(name = "content_value", length = 50000)
     private String contentValue;
 
     @Column(name = "content_type")
     private String contentType;
 
-    @Column(name = "content_url",length = 50000)
+    @Column(name = "content_url", length = 50000)
     private String contentUrl;
-    
+
 
 }

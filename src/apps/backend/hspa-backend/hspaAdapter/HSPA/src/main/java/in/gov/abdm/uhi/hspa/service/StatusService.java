@@ -1,8 +1,8 @@
 package in.gov.abdm.uhi.hspa.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import in.gov.abdm.uhi.common.dto.Error;
 import in.gov.abdm.uhi.common.dto.*;
+import in.gov.abdm.uhi.hspa.exceptions.UserException;
 import in.gov.abdm.uhi.hspa.models.OrdersModel;
 import in.gov.abdm.uhi.hspa.repo.OrderRepository;
 import in.gov.abdm.uhi.hspa.service.ServiceInterface.IService;
@@ -24,6 +24,11 @@ public class StatusService implements IService {
 
 
     private static final Logger LOGGER = LogManager.getLogger(StatusService.class);
+    final
+    WebClient webClient;
+    final
+    ObjectMapper mapper;
+    final OrderRepository orderRepository;
     @Value("${spring.openmrs_baselink}")
     String OPENMRS_BASE_LINK;
     @Value("${spring.openmrs_api}")
@@ -36,11 +41,6 @@ public class StatusService implements IService {
     String GATEWAY_URI;
     @Value("${spring.provider_uri}")
     String PROVIDER_URI;
-    final
-    WebClient webClient;
-    final
-    ObjectMapper mapper;
-    final OrderRepository orderRepository;
 
     public StatusService(WebClient webClient, ObjectMapper mapper, OrderRepository orderRepository) {
         this.webClient = webClient;
@@ -48,10 +48,24 @@ public class StatusService implements IService {
         this.orderRepository = orderRepository;
     }
 
-    @Override
-    public Mono<Response> processor(String request) {
+    private static Response generateAck() {
 
-        Request objRequest;
+        String jsonString;
+        MessageAck msz = new MessageAck();
+        Response res = new Response();
+        Ack ack = new Ack();
+        ack.setStatus("ACK");
+        msz.setAck(ack);
+        in.gov.abdm.uhi.common.dto.Error err = new in.gov.abdm.uhi.common.dto.Error();
+        res.setError(err);
+        res.setMessage(msz);
+        return res;
+    }
+
+    @Override
+    public Mono<Response> processor(String request) throws UserException {
+
+        Request objRequest = null;
         Response ack;
 
         LOGGER.info("Processing::Confirm::Request:: {}", request);
@@ -61,13 +75,12 @@ public class StatusService implements IService {
 
             run(objRequest, request);
 
-               return Mono.just(generateAck());
+            return Mono.just(generateAck());
 
 
         } catch (Exception ex) {
             LOGGER.error("Confirm Service process::error::onErrorResume:: {}", ex, ex);
-            ack = generateNack(ex);
-
+            ack = CommonService.setMessageidAndTxnIdInNack(objRequest, ex);
         }
 
         return Mono.just(ack);
@@ -78,9 +91,9 @@ public class StatusService implements IService {
         Mono<String> response = Mono.empty();
         Objects.requireNonNull(getAppointmentStatus(request))
                 .filter(Objects::nonNull)
-               .flatMap(appointmentStatus -> transformObject(appointmentStatus, request))
-               .flatMap(this::callOnStatus)
-               .subscribe();
+                .flatMap(appointmentStatus -> transformObject(appointmentStatus, request))
+                .flatMap(this::callOnStatus)
+                .subscribe();
 
 
         return response;
@@ -216,14 +229,12 @@ public class StatusService implements IService {
     private Mono<OrdersModel> getAppointmentStatus(Request request) {
         String orderIdFromRequest = request.getMessage().getOrder().getId();
         List<OrdersModel> orderRecord = orderRepository.findByOrderId(orderIdFromRequest);
-        if(orderRecord != null && !orderRecord.isEmpty()) {
+        if (orderRecord != null && !orderRecord.isEmpty()) {
             return Mono.just(orderRecord.get(0));
-        }
-        else{
+        } else {
             return null;
         }
     }
-
 
     private Mono<String> callOnStatus(Request request) {
 
@@ -235,7 +246,7 @@ public class StatusService implements IService {
                 .retrieve()
                 .bodyToMono(String.class)
                 .onErrorResume(error -> {
-                    LOGGER.error("Error in status API::error::onErrorResume:: {}", error,null);
+                    LOGGER.error("Error in status API::error::onErrorResume:: {}", error, null);
                     return Mono.empty();
                 });
     }
@@ -247,32 +258,6 @@ public class StatusService implements IService {
         LOGGER.info("OnConfirm::Log::Response:: {}", result);
         return Mono.just(result);
     }
-    private static Response generateAck() {
 
-        String jsonString;
-        MessageAck msz = new MessageAck();
-        Response res = new Response();
-        Ack ack = new Ack();
-        ack.setStatus("ACK");
-        msz.setAck(ack);
-        in.gov.abdm.uhi.common.dto.Error err = new in.gov.abdm.uhi.common.dto.Error();
-        res.setError(err);
-        res.setMessage(msz);
-        return res;
-    }
 
-    private static Response generateNack(Exception js) {
-
-        MessageAck msz = new MessageAck();
-        Response res = new Response();
-        Ack ack = new Ack();
-        ack.setStatus("NACK");
-        msz.setAck(ack);
-        in.gov.abdm.uhi.common.dto.Error err = new Error();
-        err.setMessage(js.getMessage());
-        err.setType("Search");
-        res.setError(err);
-        res.setMessage(msz);
-        return res;
-    }
 }

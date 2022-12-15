@@ -1,8 +1,10 @@
 package in.gov.abdm.uhi.hspa.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import in.gov.abdm.uhi.common.dto.Error;
 import in.gov.abdm.uhi.common.dto.*;
+import in.gov.abdm.uhi.hspa.exceptions.UserException;
 import in.gov.abdm.uhi.hspa.models.IntermediateAppointmentModel;
 import in.gov.abdm.uhi.hspa.models.IntermediateAppointmentSearchModel;
 import in.gov.abdm.uhi.hspa.models.IntermediateProviderAppointmentModel;
@@ -12,6 +14,7 @@ import in.gov.abdm.uhi.hspa.utils.IntermediateBuilderUtils;
 import in.gov.abdm.uhi.hspa.utils.ProtocolBuilderUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,106 +31,110 @@ import java.util.Objects;
 @Service
 public class SelectService implements IService {
 
-    @Value("${spring.openmrs_baselink}")
-    String OPENMRS_BASE_LINK;
-
-    @Value("${spring.openmrs_api}")
-    String OPENMRS_API;
-
-    @Value("${spring.openmrs_username}")
-    String OPENMRS_USERNAME;
-
-    @Value("${spring.openmrs_password}")
-    String OPENMRS_PASSWORD;
-
-    @Value("${spring.provider_uri}")
-    String PROVIDER_URI;
-
     private static final String API_RESOURCE_PROVIDER = "provider";
     private static final String API_RESOURCE_APPOINTMENTSCHEDULING_TIMESLOT = "appointmentscheduling/timeslot?limit=100";
-
-    private static final String API_RESOURCE_APPOINTMENT_TYPE = "appointmentscheduling/appointmenttype?q=consultation";
-
+    private static final String API_RESOURCE_APPOINTMENT_TYPE = "appointmentscheduling/appointmenttype?q=";
+    private static final Logger LOGGER = LogManager.getLogger(SelectService.class);
     final
     WebClient webClient;
-
     final
     SearchService searchService;
-
-    private static final Logger LOGGER = LogManager.getLogger(SelectService.class);
+    @Value("${spring.openmrs_baselink}")
+    String OPENMRS_BASE_LINK;
+    @Value("${spring.openmrs_api}")
+    String OPENMRS_API;
+    @Value("${spring.openmrs_username}")
+    String OPENMRS_USERNAME;
+    @Value("${spring.openmrs_password}")
+    String OPENMRS_PASSWORD;
+    @Value("${spring.provider_uri}")
+    String PROVIDER_URI;
+    @Value("${spring.provider_id}")
+    String PROVIDER_ID;
+    @Autowired
+    WebClient euaWebClient;
 
     public SelectService(WebClient webClient, SearchService searchService) {
         this.webClient = webClient;
         this.searchService = searchService;
     }
 
-    public Mono<Response> processor(@RequestBody String request) {
+    public static Response generateAck() {
 
-        Request objRequest;
+        MessageAck msz = new MessageAck();
+        Response res = new Response();
+        Ack ack = new Ack();
+        ack.setStatus("ACK");
+        msz.setAck(ack);
+        Error err = new Error();
+        res.setError(err);
+        res.setMessage(msz);
+        return res;
+    }
+
+    public Mono<Response> processor(@RequestBody String request) throws UserException {
+
+        Request objRequest = null;
         Response ack = generateAck();
 
         try {
             objRequest = new ObjectMapper().readValue(request, Request.class);
-            String messageId = objRequest.getContext().getMessageId();
+            String messageId = CommonService.getMessageId(objRequest);
             LOGGER.info("Processing::Search(Select)::Request:: {}. Message id is {}", request, messageId);
 
             logMessageId(objRequest);
-
-            String typeFulfillment = objRequest.getMessage().getIntent().getFulfillment().getType();
-            if(typeFulfillment.equalsIgnoreCase(ConstantsUtils.TELECONSULTATION) || typeFulfillment.equalsIgnoreCase(ConstantsUtils.PHYSICAL_CONSULTATION) || typeFulfillment.equalsIgnoreCase(ConstantsUtils.GROUP_CONSULTATION)) {
-                setTeleconsultationInCaseOfGroupConsultation(typeFulfillment, objRequest);
-                run(objRequest, request).zipWith(getAllAppointmentTypes())
-                        .flatMap(pair -> getProviderAppointment(pair, objRequest))
-                        .flatMap(res -> getProviderAppointments(res, objRequest))
-                        .flatMap(resp -> transformObject(resp, objRequest))
-                        .flatMap(mapResult -> generateCatalog(mapResult, objRequest))
-                        .flatMap(catalog ->  callOnSerach(catalog, objRequest.getContext()))
-                        .flatMap(log -> logResponse(log, objRequest))
+            if (CommonService.isTestHspaProviderSearchOrDoctorSearch(objRequest, true)) {
+                Request finalObjRequest = objRequest;
+                run(objRequest, request).zipWith(getAllAppointmentTypes(objRequest))
+                        .flatMap(pair -> getProviderAppointment(pair, finalObjRequest))
+                        .flatMap(res -> getProviderAppointments(res, finalObjRequest))
+                        .flatMap(resp -> transformObject(resp, finalObjRequest))
+                        .flatMap(mapResult -> generateCatalog(mapResult, finalObjRequest))
+                        .flatMap(catalog -> callOnSerach(catalog, finalObjRequest.getContext()))
+                        .flatMap(log -> logResponse(log, finalObjRequest))
                         .subscribe();
-            }
-            else {
+            } else {
                 return Mono.just(new Response());
             }
-
         } catch (Exception ex) {
             LOGGER.error("Search(Select) service processor::error::onErrorResume:: {}", ex, ex);
-            ack = generateNack(ex);
+            ack = CommonService.setMessageidAndTxnIdInNack(objRequest, ex);
         }
 
         return Mono.just(ack);
     }
 
-
     @Override
     public Mono<String> run(Request request, String s) {
 
-            String searchEndPoint = OPENMRS_BASE_LINK + OPENMRS_API + API_RESOURCE_PROVIDER;
+        String searchEndPoint = OPENMRS_BASE_LINK + OPENMRS_API + API_RESOURCE_PROVIDER;
 
-            Map<String, String> searchParams = IntermediateBuilderUtils.BuildSearchParametersIntent(request);
-            String searchString = buildSearchString(searchParams);
-            return webClient.get()
-                    .uri(searchEndPoint + searchString)
-                    .exchangeToMono(clientResponse -> clientResponse.bodyToMono(String.class));
+        Map<String, String> searchParams = IntermediateBuilderUtils.BuildSearchParametersIntent(request, true);
+
+        String searchString = buildSearchString(searchParams);
+
+        LOGGER.info("$$$$$$$$$$$$$$$$$$$$$$$$$$" + searchParams + "!!!!!!!!!!!!!!" + searchEndPoint + "@@@@@@@@@@@@@@@@" + searchString);
+
+
+        return webClient.get()
+                .uri(searchEndPoint + searchString)
+                .exchangeToMono(clientResponse -> clientResponse.bodyToMono(String.class));
     }
 
-    public Mono<String> getAllAppointmentTypes() {
+    public Mono<String> getAllAppointmentTypes(Request request) {
 
-        String searchEndPoint = OPENMRS_BASE_LINK + OPENMRS_API + API_RESOURCE_APPOINTMENT_TYPE;
+        String appointmentType = request.getMessage().getIntent().getProvider().getFulfillments().get(0).getType();
+        String searchEndPoint = OPENMRS_BASE_LINK + OPENMRS_API + API_RESOURCE_APPOINTMENT_TYPE + appointmentType;
+
         return webClient.get()
                 .uri(searchEndPoint)
                 .exchangeToMono(clientResponse -> clientResponse.bodyToMono(String.class));
     }
 
-    private void setTeleconsultationInCaseOfGroupConsultation(String typeFulfillment, Request objRequest) {
-        if(typeFulfillment.equalsIgnoreCase(ConstantsUtils.GROUP_CONSULTATION)) {
-            objRequest.getMessage().getIntent().getFulfillment().setType(ConstantsUtils.TELECONSULTATION);
-        }
-    }
-
     private Mono<IntermediateAppointmentSearchModel> getProviderAppointment(Tuple2 result, Request request) {
 
-        String messageId = request.getContext().getMessageId();
-        LOGGER.info("Processing::Search(Select)::getProviderAppointment:: {}... and Message Id is {}" , result, messageId);
+        String messageId = CommonService.getMessageId(request);
+        LOGGER.info("Processing::Search(Select)::getProviderAppointment:: {}... and Message Id is {}", result, messageId);
 
         IntermediateAppointmentSearchModel appointmentSearchModel = new IntermediateAppointmentSearchModel();
         appointmentSearchModel.providers = new ArrayList<>();
@@ -135,9 +142,8 @@ public class SelectService implements IService {
 
 
         try {
-
-            Map<String, String> searchParams = IntermediateBuilderUtils.BuildSearchParametersIntent(request);
-            appointmentSearchModel.providers  = IntermediateBuilderUtils.BuildIntermediateProviderDetails(result.getT1().toString());
+            Map<String, String> searchParams = IntermediateBuilderUtils.BuildSearchParametersIntent(request, true);
+            appointmentSearchModel.providers = IntermediateBuilderUtils.BuildIntermediateProviderDetails(result.getT1().toString());
             appointmentSearchModel.appointmentTypes = IntermediateBuilderUtils.BuildIntermediateAppointment(result.getT2().toString());
             appointmentSearchModel.startDate = searchParams.get("fromDate");
             appointmentSearchModel.endDate = searchParams.get("toDate");
@@ -156,8 +162,7 @@ public class SelectService implements IService {
 
 
         if (!data.providers.isEmpty()) {
-
-            String appointmentType = request.getMessage().getIntent().getFulfillment().getType();
+            String appointmentType = request.getMessage().getIntent().getProvider().getFulfillments().get(0).getType();
 
 
             String searchEndPoint = OPENMRS_BASE_LINK + OPENMRS_API + API_RESOURCE_APPOINTMENTSCHEDULING_TIMESLOT;
@@ -186,12 +191,12 @@ public class SelectService implements IService {
     }
 
     private void logMessageId(Request objRequest) {
-        String messageId = objRequest.getContext().getMessageId();
+        String messageId = CommonService.getMessageId(objRequest);
         LOGGER.info(ConstantsUtils.REQUESTER_MESSAGE_ID_IS, messageId);
     }
 
-       private Mono<List<IntermediateProviderAppointmentModel>> transformObject(String result, Request request) {
-       String messageId = request.getContext().getMessageId();
+    private Mono<List<IntermediateProviderAppointmentModel>> transformObject(String result, Request request) {
+        String messageId = CommonService.getMessageId(request);
 
         LOGGER.info("Processing::Search(Select)::transformObject:: {}... Message Id is {}", result, messageId);
         List<IntermediateProviderAppointmentModel> collection = new ArrayList<>();
@@ -200,23 +205,22 @@ public class SelectService implements IService {
             collection = IntermediateBuilderUtils.BuildIntermediateProviderAppoitmentObj(result);
 
         } catch (Exception ex) {
-            LOGGER.error("Select service Transform Object::error::onErrorResume:: {}... Message Id is {}" , ex, messageId);
+            LOGGER.error("Select service Transform Object::error::onErrorResume:: {}... Message Id is {}", ex, messageId);
         }
         return Mono.just(collection);
 
     }
 
-
-     private Mono<Catalog> generateCatalog(List<IntermediateProviderAppointmentModel> collection, Request request) {
-        String messageId = request.getContext().getMessageId();
+    private Mono<Catalog> generateCatalog(List<IntermediateProviderAppointmentModel> collection, Request request) {
+        String messageId = CommonService.getMessageId(request);
 
         Catalog catalog = new Catalog();
-         try {
-            catalog = ProtocolBuilderUtils.BuildProviderCatalog(collection, request.getMessage().getIntent().getFulfillment().getType());
+        try {
+            catalog = ProtocolBuilderUtils.BuildProviderCatalog(collection, request.getMessage().getIntent().getProvider().getFulfillments().get(0).getType());
 
         } catch (Exception ex) {
 
-            LOGGER.error("Select service generate catalog::error::onErrorResume:: {} \n Message Id is {}" , ex, messageId);
+            LOGGER.error("Select service generate catalog::error::onErrorResume:: {} \n Message Id is {}", ex, messageId);
         }
         return Mono.just(catalog);
 
@@ -226,21 +230,21 @@ public class SelectService implements IService {
         Request onSearchRequest = new Request();
         Message objMessage = new Message();
         objMessage.setCatalog(catalog);
-        context.setProviderId(PROVIDER_URI);
+        context.setProviderId(PROVIDER_ID);
+        context.setProviderUri(PROVIDER_URI);
 
-        //TODO: Fix Else block
-        if(context.getConsumerId().equalsIgnoreCase("eua-nha"))
-            context.setProviderUri(PROVIDER_URI);
-        else
-            context.setProviderUri("http://121.242.73.124:8084/api/v1");
         context.setAction("on_search");
         onSearchRequest.setMessage(objMessage);
         onSearchRequest.setContext(context);
         onSearchRequest.getContext().setAction("on_search");
+        try {
+            LOGGER.info("Processing::Search::CallOnSelect {} .. Message Id is {}", new ObjectMapper().writeValueAsString(onSearchRequest), context.getMessageId());
+        } catch (JsonProcessingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
-        WebClient on_webclient = WebClient.create();
-
-        return on_webclient.post()
+        return euaWebClient.post()
                 .uri(context.getConsumerUri() + "/on_search")
                 .body(BodyInserters.fromValue(onSearchRequest))
                 .retrieve()
@@ -250,34 +254,6 @@ public class SelectService implements IService {
                     LOGGER.error("Select Service Call on_search::error::onErrorResume:: {} \n Message Id is {}", error, context.getMessageId());
                     return Mono.empty();
                 });
-    }
-
-    public static Response generateAck() {
-
-        MessageAck msz = new MessageAck();
-        Response res = new Response();
-        Ack ack = new Ack();
-        ack.setStatus("ACK");
-        msz.setAck(ack);
-        Error err = new Error();
-        res.setError(err);
-        res.setMessage(msz);
-        return res;
-    }
-
-    private static Response generateNack(Exception js) {
-
-        MessageAck msz = new MessageAck();
-        Response res = new Response();
-        Ack ack = new Ack();
-        ack.setStatus("NACK");
-        msz.setAck(ack);
-        Error err = new Error();
-        err.setMessage(js.getMessage());
-        err.setType("Select");
-        res.setError(err);
-        res.setMessage(msz);
-        return res;
     }
 
     private String buildSearchString(Map<String, String> params) {
@@ -294,7 +270,7 @@ public class SelectService implements IService {
     @Override
     public Mono<String> logResponse(String result, Request request) {
 
-        String messageId = request.getContext().getMessageId();
+        String messageId = CommonService.getMessageId(request);
         LOGGER.info("OnSearch(Select)::Log::Response:: {} \n Message Id is {}", result, messageId);
 
         return Mono.just(result);

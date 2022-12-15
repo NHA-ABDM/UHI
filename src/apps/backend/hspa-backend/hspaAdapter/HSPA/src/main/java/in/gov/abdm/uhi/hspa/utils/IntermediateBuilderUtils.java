@@ -3,13 +3,17 @@ package in.gov.abdm.uhi.hspa.utils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import in.gov.abdm.uhi.common.dto.*;
+import in.gov.abdm.uhi.hspa.exceptions.UserException;
 import in.gov.abdm.uhi.hspa.models.*;
 import in.gov.abdm.uhi.hspa.models.opemMRSModels.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.*;
+import java.util.function.Predicate;
 
 public class IntermediateBuilderUtils {
 
@@ -33,15 +37,15 @@ public class IntermediateBuilderUtils {
                 for (JsonNode node : resultsNode) {
 
                     IntermediateProviderModel objIntermediate = new IntermediateProviderModel();
-
-                    String name = node.path(ConstantsUtils.DISPLAY).asText();
-                    String hprId = node.path("hpr_id").asText();
+                    JsonNode person = node.path(ConstantsUtils.PERSON);
+                    String name = person.path(ConstantsUtils.DISPLAY).asText();
+                    String hprId = node.path(ConstantsUtils.HPR_ID).asText();
                     String id = node.path(ConstantsUtils.IDENTIFIER).asText();
                     objIntermediate.setName(name);
                     objIntermediate.setHpr_id(hprId);
                     objIntermediate.setId(id);
 
-                    JsonNode person = node.path(ConstantsUtils.PERSON);
+
                     String gender = person.path(ConstantsUtils.GENDER).asText();
                     String age = person.path("age").asText();
                     objIntermediate.setGender(gender);
@@ -71,21 +75,29 @@ public class IntermediateBuilderUtils {
 
 
                             switch (attrKey) {
-                                case "education" -> objIntermediate.setEducation(attrVal);
-                                case "experience" -> objIntermediate.setExpr(attrVal);
-                                case "charges" -> objIntermediate.setFirst_consultation(attrVal);
-                                case "first_consultation" -> objIntermediate.setFirst_consultation(attrVal);
-                                case "follow_up" -> objIntermediate.setFollow_up(attrVal);
-                                case "hpr_id" -> objIntermediate.setHpr_id(attrVal);
-                                case "lab_report_consultation" -> objIntermediate.setLab_consultation(attrVal);
-                                case "languages" -> objIntermediate.setLanguages(attrVal);
-                                case "receive_payment" -> objIntermediate.setReceive_payment(attrVal);
+                                case ConstantsUtils.EDUCATION -> objIntermediate.setEducation(attrVal);
+                                case ConstantsUtils.EXPERIENCE -> objIntermediate.setExpr(attrVal);
+                                case ConstantsUtils.CHARGES -> objIntermediate.setFirst_consultation(attrVal);
+                                case ConstantsUtils.FIRST_CONSULTATION ->
+                                        objIntermediate.setFirst_consultation(attrVal);
+                                case ConstantsUtils.FOLLOW_UP -> objIntermediate.setFollow_up(attrVal);
+                                case ConstantsUtils.HPR_ID -> objIntermediate.setHpr_id(attrVal);
+                                case ConstantsUtils.LAB_REPORT_CONSULTATION ->
+                                        objIntermediate.setLab_consultation(attrVal);
+                                case ConstantsUtils.LANGUAGES -> objIntermediate.setLanguages(attrVal);
+                                case ConstantsUtils.RECEIVE_PAYMENT -> objIntermediate.setReceive_payment(attrVal);
+                                case ConstantsUtils.PARENT_CATEGORY -> objIntermediate.setParent_category(attrVal);
+                                case ConstantsUtils.PARENT_CATEGORY_ID ->
+                                        objIntermediate.setParent_category_id(attrVal);
+                                case ConstantsUtils.CATEGORY_ID -> objIntermediate.setCategory_id(attrVal);
                                 case ConstantsUtils.SPECIALITY -> objIntermediate.setSpeciality(attrVal);
-                                case "upi_id" -> objIntermediate.setUpi_id(attrVal);
-                                case "is_teleconsultation" -> objIntermediate.setIs_teleconsultation(attrVal);
-                                case "is_physical_consultation" -> objIntermediate.setIs_physical_consultation(attrVal);
-                                case "profile_photo" -> objIntermediate.setProfile_photo(attrVal);
-                                default -> LOGGER.error("Unspecified case");
+                                case ConstantsUtils.UPI_ID -> objIntermediate.setUpi_id(attrVal);
+                                case ConstantsUtils.IS_TELECONSULTATION ->
+                                        objIntermediate.setIs_teleconsultation(attrVal);
+                                case ConstantsUtils.IS_PHYSICAL_CONSULTATION ->
+                                        objIntermediate.setIs_physical_consultation(attrVal);
+                                case ConstantsUtils.PROFILE_PHOTO -> objIntermediate.setProfile_photo(attrVal);
+                                default -> LOGGER.error(ConstantsUtils.UNSPECIFIED_CASE + " " + attrVal);
                             }
                         }
                     }
@@ -119,7 +131,7 @@ public class IntermediateBuilderUtils {
                     JsonNode person = provider.path(ConstantsUtils.PERSON);
 
                     String slotId = node.path("uuid").asText();
-                    String name = provider.path(ConstantsUtils.DISPLAY).asText();
+                    String name = person.path(ConstantsUtils.DISPLAY).asText();
                     String hprId = provider.path(ConstantsUtils.IDENTIFIER).asText();
                     String id = provider.path("uuid").asText();
                     int countOfAppointments = node.path("countOfAppointments").asInt();
@@ -178,7 +190,7 @@ public class IntermediateBuilderUtils {
     }
 
     private static boolean appointmentSlotIsAlreadyBooked(String slotId, int countOfAppointments, String startDate, String endDate) {
-        if(countOfAppointments > 0) {
+        if (countOfAppointments > 0) {
             LOGGER.error("Appointment already booked. Skipping. Slot uuid is  ->> {}. Start date->  {} and endDate-> {}", slotId, startDate, endDate);
             return true;
         }
@@ -241,14 +253,14 @@ public class IntermediateBuilderUtils {
 
                     objIntermediate.setSlotId(order.getFulfillment().getId());
                     objIntermediate.setPatientId(patientId);
-                    objIntermediate.setStatus("SCHEDULED");
+                    objIntermediate.setStatus(ConstantsUtils.APPOINTMENT_STATUS_SCHEDULED);
 
                     collection.add(objIntermediate);
                 }
             }
 
         } catch (Exception ex) {
-            LOGGER.error("Intermediate Builder :: BuildIntermediateProviderAppoitmentObj :: error::onErrorResume:: {}" , ex, ex);
+            LOGGER.error("Intermediate Builder :: BuildIntermediateProviderAppoitmentObj :: error::onErrorResume:: {}", ex, ex);
         }
         return collection;
     }
@@ -259,7 +271,7 @@ public class IntermediateBuilderUtils {
 
             //add abha
             identifier abha = new identifier();
-            abha.setIdentifier(order.getCustomer().getCred());
+            abha.setIdentifier(order.getCustomer().getId());
             abha.setIdentifierType(IDENTIFIER_TYPE);
             abha.setLocation(IDENTIFIER_LOCATION);
             abha.setPreferred(false);
@@ -283,8 +295,12 @@ public class IntermediateBuilderUtils {
             name.setFamilyName("");
 
             person person = new person();
-            person.setAge("30");
-            person.setGender("M");
+
+            Person patientPerson = order.getCustomer().getPerson();
+            LocalDate dob = LocalDate.of(patientPerson.getYearOfBirth(), patientPerson.getMonthOfBirth(), patientPerson.getDayOfBirth());
+
+            person.setAge(String.valueOf(calculateAge(dob, LocalDate.now())));
+            person.setGender(patientPerson.getGender());
             person.names = new ArrayList<>();
             person.names.add(name);
 
@@ -298,9 +314,17 @@ public class IntermediateBuilderUtils {
             patient.setPerson(person);
 
         } catch (Exception ex) {
-            LOGGER.error("Intermediate Builder :: BuildPatientModel :: error::onErrorResume:: {}" , ex, ex);
+            LOGGER.error("Intermediate Builder :: BuildPatientModel :: error::onErrorResume:: {}", ex, ex);
         }
         return patient;
+    }
+
+    public static int calculateAge(LocalDate birthDate, LocalDate currentDate) {
+        if ((birthDate != null) && (currentDate != null)) {
+            return Period.between(birthDate, currentDate).getYears();
+        } else {
+            return 0;
+        }
     }
 
     public static appointment BuildAppointmentModel(IntermediatePatientAppointmentModel appointment) {
@@ -313,23 +337,22 @@ public class IntermediateBuilderUtils {
             appointmentObj.visit = "7b0f5697-27e3-40c4-8bae-f4049abfb4ed";
 
         } catch (Exception ex) {
-            LOGGER.error("Intermediate Builder :: BuildPatientModel :: error::onErrorResume:: {}" , ex, ex);
+            LOGGER.error("Intermediate Builder :: BuildPatientModel :: error::onErrorResume:: {}", ex, ex);
         }
         return appointmentObj;
     }
-    
-    public static String getUUID(String result)    
-    {
-    	JsonNode resultsNode = null;
+
+    public static String getUUID(String result) {
+        JsonNode resultsNode = null;
         try {
             ObjectMapper maps = new ObjectMapper();
             JsonNode root = maps.readTree(result);
             resultsNode = root.path("uuid");
-            
-        
-    } catch (Exception ex) {
-        LOGGER.error("Extracting uuid from mrs :: {}", ex, ex);
-    }
+
+
+        } catch (Exception ex) {
+            LOGGER.error("Extracting uuid from mrs :: {}", ex, ex);
+        }
         return resultsNode != null ? resultsNode.textValue() : null;
     }
 
@@ -438,94 +461,128 @@ public class IntermediateBuilderUtils {
         return patient;
     }
 
-    public static Map<String, String> BuildSearchParametersIntent(Request request) {
+    public static Map<String, String> BuildSearchParametersIntent(Request request, boolean isSecondSearch) {
         String messageId = request.getContext().getMessageId();
         Map<String, String> listOfParams = new HashMap<>();
 
         Optional<Intent> intent = Optional.ofNullable(request.getMessage().getIntent());
         Optional<Order> order = Optional.ofNullable(request.getMessage().getOrder());
+        Optional<Provider> provider = Optional.ofNullable(request.getMessage().getIntent().getProvider());
 
-        String valueName = "";
-        String valueHPRID = "";
-        String valueType = "";
+        String valueName = null;
+        String valueHPRID = null;
+        String valueType = null;
         Optional<Start> valueStart;
         Optional<End> valueEnd;
         Map<String, String> valueTags;
-        Map<String, String> specialityTags=null;
-        String facilitySearch="";
+        Map<String, String> specialityTags = null;
+        String specialitySearch = null;
+        Set<Category> categories = null;
         if (intent.isPresent()) {
-            try {            	
-                
-                valueType = request.getMessage().getIntent().getFulfillment().getType();
-                valueStart = Optional.ofNullable(request.getMessage().getIntent().getFulfillment().getStart());
-                valueEnd = Optional.ofNullable(request.getMessage().getIntent().getFulfillment().getEnd());
-                valueTags = request.getMessage().getIntent().getFulfillment().getTags();
-                if(request.getMessage().getIntent().getFulfillment().getAgent()!=null)
-                {
-                	valueName = request.getMessage().getIntent().getFulfillment().getAgent().getName();
-                    valueHPRID = request.getMessage().getIntent().getFulfillment().getAgent().getCred();
-                	specialityTags = request.getMessage().getIntent().getFulfillment().getAgent().getTags();     
-                }
-                if(request.getMessage().getIntent().getCategory()!=null)
-                {
-                	facilitySearch= request.getMessage().getIntent().getCategory().getDescriptor().getName();
-                }
+            try {
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_TIME_PATTERN);
-                listOfParams.put(ConstantsUtils.FROM_DATE, "");
-                listOfParams.put(ConstantsUtils.TO_DATE, "");
+                if (provider.isPresent() && isSecondSearch) {
+                    if (request.getMessage().getIntent().getProvider().getFulfillments().size() > 1) {
+                        throw new UserException("Invalid fulfillments. " + ConstantsUtils.ARRAY_SHOULD_CONTAIN_ONLY_ONE_ITEM);
+                    } else {
+                        valueType = request.getMessage().getIntent().getProvider().getFulfillments().get(0).getType();
+                        valueStart = Optional.ofNullable(request.getMessage().getIntent().getProvider().getFulfillments().get(0).getStart());
+                        valueEnd = Optional.ofNullable(request.getMessage().getIntent().getProvider().getFulfillments().get(0).getEnd());
+                        valueTags = request.getMessage().getIntent().getProvider().getFulfillments().get(0).getTags();
 
-                if (valueStart.isPresent()) {
-                    Date startDate = simpleDateFormat.parse(request.getMessage().getIntent().getFulfillment().getStart().getTime().getTimestamp());
-                    String dtString = simpleDateFormat.format(startDate);
-                    listOfParams.replace(ConstantsUtils.FROM_DATE, dtString);
+                        if (null != request.getMessage().getIntent().getProvider().getFulfillments().get(0).getAgent()) {
+                            valueName = request.getMessage().getIntent().getProvider().getFulfillments().get(0).getAgent().getName();
+                            valueHPRID = request.getMessage().getIntent().getProvider().getFulfillments().get(0).getAgent().getId();
+                            specialityTags = request.getMessage().getIntent().getProvider().getFulfillments().get(0).getAgent().getTags();
+                        }
+
+                        categories = request.getMessage().getIntent().getProvider().getCategories();
+
+                        if (null != categories) {
+                            List<Category> categoriesList = categories.stream().toList();
+                            if (isSecondSearch) {
+                                Predicate<Category> skipParentCategory = c -> null != c.getParent_category_id();
+                                categoriesList = categoriesList.stream().filter(skipParentCategory).toList();
+                            }
+                            specialitySearch = categoriesList.get(0).getDescriptor().getCode();
+                        }
+                        listOfParams.put(ConstantsUtils.FROM_DATE, "");
+                        listOfParams.put(ConstantsUtils.TO_DATE, "");
+
+                        if (valueStart.isPresent()) {
+                            Date startDate = simpleDateFormat.parse(request.getMessage().getIntent().getProvider().getFulfillments().get(0).getStart().getTime().getTimestamp());
+                            String dtString = simpleDateFormat.format(startDate);
+                            listOfParams.replace(ConstantsUtils.FROM_DATE, dtString);
+                        }
+
+                        if (valueEnd.isPresent()) {
+                            Date endDate = simpleDateFormat.parse(request.getMessage().getIntent().getProvider().getFulfillments().get(0).getEnd().getTime().getTimestamp());
+                            String dtString = simpleDateFormat.format(endDate);
+                            listOfParams.replace(ConstantsUtils.TO_DATE, dtString);
+                        }
+
+                    }
+                } else {
+
+                    valueType = request.getMessage().getIntent().getFulfillment().getType();
+                    valueStart = Optional.ofNullable(request.getMessage().getIntent().getFulfillment().getStart());
+                    valueEnd = Optional.ofNullable(request.getMessage().getIntent().getFulfillment().getEnd());
+                    valueTags = request.getMessage().getIntent().getFulfillment().getTags();
+                    if (null != request.getMessage().getIntent().getFulfillment().getAgent()) {
+                        valueName = request.getMessage().getIntent().getFulfillment().getAgent().getName();
+                        valueHPRID = request.getMessage().getIntent().getFulfillment().getAgent().getId();
+                        specialityTags = request.getMessage().getIntent().getFulfillment().getAgent().getTags();
+                    }
+                    if (null != request.getMessage().getIntent().getCategory()) {
+                        specialitySearch = request.getMessage().getIntent().getCategory().getDescriptor().getCode();
+                    }
+
+                    listOfParams.put(ConstantsUtils.FROM_DATE, "");
+                    listOfParams.put(ConstantsUtils.TO_DATE, "");
+
+                    if (valueStart.isPresent()) {
+                        Date startDate = simpleDateFormat.parse(request.getMessage().getIntent().getFulfillment().getStart().getTime().getTimestamp());
+                        String dtString = simpleDateFormat.format(startDate);
+                        listOfParams.replace(ConstantsUtils.FROM_DATE, dtString);
+                    }
+
+                    if (valueEnd.isPresent()) {
+                        Date endDate = simpleDateFormat.parse(request.getMessage().getIntent().getFulfillment().getEnd().getTime().getTimestamp());
+                        String dtString = simpleDateFormat.format(endDate);
+                        listOfParams.replace(ConstantsUtils.TO_DATE, dtString);
+                    }
+
+                    if (order.isPresent()) {
+                        valueName = request.getMessage().getOrder().getFulfillment().getAgent().getName();
+                        valueHPRID = request.getMessage().getOrder().getFulfillment().getAgent().getId();
+                    }
+
                 }
-
-                if (valueEnd.isPresent()) {
-                    Date endDate = simpleDateFormat.parse(request.getMessage().getIntent().getFulfillment().getEnd().getTime().getTimestamp());
-                    String dtString = simpleDateFormat.format(endDate);
-                    listOfParams.replace(ConstantsUtils.TO_DATE, dtString);
-                }
-
-                if (order.isPresent()) {
-                    valueName = request.getMessage().getOrder().getFulfillment().getAgent().getName();
-                    valueHPRID = request.getMessage().getOrder().getFulfillment().getAgent().getId();
-                }
-
-
-                if (valueName != null) {
+                if (null != valueName) {
                     listOfParams.put("name", valueName);
                 }
-                if (valueType != null) {
+                if (null != valueType) {
                     listOfParams.put("type", valueType);
                 }
 
-                if (valueName == null) {
-                    listOfParams.put("name", "");
-                }
-
-                if (valueHPRID != null) {
+                if (null != valueHPRID) {
                     listOfParams.put("hprid", valueHPRID);
                 }
 
-                if (valueTags != null) {
+                if (null != valueTags) {
                     if (valueTags.get(ConstantsUtils.ABDM_GOV_IN_LANGUAGES_TAG) != null) {
-                        listOfParams.put("languages", valueTags.get(ConstantsUtils.ABDM_GOV_IN_LANGUAGES_TAG));
+                        listOfParams.put(ConstantsUtils.LANGUAGES, valueTags.get(ConstantsUtils.ABDM_GOV_IN_LANGUAGES_TAG));
                     }
                     if (valueTags.get(ConstantsUtils.ABDM_GOV_IN_SPECIALITY_TAG) != null) {
                         listOfParams.put(ConstantsUtils.SPECIALITY, valueTags.get(ConstantsUtils.ABDM_GOV_IN_SPECIALITY_TAG));
                     }
                 }
-                if(specialityTags != null) {
-                    if (specialityTags.get(ConstantsUtils.ABDM_GOV_IN_SPECIALITY_TAG) != null) {
-                        listOfParams.put(ConstantsUtils.SPECIALITY, specialityTags.get(ConstantsUtils.ABDM_GOV_IN_SPECIALITY_TAG));
+
+                if (null != specialitySearch) {
+                    if (!specialitySearch.isBlank()) {
+                        listOfParams.put(ConstantsUtils.SPECIALITY, specialitySearch);
                     }
                 }
-                if(facilitySearch != null && !(facilitySearch.equalsIgnoreCase("")) ) {
-                	listOfParams.put(ConstantsUtils.SPECIALITY, facilitySearch);
-                   }
-               
-                
-
 
 
             } catch (Exception ex) {
@@ -607,9 +664,12 @@ public class IntermediateBuilderUtils {
             if (resultsNode.isArray()) {
 
                 for (JsonNode node : resultsNode) {
-
-
                     String display = node.path(ConstantsUtils.DISPLAY).asText();
+                    if (display.equalsIgnoreCase("PhysicalConsultation")) {
+                        display = ConstantsUtils.PHYSICAL_CONSULTATION;
+                    } else if (display.equalsIgnoreCase("Teleconsultation")) {
+                        display = ConstantsUtils.TELECONSULTATION;
+                    }
                     String uuid = node.path("uuid").asText();
 
                     IntermediateAppointmentModel appointment = new IntermediateAppointmentModel();
@@ -621,7 +681,7 @@ public class IntermediateBuilderUtils {
                 }
             }
         } catch (Exception ex) {
-            LOGGER.error("Intermediate Builder :: BuildIntermediateAppointment :: error::onErrorResume:: {}",ex, ex);
+            LOGGER.error("Intermediate Builder :: BuildIntermediateAppointment :: error::onErrorResume:: {}", ex, ex);
         }
         return collection;
     }

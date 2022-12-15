@@ -9,6 +9,7 @@ import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 
 @Configuration
 @EnableWebSocketMessageBroker
@@ -28,11 +29,21 @@ public class WebSocketsConfiguration implements WebSocketMessageBrokerConfigurer
         registry.addEndpoint(ConstantsUtils.WEBSOCKET_CONNECT_ENDPOINT)
                 .setAllowedOrigins("*");
         registry.addEndpoint("/test-hspa").withSockJS();
-        LOGGER.info("Set Websocket connect endpoint "+ConstantsUtils.WEBSOCKET_CONNECT_ENDPOINT);
+        LOGGER.info("Set Websocket connect endpoint " + ConstantsUtils.WEBSOCKET_CONNECT_ENDPOINT);
     }
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-      registration.interceptors(new UserInterceptor());
+        registration.interceptors(new UserInterceptor());
     }
+
+    @Override
+    public void configureWebSocketTransport(WebSocketTransportRegistration registration) {
+        registration.setMessageSizeLimit(3 * 512 * 1024); // default : 64 * 1024
+        registration.setSendTimeLimit(20 * 10000); // default : 10 * 10000
+        registration.setSendBufferSizeLimit(3 * 512 * 1024); // default : 512 * 1024
+
+    }
+
+
 }

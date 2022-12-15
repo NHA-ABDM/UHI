@@ -24,16 +24,28 @@ import java.util.stream.Collectors;
 
 @Service
 public class WrapperService {
-    @Value("${spring.openmrs_baselink}")
-    String OPENMRS_BASE_LINK;
     private static final String OPENMRS_API = "/ws/rest/v1/";
     private static final String API_RESOURCE_PROVIDER = "provider";
-
+    private static final Logger LOGGER = LogManager.getLogger(WrapperService.class);
+    @Value("${spring.openmrs_baselink}")
+    String OPENMRS_BASE_LINK;
     WebClient webClient = WebClient.create();
-
     @Autowired
     ObjectMapper mapper;
-    private static final Logger LOGGER = LogManager.getLogger(WrapperService.class);
+
+    public static Response generateAck(ObjectMapper mapper) {
+
+        String jsonString;
+        MessageAck msz = new MessageAck();
+        Response res = new Response();
+        Ack ack = new Ack();
+        ack.setStatus("ACK");
+        msz.setAck(ack);
+        Error err = new Error();
+        res.setError(err);
+        res.setMessage(msz);
+        return res;
+    }
 
     public Mono<Response> processorSearch(@RequestBody Request request) {
 
@@ -43,7 +55,7 @@ public class WrapperService {
         Mono<Response> responseMono = Mono.just(ack);
         run(request)
                 .flatMap(this::transformObject)
-                .flatMap(collection-> generateCatalog(collection, request))
+                .flatMap(collection -> generateCatalog(collection, request))
                 .flatMap(catalog -> callOnSerach(catalog, request.getContext()))
                 .subscribe();
 
@@ -70,12 +82,11 @@ public class WrapperService {
         List<IntermediateProviderModel> filteredList = collection;
         try {
             Map<String, String> filters = getSearchParams(request);
-            if(filters.get("hprid") != null)
-            {
-                filteredList= collection.stream().filter(imd -> imd.getHpr_id().contains(filters.get("hprid"))).collect(Collectors.toList());
+            if (filters.get("hprid") != null) {
+                filteredList = collection.stream().filter(imd -> imd.getHpr_id().contains(filters.get("hprid"))).collect(Collectors.toList());
 
             }
-            catalog = ProtocolBuilderUtils.BuildCatalog(filteredList);
+            catalog = ProtocolBuilderUtils.BuildCatalog(filteredList, false);
 
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
@@ -84,8 +95,7 @@ public class WrapperService {
 
     }
 
-    private Mono<String> callOnSerach (Catalog catalog, Context context)
-    {
+    private Mono<String> callOnSerach(Catalog catalog, Context context) {
         Request onSearchRequest = new Request();
         Message objMessage = new Message();
         objMessage.setCatalog(catalog);
@@ -118,49 +128,32 @@ public class WrapperService {
                 });
     }
 
-    private Map<String,String> getSearchParams(Request request) {
+    private Map<String, String> getSearchParams(Request request) {
 
-        Map<String,String> listOfParams = new HashMap<String, String>();
-        String valueName = request.getMessage().getIntent().getFulfillment().getAgent().getName() ;
+        Map<String, String> listOfParams = new HashMap<String, String>();
+        String valueName = request.getMessage().getIntent().getFulfillment().getAgent().getName();
         String valueHPRID = request.getMessage().getIntent().getFulfillment().getAgent().getId();
         Map<String, String> valueTags = request.getMessage().getIntent().getFulfillment().getAgent().getTags();
 
-        if(valueName != null) {
+        if (valueName != null) {
             listOfParams.put("name", valueName);
         }
 
-        if(valueName == null)
-        {
+        if (valueName == null) {
             listOfParams.put("name", "");
         }
 
-        if(valueHPRID != null)
-        {
+        if (valueHPRID != null) {
             listOfParams.put("hprid", valueHPRID);
         }
 
         return listOfParams;
     }
 
-    public static Response generateAck(ObjectMapper mapper) {
-
-        String jsonString;
-        MessageAck msz = new MessageAck();
-        Response res = new Response();
-        Ack ack = new Ack();
-        ack.setStatus("ACK");
-        msz.setAck(ack);
-        Error err = new Error();
-        res.setError(err);
-        res.setMessage(msz);
-        return res;
-    }
-
-    private String buildSearchString(Map<String,String> params)
-    {
+    private String buildSearchString(Map<String, String> params) {
         String searchString = "?v=full&q=";
         String valueName = params.getOrDefault("name", "");
-        return searchString+valueName;
+        return searchString + valueName;
     }
 
 }

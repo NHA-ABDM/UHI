@@ -13,14 +13,14 @@ import java.util.List;
 @Configuration
 public class SwaggerSpecConfig {
 
-	
+
     @Primary
     @Bean
     public SwaggerResourcesProvider swaggerResourcesProvider() {
         return () -> {
             List<SwaggerResource> resources = new ArrayList<>();
             Arrays.asList("v1.0.0")
-                .forEach(resourceName -> resources.add(loadResource(resourceName)));
+                    .forEach(resourceName -> resources.add(loadResource(resourceName)));
             return resources;
         };
     }
@@ -30,8 +30,8 @@ public class SwaggerSpecConfig {
         wsResource.setName(resource);
         wsResource.setSwaggerVersion("2.0");
         wsResource.setLocation("/swagger-docs/" + resource + "/Hspa.yaml");
-       //System.out.println("+++"+yaml_path);
-       //wsResource.setLocation("/Gateway.yaml");
+        //System.out.println("+++"+yaml_path);
+        //wsResource.setLocation("/Gateway.yaml");
         return wsResource;
     }
 }

@@ -9,6 +9,9 @@ public class IntermediateProviderModel {
     public String name;
     public String education;
     public String speciality;
+    public String category_id;
+    public String parent_category;
+    public String parent_category_id;
     public String hpr_id;
     public String languages;
     public String expr;
@@ -23,5 +26,6 @@ public class IntermediateProviderModel {
     public String is_teleconsultation;
     public String is_physical_consultation;
     public String profile_photo;
+
 
 }

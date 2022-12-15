@@ -20,9 +20,9 @@ public class HspaConfiguration {
     @Bean
     public ObjectMapper getMapper() {
         return new ObjectMapper()
-        .registerModule(new ParameterNamesModule())
-        .registerModule(new Jdk8Module())
-        .registerModule(new JavaTimeModule());
+                .registerModule(new ParameterNamesModule())
+                .registerModule(new Jdk8Module())
+                .registerModule(new JavaTimeModule());
 
     }
 

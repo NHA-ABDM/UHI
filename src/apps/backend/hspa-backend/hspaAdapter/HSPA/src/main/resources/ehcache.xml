@@ -4,7 +4,7 @@
          monitoring="autodetect"
          dynamicConfig="true">
 
-    <diskStore path="java.io.tmpdir" />
+    <diskStore path="java.io.tmpdir"/>
 
     <cache name="slotCache"
            maxEntriesLocalHeap="10000"
@@ -14,7 +14,7 @@
            timeToIdleSeconds="300" timeToLiveSeconds="600"
            memoryStoreEvictionPolicy="LFU"
            transactionalMode="off">
-        <persistence strategy="localTempSwap" />
+        <persistence strategy="localTempSwap"/>
     </cache>
 
 </ehcache>

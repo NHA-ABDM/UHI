@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface PaymentsRepository extends JpaRepository<PaymentsModel, Long>{
-	List<PaymentsModel> findByTransactionId(String transactionId);
+public interface PaymentsRepository extends JpaRepository<PaymentsModel, Long> {
+    List<PaymentsModel> findByTransactionId(String transactionId);
 
 }

@@ -8,10 +8,9 @@ import java.util.List;
 
 
 @Repository
-public interface SharedKeyRepository extends JpaRepository<SharedKeyModel, String>{
+public interface SharedKeyRepository extends JpaRepository<SharedKeyModel, String> {
 
-	List<SharedKeyModel> findByUserName(String userName);
-	
+    List<SharedKeyModel> findByUserName(String userName);
 
 
 }

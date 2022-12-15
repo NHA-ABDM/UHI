@@ -8,8 +8,8 @@ import org.springframework.stereotype.Repository;
 
 
 @Repository
-public interface MessagesRepository extends JpaRepository<MessagesModel, String>{
+public interface MessagesRepository extends JpaRepository<MessagesModel, String> {
 
-	Page<MessagesModel> findBySenderAndReceiver(String sender, String Receiver, Pageable p);
+    Page<MessagesModel> findBySenderAndReceiver(String sender, String Receiver, Pageable p);
 
 }

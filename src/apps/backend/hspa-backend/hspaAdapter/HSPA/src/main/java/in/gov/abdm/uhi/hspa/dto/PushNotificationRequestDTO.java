@@ -15,7 +15,7 @@ public class PushNotificationRequestDTO {
     private String gender;
     private String sharedKey;
     private String contentType;
+    private String consumerUrl;
 
-    
-    
+
 }

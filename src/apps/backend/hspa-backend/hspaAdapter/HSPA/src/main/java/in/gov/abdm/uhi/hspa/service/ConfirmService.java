@@ -25,11 +25,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
+
+import static in.gov.abdm.uhi.hspa.service.CommonService.isFulfillmentTypeOrPaymentStatusCorrect;
 
 @Service
 public class ConfirmService implements IService {
@@ -39,6 +40,18 @@ public class ConfirmService implements IService {
     private static final String API_RESOURCE_APPOINTMENT_TIMESLOT = "appointmentscheduling/timeslot";
     private static final String API_RESOURCE_APPOINTMENT_TYPE = "appointmentscheduling/appointmenttype?v=custom:uuid,name&q=";
     private static final Logger LOGGER = LogManager.getLogger(ConfirmService.class);
+    final
+    WebClient webClient;
+    final
+    ObjectMapper mapper;
+    final
+    CacheManager cacheManager;
+    final
+    SaveChatService chatIndb;
+    final
+    PaymentService paymentService;
+    final
+    CancelService cancelService;
     @Value("${spring.openmrs_baselink}")
     String OPENMRS_BASE_LINK;
     @Value("${spring.openmrs_api}")
@@ -51,22 +64,10 @@ public class ConfirmService implements IService {
     String GATEWAY_URI;
     @Value("${spring.provider_uri}")
     String PROVIDER_URI;
-    final
-    WebClient webClient;
-    final
-    ObjectMapper mapper;
-
-    final
-    CacheManager cacheManager;
-
-    final
-    SaveChatService chatIndb;
-
-    final
-    PaymentService paymentService;
-    
-    final
-    CancelService cancelService;
+    @Autowired
+    WebClient euaWebClient;
+    @Value("${spring.provider_id}")
+    String PROVIDER_ID;
 
     public ConfirmService(WebClient webClient, ObjectMapper mapper, CacheManager cacheManager, SaveChatService chatIndb, PaymentService paymentService, CancelService cancelService) {
         this.webClient = webClient;
@@ -92,23 +93,9 @@ public class ConfirmService implements IService {
         return res;
     }
 
-    private static Response generateNack(ObjectMapper mapper, Exception js) {
-
-        MessageAck msz = new MessageAck();
-        Response res = new Response();
-        Ack ack = new Ack();
-        ack.setStatus("NACK");
-        msz.setAck(ack);
-        Error err = new Error();
-        err.setMessage(js.getMessage());
-        err.setType("Search");
-        res.setError(err);
-        res.setMessage(msz);
-        return res;
-    }
 
     @Override
-    public Mono<Response> processor(String request) {
+    public Mono<Response> processor(String request) throws UserException {
         new Request();
         Request objRequest = null;
         Response ack = generateAck(mapper);
@@ -116,12 +103,15 @@ public class ConfirmService implements IService {
 
         try {
             objRequest = new ObjectMapper().readValue(request, Request.class);
-            LOGGER.info("Processing::Confirm::Request:: {} .. Message Id is {}" , request, getMessageId(objRequest));
+
+            getLocalDateTimeFromString(objRequest.getMessage().getOrder().getFulfillment().getStart().getTime().getTimestamp());
+            getLocalDateTimeFromString(objRequest.getMessage().getOrder().getFulfillment().getEnd().getTime().getTimestamp());
+
+            LOGGER.info("Processing::Confirm::Request:: {} .. Message Id is {}", request, getMessageId(objRequest));
 
             String typeFulfillment = objRequest.getMessage().getOrder().getFulfillment().getType();
 
-            if(typeFulfillment.equalsIgnoreCase(ConstantsUtils.TELECONSULTATION) || typeFulfillment.equalsIgnoreCase(ConstantsUtils.PHYSICAL_CONSULTATION) || typeFulfillment.equalsIgnoreCase(ConstantsUtils.GROUP_CONSULTATION)) {
-                setTeleconsultationInCaseOfGroupConsultation(typeFulfillment, objRequest);
+            if (isFulfillmentTypeOrPaymentStatusCorrect(typeFulfillment, ConstantsUtils.TELECONSULTATION, ConstantsUtils.PHYSICAL_CONSULTATION)) {
                 run(objRequest, request);
             } else {
                 return Mono.just(new Response());
@@ -129,12 +119,13 @@ public class ConfirmService implements IService {
 
         } catch (Exception ex) {
             LOGGER.error("Confirm Service process::error::onErrorResume:: {} .. Message Id is {}", ex, getMessageId(objRequest));
-            ack = generateNack(mapper, ex);
+            ack = CommonService.setMessageidAndTxnIdInNack(objRequest, ex);
 
         }
 
         return Mono.just(ack);
     }
+
 
     @Override
     public Mono<String> run(Request request, String s) {
@@ -142,16 +133,16 @@ public class ConfirmService implements IService {
         String paymentStatus = request.getMessage().getOrder().getPayment().getStatus();
         Mono<String> response = Mono.empty();
 
-        if (paymentStatus.equalsIgnoreCase("PAID") || paymentStatus.equalsIgnoreCase("FREE")) {
+        if (isFulfillmentTypeOrPaymentStatusCorrect(paymentStatus, ConstantsUtils.PAYMENT_STATUS_PAID, ConstantsUtils.PAYMENT_STATUS_FREE)) {
             getPatientDetails(request).zipWith(getAllAppointmentTypes(request))
                     .flatMap(result -> getPatinetandAppointment(result, request))
                     .flatMap(this::createAppointment)
                     .flatMap(result -> callOnConfirm(result, request))
-                    .flatMap(log -> logResponse(log , request))
+                    .flatMap(log -> logResponse(log, request))
                     .subscribe();
         } else {
 
-            LOGGER.info("Processing::Search::Run::Not Paid! {}.. Message Id is {}" , request, getMessageId(request));
+            LOGGER.info("Processing::Search::Run::Not Paid! {}.. Message Id is {}", request, getMessageId(request));
             callOnConfirm("", request);
         }
 
@@ -161,19 +152,13 @@ public class ConfirmService implements IService {
 
     private Mono<String> getPatientDetails(Request request) {
 
-        String abha = request.getMessage().getOrder().getCustomer().getCred();
+        String abha = request.getMessage().getOrder().getCustomer().getId();
         String searchEndPoint = OPENMRS_BASE_LINK + OPENMRS_API + API_RESOURCE_PATIENT;
         String searchPatient = "?v=custom:uuid&q=" + abha;
 
         return webClient.get()
                 .uri(searchEndPoint + searchPatient)
                 .exchangeToMono(clientResponse -> clientResponse.bodyToMono(String.class));
-    }
-
-    private void setTeleconsultationInCaseOfGroupConsultation(String typeFulfillment, Request objRequest) {
-        if(typeFulfillment.equalsIgnoreCase(ConstantsUtils.GROUP_CONSULTATION)) {
-            objRequest.getMessage().getIntent().getFulfillment().setType(ConstantsUtils.TELECONSULTATION);
-        }
     }
 
     public Mono<String> getAllAppointmentTypes(Request request) {
@@ -188,12 +173,15 @@ public class ConfirmService implements IService {
 
     private Mono<List<IntermediatePatientAppointmentModel>> getPatinetandAppointment(Tuple2 result, Request request) {
 
+
+        LOGGER.info("$$$$$$$$$$$$$$$$$$$" + result);
         List<IntermediatePatientAppointmentModel> patientModel = new ArrayList<>();
 
         try {
 
             patientModel = IntermediateBuilderUtils.BuildIntermediatePatientAppoitmentObj(result.getT2().toString(), result.getT1().toString(), request.getMessage().getOrder());
 
+            LOGGER.info("**************************" + patientModel);
         } catch (Exception ex) {
             LOGGER.error("Select service Get Provider Id::error::onErrorResume:: {} .. Message Id is {}", ex, getMessageId(request));
         }
@@ -234,10 +222,12 @@ public class ConfirmService implements IService {
     }
 
     private Mono<String> createAppointment(List<IntermediatePatientAppointmentModel> collection) {
-
+        LOGGER.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + collection);
         if (!collection.isEmpty()) {
             appointment appointment = IntermediateBuilderUtils.BuildAppointmentModel(collection.get(0));
 
+
+            LOGGER.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + appointment);
             String searchEndPoint = OPENMRS_BASE_LINK + OPENMRS_API + API_RESOURCE_APPOINTMENT;
             return webClient.post()
                     .uri(searchEndPoint)
@@ -249,6 +239,8 @@ public class ConfirmService implements IService {
     }
 
     private Mono<String> callOnConfirm(String result, Request request) {
+
+        LOGGER.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" + result);
         String uuid = "";
         request.getContext().setAction("on_confirm");
         uuid = setOrderStatus(result, request, uuid);
@@ -256,21 +248,21 @@ public class ConfirmService implements IService {
         setProviderUrl(request);
 
 
-        String patient = request.getMessage().getOrder().getCustomer().getCred();
+        String patient = request.getMessage().getOrder().getCustomer().getId();
         String doctor = request.getMessage().getOrder().getFulfillment().getAgent().getId();
 
-        Map<String, String> fulfillmentTagsMap = request.getMessage().getOrder().getFulfillment().getTags();
+        Optional<Map<String, String>> fulfillmentTagsMapOptional = Optional.ofNullable(request.getMessage().getOrder().getFulfillment().getTags());
 
-        String key = fulfillmentTagsMap.get(ConstantsUtils.ABDM_GOV_IN_PATIENT_KEY);
+        if (fulfillmentTagsMapOptional.isPresent()) {
+            Map<String, String> map = fulfillmentTagsMapOptional.get();
+            String key = map.get(ConstantsUtils.ABDM_GOV_IN_PATIENT_KEY);
+            boolean saveKeyToDBIfNotNull = key != null;
+            savePatientKeyToDb(patient, key, saveKeyToDBIfNotNull);
+            List<SharedKeyModel> doctorKey = chatIndb.getSharedKeyDetails(doctor);
+            setDoctorsKeyToResponse(request, doctorKey);
+        }
 
-        boolean saveKeyToDBIfNotNull = key != null;
-        savePatientKeyToDb(patient, key, saveKeyToDBIfNotNull);
 
-
-        List<SharedKeyModel> doctorKey = chatIndb.getSharedKeyDetails(doctor);
-
-
-        setDoctorsKeyToResponse(request, doctorKey);
         boolean isResultContainsAppointmentId = result.contains("uuid");
         if (isResultContainsAppointmentId) {
             try {
@@ -286,31 +278,30 @@ public class ConfirmService implements IService {
 
         } else {
             LOGGER.error("Error calling on_confirm, Result is {}. Message Id is {}", result, getMessageId(request));
-            List<OrdersModel> od=paymentService.getOrderDetailsByTransactionId(request.getContext().getTransactionId());
-     	   String orderId=request.getMessage().getOrder().getId();
- 			List<OrdersModel> otherDrOrder = od
- 					  .stream()
- 					  .filter(c -> !c.getOrderId().equalsIgnoreCase(orderId) && c.getIsServiceFulfilled().equalsIgnoreCase(ConstantsUtils.CONFIRMED))
- 					  .toList();
- 			if(!otherDrOrder.isEmpty())
- 			{
- 				
- 				OrdersModel grporder1=otherDrOrder.get(0);	
- 				
- 				request.getMessage().getOrder().setId(grporder1.getOrderId());
- 				request.getMessage().getOrder().setState(ConstantsUtils.CANCELLED);
- 				request.getMessage().getOrder().getFulfillment().getTags().put("@abdm/gov.in/cancelledby",ConstantsUtils.PATIENT);
- 				request.getContext().setAction(ConstantsUtils.CANCEL);
- 				ObjectMapper objectMapper = new ObjectMapper();					
- 				try {
- 					cancelService.processor(objectMapper.writeValueAsString(request));
- 				} catch (JsonProcessingException e) {
- 				
- 					 LOGGER.error(e.getMessage());
- 				}
- 					
- 			
- 			}
+            List<OrdersModel> od = paymentService.getOrderDetailsByTransactionId(request.getContext().getTransactionId());
+            String orderId = request.getMessage().getOrder().getId();
+            List<OrdersModel> otherDrOrder = od
+                    .stream()
+                    .filter(c -> !Objects.equals(c.getOrderId(), orderId) && c.getIsServiceFulfilled().equalsIgnoreCase(ConstantsUtils.CONFIRMED))
+                    .toList();
+            if (!otherDrOrder.isEmpty()) {
+
+                OrdersModel grporder1 = otherDrOrder.get(0);
+
+                request.getMessage().getOrder().setId(String.valueOf(grporder1.getOrderId()));
+                request.getMessage().getOrder().setState(ConstantsUtils.CANCELLED);
+                request.getMessage().getOrder().getFulfillment().getTags().put("@abdm/gov.in/cancelledby", ConstantsUtils.PATIENT);
+                request.getContext().setAction(ConstantsUtils.CANCEL);
+                ObjectMapper objectMapper = new ObjectMapper();
+                try {
+                    cancelService.processor(objectMapper.writeValueAsString(request));
+                } catch (JsonProcessingException e) {
+
+                    LOGGER.error(e.getMessage());
+                }
+
+
+            }
         }
 
         return Mono.empty();
@@ -319,7 +310,7 @@ public class ConfirmService implements IService {
     }
 
     private Mono<String> callOnConfirmWebClient(Request request, WebClient on_webclient) {
-        return on_webclient.post()
+        return euaWebClient.post()
                 .uri(request.getContext().getConsumerUri() + "/on_confirm")
                 .body(BodyInserters.fromValue(request))
                 .retrieve()
@@ -348,10 +339,9 @@ public class ConfirmService implements IService {
     }
 
     private void setProviderUrl(Request request) {
-        if (request.getContext().getConsumerId().equalsIgnoreCase("eua-nha"))
-            request.getContext().setProviderUri(PROVIDER_URI);
-        else
-            request.getContext().setProviderUri("http://121.242.73.124:8084/api/v1");
+        request.getContext().setProviderUri(PROVIDER_URI);
+        request.getContext().setProviderId(PROVIDER_ID);
+
     }
 
     private String setOrderStatus(String result, Request request, String uuid) {
@@ -371,6 +361,10 @@ public class ConfirmService implements IService {
         LOGGER.info("OnConfirm::Log::Response:: {} \n Message Id is {}", result, getMessageId(request));
 
         return Mono.just(result);
+    }
+
+    private LocalDateTime getLocalDateTimeFromString(String request) {
+        return LocalDateTime.parse(request, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     }
 
 }

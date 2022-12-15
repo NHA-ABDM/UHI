@@ -8,10 +8,9 @@ import java.util.List;
 
 
 @Repository
-public interface PublicKeyRepository extends JpaRepository<PublicKeyModel, String>{
+public interface PublicKeyRepository extends JpaRepository<PublicKeyModel, String> {
 
-	List<PublicKeyModel> findByUserName(String userName);
-	
+    List<PublicKeyModel> findByUserName(String userName);
 
 
 }

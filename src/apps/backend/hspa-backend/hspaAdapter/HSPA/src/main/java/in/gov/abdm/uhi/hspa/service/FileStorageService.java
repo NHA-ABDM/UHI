@@ -17,22 +17,21 @@ import java.nio.file.StandardCopyOption;
 
 @Component
 public class FileStorageService {
-	
-	
-	
-    private  Path fileStorageLocation;
 
-    public String storeFile(MultipartFile file,String path) {
+
+    private Path fileStorageLocation;
+
+    public String storeFile(MultipartFile file, String path) {
         // Normalize file name
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
 
         try {
-        	this.fileStorageLocation = Paths.get(path)
+            this.fileStorageLocation = Paths.get(path)
                     .toAbsolutePath().normalize();
-        	 Files.createDirectories(this.fileStorageLocation);
-        	
+            Files.createDirectories(this.fileStorageLocation);
+
             // Check if the file's name contains invalid characters
-            if(fileName.contains("..")) {
+            if (fileName.contains("..")) {
                 throw new FileStorageException("Sorry! Filename contains invalid path sequence " + fileName);
             }
 
@@ -51,7 +50,7 @@ public class FileStorageService {
             this.fileStorageLocation = Paths.get(path).toAbsolutePath().normalize();
             Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
             Resource resource = new UrlResource(filePath.toUri());
-            if(resource.exists()) {
+            if (resource.exists()) {
                 return resource;
             } else {
                 throw new MyFileNotFoundException("File not found " + fileName);

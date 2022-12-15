@@ -12,15 +12,15 @@ import javax.persistence.Table;
 @Table(schema = ConstantsUtils.HSPA_SCHEMA_NAME, name = "SharedKey")
 @Data
 public class SharedKeyModel {
-    @Id    
+    @Id
     @Column(name = "username")
     private String userName;
-    
+
     @Column(name = "publicKey")
     private String publicKey;
-    
+
     @Column(name = "privateKey")
     private String privateKey;
-  
+
 
 }

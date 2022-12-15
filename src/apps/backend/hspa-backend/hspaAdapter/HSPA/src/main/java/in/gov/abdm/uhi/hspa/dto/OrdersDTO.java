@@ -18,7 +18,7 @@ public class OrdersDTO extends ServiceResponseDTO {
     private String categoryId;
 
     private String appointmentId;
-    
+
     private String orderDate;
     private String healthcareServiceName;
     private String healthcareServiceId;

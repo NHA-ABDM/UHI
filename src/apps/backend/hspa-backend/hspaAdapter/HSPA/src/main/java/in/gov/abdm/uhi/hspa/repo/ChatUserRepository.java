@@ -8,10 +8,9 @@ import java.util.List;
 
 
 @Repository
-public interface ChatUserRepository extends JpaRepository<ChatUserModel, String>{
+public interface ChatUserRepository extends JpaRepository<ChatUserModel, String> {
 
-	List<ChatUserModel> findByUserId(String userId);
-	
+    List<ChatUserModel> findByUserId(String userId);
 
 
 }

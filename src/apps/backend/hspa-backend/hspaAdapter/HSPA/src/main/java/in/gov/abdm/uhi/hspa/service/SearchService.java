@@ -1,8 +1,10 @@
 package in.gov.abdm.uhi.hspa.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import in.gov.abdm.uhi.common.dto.Error;
 import in.gov.abdm.uhi.common.dto.*;
+import in.gov.abdm.uhi.hspa.exceptions.UserException;
 import in.gov.abdm.uhi.hspa.models.IntermediateProviderModel;
 import in.gov.abdm.uhi.hspa.service.ServiceInterface.IService;
 import in.gov.abdm.uhi.hspa.utils.ConstantsUtils;
@@ -28,6 +30,8 @@ public class SearchService implements IService {
 
     private static final String API_RESOURCE_PROVIDER = "provider";
     private static final Logger LOGGER = LogManager.getLogger(SearchService.class);
+    final
+    WebClient webClient;
     @Value("${spring.openmrs_baselink}")
     String OPENMRS_BASE_LINK;
     @Value("${spring.openmrs_api}")
@@ -36,8 +40,14 @@ public class SearchService implements IService {
     String GATEWAY_URI;
     @Value("${spring.provider_uri}")
     String PROVIDER_URI;
+    @Value("${spring.provider_id}")
+    String PROVIDER_ID;
     @Autowired
-    WebClient webClient;
+    WebClient euaWebClient;
+
+    public SearchService(WebClient webClient) {
+        this.webClient = webClient;
+    }
 
     private static Response generateAck() {
 
@@ -52,66 +62,40 @@ public class SearchService implements IService {
         return res;
     }
 
-    private static Response generateNack(Exception js) {
-
-        MessageAck msz = new MessageAck();
-        Response res = new Response();
-        Ack ack = new Ack();
-        ack.setStatus("NACK");
-        msz.setAck(ack);
-        Error err = new Error();
-        err.setMessage(js.getMessage());
-        err.setType("Search");
-        res.setError(err);
-        res.setMessage(msz);
-        return res;
-    }
-
     @Override
-    public Mono<Response> processor(@RequestBody String request) {
+    public Mono<Response> processor(@RequestBody String request) throws UserException {
 
         //Verify message
         Request objRequest = null;
         Response ack = generateAck();
         try {
             objRequest = new ObjectMapper().readValue(request, Request.class);
-            LOGGER.info("Processing::Search::Request:: {}.. Message Id is {}", request, getMessageId(objRequest));
-            String typeFulfillment = objRequest.getMessage().getIntent().getFulfillment().getType();
-            if(typeFulfillment.equalsIgnoreCase(ConstantsUtils.TELECONSULTATION) || typeFulfillment.equalsIgnoreCase(ConstantsUtils.PHYSICAL_CONSULTATION) || typeFulfillment.equalsIgnoreCase(ConstantsUtils.GROUP_CONSULTATION)) {
-                setTeleconsultationInCaseOfGroupConsultation(typeFulfillment, objRequest);
+            LOGGER.info("Processing::Search::Request:: {}.. Message Id is {}", request, CommonService.getMessageId(objRequest));
 
+            if (CommonService.isTestHspaProviderSearchOrDoctorSearch(objRequest, false)) {
                 Request finalObjRequest = objRequest;
                 run(objRequest, request)
                         .flatMap(res -> transformObject(res, finalObjRequest))
-                        .flatMap(collection -> generateCatalog(collection, finalObjRequest))
+                        .flatMap(collection -> generateCatalog(collection, finalObjRequest, false))
                         .flatMap(catalog -> callOnSerach(catalog, finalObjRequest.getContext()))
                         .flatMap(log -> logResponse(log, finalObjRequest))
                         .subscribe();
+            } else {
+                LOGGER.error(ConstantsUtils.REQUESTER_MESSAGE_ID_IS, CommonService.getMessageId(objRequest));
+                throw new UserException("Invalid search Schema");
             }
-            else {
-                return Mono.just(new Response());
-            }
+
         } catch (Exception ex) {
-            LOGGER.error("Search Proccessor::error::onErrorResume:: {}, Message Id is {}", ex, getMessageId(objRequest));
-            ack = generateNack(ex);
+            LOGGER.error("Search Proccessor::error::onErrorResume:: {}, Message Id is {}", ex, CommonService.getMessageId(objRequest));
+            ack = CommonService.setMessageidAndTxnIdInNack(objRequest, ex);
         }
         return Mono.just(ack);
     }
 
-    private String getMessageId(Request objRequest) {
-        String messageId = objRequest.getContext().getMessageId();
-        return messageId == null ? " " : messageId;
-    }
-
-    private void setTeleconsultationInCaseOfGroupConsultation(String typeFulfillment, Request objRequest) {
-        if(typeFulfillment.equalsIgnoreCase(ConstantsUtils.GROUP_CONSULTATION)) {
-            objRequest.getMessage().getIntent().getFulfillment().setType(ConstantsUtils.TELECONSULTATION);
-        }
-    }
 
     private Mono<List<IntermediateProviderModel>> transformObject(String result, Request request) {
 
-        LOGGER.info("Processing::Search::TransformObject {}.. Message Id is {}", result, getMessageId(request));
+        LOGGER.info("Processing::Search::TransformObject {}.. Message Id is {}", result, CommonService.getMessageId(request));
 
         List<IntermediateProviderModel> collection = new ArrayList<>();
         try {
@@ -119,24 +103,24 @@ public class SearchService implements IService {
             collection = IntermediateBuilderUtils.BuildIntermediateObj(result);
 
         } catch (Exception ex) {
-            LOGGER.error("Search Service Transform Object::error:: {}... Message Id is {}" , ex, getMessageId(request));
+            LOGGER.error("Search Service Transform Object::error:: {}... Message Id is {}", ex, CommonService.getMessageId(request));
         }
         return Mono.just(collection);
     }
 
 
-    private Mono<Catalog> generateCatalog(List<IntermediateProviderModel> collection, Request request) {
+    private Mono<Catalog> generateCatalog(List<IntermediateProviderModel> collection, Request request, boolean isSecondSearch) {
 
-        LOGGER.info("Processing::Search::CatalogGeneration {}.. Message Id is {}" , collection, getMessageId(request));
+        LOGGER.info("Processing::Search::CatalogGeneration {}.. Message Id is {}", collection, CommonService.getMessageId(request));
         Catalog catalog = new Catalog();
 
         try {
             List<IntermediateProviderModel> filterdList = filterListByAttributes(collection, request);
-            catalog = ProtocolBuilderUtils.BuildCatalog(filterdList, request);
+            catalog = ProtocolBuilderUtils.BuildCatalog(filterdList, request, isSecondSearch);
 
         } catch (Exception ex) {
 
-            LOGGER.error("Search Service Generate Catalog::error:: {} ... Message Id is {}" , ex, getMessageId(request));
+            LOGGER.error("Search Service Generate Catalog::error:: {} ... Message Id is {}", ex, CommonService.getMessageId(request));
         }
         return Mono.just(catalog);
 
@@ -144,31 +128,27 @@ public class SearchService implements IService {
 
     private List<IntermediateProviderModel> filterListByAttributes(List<IntermediateProviderModel> collection, Request request) {
 
-        LOGGER.info("Processing::Search::FilterListByAttribute {} .. Message Id is {}" , collection, getMessageId(request));
+        LOGGER.info("Processing::Search::FilterListByAttribute {} .. Message Id is {}", collection, CommonService.getMessageId(request));
 
-        Map<String, String> filters = IntermediateBuilderUtils.BuildSearchParametersIntent(request);
-        
-        LOGGER.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"+filters);
+        Map<String, String> filters = IntermediateBuilderUtils.BuildSearchParametersIntent(request, false);
+
         List<IntermediateProviderModel> filteredList = collection;
         try {
-            if (filters.get("languages") != null) {
+            if (null != filters.get("languages")) {
                 filteredList = filteredList.stream().filter(imd -> imd.getLanguages().toLowerCase().contains(filters.get("languages"))).toList();
             }
-            if (filters.get("speciality") != null) {
+            if (null != filters.get("speciality")) {
                 filteredList = filteredList.stream().filter(imd -> imd.getSpeciality().equalsIgnoreCase(filters.get("speciality"))).toList();
             }
-            if (filters.get("type") != null && filters.get("type").equalsIgnoreCase("PhysicalConsultation")) {
+            if (null != filters.get("type") && filters.get("type").equalsIgnoreCase(ConstantsUtils.PHYSICAL_CONSULTATION) || filters.get("type").equalsIgnoreCase(ConstantsUtils.PHYSICAL_OPD)) {
                 filteredList = filteredList.stream().filter(imd -> imd.getIs_physical_consultation().equals("true")).toList();
             }
-            if (filters.get("type") != null && filters.get("type").equalsIgnoreCase("TeleConsultation")) {
+            if (null != filters.get("type") && filters.get("type").equalsIgnoreCase(ConstantsUtils.TELECONSULTATION)) {
                 filteredList = filteredList.stream().filter(imd -> imd.getIs_teleconsultation().equals("true")).toList();
             }
-          
-            LOGGER.info("#######################"+filteredList); 
-            LOGGER.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"+filters);
-            
+
         } catch (Exception ex) {
-            LOGGER.error("Search Service Filter by Attribute::error:: {} .. Message Id is {}", ex, getMessageId(request));
+            LOGGER.error("Search Service Filter by Attribute::error:: {} .. Message Id is {}", ex, CommonService.getMessageId(request));
         }
         return filteredList;
 
@@ -178,38 +158,50 @@ public class SearchService implements IService {
 
         Request onSearchRequest = new Request();
         Message objMessage = new Message();
+
         objMessage.setCatalog(catalog);
         onSearchRequest.setMessage(objMessage);
-        context.setProviderId(PROVIDER_URI);
-        if(context.getConsumerId().equalsIgnoreCase("eua-nha"))
-            context.setProviderUri(PROVIDER_URI);
-        else
-            context.setProviderUri("http://121.242.73.124:8084/api/v1");
+        context.setProviderId(PROVIDER_ID);
+        context.setProviderUri(PROVIDER_URI);
+
         context.setAction("on_search");
         onSearchRequest.setContext(context);
         onSearchRequest.getContext().setAction("on_search");
 
-        LOGGER.info("Processing::Search::CallOnSearch {} .. Message Id is {}", onSearchRequest, context.getMessageId());
-        WebClient on_webclient = WebClient.create();
+        LOGGER.info("---------------------------------------------");
+        try {
+            LOGGER.info(new ObjectMapper().writeValueAsString(onSearchRequest));
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
 
-        return on_webclient.post()
+        try {
+            LOGGER.info("Processing::Search::CallOnSearch {} .. Message Id is {}", new ObjectMapper().writeValueAsString(onSearchRequest), context.getMessageId());
+        } catch (JsonProcessingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+
+        return euaWebClient.post()
                 .uri(GATEWAY_URI + "/on_search")
                 .body(BodyInserters.fromValue(onSearchRequest))
                 .retrieve()
                 .bodyToMono(String.class)
                 .retry(3)
                 .onErrorResume(error -> {
-                    LOGGER.error("Unable to call gateway :error::onErrorResume:: {} .. Message Id is {}" , error, context.getMessageId());
+                    LOGGER.error("Unable to call gateway :error::onErrorResume:: {} .. Message Id is {}", error, context.getMessageId());
                     return Mono.empty();
                 });
     }
+
 
     @Override
     public Mono<String> run(Request request, String s) {
 
         String searchEndPoint = OPENMRS_BASE_LINK + OPENMRS_API + API_RESOURCE_PROVIDER;
 
-        Map<String, String> searchParams = IntermediateBuilderUtils.BuildSearchParametersIntent(request);
+        Map<String, String> searchParams = IntermediateBuilderUtils.BuildSearchParametersIntent(request, false);
         String searchString = buildSearchString(searchParams);
 
         return webClient.get()
@@ -217,7 +209,7 @@ public class SearchService implements IService {
                 .exchangeToMono(clientResponse -> clientResponse.bodyToMono(String.class))
                 .retry(3)
                 .onErrorResume(error -> {
-                    LOGGER.error("External API::error::onErrorResume:: {}, Message Id is {}" , error, getMessageId(request));
+                    LOGGER.error("External API::error::onErrorResume:: {}, Message Id is {}", error, CommonService.getMessageId(request));
                     return Mono.empty();
                 });
 
@@ -237,7 +229,7 @@ public class SearchService implements IService {
     @Override
     public Mono<String> logResponse(String result, Request request) {
 
-        LOGGER.info("OnSearch::Log::Response:: {} \n Message Id is {}", result, getMessageId(request));
+        LOGGER.info("OnSearch::Log::Response:: {} \n Message Id is {}", result, CommonService.getMessageId(request));
         return Mono.just(result);
     }
 }

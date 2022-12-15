@@ -15,14 +15,14 @@ import javax.persistence.Table;
 @Table(schema = ConstantsUtils.HSPA_SCHEMA_NAME, name = "ChatUser")
 @Data
 public class ChatUserModel extends ServiceResponseDTO {
-    @Id   
+    @Id
     @Column(name = "userid")
     private String userId;
-    
+
     @Column(name = "username")
     private String userName;
-    
+
     @Column(name = "image", length = 50000)
-    private String image;   
+    private String image;
 
 }

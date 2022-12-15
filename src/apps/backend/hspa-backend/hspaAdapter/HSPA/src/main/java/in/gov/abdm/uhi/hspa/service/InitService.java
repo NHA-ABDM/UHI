@@ -21,8 +21,13 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Objects;
+
+import static in.gov.abdm.uhi.hspa.service.CommonService.isFulfillmentTypeOrPaymentStatusCorrect;
 
 @Service
 public class InitService implements IService {
@@ -38,8 +43,16 @@ public class InitService implements IService {
     String OPENMRS_USERNAME;
     @Value("${spring.openmrs_password}")
     String OPENMRS_PASSWORD;
-   @Autowired
-   WebClient webClient;
+    @Value("${spring.provider_uri}")
+    String PROVIDER_URI;
+    @Value("${spring.provider_id}")
+    String PROVIDER_ID;
+
+    @Autowired
+    WebClient euaWebClient;
+
+    @Autowired
+    WebClient webClient;
 
     @Autowired
     CacheManager cacheManager;
@@ -60,51 +73,40 @@ public class InitService implements IService {
         return res;
     }
 
-    private static Response generateNack(Exception js) {
-
-        MessageAck msz = new MessageAck();
-        Response res = new Response();
-        Ack ack = new Ack();
-        ack.setStatus("NACK");
-        msz.setAck(ack);
-        Error err = new Error();
-        err.setMessage(js.getMessage());
-        err.setType("Search");
-        res.setError(err);
-        res.setMessage(msz);
-        return res;
-    }
-
     @Override
-    public Mono<Response> processor(String request) {
+    public Mono<Response> processor(String request) throws UserException {
         Request objRequest = null;
         Response ack = generateAck();
+
+
         try {
             objRequest = new ObjectMapper().readValue(request, Request.class);
             Request finalObjRequest = objRequest;
 
+            getLocalDateTimeFromString(finalObjRequest.getMessage().getOrder().getFulfillment().getStart().getTime().getTimestamp());
+            getLocalDateTimeFromString(finalObjRequest.getMessage().getOrder().getFulfillment().getEnd().getTime().getTimestamp());
+            String orderId = UniqueOrderIdGeneratorService.generate(LocalTime.now().toString());
+            objRequest.getMessage().getOrder().setId(orderId);
+            LOGGER.info("Order id------- {}", orderId);
             ////TODO: If provider not found donot add patient
             String typeFulfillment = objRequest.getMessage().getOrder().getFulfillment().getType();
-            LOGGER.info("Processing::Init::Request:: {}.. Message Id is {}", request, getMessageId(objRequest));
+            LOGGER.info("Processing::Init::Request:: {}.. Message Id is {}", objRequest, getMessageId(objRequest));
 
-            if(typeFulfillment.equalsIgnoreCase(ConstantsUtils.TELECONSULTATION) || typeFulfillment.equalsIgnoreCase(ConstantsUtils.PHYSICAL_CONSULTATION) || typeFulfillment.equalsIgnoreCase(ConstantsUtils.GROUP_CONSULTATION)) {
-                setTeleconsultationInCaseOfGroupConsultation(typeFulfillment, objRequest);
+            if (isFulfillmentTypeOrPaymentStatusCorrect(typeFulfillment, ConstantsUtils.TELECONSULTATION, ConstantsUtils.PHYSICAL_CONSULTATION)) {
                 findPatient(finalObjRequest)
                         .flatMap(result -> createPatient(result, finalObjRequest))
                         .flatMap(result -> createResponse(result, finalObjRequest))
                         .flatMap(this::callOnInit)
                         .flatMap(log -> logResponse(log, finalObjRequest))
                         .subscribe();
-            }
-            else{
+            } else {
                 return Mono.just(new Response());
             }
 
 
         } catch (Exception ex) {
-            LOGGER.error("Init Service process::error::onErrorResume:: {} .. Message Id is {}" , ex, getMessageId(objRequest));
-            ack = generateNack(ex);
-
+            LOGGER.error("Init Service process::error::onErrorResume:: {} .. Message Id is {}", ex, getMessageId(objRequest));
+            ack = CommonService.setMessageidAndTxnIdInNack(objRequest, ex);
         }
 
         return Mono.just(ack);
@@ -125,14 +127,13 @@ public class InitService implements IService {
     private Mono<Request> createResponse(String result, Request request) {
 
         IntermediatePatientModel patient = IntermediateBuilderUtils.BuildIntermediatePatient(result);
-        Request retRequest = ProtocolBuilderUtils.BuildIntitialization(patient, request);
+        Request retRequest = ProtocolBuilderUtils.BuildIntitialization(request);
 
         return Mono.just(retRequest);
     }
 
-    private void putCache()
-    {
-            cacheManager.getCache("slotCache");
+    private void putCache() {
+        cacheManager.getCache("slotCache");
     }
 
 
@@ -147,6 +148,9 @@ public class InitService implements IService {
         patient patient = IntermediateBuilderUtils.BuildPatientModel(request.getMessage().getOrder());
 
         String searchEndPoint = OPENMRS_BASE_LINK + OPENMRS_API + API_RESOURCE_PATIENT;
+
+
+        LOGGER.info("@@@@@@@@@@@@@@@@@@@@" + searchEndPoint + "!!!!!!!!!!!!!!!!" + patient);
         return webClient.post()
                 .uri(searchEndPoint)
                 .body(BodyInserters.fromValue(patient))
@@ -154,11 +158,9 @@ public class InitService implements IService {
     }
 
 
-
-
     Mono<String> findPatient(Request request) {
 
-        String abha = request.getMessage().getOrder().getCustomer().getCred();
+        String abha = request.getMessage().getOrder().getCustomer().getId();
         String searchEndPoint = OPENMRS_BASE_LINK + OPENMRS_API + API_RESOURCE_PATIENT;
         String searchPatient = "?v=full&q=" + abha;
         return webClient.get()
@@ -174,29 +176,32 @@ public class InitService implements IService {
 
     private Mono<String> callOnInit(Request request) {
         request.getContext().setAction("on_init");
+        request.getContext().setProviderId(PROVIDER_ID);
+        request.getContext().setProviderUri(PROVIDER_URI);
         try {
-			paymentService.saveDataInDb(null,request,ConstantsUtils.ON_INIT);
-		} catch (JsonProcessingException | UserException e) {
-			  LOGGER.error(e.getMessage());
-		}
+            paymentService.saveDataInDb(null, request, ConstantsUtils.ON_INIT);
+        } catch (JsonProcessingException | UserException e) {
+            LOGGER.error(e.getMessage());
+        }
 
-        WebClient on_webclient = WebClient.create();
-        return on_webclient.post()
+        try {
+            LOGGER.info(new ObjectMapper().writeValueAsString(request));
+        } catch (JsonProcessingException e) {
+            // TODO Auto-generated catch block
+            LOGGER.error(e.getMessage());
+        }
+
+
+        return euaWebClient.post()
                 .uri(request.getContext().getConsumerUri() + "/on_init")
                 .body(BodyInserters.fromValue(request))
                 .retrieve()
                 .bodyToMono(String.class)
                 .retry(3)
                 .onErrorResume(error -> {
-                    LOGGER.error("Init Service call on init:: {} .. Message Id {}", error,  getMessageId(request));
+                    LOGGER.error("Init Service call on init:: {} .. Message Id {}", error, getMessageId(request));
                     return Mono.empty(); //TODO:Add appropriate response
                 });
-    }
-
-    private void setTeleconsultationInCaseOfGroupConsultation(String typeFulfillment, Request objRequest) {
-        if(typeFulfillment.equalsIgnoreCase(ConstantsUtils.GROUP_CONSULTATION)) {
-            objRequest.getMessage().getIntent().getFulfillment().setType(ConstantsUtils.TELECONSULTATION);
-        }
     }
 
     private String buildSearchString(Map<String, String> params) {
@@ -213,8 +218,12 @@ public class InitService implements IService {
     @Override
     public Mono<String> logResponse(String result, Request request) {
 
-        LOGGER.info("OnInit::Log::Response:: {} \n Message Id is {}" , result,  getMessageId(request));
+        LOGGER.info("OnInit::Log::Response:: {} \n Message Id is {}", result, getMessageId(request));
         return Mono.just(result);
+    }
+
+    private LocalDateTime getLocalDateTimeFromString(String request) {
+        return LocalDateTime.parse(request, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     }
 
 }

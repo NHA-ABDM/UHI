@@ -30,7 +30,7 @@ public class OrdersModel extends ServiceResponseDTO {
 
     @Column(name = "appointment_id")
     private String appointmentId;
-    
+
     @Column(name = "order_date")
     private String orderDate;
     @Column(name = "healthcare_service_name")
@@ -77,7 +77,7 @@ public class OrdersModel extends ServiceResponseDTO {
     private String isServiceFulfilled;
     @Column(name = "healthcare_professional_department")
     private String healthcareProfessionalDepartment;
-    @Column(name = "Message",length = 50000)
+    @Column(name = "Message", length = 50000)
     private String message;
     @Column(name = "slot_id")
     private String slotId;
@@ -92,7 +92,7 @@ public class OrdersModel extends ServiceResponseDTO {
 
     @Column(name = "transId")
     private String transId;
-    
+
     @Column(name = "primary_doctor_name")
     private String primaryDoctorName;
 
@@ -117,19 +117,17 @@ public class OrdersModel extends ServiceResponseDTO {
     @Column(name = "secondary_doctor_provider_url")
     private String SecondaryDoctorProviderURI;
 
-    
+
     @Column(name = "groupConsultStatus")
     private String groupConsultStatus;
-    
+
     @Column(name = "healthIdNumber")
     private String abhaId;
 
 
-
-
     @CreationTimestamp
     @JsonIgnore
-    @Column(name= "creation_date", updatable = false)
+    @Column(name = "creation_date", updatable = false)
     private LocalDateTime createDate;
 
     @UpdateTimestamp
@@ -138,7 +136,7 @@ public class OrdersModel extends ServiceResponseDTO {
     private LocalDateTime modifyDate;
 
     @OneToOne
-    @JoinColumn(name = "transaction_id", referencedColumnName ="transaction_id")
+    @JoinColumn(name = "transaction_id", referencedColumnName = "transaction_id")
     private PaymentsModel payment;
 
 }
