@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class Ack {
-	private String status;
+    private String status;
 }

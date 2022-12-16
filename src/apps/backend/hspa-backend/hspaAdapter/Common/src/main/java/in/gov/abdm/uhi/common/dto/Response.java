@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class Response {
-	private MessageAck message;
-	private Error error;
+    private MessageAck message;
+    private Error error;
 }
