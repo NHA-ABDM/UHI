@@ -13,7 +13,7 @@ It's a utility to generate signing key pairs, generating headers and verificatio
 			`java -jar "path of jar file"`
 			like - java -jar C:\Users\10696314\Documents\header_generator\target\header_generator-0.0.1-SNAPSHOT.jar<br>
 		
-			![alt text](https://github.com/NHA-ABDM/UHI/blob/main/assets/header_generator/main_screen.png?raw=true)
+			![alt text](https://github.com/NHA-ABDM/UHI/blob/main/assets/header_generator/Main_screen.png?raw=true)
 	c. After successful run it will show below three option
 		1. Key pair generation
 		2. Signed header generation
