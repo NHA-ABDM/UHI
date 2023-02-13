@@ -1,172 +1,96 @@
-
-/*
- * Copyright 2022  NHA
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-
 package in.gov.abdm.uhi.discovery.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import in.gov.abdm.uhi.discovery.controller.ResponderController;
-import in.gov.abdm.uhi.discovery.entity.ListofSubscribers;
-import in.gov.abdm.uhi.discovery.entity.RequestRoot;
-import in.gov.abdm.uhi.discovery.entity.Subscriber;
-import in.gov.abdm.uhi.discovery.service.beans.*;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.ArrayList;
+import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreakerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
+import org.springframework.web.bind.annotation.RequestHeader;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import in.gov.abdm.uhi.common.dto.Error;
+import in.gov.abdm.uhi.common.dto.Request;
+import in.gov.abdm.uhi.common.dto.Response;
+import in.gov.abdm.uhi.discovery.configuration.AppConfig;
+import in.gov.abdm.uhi.discovery.configuration.DiscoveryConfig;
+import in.gov.abdm.uhi.discovery.dto.ListofSubscribers;
+import in.gov.abdm.uhi.discovery.security.Crypt;
+import in.gov.abdm.uhi.discovery.security.SignatureUtility;
+import in.gov.abdm.uhi.discovery.utility.GatewayUtility;
 import reactor.core.publisher.Mono;
-import reactor.util.retry.Retry;
-
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
-@CacheConfig(cacheNames = {"NetworkRegistry"})
 public class RequesterService {
 
-    @Autowired
-    private ReactiveCircuitBreakerFactory circuitBreakerFactory;
+	private static final Logger LOGGER = LoggerFactory.getLogger(RequesterService.class);
 
-    public static final String searchAPI = "/search";
-    public static final String lookupAPI = "/lookup";
+	@Autowired
+	private ReactiveCircuitBreakerFactory circuitBreakerFactory;
 
-    @Value("${spring.application.registryurl}")
-    String registry_url;
+	@Autowired
+	NetworkRegistryService registryService;
 
+	@Autowired
+	AppConfig appConfig;
 
-    WebClient webClient = WebClient.create();
+	@Autowired
+	GatewayUtility gatewayUtil;
 
-    private static final Logger LOGGER = LogManager.getLogger(ResponderController.class);
+	@Autowired
+	Crypt crypt;
 
-    public Flux<String> processor(@RequestBody String request) throws JsonProcessingException {
+	@Autowired
+	SignatureUtility signatureUtility;
 
-        Mono<String> getData = circuitBreakerWrapper(request);
-        LOGGER.info((getData.toString()));
-        return getData
-                .flatMapIterable(this::extractURIList)
-                .flatMap(uris -> sendSingleWithMessage(uris, request));
-    }
+	@Autowired
+	DiscoveryConfig discoveryConfig;
 
+	@Value("${spring.application.isHeaderEnabled}")
+	Boolean isHeaderEnabled;
 
-    public Mono<String> circuitBreakerWrapper(String body) throws JsonProcessingException {
-        return circuitBreakerFactory.create("lookup").run(sendSingleWithBody(body), t -> {
-            LOGGER.warn("Lookup called failed", t);
-            return CircuitBreakerError();
-        });
-    }
+	@Value("${spring.application.gateway_pubKey}")
+	String gateway_pubKey;
 
-    public Mono<String> sendSingleWithBody(String body) throws JsonProcessingException {
+	@Value("${spring.application.gateway_privKey}")
+	String gateway_privKey;
 
-        ObjectMapper obj = new ObjectMapper();
-        RequestRoot request = obj.readValue(body, RequestRoot.class);
-        Subscriber subscriber = transformSubscriber(request);
+	@Autowired
+	HSPAService HSPAService;
 
-        return webClient.post()
-                .uri(registry_url + lookupAPI)
-                .body(BodyInserters.fromValue(subscriber))
-                .retrieve()
-                .bodyToMono(String.class)
-                .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(5)));
-//              .onErrorResume(error -> {
-//                    LOGGER.error("RequesterService::error::sendSingleWithBody::" + error);
-//                    return Mono.just("Failed Lookup"); //TODO:Add appropriate response
-//              });
+	public Mono<String> processor(@RequestBody String req, @RequestHeader Map<String, String> headers)
+			throws JsonProcessingException {
 
-    }
+		Request request = appConfig.objectMapper().readValue(req, Request.class);
 
+		LOGGER.info("{} | Authorization |{}", request.getContext().getMessageId(), headers.get("Authorization"));
 
-    private Subscriber transformSubscriber(RequestRoot request) {
+		if (isHeaderEnabled) {
 
-        Subscriber subscriber = new Subscriber();
-        ContextRoot context = request.getContext();
+			/** Header disabled
+			 * if (!headers.containsKey("Authorization")) {
+				return gatewayUtil.generateNack(GlobalConstants.AUTH_HEADER_NOT_FOUND,
+						"/" + RequesterService.class.getSimpleName(), ErrorCode.AUTH_HEADER_NOT_FOUND.getValue(), "")
+						.log();
+			}
+			
+			 *  lookup by subscribers_id to 1. validate EUA 2. get the public key
+			 *  Enabling header but header verification is disabled.
+			 */
+			//Map<String, String> params = crypt.extractAuthorizationParams("Authorization", headers);
+			//Mono<String> subs = registryService.getParticipantsDetails(request.getContext(), params);
+			//return subs.flatMap(sub -> registryService.validateParticipant(request, headers, req, sub));
+		}
+		Mono<String> getData = registryService.circuitBreakerWrapper(request);
+		return getData.flatMap(result -> HSPAService.checklookupforHSPAs(result, request, req));
+	}
 
-        subscriber.setCountry(context.getCountry());
-        subscriber.setCity(context.getCity());
-        subscriber.setDomain(context.getDomain());
-        subscriber.setType("HSPA");
-        subscriber.setStatus("SUBSCRIBED");
+	private Mono<Response> CircuitBreakerError(Error err) {
+		ListofSubscribers res = new ListofSubscribers();
+		res.message = new ArrayList<>();
+		return gatewayUtil.getErrorMsz(err);
+	}
 
-        return subscriber;
-
-    }
-
-    private List<String> extractURIList(String request) {
-
-        List<String> listValue = new ArrayList<String>();
-        ObjectMapper obj = new ObjectMapper();
-        try {
-
-            ListofSubscribers listOfSubscribers = null;
-            listOfSubscribers = obj.readValue(request, ListofSubscribers.class);
-            listOfSubscribers.message.forEach(data -> listValue.add(data.getUrl()));
-        } catch (Exception ex) {
-            LOGGER.error(ex.getMessage());
-        }
-        return listValue;
-
-    }
-
-    private Mono<String> sendSingleWithMessage(String uri, String request) {
-
-        LOGGER.info("RequesterService::info::sendSingle::" + uri);
-
-        Mono<String> response = null;
-        try {
-
-            ObjectMapper obj = new ObjectMapper();
-            RequestRoot body = obj.readValue(request, RequestRoot.class);
-
-            response = webClient.post()
-                    .uri(uri + "/search")
-                    .body(BodyInserters.fromValue(body))
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .retry(3)
-                    .onErrorResume(error -> {
-                        LOGGER.error("RequesterService::error::onErrorResume::" + error);
-                        return ErrorMessage_CircuitBreaker; //TODO:Add appropriate response
-                    });
-        } catch (Exception ex) {
-            response = Mono.just(ex.getMessage());
-            LOGGER.error("RequesterService::error::catchBlock::" + ex.getMessage());
-        }
-        return response;
-    }
-
-    private Mono<String> CircuitBreakerError() {
-        ListofSubscribers res = new ListofSubscribers();
-        res.message = new ArrayList<>();
-        return Mono.just("res");
-    }
-
-
-    private final Mono<String> ErrorMessage_CircuitBreaker = Mono.just("{\n" +
-            "    \"message\": {\n" +
-            "        \"ack\": {\n" +
-            "            \"status\": \"NACK\"\n" +
-            "        }\n" +
-            "    },\n" +
-            "    \"error\": {\n" +
-            "        \"type\": \"ResponseException\",\n" +
-            "        \"code\": \"404\",\n" +
-            "        \"path\": \"string\",\n" +
-            "        \"message\": \"Endpoint not reachable.\"\n" +
-            "    }\n" +
-            "}");
 }

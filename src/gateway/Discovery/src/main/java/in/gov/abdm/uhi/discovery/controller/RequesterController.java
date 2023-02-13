@@ -11,42 +11,64 @@
 
 package in.gov.abdm.uhi.discovery.controller;
 
-import in.gov.abdm.uhi.discovery.service.RequesterService;
+import java.util.Map;
+import javax.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Flux;
+import in.gov.abdm.uhi.common.dto.Response;
+import in.gov.abdm.uhi.discovery.exception.JsonValidator;
+import in.gov.abdm.uhi.discovery.security.SignatureUtility;
+import in.gov.abdm.uhi.discovery.service.RequesterService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import reactor.core.publisher.Mono;
 
-import javax.validation.Valid;
-
-@Validated
 @RestController
 @RequestMapping("/api/v1")
+@Api(value = "Search Requestor", description = "Search requestor to broadcast the message over HSPAs")
+@Validated
 public class RequesterController {
 
-    private static final Logger LOGGER = LogManager.getLogger(RequesterController.class);
+	private static final Logger LOGGER = LogManager.getLogger(RequesterController.class);
 
-    @Autowired
-    RequesterService requesterService;
+	@Autowired
+	RequesterService requesterService;
 
-    @PostMapping(value = "/search", consumes = "application/json", produces = "application/json")
-    public Flux<String> search(@Valid @RequestBody String request) {
-        LOGGER.info("Requester::called");
+	@Autowired
+	SignatureUtility signatureUtility;
 
-        Flux<String> response = Flux.just("Response Empty");
+	@ApiOperation(value = "To broadcast the search result on HSPAs", response = Response.class)
+	@PostMapping(value = "/search", consumes = "application/json", produces = "application/json")
+	public ResponseEntity<Mono<String>> search(@Valid @RequestBody String request,
+			@RequestHeader Map<String, String> headers) {
 
-        try {
-            response = requesterService.processor(request);
-        } catch (Exception ex) {
-            LOGGER.info("Requester::error::" + request);
-            LOGGER.error("Requester::error::" + ex);
-        }
+		Mono<String> response = null;
+		String validator_resp = null;
+		try {
+			validator_resp = JsonValidator.validateJson(request, "search-schema.json");
+			if (validator_resp.contains("NACK")) {
+				return ResponseEntity.badRequest().body(Mono.just(validator_resp));
+			}
 
-        return response;
-    }
+			LOGGER.info("Requester::called :: {}", request);
+			response = requesterService.processor(request, headers);
+
+			// LOGGER.info("{} | {}", reqroot.getContext().getMessageId(), response.log());
+
+		} catch (Exception ex) {
+			LOGGER.info("Requester::error:: {}", request);
+			LOGGER.error("Requester::error:: {}", ex);
+
+		}
+		return ResponseEntity.ok(response);
+		// return response;
+	}
 }
