@@ -222,6 +222,7 @@ public class Crypt {
 
 	public Map<String, String> generateAuthorizationParams(String subscriberId, String pub_key_id, String payload,
 			PrivateKey privateKey) {
+		payload = payload.replaceAll("\\s", "");
 		Map<String, String> map = new HashMap<String, String>();
 		StringBuilder keyBuilder = new StringBuilder();
 		keyBuilder.append(subscriberId).append('|').append(pub_key_id).append('|').append("ed25519");
@@ -229,8 +230,8 @@ public class Crypt {
 		map.put("keyId", keyBuilder.toString());
 		map.put("algorithm", "ed25519");
 		
-		long created_at = System.currentTimeMillis();
-		long expires_at = created_at + 10000L;
+		long created_at = System.currentTimeMillis()/1000L;
+		long expires_at = created_at + 10;
 		
 		map.put("created", Long.toString(created_at));
 		map.put("expires", Long.toString(expires_at));

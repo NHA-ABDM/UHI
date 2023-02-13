@@ -80,9 +80,11 @@ public class Generator implements ApplicationRunner {
 				System.out.println("Base64 string public key is:" + pub_key);
 				
 				System.out.println("Pls enter requested data to verify.?");
-				String data = in.next();
+				in.nextLine();
+				String data = in.nextLine();
 				System.out.println("Request Data to verify is:" + data);
-				
+				data = data.replaceAll("\\s", "");
+
 				String hashedSigningString = crypt
 						.generateBlakeHash(crypt.getSigningString(Long.valueOf(created), Long.valueOf(expires), data));
 
