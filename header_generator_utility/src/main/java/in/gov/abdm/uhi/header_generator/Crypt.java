@@ -133,10 +133,12 @@ public class Crypt {
 
 	}
 
-	public boolean verifySignature1(String sign, String requestData, String b64PublicKey)
+	public boolean processSignature(String sign, String requestData, String b64PublicKey, String created, String expires)
 			throws InvalidKeyException, NoSuchAlgorithmException, NoSuchProviderException, SignatureException {
+		requestData = requestData.replaceAll("\\s", "");
+		String hashedSigningString = generateBlakeHash(getSigningString(Long.valueOf(created), Long.valueOf(expires), requestData));
 		PublicKey key = getSigningPublicKey(b64PublicKey);
-		return verifySignature(requestData, sign, SIGNATURE_ALGO, key);
+		return verifySignature(hashedSigningString, sign, SIGNATURE_ALGO, key);
 	}
 
 	public PublicKey getSigningPublicKey(String keyFromRegistry) {
@@ -258,23 +260,4 @@ public class Crypt {
 		return generateBlakeHash(payload);
 	}
 
-
-	public void testNirmal(PrivateKey pkey, String pubkey, Map<String, String> header, String payload)
-			throws InvalidKeyException, NoSuchAlgorithmException, NoSuchProviderException, SignatureException {
-
-		System.out.println("Request.hash :\n" + generateBlakeHash(payload));
-
-		header.put("Authorization", header.toString());
-		Map<String, String> params = extractAuthorizationParams("Authorization", header);
-		String signature = params.get("signature");
-		String created = params.get("created");
-		String expires = params.get("expires");
-
-		String hashedSigningString = generateBlakeHash(
-				getSigningString(Long.valueOf(created), Long.valueOf(expires), payload));
-		// signature="LaPWrjHo1k5C0/0EsXKEqWNxQZjCXDGVch9Uk49DwaE0LKfCABUcbi55NfjuihOWY7BWyI3TpmTtBZcCzEYsAw==";
-		// hashedSigningString="t18yt9SNzp/Jqq1OOKle5CQIPo7qWtIq6FVmVF+wjB53V1fM1YjoQCzsjZSwBkzOhZpHawdGXJ7YvPn/+IyhJQ==";
-		// pubkey="MCowBQYDK2VwAyEAQCWv0rw/WPtm3xLcXChk0/Px8yNK9l2AcyoQWXbHsD8=";
-		System.out.println("Nirmal Test|" + verifySignature1(signature, hashedSigningString, pubkey));
-	}
 }

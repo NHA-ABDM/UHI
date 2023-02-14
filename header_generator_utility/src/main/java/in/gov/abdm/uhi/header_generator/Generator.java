@@ -83,12 +83,8 @@ public class Generator implements ApplicationRunner {
 				in.nextLine();
 				String data = in.nextLine();
 				System.out.println("Request Data to verify is:" + data);
-				data = data.replaceAll("\\s", "");
 
-				String hashedSigningString = crypt
-						.generateBlakeHash(crypt.getSigningString(Long.valueOf(created), Long.valueOf(expires), data));
-
-				System.out.println("Verfication result is ::"+crypt.verifySignature1(signature, hashedSigningString, pub_key));
+				System.out.println("Verfication result is ::"+crypt.processSignature(signature, data, pub_key, created, expires));
 			}
 		} catch (Exception e) {
 			System.out.println("Something went wrong.! Please try again..");
