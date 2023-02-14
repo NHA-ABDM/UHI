@@ -143,7 +143,7 @@ public class Crypt {
 		requestData = requestData.replaceAll("\\s", "");
 		String hashedSigningString = generateBlakeHash(getSigningString(Long.valueOf(created), Long.valueOf(expires), requestData));
 		PublicKey key = getSigningPublicKey(b64PublicKey);
-		return verifySignature(requestData, sign, SIGNATURE_ALGO, key);
+		return verifySignature(hashedSigningString, sign, SIGNATURE_ALGO, key);
 	}
 
 	public PublicKey getSigningPublicKey(String keyFromRegistry) {
@@ -238,7 +238,7 @@ public class Crypt {
 		map.put("algorithm", "ed25519");
 		
 		long created_at = System.currentTimeMillis()/1000L;
-		long expires_at = created_at+10;		 
+		long expires_at = created_at + 10;
 		
 		map.put("created", Long.toString(created_at));
 		map.put("expires", Long.toString(expires_at));
