@@ -1,20 +1,21 @@
 package in.gov.abdm.uhi.header_generator;
 
+import org.bouncycastle.asn1.DEROctetString;
+import org.bouncycastle.asn1.edec.EdECObjectIdentifiers;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
+import org.bouncycastle.crypto.generators.Ed25519KeyPairGenerator;
+import org.bouncycastle.crypto.params.Ed25519KeyGenerationParameters;
+import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters;
+import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
+import org.bouncycastle.jcajce.spec.EdDSAParameterSpec;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.springframework.stereotype.Component;
+
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.Key;
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.Security;
-import java.security.Signature;
-import java.security.SignatureException;
-import java.security.spec.InvalidKeySpecException;
+import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
@@ -23,241 +24,188 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import org.bouncycastle.asn1.edec.EdECObjectIdentifiers;
-import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
-import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
-import org.bouncycastle.jcajce.spec.EdDSAParameterSpec;
-import org.bouncycastle.jcajce.spec.XDHParameterSpec;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 /**
  * @author Deepak Kumar
- *
  */
-@Service
+@Component
 public class Crypt {
 
-	public static final String KEY_ALGO = XDHParameterSpec.X25519;
-	public static final String SIGNATURE_ALGO = EdDSAParameterSpec.Ed25519;
+    public static final String SIGNATURE_ALGO = EdDSAParameterSpec.Ed25519;
 
-	static {
-		if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
-			Security.addProvider(new BouncyCastleProvider());
-		}
-	}
+    static {
+        if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
+            Security.addProvider(new BouncyCastleProvider());
+        }
+    }
 
-	public String provider = "BC";
+    public String provider = "BC";
 
-	// Crypt.provider = "";
-	public Crypt(String provider) {
-		super();
-		this.provider = provider;
-	}
+    // Crypt.provider = "";
+    public Crypt(String provider) {
+        super();
+        this.provider = provider;
+    }
 
-	public Crypt() {
-		super();
-	}
+    public Crypt() {
+        super();
+    }
 
-	public String getBase64Encoded(Key key) {
-		byte[] encoded = key.getEncoded();
-		String b64Key = Base64.getEncoder().encodeToString(encoded);
-		return b64Key;
-	}
+    public static PublicKey getPublicKey(String algo, byte[] jceBytes) throws Exception {
+        X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(jceBytes);
+        return KeyFactory.getInstance(algo, BouncyCastleProvider.PROVIDER_NAME)
+                .generatePublic(x509EncodedKeySpec);
+    }
 
-	public SecretKey getSecretKey(String algo, String base64Key) {
-		return new SecretKeySpec(Base64.getDecoder().decode(base64Key), algo);
-	}
+    public static PrivateKey getPrivateKey(String algo, byte[] jceBytes) throws Exception {
+        return KeyFactory.getInstance(algo, BouncyCastleProvider.PROVIDER_NAME)
+                .generatePrivate(new PKCS8EncodedKeySpec(jceBytes));
+    }
 
-	public PublicKey getPublicKey(String algo, String base64PublicKey) {
-		byte[] binCpk = Base64.getDecoder().decode(base64PublicKey);
-		X509EncodedKeySpec pkSpec = new X509EncodedKeySpec(binCpk);
+    public Map<String, String> generatePrivateAndPublicKeyToRaw() {
+        Ed25519KeyPairGenerator pairGenerator = new Ed25519KeyPairGenerator();
+        pairGenerator.init(new Ed25519KeyGenerationParameters(new SecureRandom()));
+        AsymmetricCipherKeyPair pair = pairGenerator.generateKeyPair();
+        Ed25519PrivateKeyParameters privateKeyParameters = (Ed25519PrivateKeyParameters) pair.getPrivate();
+        Ed25519PublicKeyParameters publicKeyParameters = (Ed25519PublicKeyParameters) pair.getPublic();
+        Map<String, String> keyPair = new HashMap<>();
+        keyPair.put("private", Base64.getEncoder().encodeToString(privateKeyParameters.getEncoded()));
+        keyPair.put("public", Base64.getEncoder().encodeToString(publicKeyParameters.getEncoded()));
 
-		try {
-			KeyFactory keyFactory = KeyFactory.getInstance(algo, provider);
-			PublicKey pKey = keyFactory.generatePublic(pkSpec);
-			return pKey;
-		} catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException ex) {
-			throw new RuntimeException(ex);
-		}
-	}
+        return keyPair;
 
-	public PrivateKey getPrivateKey(String algo, String base64PrivateKey) {
-		byte[] binCpk = Base64.getDecoder().decode(base64PrivateKey);
-		PKCS8EncodedKeySpec pkSpec = new PKCS8EncodedKeySpec(binCpk);
+    }
 
-		try {
-			KeyFactory keyFactory = KeyFactory.getInstance(algo, provider);
-			PrivateKey pKey = keyFactory.generatePrivate(pkSpec);
-			return pKey;
-		} catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException ex) {
-			throw new RuntimeException(ex);
-		}
-	}
+    public String generateSignature(String payload, String signatureAlgorithm, PrivateKey privateKey) {
+        try {
+            Signature signature = Signature.getInstance(signatureAlgorithm, provider); //
+            signature.initSign(privateKey);
+            signature.update(payload.getBytes());
+            return Base64.getEncoder().encodeToString(signature.sign());
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 
-	public KeyPair generateKeyPair(String algo, int strength) {
-		try {
-			KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(algo, provider);
-			keyPairGenerator.initialize(strength);
-			return keyPairGenerator.generateKeyPair();
-		} catch (NoSuchAlgorithmException | NoSuchProviderException ex) {
-			throw new RuntimeException(ex);
-		}
-	}
+    public boolean verifySignature(String payload, String signature, String signatureAlgorithm, PublicKey pKey)
+            throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException, SignatureException {
+        byte[] data = payload.getBytes();
+        byte[] signatureBytes = Base64.getDecoder().decode(signature);
+        // try {
+        Signature s = Signature.getInstance(signatureAlgorithm, provider);
+        s.initVerify(pKey);
+        s.update(data);
+        return s.verify(signatureBytes);
 
-	public String generateSignature(String payload, String signatureAlgorithm, PrivateKey privateKey) {
-		try {
-			Signature signature = Signature.getInstance(signatureAlgorithm, provider); //
-			signature.initSign(privateKey);
-			signature.update(payload.getBytes());
-			return Base64.getEncoder().encodeToString(signature.sign());
-		} catch (Exception ex) {
-			throw new RuntimeException(ex);
-		}
-	}
+    }
 
-	public boolean verifySignature(String payload, String signature, String signatureAlgorithm, PublicKey pKey)
-			throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException, SignatureException {
-		byte[] data = payload.getBytes();
-		byte[] signatureBytes = Base64.getDecoder().decode(signature);
-		// try {
-		Signature s = Signature.getInstance(signatureAlgorithm, provider);
-		s.initVerify(pKey);
-		s.update(data);
-		return s.verify(signatureBytes);
+    public byte[] digest(String algorithm, String payload) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance(algorithm, provider);
+            digest.reset();
+            digest.update(payload.getBytes(StandardCharsets.UTF_8));
+            return digest.digest();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 
-	}
+    public String toBase64(byte[] bytes) {
+        return Base64.getEncoder().encodeToString(bytes);
+    }
 
-	public boolean processSignature(String sign, String requestData, String b64PublicKey, String created, String expires)
-			throws InvalidKeyException, NoSuchAlgorithmException, NoSuchProviderException, SignatureException {
-		requestData = requestData.replaceAll("\\s", "");
-		String hashedSigningString = generateBlakeHash(getSigningString(Long.valueOf(created), Long.valueOf(expires), requestData));
-		PublicKey key = getSigningPublicKey(b64PublicKey);
-		return verifySignature(hashedSigningString, sign, SIGNATURE_ALGO, key);
-	}
+    public String toHex(byte[] bytes) {
+        StringBuilder builder = new StringBuilder();
+        for (byte aByte : bytes) {
+            String hex = Integer.toHexString(aByte);
+            if (hex.length() == 1) {
+                hex = "0" + hex;
+            }
+            hex = hex.substring(hex.length() - 2);
+            builder.append(hex);
+        }
+        return builder.toString();
+    }
 
-	public PublicKey getSigningPublicKey(String keyFromRegistry) {
-		try {
-			return getPublicKey(EdDSAParameterSpec.Ed25519, keyFromRegistry);
-		} catch (Exception ex) {
-			try {
-				byte[] bcBytes = Base64.getDecoder().decode(keyFromRegistry);
-				byte[] jceBytes = new SubjectPublicKeyInfo(new AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519),
-						bcBytes).getEncoded();
-				String pemKey = Base64.getEncoder().encodeToString(jceBytes);
-				return getPublicKey(EdDSAParameterSpec.Ed25519, pemKey);
-			} catch (Exception jceEx) {
-				return null;
-			}
-		}
-	}
+    public Map<String, String> extractAuthorizationParams(String header, Map<String, String> httpRequestHeaders) {
+        Map<String, String> params = new HashMap<String, String>();
+        if (!httpRequestHeaders.containsKey(header)) {
+            return params;
+        }
+        String authorization = httpRequestHeaders.get(header).trim();
+        String signatureToken = "Signature ";
 
-	public byte[] digest(String algorithm, String payload) {
-		try {
-			MessageDigest digest = MessageDigest.getInstance(algorithm, provider);
-			digest.reset();
-			digest.update(payload.getBytes(StandardCharsets.UTF_8));
-			return digest.digest();
-		} catch (Exception ex) {
-			throw new RuntimeException(ex);
-		}
-	}
+        if (authorization.startsWith(signatureToken)) {
+            authorization = authorization.substring(signatureToken.length());
+        }
 
-	public String toBase64(byte[] bytes) {
-		return Base64.getEncoder().encodeToString(bytes);
-	}
+        Matcher matcher = Pattern.compile("([A-z]+)(=)[\"]*([^\",]*)[\"]*[, ]*").matcher(authorization);
+        matcher.results().forEach(mr -> {
+            System.out.println(mr.group());
+            params.put(mr.group(1), mr.group(3));
+        });
 
-	public String toHex(byte[] bytes) {
-		StringBuilder builder = new StringBuilder();
-		for (int i = 0; i < bytes.length; i++) {
-			String hex = Integer.toHexString(bytes[i]);
-			if (hex.length() == 1) {
-				hex = "0" + hex;
-			}
-			hex = hex.substring(hex.length() - 2);
-			builder.append(hex);
-		}
-		return builder.toString();
-	}
+        if (!params.isEmpty()) {
+            String keyId = params.get("keyId");
+            if (!"".equalsIgnoreCase(keyId)) {
+                StringTokenizer keyTokenizer = new StringTokenizer(keyId, "|");
+                String subscriberId = keyTokenizer.nextToken();
+                String pub_key_id = keyTokenizer.nextToken();
+                params.put("subscriber_id", subscriberId);
+                params.put("pub_key_id", pub_key_id);
+            }
+        }
 
-	public Map<String, String> extractAuthorizationParams(String header, Map<String, String> httpRequestHeaders) {
-		Map<String, String> params = new HashMap<String, String>();
-		if (!httpRequestHeaders.containsKey(header)) {
-			return params;
-		}
-		String authorization = httpRequestHeaders.get(header).trim();
-		String signatureToken = "Signature ";
+        return params;
+    }
 
-		if (authorization.startsWith(signatureToken)) {
-			authorization = authorization.substring(signatureToken.length());
-		}
+    public String generateSignature(String req, PrivateKey privateKey) {
+        return generateSignature(req, SIGNATURE_ALGO, privateKey);
+    }
 
-		Matcher matcher = Pattern.compile("([A-z]+)(=)[\"]*([^\",]*)[\"]*[, ]*").matcher(authorization);
-		matcher.results().forEach(mr -> {
-			System.out.println(mr.group());
-			params.put(mr.group(1), mr.group(3));
-		});
+    public Map<String, String> generateAuthorizationParams(String subscriberId, String pub_key_id, String payload,
+                                                           PrivateKey privateKey) {
+        payload = payload.replaceAll("\\s", "");
+        Map<String, String> map = new HashMap<>();
 
-		if (!params.isEmpty()) {
-			String keyId = params.get("keyId");
-			if (!"".equalsIgnoreCase(keyId)) {
-				StringTokenizer keyTokenizer = new StringTokenizer(keyId, "|");
-				String subscriberId = keyTokenizer.nextToken();
-				String pub_key_id = keyTokenizer.nextToken();
-				params.put("subscriber_id", subscriberId);
-				params.put("pub_key_id", pub_key_id);
-			}
-		}
+        map.put("keyId", subscriberId + '|' + pub_key_id + '|' + "ed25519");
+        map.put("algorithm", "ed25519");
 
-		return params;
-	}
+        long created_at = System.currentTimeMillis() / 1000L;
+        long expires_at = created_at + 10;
 
-	public String generateSignature(String req, PrivateKey privateKey) {
-		// PrivateKey key = new Crypt("BC").getPrivateKey(SIGNATURE_ALGO,privateKey);
-		return generateSignature(req, SIGNATURE_ALGO, privateKey);
-	}
+        map.put("created", Long.toString(created_at));
+        map.put("expires", Long.toString(expires_at));
+        map.put("headers", "(created) (expires) digest");
+        map.put("signature",
+                generateSignature(generateBlakeHash(getSigningString(created_at, expires_at, payload)), privateKey));
+        return map;
+    }
 
-	public Map<String, String> generateAuthorizationParams(String subscriberId, String pub_key_id, String payload,
-			PrivateKey privateKey) {
-		payload = payload.replaceAll("\\s", "");
-		Map<String, String> map = new HashMap<String, String>();
-		StringBuilder keyBuilder = new StringBuilder();
-		keyBuilder.append(subscriberId).append('|').append(pub_key_id).append('|').append("ed25519");
+    public String getSigningString(long created_at, long expires_at, String payload) {
+        payload = payload.replaceAll("\\s", "");
+        return "(created): " + created_at +
+                "\n(expires): " + expires_at +
+                "\n" + "digest: BLAKE-512=" + hash(payload);
+    }
 
-		map.put("keyId", keyBuilder.toString());
-		map.put("algorithm", "ed25519");
-		
-		long created_at = System.currentTimeMillis()/1000L;
-		long expires_at = created_at + 10;
-		
-		map.put("created", Long.toString(created_at));
-		map.put("expires", Long.toString(expires_at));
-		map.put("headers", "(created) (expires) digest");
-		map.put("signature",
-				generateSignature(generateBlakeHash(getSigningString(created_at, expires_at, payload)), privateKey));
-		// map.put("signature", generateSignature(payload, "ed25519", privateKey));
-		return map;
-	}
+    public String generateBlakeHash(String req) {
+        return toBase64(digest("BLAKE2B-512", req));
+    }
 
-	public String getSigningString(long created_at, long expires_at, String payload) {
-		StringBuilder builder = new StringBuilder();
-		builder.append("(created): ").append(created_at);
-		builder.append("\n(expires): ").append(expires_at);
-		builder.append("\n").append("digest: BLAKE-512=").append(hash(payload));
-		return builder.toString();
-	}
+    public String hash(String payload) {
+        return generateBlakeHash(payload);
+    }
 
-	public String generateBlakeHash(String req) {
-		return toBase64(digest("BLAKE2B-512", req));
-	}
+    public String convertPrivateRawKeyToPem(String pv) throws Exception {
+        Ed25519PrivateKeyParameters privateKeyParameters = new Ed25519PrivateKeyParameters(Base64.getDecoder().decode(pv), 0);
+        return Base64.getEncoder().encodeToString(new PrivateKeyInfo(new AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519),
+                new DEROctetString(privateKeyParameters.getEncoded())).getEncoded());
+    }
 
-	public String hash(String payload) {
-		return generateBlakeHash(payload);
-	}
+    public String convertPublicRawKeyToPem(String pb) throws Exception {
+        Ed25519PublicKeyParameters publicKeyParameters = new Ed25519PublicKeyParameters(Base64.getDecoder().decode(pb), 0);
+        return Base64.getEncoder().encodeToString(new SubjectPublicKeyInfo(new AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519), publicKeyParameters.getEncoded()).getEncoded());
+    }
 
 }
