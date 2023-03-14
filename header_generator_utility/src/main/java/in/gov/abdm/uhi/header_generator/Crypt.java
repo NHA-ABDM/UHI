@@ -1,19 +1,10 @@
 package in.gov.abdm.uhi.header_generator;
 
-import org.bouncycastle.asn1.DEROctetString;
-import org.bouncycastle.asn1.edec.EdECObjectIdentifiers;
-import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
-import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
-import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
-import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
-import org.bouncycastle.crypto.generators.Ed25519KeyPairGenerator;
-import org.bouncycastle.crypto.params.Ed25519KeyGenerationParameters;
-import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters;
-import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bouncycastle.jcajce.spec.EdDSAParameterSpec;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.stereotype.Component;
-
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -62,18 +53,32 @@ public class Crypt {
                 .generatePrivate(new PKCS8EncodedKeySpec(jceBytes));
     }
 
-    public Map<String, String> generatePrivateAndPublicKeyToRaw() {
-        Ed25519KeyPairGenerator pairGenerator = new Ed25519KeyPairGenerator();
-        pairGenerator.init(new Ed25519KeyGenerationParameters(new SecureRandom()));
-        AsymmetricCipherKeyPair pair = pairGenerator.generateKeyPair();
-        Ed25519PrivateKeyParameters privateKeyParameters = (Ed25519PrivateKeyParameters) pair.getPrivate();
-        Ed25519PublicKeyParameters publicKeyParameters = (Ed25519PublicKeyParameters) pair.getPublic();
-        Map<String, String> keyPair = new HashMap<>();
-        keyPair.put("private", Base64.getEncoder().encodeToString(privateKeyParameters.getEncoded()));
-        keyPair.put("public", Base64.getEncoder().encodeToString(publicKeyParameters.getEncoded()));
+    public Map<String, String> generateDerKeyPairs() throws NoSuchAlgorithmException {
 
-        return keyPair;
+        Map<String, String> keysPair = new HashMap<>();
+        // Generate a key pair
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance(SIGNATURE_ALGO);
+        KeyPair keyPair = keyGen.generateKeyPair();
 
+        // Get the private and public keys
+        PrivateKey privateKey = keyPair.getPrivate();
+        PublicKey publicKey = keyPair.getPublic();
+
+        // Convert the private key to DER format with key value pairs
+        byte[] privateKeyBytes = privateKey.getEncoded();
+        PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
+        // Convert to Base64 string
+        String base64Private = Base64.getEncoder().encodeToString(pkcs8KeySpec.getEncoded());
+
+        // Convert the public key to DER format with key value pairs
+        byte[] publicKeyBytes = publicKey.getEncoded();
+        X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(publicKeyBytes);
+        // Convert to Base64 string
+        String base64Public = Base64.getEncoder().encodeToString(x509KeySpec.getEncoded());
+
+        keysPair.put("private", base64Private);
+        keysPair.put("public", base64Public);
+        return keysPair;
     }
 
     public String generateSignature(String payload, String signatureAlgorithm, PrivateKey privateKey) {
@@ -163,8 +168,9 @@ public class Crypt {
         return generateSignature(req, SIGNATURE_ALGO, privateKey);
     }
 
-    public Map<String, String> generateAuthorizationParams(String subscriberId, String pub_key_id, String payload,
-                                                           PrivateKey privateKey) {
+    public String generateAuthorizationParams(String subscriberId, String pub_key_id, String payload,
+                                                           PrivateKey privateKey) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
         payload = payload.replaceAll("\\s", "");
         Map<String, String> map = new HashMap<>();
 
@@ -179,14 +185,15 @@ public class Crypt {
         map.put("headers", "(created) (expires) digest");
         map.put("signature",
                 generateSignature(generateBlakeHash(getSigningString(created_at, expires_at, payload)), privateKey));
-        return map;
+        return objectMapper.writeValueAsString(map);
     }
 
     public String getSigningString(long created_at, long expires_at, String payload) {
         payload = payload.replaceAll("\\s", "");
         return "(created): " + created_at +
-                "\n(expires): " + expires_at +
-                "\n" + "digest: BLAKE-512=" + hash(payload);
+                " (expires): " + expires_at +
+                " digest: BLAKE-512=" + hash(payload);
+
     }
 
     public String generateBlakeHash(String req) {
@@ -197,15 +204,5 @@ public class Crypt {
         return generateBlakeHash(payload);
     }
 
-    public String convertPrivateRawKeyToPem(String pv) throws Exception {
-        Ed25519PrivateKeyParameters privateKeyParameters = new Ed25519PrivateKeyParameters(Base64.getDecoder().decode(pv), 0);
-        return Base64.getEncoder().encodeToString(new PrivateKeyInfo(new AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519),
-                new DEROctetString(privateKeyParameters.getEncoded())).getEncoded());
-    }
-
-    public String convertPublicRawKeyToPem(String pb) throws Exception {
-        Ed25519PublicKeyParameters publicKeyParameters = new Ed25519PublicKeyParameters(Base64.getDecoder().decode(pb), 0);
-        return Base64.getEncoder().encodeToString(new SubjectPublicKeyInfo(new AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519), publicKeyParameters.getEncoded()).getEncoded());
-    }
 
 }

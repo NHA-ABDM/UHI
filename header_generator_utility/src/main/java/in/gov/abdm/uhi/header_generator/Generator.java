@@ -33,7 +33,7 @@ public class Generator implements ApplicationRunner {
 
             if (option == 1) {
                 System.out.println("Your generated key pair as per algo Ed25519 are::");
-                Map<String, String> keypair = crypt.generatePrivateAndPublicKeyToRaw();
+                Map<String, String> keypair = crypt.generateDerKeyPairs();
                 System.out.println("Private Key::" + keypair.get("private"));
                 System.out.println("Public key::" + keypair.get("public"));
             }
@@ -55,10 +55,8 @@ public class Generator implements ApplicationRunner {
                 String payload = in.next();
                 System.out.println("payload is:" + payload);
 
-                String pvPem = new Crypt("BC").convertPrivateRawKeyToPem(private_key);
-
                 System.out.print("Your generated header is::" + crypt.generateAuthorizationParams(subsId, pub_key_id,
-                        payload, Crypt.getPrivateKey("Ed25519", Base64.getDecoder().decode(pvPem))));
+                        payload, Crypt.getPrivateKey("Ed25519", Base64.getDecoder().decode(private_key))));
             }
             if (option == 3) {
                 System.out.println("Pls provide the signature from header.?");
@@ -81,18 +79,15 @@ public class Generator implements ApplicationRunner {
                 String pub_key = in.next();
                 System.out.println("Base64 string public key is:" + pub_key);
 
-
                 System.out.println("Pls enter requested data to verify.?");
                 in.nextLine();
                 String data = in.nextLine();
                 System.out.println("Request Data to verify is:" + data);
 
-                String pbPem = new Crypt("BC").convertPublicRawKeyToPem(pub_key);
-
                 String hashedSigningString = crypt.generateBlakeHash(
                         crypt.getSigningString(Long.parseLong(created), Long.parseLong(expires), data));
 
-                System.out.println("Verfication result is ::" + crypt.verifySignature(hashedSigningString, signature, "Ed25519", Crypt.getPublicKey("Ed25519", Base64.getDecoder().decode(pbPem))));
+                System.out.println("Verfication result is ::" + crypt.verifySignature(hashedSigningString, signature, "Ed25519", Crypt.getPublicKey("Ed25519", Base64.getDecoder().decode(pub_key))));
             }
         } catch (Exception e) {
             System.out.println("Something went wrong.! Please try again..");
