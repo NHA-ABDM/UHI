@@ -2,8 +2,10 @@ package in.gov.abdm.uhi.header_generator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import org.bouncycastle.jcajce.spec.EdDSAParameterSpec;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.json.simple.JSONObject;
 import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
@@ -171,7 +173,7 @@ public class Crypt {
     public String generateAuthorizationParams(String subscriberId, String pub_key_id, String payload,
                                                            PrivateKey privateKey) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
-        payload = payload.replaceAll("\\s", "");
+      //  payload = payload.replaceAll("\\s", "");
         Map<String, String> map = new HashMap<>();
 
         map.put("keyId", subscriberId + '|' + pub_key_id + '|' + "ed25519");
@@ -189,8 +191,7 @@ public class Crypt {
     }
 
     public String getSigningString(long created_at, long expires_at, String payload) {
-        payload = payload.replaceAll("\\s", "");
-        return "(created): " + created_at +
+            return "(created): " + created_at +
                 " (expires): " + expires_at +
                 " digest: BLAKE-512=" + hash(payload);
 
@@ -203,6 +204,5 @@ public class Crypt {
     public String hash(String payload) {
         return generateBlakeHash(payload);
     }
-
 
 }

@@ -18,6 +18,10 @@ public class Generator implements ApplicationRunner {
         SpringApplication.run(Generator.class, args);
     }
 
+
+//    Private Key::MC4CAQAwBQYDK2VwBCIEIDG5xPKFZLueCAjLyWlBtX8+7S+qh/yzBJQ0T/oizoXX
+//    Public key::MCowBQYDK2VwAyEAa07Q7iQ3Ro+BkXGHXiLsuTmFeFCFoS7fNzEMD1kBByk=
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
@@ -52,7 +56,8 @@ public class Generator implements ApplicationRunner {
                 System.out.println("private key is:" + private_key);
 
                 System.out.println("Pls enter payload.?");
-                String payload = in.next();
+                in.nextLine();
+                String payload = in.nextLine();
                 System.out.println("payload is:" + payload);
 
                 System.out.print("Your generated header is::" + crypt.generateAuthorizationParams(subsId, pub_key_id,
