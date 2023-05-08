@@ -12,8 +12,10 @@
 package in.gov.abdm.uhi.discovery;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
-import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.timelimiter.TimeLimiterConfig;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
@@ -21,25 +23,31 @@ import org.springframework.cloud.circuitbreaker.resilience4j.ReactiveResilience4
 import org.springframework.cloud.circuitbreaker.resilience4j.Resilience4JConfigBuilder;
 import org.springframework.cloud.client.circuitbreaker.Customizer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.netty.http.client.HttpClient;
+
+import javax.net.ssl.SSLException;
 import java.time.Duration;
+
 @SpringBootApplication
 @EnableCaching
 public class DiscoveryApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(DiscoveryApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(DiscoveryApplication.class, args);
+    }
 
-	@Bean
-	public Customizer<ReactiveResilience4JCircuitBreakerFactory> defaultCustomizer() {
-		CircuitBreakerRegistry cbr = CircuitBreakerRegistry.ofDefaults();
-		return factory -> {
-			factory.configureDefault(id -> new Resilience4JConfigBuilder(id)
-					.circuitBreakerConfig(CircuitBreakerConfig.ofDefaults())
-					.timeLimiterConfig(TimeLimiterConfig.custom().timeoutDuration(Duration.ofSeconds(3)).build())
-					.circuitBreakerConfig(CircuitBreakerConfig.custom().failureRateThreshold(5)
-							.slowCallRateThreshold(5).slowCallRateThreshold(2).build()).build());
-		};
-	}
+    @Bean
+    public Customizer<ReactiveResilience4JCircuitBreakerFactory> defaultCustomizer() {
+
+        return factory -> factory.configureDefault(id -> new Resilience4JConfigBuilder(id)
+                .circuitBreakerConfig(CircuitBreakerConfig.ofDefaults())
+                .timeLimiterConfig(TimeLimiterConfig.custom().timeoutDuration(Duration.ofSeconds(3)).build())
+                .circuitBreakerConfig(CircuitBreakerConfig.custom().failureRateThreshold(5)
+                        .slowCallRateThreshold(5).slowCallRateThreshold(2).build()).build());
+    }
+
 
 }

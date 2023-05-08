@@ -11,43 +11,44 @@
 
 package in.gov.abdm.uhi.discovery.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import in.gov.abdm.uhi.discovery.service.ResponderService;
+import in.gov.abdm.uhi.discovery.utility.GatewayConstants;
+import in.gov.abdm.uhi.discovery.utility.GlobalConstants;
+import io.swagger.annotations.Api;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Map;
 
-@Validated
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping(GatewayConstants.API_VERSION)
+@Api(value = "On_Search Responder")
+@Validated
 public class ResponderController {
 
     private static final Logger LOGGER = LogManager.getLogger(ResponderController.class);
 
-    @Autowired
+    final
     ResponderService responderService;
 
-    @PostMapping(value = "/on_search", consumes = "application/json", produces = "application/json")
-    public Mono<String> search(@Valid @RequestBody String request) {
-        LOGGER.info("Responder::called");
-
-        Mono<String> response = Mono.just("Response Empty");
-
-        try {
-            response = responderService.processor(request);
-        } catch (Exception ex) {
-            LOGGER.info("Responder::error::" + request);
-            LOGGER.error("Responder::error::" + ex);
-        }
-
-        return response;
+    public ResponderController(ResponderService responderService) {
+        this.responderService = responderService;
     }
 
+    @PostMapping(value = GlobalConstants.ON_SEARCH_ENDPOINT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Mono<String> onSearch(@Valid @RequestBody String request, @RequestHeader Map<String, String> headers) throws JsonProcessingException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException {
+        Mono<String> response = null;
+            LOGGER.info("Responder::called::{}", request);
+            response = responderService.processor(request, headers);
+        return response;
+    }
 }
