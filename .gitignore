@@ -1,4 +1,3 @@
-
 src/apps/client/hspa/hspa-flutter/.dart_tool/
 src/apps/client/hspa/hspa-flutter/build/
 src/apps/client/hspa/hspa-flutter/.flutter-plugins-dependencies
@@ -14,3 +13,5 @@ src/apps/client/eua/eua-flutter/.flutter-plugins
 src/apps/client/eua/eua-flutter/.packages
 src/apps/client/eua/eua-flutter/.vscode/settings.json
 src/apps/client/eua/eua-flutter/lib/generated_plugin_registrant.dart
+src/apps/client/hspa/hspa-flutter/.dart_tool/flutter_build/2d8716ad99a786bf9d74d90006acb188/gen_dart_plugin_registrant.stamp
+src/apps/client/hspa/hspa-flutter/build/ios/
