@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:uhi_flutter_app/theme/theme.dart';
-import 'package:uhi_flutter_app/view/view.dart';
 
 class BottomButtonWithFees extends StatelessWidget {
   var width;

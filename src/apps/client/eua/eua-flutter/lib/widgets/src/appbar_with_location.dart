@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:uhi_flutter_app/theme/theme.dart';
 import 'package:uhi_flutter_app/widgets/widgets.dart';
 
-class AppbarWithLocation extends StatelessWidget with PreferredSizeWidget {
+class AppbarWithLocation extends StatelessWidget
+    implements PreferredSizeWidget {
   final Function() onTap;
 
   AppbarWithLocation({

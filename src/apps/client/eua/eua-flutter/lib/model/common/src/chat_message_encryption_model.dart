@@ -1,5 +1,3 @@
-import 'package:cryptography/cryptography.dart';
-
 class ChatMessageEncryptionModel {
   List<int>? cipherText;
   List<int>? nonce;

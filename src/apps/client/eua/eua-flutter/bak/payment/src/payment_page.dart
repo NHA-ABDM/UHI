@@ -8,23 +8,16 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stomp_dart_client/stomp.dart';
-import 'package:stomp_dart_client/stomp_config.dart';
-import 'package:stomp_dart_client/stomp_frame.dart';
 import 'package:uhi_flutter_app/common/common.dart';
-import 'package:uhi_flutter_app/common/src/snackbar_message.dart';
 import 'package:uhi_flutter_app/constants/constants.dart';
 import 'package:uhi_flutter_app/constants/src/strings.dart';
 import 'package:uhi_flutter_app/controller/booking/post_booking_details_controller.dart';
-import 'package:uhi_flutter_app/controller/controller.dart';
-import 'package:uhi_flutter_app/model/common/src/context_model.dart';
 import 'package:uhi_flutter_app/model/model.dart';
 import 'package:uhi_flutter_app/model/request/src/booking_init_request_model.dart';
 import 'package:uhi_flutter_app/model/request/src/booking_on_confirm_request_model.dart';
 import 'package:uhi_flutter_app/model/response/src/booking_confirm_response_model.dart';
 import 'package:uhi_flutter_app/model/response/src/booking_on_init_response_model.dart';
-import 'package:uhi_flutter_app/model/response/src/discovery_response_model.dart';
 import 'package:uhi_flutter_app/model/response/src/get_user_details_response.dart';
-import 'package:uhi_flutter_app/model/response/src/response_model.dart';
 import 'package:uhi_flutter_app/services/src/stomp_socket_connection.dart';
 import 'package:uhi_flutter_app/utils/src/loading_indicator.dart';
 import 'package:uhi_flutter_app/utils/src/shared_preferences.dart';
@@ -37,11 +30,11 @@ import '../../../widgets/src/spacing.dart';
 import 'package:upi_pay/upi_pay.dart';
 
 class PaymentPage extends StatefulWidget {
-  String? teleconsultationFees;
-  String? doctorsUPIaddress;
-  BookingOnInitResponseModel? bookingOnInitResponseModel;
-  String consultationType;
-  String? doctorImage;
+  final String? teleconsultationFees;
+  final String? doctorsUPIaddress;
+  final BookingOnInitResponseModel? bookingOnInitResponseModel;
+  final String consultationType;
+  final String? doctorImage;
 
   // BookingConfirmResponseModel? bookingConfirmResponseModel;
   PaymentPage({
@@ -493,7 +486,8 @@ class _PaymentPageState extends State<PaymentPage> {
                         Spacing(isWidth: false, size: 8),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            primary: AppColors.paymentButtonBackgroundColor,
+                            backgroundColor:
+                                AppColors.paymentButtonBackgroundColor,
                             minimumSize: const Size.fromHeight(40),
                           ),
                           onPressed: isBtnPressed
@@ -606,14 +600,14 @@ class _PaymentPageState extends State<PaymentPage> {
             child: Text(
               'One of these will be invoked automatically by your phone to '
               'make a payment',
-              style: Theme.of(context).textTheme.bodyText2,
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),
           Container(
             margin: EdgeInsets.only(bottom: 12),
             child: Text(
               'Detected Installed Apps',
-              style: Theme.of(context).textTheme.bodyText1,
+              style: Theme.of(context).textTheme.bodyLarge,
             ),
           ),
           if (_apps != null) _discoverableAppsGrid(),
@@ -621,7 +615,7 @@ class _PaymentPageState extends State<PaymentPage> {
             margin: EdgeInsets.only(top: 12, bottom: 12),
             child: Text(
               'Other Supported Apps (Cannot detect)',
-              style: Theme.of(context).textTheme.bodyText1,
+              style: Theme.of(context).textTheme.bodyLarge,
             ),
           ),
           if (_apps != null) _nonDiscoverableAppsGrid(),
@@ -640,7 +634,7 @@ class _PaymentPageState extends State<PaymentPage> {
             margin: EdgeInsets.only(bottom: 12),
             child: Text(
               'Pay Using',
-              style: Theme.of(context).textTheme.bodyText1,
+              style: Theme.of(context).textTheme.bodyLarge,
             ),
           ),
           if (_apps != null) _appsGrid(_apps!.map((e) => e).toList()),

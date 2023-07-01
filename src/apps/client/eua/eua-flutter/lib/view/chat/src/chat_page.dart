@@ -4,7 +4,6 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:cryptography/cryptography.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -18,10 +17,7 @@ import 'package:uhi_flutter_app/common/common.dart';
 import 'package:uhi_flutter_app/constants/constants.dart';
 import 'package:uhi_flutter_app/controller/chat/src/get_chat_messages_controller.dart';
 import 'package:uhi_flutter_app/controller/chat/src/post_chat_message_controller.dart';
-import 'package:uhi_flutter_app/model/common/src/chat_message_dhp_model.dart';
-import 'package:uhi_flutter_app/model/common/src/chat_message_model.dart';
 import 'package:uhi_flutter_app/model/model.dart';
-import 'package:uhi_flutter_app/model/response/response.dart';
 import 'package:uhi_flutter_app/model/response/src/get_user_details_response.dart';
 import 'package:uhi_flutter_app/theme/theme.dart';
 import 'package:uhi_flutter_app/utils/src/shared_preferences.dart';
@@ -138,7 +134,7 @@ class _ChatPageState extends State<ChatPage> {
     //       .jumpTo(_messagesScrollController.position.maxScrollExtent);
     // }
 
-    SchedulerBinding.instance?.addPostFrameCallback((_) {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
       if (_messagesScrollController.hasClients) {
         log("Scrolling");
 
@@ -354,7 +350,7 @@ class _ChatPageState extends State<ChatPage> {
     try {
       jsonDecode(message);
       return true;
-    } on FormatException catch (e) {
+    } on FormatException {
       return false;
     }
   }

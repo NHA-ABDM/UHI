@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:get/get.dart';
 import 'package:uhi_flutter_app/constants/constants.dart';
-import 'package:uhi_flutter_app/controller/controller.dart';
 import 'package:uhi_flutter_app/model/request/src/booking_init_request_model.dart';
 import 'package:uhi_flutter_app/model/response/src/acknowledgement_response_model.dart';
 import 'package:uhi_flutter_app/services/services.dart';

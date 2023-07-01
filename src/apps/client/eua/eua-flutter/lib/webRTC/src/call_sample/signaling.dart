@@ -7,7 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uhi_flutter_app/utils/src/shared_preferences.dart';
 
 import '../../../constants/src/strings.dart';
-import 'random_string.dart';
 
 import '../utils/device_info.dart'
     if (dart.library.js) '../utils/device_info_web.dart';
@@ -524,7 +523,7 @@ class Signaling {
   }
 
   Future<void> _createDataChannel(Session session,
-      {label: 'fileTransfer'}) async {
+      {label = 'fileTransfer'}) async {
     RTCDataChannelInit dataChannelDict = RTCDataChannelInit()
       ..maxRetransmits = 30;
     RTCDataChannel channel =

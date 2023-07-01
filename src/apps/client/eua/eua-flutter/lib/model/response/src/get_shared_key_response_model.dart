@@ -1,7 +1,7 @@
 class GetSharedKeyResponseModel {
   String? userName;
   String? publicKey;
-  Null? privateKey;
+  Null privateKey;
 
   GetSharedKeyResponseModel({this.userName, this.publicKey, this.privateKey});
 

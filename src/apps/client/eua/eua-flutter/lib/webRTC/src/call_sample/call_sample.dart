@@ -2,7 +2,6 @@ import 'dart:math';
 import 'package:get/get.dart';
 
 import 'package:flutter/material.dart';
-import 'package:uhi_flutter_app/common/common.dart';
 import 'package:uhi_flutter_app/constants/src/strings.dart';
 import 'package:uhi_flutter_app/widgets/src/new_confirmation_dialog.dart';
 import 'dart:core';

@@ -7,7 +7,7 @@ class LocalAuthService {
   static Future<bool> hasBiometrics() async {
     try {
       return await _auth.canCheckBiometrics;
-    } on PlatformException catch (e) {
+    } on PlatformException {
       return false;
     }
   }
@@ -26,7 +26,7 @@ class LocalAuthService {
           stickyAuth: true,
         ),
       );
-    } on PlatformException catch (e) {
+    } on PlatformException {
       return false;
     }
   }
@@ -34,6 +34,6 @@ class LocalAuthService {
   static Future<void> cancelAuthentication() async {
     try {
       _auth.stopAuthentication();
-    } on PlatformException catch (e) {}
+    } on PlatformException {}
   }
 }

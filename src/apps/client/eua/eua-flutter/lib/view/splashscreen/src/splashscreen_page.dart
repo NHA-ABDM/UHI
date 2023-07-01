@@ -8,7 +8,6 @@ import 'package:uhi_flutter_app/constants/src/strings.dart';
 import 'package:uhi_flutter_app/controller/login/src/access_token_controller.dart';
 import 'package:uhi_flutter_app/theme/theme.dart';
 import 'package:uhi_flutter_app/utils/src/shared_preferences.dart';
-import 'package:uhi_flutter_app/view/view.dart';
 
 class SplashScreenPage extends StatefulWidget {
   const SplashScreenPage({

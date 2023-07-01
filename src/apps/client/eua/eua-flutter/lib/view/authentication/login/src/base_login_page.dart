@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:encrypt/encrypt.dart';
 import 'package:encrypt/encrypt_io.dart';
@@ -183,7 +182,6 @@ class _BaseLoginPageState extends State<BaseLoginPage> {
               ),
               dropdownIconPosition: IconPosition.trailing,
               initialCountryCode: 'IN',
-              countries: ['IN'],
               onChanged: (phone) {},
             ),
           ),

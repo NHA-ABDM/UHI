@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:uhi_flutter_app/constants/src/strings.dart';
 import 'package:uhi_flutter_app/theme/theme.dart';
-import 'package:uhi_flutter_app/utils/src/new_dialog_screen.dart';
 import 'package:uhi_flutter_app/widgets/widgets.dart';
 
 class CreateNewAbhaAddress extends StatefulWidget {
