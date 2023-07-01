@@ -16,7 +16,6 @@ import '../../../theme/src/app_text_style.dart';
 import '../../../utils/src/utility.dart';
 import '../../../widgets/src/spacing.dart';
 import '../../../widgets/src/vertical_spacing.dart';
-import '../../chat/src/chat_page.dart';
 
 class AppointmentDetailsPage extends StatefulWidget {
   const AppointmentDetailsPage({Key? key}) : super(key: key);
@@ -133,7 +132,7 @@ class _AppointmentDetailsPageState extends State<AppointmentDetailsPage> {
                               style: AppTextStyle.textSemiBoldStyle(
                                   color: AppColors.testColor, fontSize: 16),
                             ),
-                            Spacing(),
+                            const Spacing(),
                             Text(
                               Utility.getAppointmentDisplayDate(
                                   date: DateTime.parse(providerAppointment
@@ -156,7 +155,7 @@ class _AppointmentDetailsPageState extends State<AppointmentDetailsPage> {
                               style: AppTextStyle.textNormalStyle(
                                   color: AppColors.testColor, fontSize: 12),
                             ),
-                            Spacing(),
+                            const Spacing(),
                             Text(
                               Utility.getAppointmentDisplayTimeRange(
                                   startDateTime: DateTime.parse(
@@ -327,7 +326,7 @@ class _AppointmentDetailsPageState extends State<AppointmentDetailsPage> {
                     ? AppColors.drNameTextColor
                     : AppColors.requestedStatusColor),
           ),
-          Spacing(
+          const Spacing(
             isWidth: false,
             size: 6,
           ),

@@ -9,7 +9,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
-import 'package:hspa_app/controller/src/dashboard_controller.dart';
 import 'package:hspa_app/model/src/doctor_profile.dart';
 import 'package:hspa_app/theme/src/app_colors.dart';
 import 'package:hspa_app/utils/src/utility.dart';

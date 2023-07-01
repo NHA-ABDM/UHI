@@ -571,10 +571,10 @@ class Links {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['rel'] = this.rel;
-    data['uri'] = this.uri;
-    data['resourceAlias'] = this.resourceAlias;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['rel'] = rel;
+    data['uri'] = uri;
+    data['resourceAlias'] = resourceAlias;
     return data;
   }
 }

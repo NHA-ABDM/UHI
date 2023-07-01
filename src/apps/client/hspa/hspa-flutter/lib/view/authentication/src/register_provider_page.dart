@@ -12,13 +12,10 @@ import '../../../model/response/src/register_provider_response.dart';
 import '../../../model/src/doctor_profile.dart';
 import '../../../theme/src/app_colors.dart';
 import '../../../theme/src/app_text_style.dart';
-import '../../../utils/src/utility.dart';
 import '../../../utils/src/validator.dart';
 import '../../../widgets/src/spacing.dart';
 import '../../../widgets/src/square_rounded_button_with_icon.dart';
 import '../../../widgets/src/vertical_spacing.dart';
-import '../../dashboard/src/dashboard_page.dart';
-import '../../profile/src/doctor_profile_page.dart';
 
 enum Gender {male, female}
 
@@ -242,7 +239,7 @@ class _RegisterProviderPageState extends State<RegisterProviderPage> {
           ),
           Column(
             children: [
-              Spacing(isWidth: false, size: 16,),
+              const Spacing(isWidth: false, size: 16,),
               VerticalSpacing(),
               SquareRoundedButtonWithIcon(text: AppStrings().btnRegister, assetImage: AssetImages.arrowLongRight, onPressed: (){
 

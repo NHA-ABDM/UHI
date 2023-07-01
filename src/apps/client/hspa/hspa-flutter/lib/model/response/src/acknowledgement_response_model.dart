@@ -17,12 +17,12 @@ class AcknowledgementResponseModel {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this.context != null) {
-      data['context'] = this.context!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    if (context != null) {
+      data['context'] = context!.toJson();
     }
-    if (this.message != null) {
-      data['message'] = this.message!.toJson();
+    if (message != null) {
+      data['message'] = message!.toJson();
     }
     return data;
   }
@@ -35,14 +35,14 @@ class AcknowledgementMessage {
 
   AcknowledgementMessage.fromJson(Map<String, dynamic> json) {
     ack = json['ack'] != null
-        ? new AcknowledgementAck.fromJson(json['ack'])
+        ? AcknowledgementAck.fromJson(json['ack'])
         : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this.ack != null) {
-      data['ack'] = this.ack!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    if (ack != null) {
+      data['ack'] = ack!.toJson();
     }
     return data;
   }
@@ -58,8 +58,8 @@ class AcknowledgementAck {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
     return data;
   }
 }

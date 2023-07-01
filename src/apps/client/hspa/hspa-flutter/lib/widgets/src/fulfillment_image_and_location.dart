@@ -6,12 +6,12 @@ import '../../theme/src/app_text_style.dart';
 import 'spacing.dart';
 
 class FulfillmentImageAndLocation extends StatelessWidget {
-  double width;
-  String imageUrl;
-  String hospitalName;
-  String distance;
+  final double width;
+  final String imageUrl;
+  final String hospitalName;
+  final String distance;
 
-  FulfillmentImageAndLocation({
+  const FulfillmentImageAndLocation({
     Key? key,
     required this.width,
     required this.imageUrl,
@@ -23,7 +23,7 @@ class FulfillmentImageAndLocation extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: width,
-      padding: EdgeInsets.all(10),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: AppColors.white,
         boxShadow: AppShadows.shadow2,
@@ -41,23 +41,19 @@ class FulfillmentImageAndLocation extends StatelessWidget {
               ),
             ),
           ),
-          Spacing(isWidth: false),
-          Container(
-            child: Text(
-              "Max Hospital, Skin Specialist",
-              style: AppTextStyle.textNormalStyle(
-                  color: AppColors.black, fontSize: 14),
-            ),
+          const Spacing(isWidth: false),
+          Text(
+            "Max Hospital, Skin Specialist",
+            style: AppTextStyle.textNormalStyle(
+                color: AppColors.black, fontSize: 14),
           ),
-          Spacing(isWidth: false),
-          Container(
-            child: Text(
-              "1.2 km away",
-              style: AppTextStyle.textSemiBoldStyle(
-                  color: AppColors.black, fontSize: 14),
-            ),
+          const Spacing(isWidth: false),
+          Text(
+            "1.2 km away",
+            style: AppTextStyle.textSemiBoldStyle(
+                color: AppColors.black, fontSize: 14),
           ),
-          Spacing(isWidth: false),
+          const Spacing(isWidth: false),
         ],
       ),
     );

@@ -19,8 +19,6 @@ import '../../../theme/src/app_text_style.dart';
 import '../../../widgets/src/spacing.dart';
 import '../../../widgets/src/square_rounded_button.dart';
 import 'previous_appointments_page.dart';
-import 'appointment_ongoing_page.dart';
-import 'reschedule_appointments_page.dart';
 import 'today_appointment_page.dart';
 import 'upcoming_appointments_page.dart';
 
@@ -199,7 +197,7 @@ class AppointmentsPageState extends State<AppointmentsPage> with SingleTickerPro
                         style: AppTextStyle.textSemiBoldStyle(
                             color: AppColors.testColor, fontSize: 16),
                       ),
-                      Spacing(),
+                      const Spacing(),
                       Text(
                         listAppointments[index].appointmentDate,
                         style: AppTextStyle
@@ -218,7 +216,7 @@ class AppointmentsPageState extends State<AppointmentsPage> with SingleTickerPro
                         style: AppTextStyle.textNormalStyle(
                             color: AppColors.testColor, fontSize: 12),
                       ),
-                      Spacing(),
+                      const Spacing(),
                       Text(
                         listAppointments[index].appointmentTime,
                         style: AppTextStyle
@@ -227,7 +225,7 @@ class AppointmentsPageState extends State<AppointmentsPage> with SingleTickerPro
                       ),
                     ],
                   ),
-                  Spacing(isWidth: false, size: 10),
+                  const Spacing(isWidth: false, size: 10),
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: Row(
@@ -346,7 +344,7 @@ class AppointmentsPageState extends State<AppointmentsPage> with SingleTickerPro
             height: 16,
             width: 16,
           ),
-          Spacing(size: 5),
+          const Spacing(size: 5),
           Text(
             actionText,
             style: AppTextStyle.textNormalStyle(color: color, fontSize: 14),
@@ -715,7 +713,7 @@ class AppointmentsPageState extends State<AppointmentsPage> with SingleTickerPro
                         style: AppTextStyle.textSemiBoldStyle(
                             color: AppColors.testColor, fontSize: 16),
                       ),
-                      Spacing(),
+                      const Spacing(),
                       Text(
                         Utility.getAppointmentDisplayDate(date: DateTime.parse(providerAppointment.timeSlot!.startDate!)),
                         style: AppTextStyle
@@ -734,7 +732,7 @@ class AppointmentsPageState extends State<AppointmentsPage> with SingleTickerPro
                         style: AppTextStyle.textNormalStyle(
                             color: AppColors.testColor, fontSize: 12),
                       ),
-                      Spacing(),
+                      const Spacing(),
                       Text(
                         Utility.getAppointmentDisplayTimeRange(startDateTime: DateTime.parse(providerAppointment.timeSlot!.startDate!.split('.').first), endDateTime: DateTime.parse(providerAppointment.timeSlot!.endDate!.split('.').first)),
                         //Utility.getAppointmentDisplayTime(startDateTime:providerAppointment.timeSlot!.startDate!, endDateTime: providerAppointment.timeSlot!.endDate!),
@@ -744,7 +742,7 @@ class AppointmentsPageState extends State<AppointmentsPage> with SingleTickerPro
                       ),
                     ],
                   ),
-                  Spacing(isWidth: false, size: 10),
+                  const Spacing(isWidth: false, size: 10),
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: Row(

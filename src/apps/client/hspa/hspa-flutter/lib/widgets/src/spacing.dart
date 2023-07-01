@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 
 class Spacing extends StatelessWidget {
-  bool? isWidth;
-  double? size;
+  final bool isWidth;
+  final double? size;
 
-  Spacing({Key? key, this.isWidth, this.size}) : super(key: key);
+  const Spacing({Key? key, this.isWidth = true, this.size}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    isWidth = isWidth ?? true;
-
-    return isWidth!
+    return isWidth
         ? SizedBox(
             width: size ?? 10,
           )

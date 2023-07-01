@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:hspa_app/model/src/doctor_profile.dart';
-import 'random_string.dart';
 
 import '../utils/device_info.dart'
     if (dart.library.js) '../utils/device_info_web.dart';
@@ -92,10 +91,7 @@ class Signaling {
   };
 
   close() async {
-    _send('leave-room', {
-      "roomId": _roomId,
-      "peerid": _selfId
-    });
+    _send('leave-room', {"roomId": _roomId, "peerid": _selfId});
     await _cleanSessions();
     _socket?.close();
   }
@@ -109,8 +105,10 @@ class Signaling {
   void muteMic() {
     if (_localStream != null) {
       debugPrint('In mute mic ${_localStream!.getAudioTracks()[0].enabled}');
-      _localStream!.getAudioTracks()[0].enabled = !_localStream!.getAudioTracks()[0].enabled;
-      debugPrint('In mute mic after click ${_localStream!.getAudioTracks()[0].enabled}');
+      _localStream!.getAudioTracks()[0].enabled =
+          !_localStream!.getAudioTracks()[0].enabled;
+      debugPrint(
+          'In mute mic after click ${_localStream!.getAudioTracks()[0].enabled}');
     }
   }
 
@@ -176,7 +174,7 @@ class Signaling {
         break;
       case 'room':
         {
-          if(data.containsKey('peers') && data['peers'] != null) {
+          if (data.containsKey('peers') && data['peers'] != null) {
             List<dynamic> peers = data['peers'];
             String roomId = data['roomId'];
             if (onPeersUpdate != null) {
@@ -194,15 +192,12 @@ class Signaling {
           _roomId = data['roomId'];
           DoctorProfile? doctorProfile = await DoctorProfile.getSavedProfile();
           _selfId = doctorProfile?.hprAddress ?? '';
-              _send('new', {
+          _send('new', {
             'name': doctorProfile?.displayName ?? '',
             'id': _selfId,
             'user_agent': DeviceInfo.userAgent
           });
-          _send('join-room', {
-            "roomId": _roomId,
-            "peerId": _selfId
-          });
+          _send('join-room', {"roomId": _roomId, "peerId": _selfId});
         }
         break;
       case 'offer':
@@ -323,13 +318,13 @@ class Signaling {
       }
     }
 
-    _socket?.onOpen = () async{
+    _socket?.onOpen = () async {
       debugPrint('onOpen');
 
       DoctorProfile? doctorProfile = await DoctorProfile.getSavedProfile();
       onSignalingStateChange?.call(SignalingState.connectionOpen);
       _send('create-new-room', {
-        'roomId': doctorProfile?.hprAddress ??'sana.bhatt@hpr.abdm',
+        'roomId': doctorProfile?.hprAddress ?? 'sana.bhatt@hpr.abdm',
         //'roomId': _roomId,
       });
       /*_send('new', {
@@ -372,7 +367,7 @@ class Signaling {
               'facingMode': 'user',
               'optional': [],
             }*/
-      'video' : {
+      'video': {
         'mandatory': {
           "width": {"min": 320, "max": 1024},
           "height": {"min": 240, "max": 768},

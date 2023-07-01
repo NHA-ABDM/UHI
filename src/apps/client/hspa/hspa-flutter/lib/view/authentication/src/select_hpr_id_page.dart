@@ -13,12 +13,8 @@ import '../../../model/src/doctor_profile.dart';
 import '../../../settings/src/preferences.dart';
 import '../../../theme/src/app_colors.dart';
 import '../../../theme/src/app_text_style.dart';
-import '../../../utils/src/utility.dart';
 import '../../../widgets/src/square_rounded_button_with_icon.dart';
 import '../../../widgets/src/vertical_spacing.dart';
-import '../../dashboard/src/dashboard_page.dart';
-import '../../profile/src/doctor_profile_page.dart';
-import 'complete_provider_profile_page.dart';
 
 class SelectHprIdPage extends StatefulWidget {
   const SelectHprIdPage({Key? key}) : super(key: key);

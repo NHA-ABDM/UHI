@@ -2,16 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hspa_app/constants/src/get_pages.dart';
 
-import '../../../common/common.dart';
 import '../../../constants/src/asset_images.dart';
 import '../../../constants/src/strings.dart';
 import '../../../model/request/src/provider_service_type.dart';
 import '../../../theme/src/app_colors.dart';
 import '../../../theme/src/app_text_style.dart';
-import '../../../utils/src/utility.dart';
 import '../../../widgets/src/spacing.dart';
 import '../../../widgets/src/vertical_spacing.dart';
-import '../../appointments/src/appointments_page.dart';
 
 class ConsultationDetailsPage extends StatefulWidget {
   const ConsultationDetailsPage({Key? key}) : super(key: key);
@@ -77,7 +74,7 @@ class _ConsultationDetailsPageState extends State<ConsultationDetailsPage> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Spacing(size: 16),
+                    const Spacing(size: 16),
                     Expanded(child: Card(
                       elevation: 8,
                       shape: RoundedRectangleBorder(
@@ -115,7 +112,7 @@ class _ConsultationDetailsPageState extends State<ConsultationDetailsPage> {
                         ),
                       ),
                     )),
-                    Spacing(size: 16),
+                    const Spacing(size: 16),
                     Expanded(child: Card(
                       elevation: 8,
                       shape: RoundedRectangleBorder(
@@ -154,7 +151,7 @@ class _ConsultationDetailsPageState extends State<ConsultationDetailsPage> {
                         ),
                       ),
                     )),
-                    Spacing(size: 16),
+                    const Spacing(size: 16),
                   ],
                 ),
               ),
@@ -163,7 +160,7 @@ class _ConsultationDetailsPageState extends State<ConsultationDetailsPage> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Spacing(size: 16),
+                    const Spacing(size: 16),
                     Expanded(child:
                     Card(
                       elevation: 8,
@@ -210,10 +207,10 @@ class _ConsultationDetailsPageState extends State<ConsultationDetailsPage> {
                         ),
                       ),
                     )),
-                    Spacing(size: 16),
+                    const Spacing(size: 16),
                     Expanded(child:
                     Container()),
-                    Spacing(size: 16),
+                    const Spacing(size: 16),
                   ],
                 ),
               ),

@@ -8,7 +8,6 @@ import '../../../../theme/src/app_text_style.dart';
 import '../../../../widgets/src/vertical_spacing.dart';
 import '../../../widgets/src/appointments_view.dart';
 import 'appointments_page.dart';
-import 'reschedule_appointments_page.dart';
 
 class PreviousAppointmentsPage extends StatefulWidget {
   const PreviousAppointmentsPage({Key? key, required this.appointmentsController, required this.isTeleconsultation}) : super(key: key);

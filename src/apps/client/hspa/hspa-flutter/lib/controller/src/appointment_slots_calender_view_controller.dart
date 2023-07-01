@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:hspa_app/theme/src/app_colors.dart';
 
 import '../../constants/src/request_urls.dart';
 import '../../model/response/src/appointment_slots_response.dart';

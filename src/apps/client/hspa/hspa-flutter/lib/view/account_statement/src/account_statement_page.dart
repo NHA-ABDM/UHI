@@ -156,7 +156,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                         style: AppTextStyle.textSemiBoldStyle(
                             color: AppColors.testColor, fontSize: 16),
                       ),
-                      Spacing(),
+                      const Spacing(),
                       Text(
                         Utility.getAppointmentDisplayDate(
                             date: DateTime.parse(
@@ -178,7 +178,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                         style: AppTextStyle.textNormalStyle(
                             color: AppColors.testColor, fontSize: 12),
                       ),
-                      Spacing(),
+                      const Spacing(),
                       Text(
                         Utility.getAppointmentDisplayTimeRange(
                             startDateTime: DateTime.parse(paymentStatus
@@ -225,7 +225,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                           ),
                         ],
                       ),
-                      Spacing(),
+                      const Spacing(),
                     ],
                   ),
                   VerticalSpacing()
