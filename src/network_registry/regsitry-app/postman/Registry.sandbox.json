@@ -1,0 +1,279 @@
+{
+	"info": {
+		"_postman_id": "d500b376-d742-46f9-86d6-c4c407f905f2",
+		"name": "Registry",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "registry_collection",
+			"item": [
+				{
+					"name": "subscribe",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{  \"subscriber_id\": \"1234512\",\r\n    \"participant_id\":\"12\",\r\n    \"country\": \"hh\",\r\n    \"city\": \"Delhi\",\r\n    \"domain\": \"bbb\",\r\n    \"unique_key_id\": \"ppi1239900\",\r\n    \"pub_key_id\": \"MIGfMA0GCSqGSIb3DQ\"\r\n\t,\r\n    \"signing_public_key\": \"fnkfsnfsmlsfmlmlsafm\",\r\n    \"encr_public_key\":\"nQnnZ2V40lTnArXk\",\r\n    \"radius\": \"5\",\r\n    \"sub_type\":\"\",\r\n    \"url\": \"https://xyz.com\",\r\n    \"valid_from\":\"2022-08-30T10:00:40.065Z\",\r\n    \"valid_to\":\"2022-09-23T10:00:40.065Z\"\r\n   \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://100.96.9.167:9090/api/subscribe",
+							"protocol": "http",
+							"host": [
+								"100",
+								"96",
+								"9",
+								"167"
+							],
+							"port": "9090",
+							"path": [
+								"api",
+								"subscribe"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:9090/api/subscribe",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBsdGkuY29tIiwiZXhwIjoxNjYwMTQ0MjE5LCJpYXQiOjE2NjAxMDgyMTl9.GEBrgi1Wy1ihW0iv7mC7PZXic5z64njj_cVguhGQO3SWkQ1KOeS0GPfnUbvcxkRlPD2AdAm7U0t8afOguB3ia",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://100.96.9.167:9090/api/subscribe",
+							"protocol": "http",
+							"host": [
+								"100",
+								"96",
+								"9",
+								"167"
+							],
+							"port": "9090",
+							"path": [
+								"api",
+								"subscribe"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:9090/api/update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{   \"id\": 137,\r\n    \"subscriber_id\": \"1234512\",\r\n    \"participant_id\":\"12\",\r\n    \"country\": \"India\",\r\n    \"city\": \"Delhi\",\r\n    \"domain\": \"testDomain\",\r\n    \"unique_key_id\": \"unique2\",\r\n    \"pub_key_id\": \"MIGfMA0GCSqGSIb3DQ\",\r\n    \"signing_public_key\": \"fnkfsnfsmlsfmlmlsafm\",\r\n    \"encr_public_key\":\"nQnnZ2V40lTnArXk\",\r\n    \"radius\": \"5\",\r\n    \"sub_type\":\"BPP\",\r\n    \"url\": \"https://xyz.com\",\r\n    \"valid_from\":\"2022-05-12\",\r\n    \"valid_to\":\"2022-05-13\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://100.96.9.167:9090/api/update",
+							"protocol": "http",
+							"host": [
+								"100",
+								"96",
+								"9",
+								"167"
+							],
+							"port": "9090",
+							"path": [
+								"api",
+								"update"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:9090/api/subscriber/137",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://100.96.9.167:9090/api/subscriber/142",
+							"protocol": "http",
+							"host": [
+								"100",
+								"96",
+								"9",
+								"167"
+							],
+							"port": "9090",
+							"path": [
+								"api",
+								"subscriber",
+								"142"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:9090/api/delete/137",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://100.96.9.167:9090/api/delete/137",
+							"protocol": "http",
+							"host": [
+								"100",
+								"96",
+								"9",
+								"167"
+							],
+							"port": "9090",
+							"path": [
+								"api",
+								"delete",
+								"137"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:9090/api/subscriber",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\r\n{\"id\":144,\"status\":\"0\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://100.96.9.167:9090/api/subscriber",
+							"protocol": "http",
+							"host": [
+								"100",
+								"96",
+								"9",
+								"167"
+							],
+							"port": "9090",
+							"path": [
+								"api",
+								"subscriber"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:9090/api/subscribers/109000",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://100.96.9.167:9090/api/keys/paytm",
+							"protocol": "http",
+							"host": [
+								"100",
+								"96",
+								"9",
+								"167"
+							],
+							"port": "9090",
+							"path": [
+								"api",
+								"keys",
+								"paytm"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:8080/api/lookup",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"status\":\"SUBSCRIBED\",\r\n    \"country\": \"IND\",\r\n    \"city\": \"std:080\",\r\n    \"domain\": \"nic2004:85111\"\r\n    \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://100.96.9.167:9090/api/lookup",
+							"protocol": "http",
+							"host": [
+								"100",
+								"96",
+								"9",
+								"167"
+							],
+							"port": "9090",
+							"path": [
+								"api",
+								"lookup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:9090/api/search",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"subscriber_id\": \"eua-nha\",\r\n    \"pub_key_id\": \"pk23777\",\r\n\t \"type\":\"EUA\",\r\n\t \"status\":\"subscribed\"\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://100.96.9.167:9090/api/search",
+							"protocol": "http",
+							"host": [
+								"100",
+								"96",
+								"9",
+								"167"
+							],
+							"port": "9090",
+							"path": [
+								"api",
+								"search"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,527 @@
+{
+	"info": {
+		"_postman_id": "37288daf-bafa-4dc6-9c96-35ecb74cc099",
+		"name": "newRegistry",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "http://localhost:9090/api/findNetworkParticipantById/1",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"participantId\": \"p1\",\r\n    \"participantKeys\": [\r\n        {\r\n            \"keyId\": \"k8\",\r\n            \"signingPublicKey\": \"MFECAQEwBQYDK2VwBCIEIJKyoHZAqAw74SPZQg2aAMjrPk9HD9CLUkXnlWUEp/PigSEAsATpTRcbctXhmAbUgcWxkQ733n4SumPjfukaxAq7Y54=\\\" \",\r\n            \"encrPublicKey\": \"MCowBQYDK2VwAyEAsATpTRcbctXhmAbUgcWxkQ733n4SumPjfukaxAq7Y54=\",\r\n            \"validFrom\": \"2022-11-07T18:30:00.000Z\",\r\n            \"validTo\": \"2022-18-17T18:01:00.000Z\",\r\n            \"verified\": false\r\n        },\r\n        {\r\n            \"keyId\": \"k0\",\r\n            \"signingPublicKey\": \"MFECAQEwBQYDK2VwBCIEIJKyoHZAqAw74SPZQg2aAMjrPk9HD9CLUkXnlWUEp/PigSEAsATpTRcbctXhmAbUgcWxkQ733n4SumPjfukaxAq7Y54=\\\" \",\r\n            \"encrPublicKey\": \"MCowBQYDK2VwAyEAsATpTRcbctXhmAbUgcWxkQ733n4SumPjfukaxAq7Y54=\",\r\n            \"validFrom\": \"2022-11-07T18:30:00.000Z\",\r\n            \"validTo\": \"2022-18-17T18:01:00.000Z\",\r\n            \"verified\": false\r\n        }\r\n    ],\r\n    \"networkRoles\": [\r\n        {\r\n            \"subscriberId\": \"k0\",\r\n            \"domain\": \"MFECAQEwBQYDK2VwBCIEIJKyoHZAqAw74SPZQg2aAMjrPk9HD9CLUkXnlWUEp/PigSEAsATpTRcbctXhmAbUgcWxkQ733n4SumPjfukaxAq7Y54=\\\" \",\r\n            \"type\": \"MCowBQYDK2VwAyEAsATpTRcbctXhmAbUgcWxkQ733n4SumPjfukaxAq7Y54=\",\r\n            \"status\": \"2022-11-07T18:30:00.000Z\",\r\n            \"subscriberUrl\": \"2022-18-17T18:01:00.000Z\",\r\n            \"operatingRegions\": [\r\n                {\r\n                    \"country\":\"IND\",\r\n                    \"city\":\"SNL\",\r\n                    \"lat\":\"667.0\"\r\n                }\r\n            ]\r\n        }\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9090/api/save-networkparticipant",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"save-networkparticipant"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:9090/api/find-all-networkparticipant",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9090/api/find-all-networkparticipant",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"find-all-networkparticipant"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:9090/api/find-all-participant-key",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9090/api/find-all-participant-key",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"find-all-participant-key"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:9090/api/save-participant-key",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"networkParticipantId\":1,\r\n    \"keyId\": \"k2\",\r\n    \"validFrom\": \"2022-11-07T18:30:00.000Z\",\r\n    \"validTo\": \"2023-12-07T18:30:00.000Z\",\r\n    \"verified\": false\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:9090/api/save-participant-key",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"save-participant-key"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:9090/api/lookup",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"status\":\"Subscribed\",\r\n    \"domain\": \"HOSPITAL\",\r\n    \"country\": \"INDIA\",\r\n    \"city\": \"sln\"\r\n    \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9090/api/lookup",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"lookup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:9090/api/save-networkrole",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"networkParticipantId\":6,\r\n    \"participantId\": \"p1\",\r\n    \"subscriberId\": \"ba@123\",\r\n    \"domain\": \"Tech\",\r\n    \"type\": \"HSPA2\",\r\n    \"status\": \"Subscribed\",\r\n    \"subscriberUrl\": \"http://www.google.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:9090/api/save-networkrole",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"save-networkrole"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:9090/api/save-operating-region",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"networkRoleId\": \"INDA\",\r\n    \"country\": \"INDA\",\r\n    \"city\": \"PUNE\",\r\n    \"lat\": \"66.0\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:9090/api/save-operating-region",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"save-operating-region"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:9090/api/save-networkrole",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": 11,\r\n    \"subscriberId\":\"updated\",\r\n    \"domain\": \"updated\",\r\n    \"type\": \"update\",\r\n    \"subscriberUrl\": \"http://www.google.com\",\r\n    \"status\": \"Subscribed\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:9090/api/update-networkrole",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"update-networkrole"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:9090/api/update-participant-key",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": 4,\r\n    \"participantId\":\"p1\",\r\n    \"keyId\": \"k3updated1\",\r\n    \"validFrom\": \"2022-11-14T18:30:00.000Z\",\r\n    \"validTo\": \"2023-12-15T18:30:00.000Z\",\r\n    \"verified\": false\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:9090/api/update-participant-key",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"update-participant-key"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:9090/api/update-participant-key",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:9090/api/find-all-participant-key",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"find-all-participant-key"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:9090/api/find-participant-key-by-id/4",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:9090/api/find-participant-key-by-id/4",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"find-participant-key-by-id",
+						"4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:9090/api/update-networkparticipant",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": 6,\r\n    \"participantId\": \"p2\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9090/api/update-networkparticipant",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"update-networkparticipant"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:9090/api//delete-participant-key-by-id/5",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "localhost:9090/api//delete-participant-key-by-id/5",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"",
+						"delete-participant-key-by-id",
+						"5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:9090/api/delete-participant-key-by-id/5",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9090/api/delete-operating-region-by-id/7",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"delete-operating-region-by-id",
+						"7"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:9090/api/update-operating-region",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": 22,\r\n    \"city\": \"ALD\",\r\n    \"country\": \"IND\",\r\n    \"lat\": \"71.0\",\r\n    \"lng\": \"0.8\",\r\n    \"radious\":\"9.00\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:9090/api/update-operating-region",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"update-operating-region"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:9090/api/find-all-networkrole",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9090/api/find-all-networkrole",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"find-all-networkrole"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:9090/api/find-all-operating-region",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9090/api/find-all-operating-region",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"find-all-operating-region"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:9090/api/find-operating-region-by-id/2",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:9090/api/find-operating-region-by-id/2",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"find-operating-region-by-id",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:9090/api/find-networkparticipant-by-id/1",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:9090/api/find-networkparticipant-by-id/1",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"find-networkparticipant-by-id",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:9090/api/find-networrole-by-id/1",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:9090/api/find-networrole-by-id/1",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"find-networrole-by-id",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:9090/api/delete-networkrole-by-id/7",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9090/api/delete-networkrole-by-id/7",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"delete-networkrole-by-id",
+						"7"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:9090/api/delete-network-participant-by-id/7",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9090/api/delete-network-participant-by-id/7",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"delete-network-participant-by-id",
+						"7"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

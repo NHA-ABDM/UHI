@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "context": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        },
+        "core_version": {
+          "type": "string",
+          "pattern": "^0.7.1+$"
+        },
+        "consumer_id": {
+          "type": "string"
+        },
+        "consumer_uri": {
+          "type": "string"
+        },
+        "message_id": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "provider_id": {
+          "type": "string"
+        },
+        "provider_uri": {
+          "type": "string"
+        },
+        "transaction_id": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "domain",
+        "country",
+        "city",
+        "action",
+        "core_version",
+        "consumer_id",
+        "consumer_uri",
+        "message_id",
+        "timestamp",
+        "transaction_id",
+        "provider_id",
+        "provider_uri"
+      ]
+    }
+  }
+}
