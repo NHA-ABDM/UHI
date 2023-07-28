@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "e6b83e6b-f76b-498f-8d07-1df91f656f44",
-		"name": "GatewayHeaders",
+		"_postman_id": "a649099b-7431-42cc-b5ec-0cc769f47d38",
+		"name": "GatewayHeaders Copy",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "11132902"
 	},
@@ -71,10 +71,10 @@
 					}
 				},
 				"url": {
-					"raw": "https://uhigatewaysandbox.abdm.gov.in/api/v1/on_search",
+					"raw": "https://uhigateway.abdm.gov.in/api/v1/on_search",
 					"protocol": "https",
 					"host": [
-						"uhigatewaysandbox",
+						"uhigateway",
 						"abdm",
 						"gov",
 						"in"
@@ -112,10 +112,10 @@
 					}
 				},
 				"url": {
-					"raw": "https://uhigatewaysandbox.abdm.gov.in/api/v1/networkregistry/lookup",
+					"raw": "https://uhigateway.abdm.gov.in/api/v1/networkregistry/lookup",
 					"protocol": "https",
 					"host": [
-						"uhigatewaysandbox",
+						"uhigateway",
 						"abdm",
 						"gov",
 						"in"
@@ -125,41 +125,6 @@
 						"v1",
 						"networkregistry",
 						"lookup"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "lookup/gateway",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"status\": \"SUBSCRIBED\",\n    \"domain\": \"nic2004:85111\",\n    \"country\": \"IND\",\n    \"city\": \"std:011\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://100.96.9.167:8181/api/v1/networkregistry/lookup/hspa",
-					"protocol": "http",
-					"host": [
-						"100",
-						"96",
-						"9",
-						"167"
-					],
-					"port": "8181",
-					"path": [
-						"api",
-						"v1",
-						"networkregistry",
-						"lookup",
-						"hspa"
 					]
 				}
 			},
