@@ -57,7 +57,7 @@ import in.gov.abdm.uhi.registry.serviceImpl.StatusServiceImpl;
 @CrossOrigin(origins = "*")
 public class RegistryController {
 
-	private static final Logger logger = LogManager.getLogger(NetworkRoleServiceImpl.class);
+	private static final Logger logger = LogManager.getLogger(RegistryController.class);
 	@Autowired
 	private NetworkParticipantServiceImpl networkParticipantService;
 

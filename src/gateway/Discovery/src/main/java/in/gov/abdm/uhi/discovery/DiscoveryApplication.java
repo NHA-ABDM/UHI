@@ -24,6 +24,7 @@ import org.springframework.cloud.circuitbreaker.resilience4j.Resilience4JConfigB
 import org.springframework.cloud.client.circuitbreaker.Customizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
@@ -33,6 +34,7 @@ import java.time.Duration;
 
 @SpringBootApplication
 @EnableCaching
+@EnableWebFlux
 public class DiscoveryApplication {
 
     public static void main(String[] args) {

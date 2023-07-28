@@ -47,7 +47,7 @@ public class GatewayUtility {
     public void logErrorMessageForKibana(Request request, String error, String code) {
         Response responseError = generateNackWithoutMono(error, GatewayError.INTERNAL_SERVER_ERROR.getCode());
         try {
-            LOGGER.error(
+            LOGGER.info(
                     "created_on:{}, transaction_id:{}, message_id:{}, consumer_id:{}, provider_id:{}, domain:{}, city:{}, action:{}, Response:{}"
                    ,new Timestamp(System.currentTimeMillis()), request.getContext().getTransactionId(),
                     request.getContext().getMessageId(), request.getContext().getConsumerId(), null == request.getContext().getProviderId() ? "NA" : request.getContext().getProviderId(),

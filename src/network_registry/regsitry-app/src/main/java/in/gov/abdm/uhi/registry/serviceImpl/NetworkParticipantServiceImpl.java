@@ -41,17 +41,12 @@ public class NetworkParticipantServiceImpl implements NetworkParticipantService 
 	private static Random rnd;
 	@Autowired
 	NetworkParticipantRepository networkParticipantRepository;
-	@Autowired
-	private CitiesRepository citiesRepository;
-
-	@Autowired
-	private DomainRepository domainRepository;
-
-	@Autowired
-	private StatusRepository statusRepository;
 
 	@Value("${spring.application.isHeaderEnabled}")
 	Boolean isHeaderEnabled;
+
+	@Value("${uhi.city.filter}")
+	Boolean cityFilter;
 
 	@Autowired
 	GatewayUtility gatewayUtil;
@@ -151,22 +146,18 @@ public class NetworkParticipantServiceImpl implements NetworkParticipantService 
 				List<OperatingRegion> operatingregions = role.getOperatingregion();
 				if (participantkey != null&&operatingregions!=null) {
 					for (OperatingRegion opr : operatingregions) {
-						if (!subscriber.getCity().equals("*")) {
-							if (opr.getCity().getStdCode().equalsIgnoreCase(subscriber.getCity())
+						if (Boolean.TRUE.equals(cityFilter)) {
+							extractSubscribersBasedOnConditionPassed(opr.getCity().getStdCode().equalsIgnoreCase(subscriber.getCity())
 									&& opr.getCountry().equalsIgnoreCase(subscriber.getCountry())
 									&& role.getStatus().getName().equalsIgnoreCase(subscriber.getStatus())
-									&& role.getDomain().getCode().equalsIgnoreCase(subscriber.getDomain())) {
-								mapToSubscriber(listofAllRecords, networkParticipant, role, participantkey, opr,true);
-							}
-						} else {
-							if (opr.getCountry().equalsIgnoreCase(subscriber.getCountry())
-									&& role.getStatus().getName().equalsIgnoreCase(subscriber.getStatus())
-									&& role.getDomain().getCode().equalsIgnoreCase(subscriber.getDomain())) {
-								mapToSubscriber(listofAllRecords, networkParticipant, role, participantkey, opr,true);
-
-							}
-
+									&& role.getDomain().getCode().equalsIgnoreCase(subscriber.getDomain()),listofAllRecords, networkParticipant, role, participantkey, opr, true);
 						}
+						else {
+							extractSubscribersBasedOnConditionPassed(opr.getCountry().equalsIgnoreCase(subscriber.getCountry())
+									&& role.getStatus().getName().equalsIgnoreCase(subscriber.getStatus())
+									&& role.getDomain().getCode().equalsIgnoreCase(subscriber.getDomain()), listofAllRecords, networkParticipant, role, participantkey, opr, true);
+						}
+
 					}
 				}
 			}
@@ -175,6 +166,14 @@ public class NetworkParticipantServiceImpl implements NetworkParticipantService 
 		listsub.setMessage(listofAllRecords);
 		return listsub;
 	}
+
+	private void extractSubscribersBasedOnConditionPassed(boolean opr, List<SubscriberDto> listofAllRecords, NetworkParticipant networkParticipant, NetworkRole role, ParticipantKey participantkey, OperatingRegion opr1, boolean check) {
+		if (opr) {
+			mapToSubscriber(listofAllRecords, networkParticipant, role, participantkey, opr1, check);
+
+		}
+	}
+
 
 	@Override
 	public Object search(String stringSearchDto, @RequestHeader Map<String, String> headers, boolean isInternal) throws JsonProcessingException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException, SignatureException, InvalidKeyException {
@@ -195,7 +194,12 @@ public class NetworkParticipantServiceImpl implements NetworkParticipantService 
 		List<NetworkParticipant> allRecords = this.findAllNetworkParticipant();
 		try {
 			searchDto = objectMapper.readValue(stringSearchDto, SearchDto.class);
-			filterParticipants(searchDto, listofAllRecords, allRecords);
+			if(Boolean.TRUE.equals(cityFilter)) {
+				filterParticipants(searchDto, listofAllRecords, allRecords);
+			}
+			else{
+				filterParticipantsExcludingCity(searchDto, listofAllRecords, allRecords);
+			}
 		} catch (Exception e) {
 			logger.error("NetworkParticipantServiceImpl::search::{}", e.getMessage());
 		}
@@ -216,12 +220,32 @@ public class NetworkParticipantServiceImpl implements NetworkParticipantService 
 					for (OperatingRegion opr : operatingregions) {
 						if (role.getSubscriberid().equalsIgnoreCase(searchDto.getSubscriberId())
 								&& role.getType().equalsIgnoreCase(searchDto.getType())
-								&& opr.getCity().getStdCode().equalsIgnoreCase(searchDto.getCity())
+								&& role.getDomain().getCode().equalsIgnoreCase(searchDto.getDomain())
+								&&  opr.getCity().getStdCode().equalsIgnoreCase(searchDto.getCity())
+								&& opr.getCountry().equalsIgnoreCase(searchDto.getCountry())&&participantkey.getUniqueKeyId().equals(searchDto.getPublicKeyId())) {
+							mapToSubscriber(listofAllRecords, networkParticipant, role, participantkey, opr,true);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	private void filterParticipantsExcludingCity(SearchDto searchDto, List<SubscriberDto> listofAllRecords, List<NetworkParticipant> findAllRecords) {
+		for (NetworkParticipant networkParticipant : findAllRecords) {
+			List<NetworkRole> networkrole = networkParticipant.getNetworkrole();
+			for (NetworkRole role : networkrole) {
+				List<OperatingRegion> operatingregions = role.getOperatingregion();
+
+				ParticipantKey participantkey = role.getParticipantKey();
+				if (role.getParticipantKey() != null && operatingregions!=null) {
+					for (OperatingRegion opr : operatingregions) {
+						if (role.getSubscriberid().equalsIgnoreCase(searchDto.getSubscriberId())
+								&& role.getType().equalsIgnoreCase(searchDto.getType())
 								&& role.getDomain().getCode().equalsIgnoreCase(searchDto.getDomain())
 								&& opr.getCountry().equalsIgnoreCase(searchDto.getCountry())&&participantkey.getUniqueKeyId().equals(searchDto.getPublicKeyId())) {
 							mapToSubscriber(listofAllRecords, networkParticipant, role, participantkey, opr,false);
 						}
-
 					}
 				}
 			}

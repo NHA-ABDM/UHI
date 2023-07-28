@@ -71,7 +71,6 @@ public class HSPAService {
             Mono<String> data = Mono.just(res);
             return data.flatMapIterable(p -> extractURIListNew(p, req))
                     .flatMap(uris ->
-
                             {
                                 try {
                                     return sendSignalToHSPANew(uris, req);
@@ -114,8 +113,11 @@ public class HSPAService {
 
         String[] uriSubsidArr = uriSubsid.split("\\|");
         String uri = uriSubsidArr[0];
+        String subsId = uriSubsidArr[1];
 
-        LOGGER.info("{} | RequesterService::info::sending Request to HSPA::{}", req.getContext().getMessageId(), uri);
+        req.getContext().setProviderId(subsId);
+
+        LOGGER.info("{} | RequesterService::info::sending Request to HSPA::{}, URL::{}", req.getContext().getMessageId(), subsId, uri);
 
         Mono<String> response = null;
         response = getWebClient.post().uri(uri + "/search")
@@ -132,7 +134,7 @@ public class HSPAService {
                 .doOnNext(p -> LOGGER.info(
                         "created_on:{}, transaction_id:{}, message_id:{}, consumer_id:{}, provider_id:{}, domain:{}, city:{}, action:{}, Response:{}",
                         new Timestamp(System.currentTimeMillis()), req.getContext().getTransactionId(),
-                        req.getContext().getMessageId(), req.getContext().getConsumerId(), uriSubsidArr[1],
+                        req.getContext().getMessageId(), req.getContext().getConsumerId(), subsId,
                         req.getContext().getDomain(), req.getContext().getCity(), req.getContext().getAction(), p))
                 .onErrorResume(error -> {
                     gatewayUtil.logErrorMessageForKibana(req,error.getMessage(), GatewayError.INTERNAL_SERVER_ERROR.getCode());
