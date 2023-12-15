@@ -7,7 +7,6 @@ import 'package:uhi_flutter_app/theme/src/app_colors.dart';
 import 'package:uhi_flutter_app/theme/src/app_text_style.dart';
 
 import '../../../services/services.dart';
-import '../../view.dart';
 
 enum _SupportState {
   unknown,

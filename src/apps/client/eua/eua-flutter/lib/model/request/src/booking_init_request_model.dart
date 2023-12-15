@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:uhi_flutter_app/model/common/src/context_model.dart';
 import 'package:uhi_flutter_app/model/response/src/discovery_response_model.dart';
 

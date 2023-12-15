@@ -5,14 +5,11 @@ import 'dart:io';
 
 import 'package:cryptography/cryptography.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:encrypt/encrypt.dart' as encryptLib;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uhi_flutter_app/common/src/get_pages.dart';
 import 'package:uhi_flutter_app/constants/constants.dart';
-import 'package:uhi_flutter_app/constants/src/strings.dart';
 import 'package:uhi_flutter_app/controller/controller.dart';
 import 'package:uhi_flutter_app/model/common/src/doctor_image_model.dart';
 import 'package:uhi_flutter_app/model/model.dart';
@@ -22,12 +19,8 @@ import 'package:uhi_flutter_app/model/response/src/get_user_details_response.dar
 import 'package:uhi_flutter_app/services/services.dart';
 import 'package:uhi_flutter_app/utils/src/shared_preferences.dart';
 import 'package:uhi_flutter_app/view/appointment/appointment.dart';
-import 'package:uhi_flutter_app/view/appointment/src/consultation_completed_page.dart';
-import 'package:uhi_flutter_app/view/chat/src/chat_page.dart';
-import 'package:uhi_flutter_app/view/home/home.dart';
 import 'package:uhi_flutter_app/webRTC/src/call_sample/call_sample.dart';
 import 'package:uhi_flutter_app/widgets/src/spacing.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../../observer/home_page_obsevable.dart';
 import '../../../theme/src/app_colors.dart';
@@ -399,7 +392,7 @@ class _AppointmentStatusConfirmPageState
       return iosDeviceInfo.identifierForVendor; // unique ID on iOS
     } else if (Platform.isAndroid) {
       var androidDeviceInfo = await deviceInfo.androidInfo;
-      return androidDeviceInfo.androidId; // unique ID on Android
+      return androidDeviceInfo.id; // unique ID on Android
     }
     return null;
   }

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -19,8 +18,6 @@ import 'package:uhi_flutter_app/view/appointment/src/appointment_status_confirm_
 import 'package:uhi_flutter_app/view/appointment/src/cancel_appointment_page.dart';
 import 'package:uhi_flutter_app/view/doctor/src/doctors_detail_page.dart';
 import 'package:uhi_flutter_app/widgets/widgets.dart';
-
-import '../../chat/src/chat_page.dart';
 
 class UpcomingAppointmentPage extends StatefulWidget {
   const UpcomingAppointmentPage({Key? key}) : super(key: key);

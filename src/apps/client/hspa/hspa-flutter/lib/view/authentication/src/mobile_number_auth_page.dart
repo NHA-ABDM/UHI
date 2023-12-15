@@ -15,12 +15,9 @@ import '../../../constants/src/web_urls.dart';
 import '../../../controller/src/auth_controller.dart';
 import '../../../theme/src/app_colors.dart';
 import '../../../theme/src/app_text_style.dart';
-import '../../../utils/src/utility.dart';
 import '../../../widgets/src/alert_dialog_with_single_action.dart';
 import '../../../widgets/src/square_rounded_button_with_icon.dart';
 import '../../../widgets/src/vertical_spacing.dart';
-import 'otp_auth_page.dart';
-import 'register_provider_page.dart';
 
 class MobileNumberAuthPage extends StatefulWidget {
   const MobileNumberAuthPage({Key? key}) : super(key: key);
@@ -34,7 +31,6 @@ class MobileNumberAuthPage extends StatefulWidget {
 }
 
 class _MobileNumberAuthPageState extends State<MobileNumberAuthPage> {
-
   /// Arguments
   late final bool fromRolePage;
 
@@ -59,7 +55,7 @@ class _MobileNumberAuthPageState extends State<MobileNumberAuthPage> {
 
   @override
   Widget build(BuildContext context) {
-    width  = MediaQuery.of(context).size.width;
+    width = MediaQuery.of(context).size.width;
     return ModalProgressHUD(
       inAsyncCall: _isLoading,
       child: Scaffold(
@@ -70,11 +66,15 @@ class _MobileNumberAuthPageState extends State<MobileNumberAuthPage> {
           titleSpacing: 0,
           title: Text(
             AppStrings().mobileNumberAuthAppBarTitle,
-            style: AppTextStyle.textBoldStyle(color: AppColors.black, fontSize: 18),
+            style: AppTextStyle.textBoldStyle(
+                color: AppColors.black, fontSize: 18),
           ),
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: AppColors.black,),
-            onPressed: (){
+            icon: Icon(
+              Icons.arrow_back,
+              color: AppColors.black,
+            ),
+            onPressed: () {
               Get.back();
             },
           ),
@@ -95,15 +95,20 @@ class _MobileNumberAuthPageState extends State<MobileNumberAuthPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                fromRolePage ? AppStrings().enterMobileNumberLabel : AppStrings().willSedOTPLabel,
-                  style: AppTextStyle.textSemiBoldStyle(
-                      fontSize: 14,
-                      color: AppColors.titleTextColor,
-                  ),
+                fromRolePage
+                    ? AppStrings().enterMobileNumberLabel
+                    : AppStrings().willSedOTPLabel,
+                style: AppTextStyle.textSemiBoldStyle(
+                  fontSize: 14,
+                  color: AppColors.titleTextColor,
+                ),
               ),
-              VerticalSpacing( size: 24,),
-              Text(
-                  AppStrings().labelMobileNumber, style: AppTextStyle.textMediumStyle(fontSize: 12, color: AppColors.labelTextColor)),
+              VerticalSpacing(
+                size: 24,
+              ),
+              Text(AppStrings().labelMobileNumber,
+                  style: AppTextStyle.textMediumStyle(
+                      fontSize: 12, color: AppColors.labelTextColor)),
               SizedBox(
                 height: 70,
                 child: IntlPhoneField(
@@ -112,8 +117,8 @@ class _MobileNumberAuthPageState extends State<MobileNumberAuthPage> {
                   initialCountryCode: 'IN',
                   showCountryFlag: false,
                   showDropdownIcon: false,
-                  countries: const ['IN'],
-                  style: AppTextStyle.textMediumStyle(fontSize: 16, color: AppColors.titleTextColor),
+                  style: AppTextStyle.textMediumStyle(
+                      fontSize: 16, color: AppColors.titleTextColor),
                   disableLengthCheck: true,
                   invalidNumberMessage: AppStrings().errorEnterValidMobile,
                   validator: (PhoneNumber? number) {
@@ -128,42 +133,55 @@ class _MobileNumberAuthPageState extends State<MobileNumberAuthPage> {
                   ],
                 ),
               ),
-              VerticalSpacing(size: 24,),
-              SquareRoundedButtonWithIcon(text: AppStrings().btnContinue, assetImage: AssetImages.arrowLongRight, onPressed: () {
-                if(_formKey.currentState!.validate() && mobileNumber.length == 10) {
-                  /*Get.to(() =>
+              VerticalSpacing(
+                size: 24,
+              ),
+              SquareRoundedButtonWithIcon(
+                  text: AppStrings().btnContinue,
+                  assetImage: AssetImages.arrowLongRight,
+                  onPressed: () {
+                    if (_formKey.currentState!.validate() &&
+                        mobileNumber.length == 10) {
+                      /*Get.to(() =>
                       OTPAuthenticationPage(fromUserRole: fromRolePage,),
                     transition: Utility.pageTransition,);*/
-                  handleApi();
-                } else {
-                  setState(() {
-                    if(mobileNumber.isEmpty) {
-                      Get.snackbar(AppStrings().alert, AppStrings().errorEnterMobileNumber);
+                      handleApi();
+                    } else {
+                      setState(() {
+                        if (mobileNumber.isEmpty) {
+                          Get.snackbar(AppStrings().alert,
+                              AppStrings().errorEnterMobileNumber);
+                        }
+                        _autoValidateMode = AutovalidateMode.always;
+                      });
                     }
-                    _autoValidateMode = AutovalidateMode.always;
-                  });
-                }
-              }),
-
-              VerticalSpacing( size: 24,),
-              if(fromRolePage) Text(AppStrings().dontHaveHPIDLabel, style: AppTextStyle.textMediumStyle(fontSize: 14, color: AppColors.textColor)),
-              VerticalSpacing( size: 8,),
-              if(fromRolePage) SquareRoundedButtonWithIcon(
-                  text: AppStrings().btnRegister,
-                  assetImage: AssetImages.pageEdit,
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.white,
-                  textColor: AppColors.tileColors,
-                  borderColor: AppColors.tileColors,
-                  onPressed: () {
-                    /*Get.to(() => const SignUpPage(),
-                      transition: Utility.pageTransition,);*/
-                    WebUrls.launchWebUrl(webUrl: WebUrls.hprRegistrationUrl);
-                    /*Get.to(() => const RegisterProviderPage(),
-                      transition: Utility.pageTransition,);*/
-                    //Get.toNamed(AppRoutes.registerProviderPage);
-                  }
+                  }),
+              VerticalSpacing(
+                size: 24,
               ),
+              if (fromRolePage)
+                Text(AppStrings().dontHaveHPIDLabel,
+                    style: AppTextStyle.textMediumStyle(
+                        fontSize: 14, color: AppColors.textColor)),
+              VerticalSpacing(
+                size: 8,
+              ),
+              if (fromRolePage)
+                SquareRoundedButtonWithIcon(
+                    text: AppStrings().btnRegister,
+                    assetImage: AssetImages.pageEdit,
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.white,
+                    textColor: AppColors.tileColors,
+                    borderColor: AppColors.tileColors,
+                    onPressed: () {
+                      /*Get.to(() => const SignUpPage(),
+                      transition: Utility.pageTransition,);*/
+                      WebUrls.launchWebUrl(webUrl: WebUrls.hprRegistrationUrl);
+                      /*Get.to(() => const RegisterProviderPage(),
+                      transition: Utility.pageTransition,);*/
+                      //Get.toNamed(AppRoutes.registerProviderPage);
+                    }),
             ],
           ),
         ),
@@ -171,23 +189,29 @@ class _MobileNumberAuthPageState extends State<MobileNumberAuthPage> {
     );
   }
 
-  Future<void> handleApi() async{
-    if(fromRolePage) {
+  Future<void> handleApi() async {
+    if (fromRolePage) {
       setState(() {
         _isLoading = true;
       });
 
       try {
-        AuthenticationController authenticationController = AuthenticationController();
-        AccessTokenResponse? accessTokenResponse = await authenticationController.getSessionToken();
-        if(accessTokenResponse?.accessToken != null) {
-          Preferences.saveString(key: AppStrings.accessToken, value: accessTokenResponse?.accessToken!);
-          String? transactionId = await authenticationController.sendMobileOtp(mobileNumber: mobileNumber, accessToken: accessTokenResponse!.accessToken!);
+        AuthenticationController authenticationController =
+            AuthenticationController();
+        AccessTokenResponse? accessTokenResponse =
+            await authenticationController.getSessionToken();
+        if (accessTokenResponse?.accessToken != null) {
+          Preferences.saveString(
+              key: AppStrings.accessToken,
+              value: accessTokenResponse?.accessToken!);
+          String? transactionId = await authenticationController.sendMobileOtp(
+              mobileNumber: mobileNumber,
+              accessToken: accessTokenResponse!.accessToken!);
           setState(() {
             _isLoading = false;
           });
 
-          if(transactionId != null) {
+          if (transactionId != null) {
             /*Get.to(() =>
                 OTPAuthenticationPage(
                   fromUserRole: fromRolePage,
@@ -195,23 +219,27 @@ class _MobileNumberAuthPageState extends State<MobileNumberAuthPage> {
                   transactionId: transactionId,
                 ),
               transition: Utility.pageTransition,);*/
-            Get.toNamed(AppRoutes.otpAuthenticationPage, arguments: {'fromUserRole': fromRolePage,
+            Get.toNamed(AppRoutes.otpAuthenticationPage, arguments: {
+              'fromUserRole': fromRolePage,
               'mobileNumber': mobileNumber,
-              'transactionId': transactionId,});
+              'transactionId': transactionId,
+            });
           }
         } else {
           setState(() {
             _isLoading = false;
           });
 
-          AlertDialogWithSingleAction(context: context,
+          AlertDialogWithSingleAction(
+            context: context,
             title: AppStrings().errorUnableToFetchAuthToken,
             showIcon: false,
             onCloseTap: () {
               Navigator.of(context).pop();
-            },).showAlertDialog();
+            },
+          ).showAlertDialog();
         }
-      } catch(e) {
+      } catch (e) {
         setState(() {
           _isLoading = false;
         });

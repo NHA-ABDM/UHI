@@ -20,7 +20,6 @@ import '../../../widgets/src/spacing.dart';
 import '../../../widgets/src/square_rounded_button_with_icon.dart';
 import '../../../widgets/src/underlined_text_form_field.dart';
 import '../../../widgets/src/vertical_spacing.dart';
-import '../../dashboard/src/dashboard_page.dart';
 
 enum Payment {afterConsultation, beforeConsultation, withInWeek}
 
@@ -179,7 +178,7 @@ class _AddUpiPageState extends State<AddUpiPage> {
           ),
           Column(
             children: [
-              Spacing(isWidth: false, size: 16,),
+              const Spacing(isWidth: false, size: 16,),
               SquareRoundedButtonWithIcon(
                   text: AppStrings().btnCancel,
                   assetImage: null,

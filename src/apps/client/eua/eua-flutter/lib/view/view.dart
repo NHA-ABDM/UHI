@@ -4,7 +4,8 @@ export 'chat/chat.dart';
 export 'discovery/discovery.dart';
 export 'doctor/doctor.dart';
 export 'home/home.dart';
-export 'payment/payment.dart';
+// Disable payment for now
+// export 'payment/payment.dart';
 export 'splashscreen/splashscreen.dart';
 export 'user/user.dart';
 export 'localauth/localauth.dart';

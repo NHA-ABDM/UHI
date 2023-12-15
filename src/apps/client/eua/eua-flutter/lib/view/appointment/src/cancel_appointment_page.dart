@@ -5,7 +5,6 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:uhi_flutter_app/constants/src/strings.dart';
 import 'package:uhi_flutter_app/model/request/src/booking_init_request_model.dart';
 import 'package:uhi_flutter_app/model/response/src/booking_confirm_response_model.dart';
 import 'package:uhi_flutter_app/model/response/src/get_upcoming_appointments_response.dart';

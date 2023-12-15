@@ -1,4 +1,3 @@
-import 'package:cryptography/cryptography.dart';
 import 'package:flutter/material.dart';
 
 class ChatMessageEncryptionModel {

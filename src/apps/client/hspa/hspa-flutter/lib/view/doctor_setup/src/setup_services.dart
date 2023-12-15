@@ -11,9 +11,7 @@ import '../../../constants/src/get_pages.dart';
 import '../../../constants/src/strings.dart';
 import '../../../theme/src/app_colors.dart';
 import '../../../theme/src/app_text_style.dart';
-import '../../../utils/src/utility.dart';
 import '../../../widgets/src/square_rounded_button_with_icon.dart';
-import 'days_time_selection_page.dart';
 
 enum Type { teleconsultation, physicalConsultation }
 
@@ -121,7 +119,7 @@ class _SetUpServicesPageState extends State<SetUpServicesPage> {
           ),
           Column(
             children: [
-              Spacing(isWidth: false, size: 16,),
+              const Spacing(isWidth: false, size: 16,),
               SquareRoundedButtonWithIcon(text: AppStrings().btnNext, assetImage: AssetImages.arrowLongRight, onPressed: (){
                 if(consultType.isEmpty) {
                   Get.snackbar(AppStrings().alert, AppStrings().errorProvideServiceType);

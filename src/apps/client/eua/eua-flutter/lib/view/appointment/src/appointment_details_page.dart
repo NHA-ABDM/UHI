@@ -10,7 +10,6 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stomp_dart_client/stomp.dart';
 import 'package:uhi_flutter_app/constants/constants.dart';
-import 'package:uhi_flutter_app/constants/src/strings.dart';
 import 'package:uhi_flutter_app/controller/booking/post_booking_details_controller.dart';
 import 'package:uhi_flutter_app/controller/discovery/src/post_init_booking_details_controller.dart';
 import 'package:uhi_flutter_app/model/common/src/context_model.dart';
@@ -277,7 +276,7 @@ class _DiscoveryResultsPageState extends State<AppointmentDetailsPage> {
       return iosDeviceInfo.identifierForVendor; // unique ID on iOS
     } else if (Platform.isAndroid) {
       var androidDeviceInfo = await deviceInfo.androidInfo;
-      return androidDeviceInfo.androidId; // unique ID on Android
+      return androidDeviceInfo.id; // unique ID on Android
     }
     return null;
   }
@@ -568,6 +567,8 @@ class _DiscoveryResultsPageState extends State<AppointmentDetailsPage> {
               onTap: () {
                 // showProgressDialog();
                 // connectToStompServer();
+                // Disable payment for now
+                /*
                 Get.to(() => PaymentPage(
                       teleconsultationFees: _teleconsultationFees,
                       doctorsUPIaddress:
@@ -576,6 +577,7 @@ class _DiscoveryResultsPageState extends State<AppointmentDetailsPage> {
                       consultationType: _consultationType!,
                       doctorImage: widget.discoveryFulfillments.agent?.image,
                     ));
+                */
               },
               child: Container(
                 margin: const EdgeInsets.all(20),

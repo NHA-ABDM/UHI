@@ -9,9 +9,7 @@ import 'package:hspa_app/widgets/widgets.dart';
 import '../../../constants/src/strings.dart';
 import '../../../theme/src/app_colors.dart';
 import '../../../theme/src/app_text_style.dart';
-import '../../../utils/src/utility.dart';
 import '../../../widgets/src/vertical_spacing.dart';
-import 'aadhaar_otp_auth_page.dart';
 
 class SignUpWithAadhaarPage extends StatefulWidget {
   const SignUpWithAadhaarPage({Key? key}) : super(key: key);
@@ -66,7 +64,7 @@ class _SignUpWithAadhaarPageState extends State<SignUpWithAadhaarPage> {
                 style: AppTextStyle.textSemiBoldStyle(
                     color: AppColors.titleTextColor, fontSize: 14),
               ),
-              Spacing(
+              const Spacing(
                 isWidth: false,
                 size: 36,
               ),
@@ -86,7 +84,7 @@ class _SignUpWithAadhaarPageState extends State<SignUpWithAadhaarPage> {
                   return Validator.validateAadhaar(aadhaar);
                 },
               ),
-              Spacing(
+              const Spacing(
                 isWidth: false,
                 size: 12,
               ),
@@ -126,7 +124,7 @@ class _SignUpWithAadhaarPageState extends State<SignUpWithAadhaarPage> {
                             style: AppTextStyle.textNormalStyle(
                                 color: AppColors.black, fontSize: 12),
                           ),
-                          Spacing(
+                          const Spacing(
                             isWidth: false,
                             size: 4,
                           ),

@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'dart:async';
 
 class SimpleWebSocket {
-  String _url;
+  final String _url;
   var _socket;
   Function()? onOpen;
   Function(dynamic msg)? onMessage;
@@ -39,7 +39,7 @@ class SimpleWebSocket {
 
   Future<WebSocket> _connectForSelfSignedCert(url) async {
     try {
-      Random r = new Random();
+      Random r = Random();
       String key = base64.encode(List<int>.generate(8, (_) => r.nextInt(255)));
       HttpClient client = HttpClient(context: SecurityContext());
       client.badCertificateCallback =
@@ -68,7 +68,7 @@ class SimpleWebSocket {
 
       return webSocket;
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 }

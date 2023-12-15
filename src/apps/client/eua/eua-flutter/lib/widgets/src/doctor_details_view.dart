@@ -2,26 +2,25 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:super_tooltip/super_tooltip.dart';
-import 'package:uhi_flutter_app/constants/src/strings.dart';
 import 'package:uhi_flutter_app/model/response/src/discovery_response_model.dart';
 import 'package:uhi_flutter_app/theme/src/app_colors.dart';
 import 'package:uhi_flutter_app/theme/src/app_text_style.dart';
 
 class DoctorDetailsView extends StatefulWidget {
-  String? doctorName;
-  String? doctorAbhaId;
-  Tags? tags;
-  String? gender;
-  String? profileImage;
+  final String? doctorName;
+  final String? doctorAbhaId;
+  final Tags? tags;
+  final String? gender;
+  final String? profileImage;
 
-  DoctorDetailsView(
-      {Key? key,
-      this.doctorName,
-      this.doctorAbhaId,
-      this.tags,
-      this.gender,
-      this.profileImage})
-      : super(key: key);
+  const DoctorDetailsView({
+    Key? key,
+    this.doctorName,
+    this.doctorAbhaId,
+    this.tags,
+    this.gender,
+    this.profileImage,
+  }) : super(key: key);
 
   @override
   _DoctorDetailsViewState createState() => _DoctorDetailsViewState();

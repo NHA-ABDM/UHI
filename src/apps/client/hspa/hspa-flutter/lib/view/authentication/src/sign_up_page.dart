@@ -7,10 +7,8 @@ import 'package:hspa_app/widgets/widgets.dart';
 import '../../../constants/src/strings.dart';
 import '../../../theme/src/app_colors.dart';
 import '../../../theme/src/app_text_style.dart';
-import '../../../utils/src/utility.dart';
 import '../../../widgets/src/square_rounded_button.dart';
 import '../../../widgets/src/vertical_spacing.dart';
-import 'sign_up_with_aadhaar.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
@@ -50,7 +48,7 @@ class _SignUpPageState extends State<SignUpPage> {
   buildBody() {
     return Column(
       children: [
-        Spacing(
+        const Spacing(
           isWidth: false,
           size: 24,
         ),
@@ -62,7 +60,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   fontSize: 14, color: AppColors.titleTextColor),
             ),
         ),
-        Spacing(
+        const Spacing(
           isWidth: false,
           size: 24,
         ),

@@ -14,7 +14,6 @@ import 'package:hspa_app/widgets/src/vertical_spacing.dart';
 import '../../../common/common.dart';
 import '../../../constants/src/strings.dart';
 import '../../../model/request/src/provider_service_type.dart';
-import '../../../model/request/src/save_public_key_model.dart';
 import '../../../model/src/doctor_profile.dart';
 import '../../../theme/src/app_colors.dart';
 import '../../../theme/src/app_text_style.dart';

@@ -158,7 +158,7 @@ class NewConfirmationDialog {
                     ),
                   ),
                   Container(
-                    color: Color(0xFFF0F3F4),
+                    color: const Color(0xFFF0F3F4),
                     height: 50,
                     width: 1,
                   ),

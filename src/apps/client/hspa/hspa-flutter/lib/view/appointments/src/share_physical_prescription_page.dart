@@ -194,7 +194,7 @@ class _SharePhysicalPrescriptionPageState
   getBottomButtons() {
     return Column(
       children: [
-        Spacing(
+        const Spacing(
           isWidth: false,
           size: 16,
         ),
@@ -223,7 +223,7 @@ class _SharePhysicalPrescriptionPageState
                           Get.back();
                         }),
                   ),
-                  Spacing(
+                  const Spacing(
                     size: 16,
                   ),
                   Expanded(

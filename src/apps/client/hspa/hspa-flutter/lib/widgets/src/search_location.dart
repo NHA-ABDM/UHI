@@ -66,7 +66,7 @@ class _SearchLocationState extends State<SearchLocation> {
           itemCount: 20,
           itemBuilder: (context, index) {
             return Container(
-              padding: EdgeInsets.all(15),
+              padding: const EdgeInsets.all(15),
               decoration: BoxDecoration(
                   border: Border(
                 bottom: BorderSide(
@@ -83,7 +83,7 @@ class _SearchLocationState extends State<SearchLocation> {
                     color: AppColors.greyDDDDDD,
                     size: 20,
                   ),
-                  Spacing(),
+                  const Spacing(),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -93,7 +93,7 @@ class _SearchLocationState extends State<SearchLocation> {
                         style: AppTextStyle.textBoldStyle(
                             color: AppColors.testColor, fontSize: 15),
                       ),
-                      Spacing(size: 5, isWidth: false),
+                      const Spacing(size: 5, isWidth: false),
                       Text(
                         "Pune, Maharashtra",
                         style: AppTextStyle.textNormalStyle(
