@@ -1,0 +1,532 @@
+{
+	"info": {
+		"_postman_id": "a7210530-21dd-4d85-a7a7-871a50a192bd",
+		"name": "UHI - Hackathon",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11132902"
+	},
+	"item": [
+		{
+			"name": "First/Gateway Search",
+			"item": [
+				{
+					"name": "search",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Gateway-Authorization",
+								"value": "{{auth_value}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "      { \"context\": {\n        \"domain\": \"Health\",\n        \"country\": \"IND\",\n        \"city\": \"Pune\",\n        \"action\": \"search\",\n        \"timestamp\": \"2022-07-07T10:43:48.705082Z\",\n        \"core_version\": \"0.7.1\",\n        \"consumer_id\": \"eua-nha\",\n        \"consumer_uri\": \"http://eu.hodo.io/\",\n        \"transaction_id\": \"ae9e6d90-fde1-11ec-b66a-f551703a8c52\",\n        \"message_id\": \"ae9e6d90-fde1-11ec-b66a-f551703a8ca2\"\n    },\n    \"message\": {\n        \"intent\": {\n            \"fulfillment\": {\n                \"agent\": {\n                    \"name\": \"ganesh\"\n                },\n                \"start\": {\n                    \"time\": {\n                        \"timestamp\": \"2022-06-22T15:41:36\"\n                    }\n                },\n                \"end\": {\n                    \"time\": {\n                        \"timestamp\": \"2022-06-22T23:59:59\"\n                    }\n                },\n                \"type\": \"PhysicalConsultation\"\n            }\n        }\n    }\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{gateway_base_url}}/api/v1/search",
+							"host": [
+								"{{gateway_base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"search"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Search by name",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n       \"context\": {\n        \"domain\": \"nic2004:85111\",\n        \"country\": \"IND\",\n        \"city\": \"std:080\",\n        \"action\": \"search\",\n        \"timestamp\": \"2022-07-07T10:43:48.705082Z\",\n        \"core_version\": \"0.7.1\",\n        \"consumer_id\": \"eua-nha\",\n        \"consumer_uri\": \"http://100.65.158.41:8901/api/v1/euaService\",\n        \"provider_id\": \"http://100.65.158.41:8084/api/v1\",\n        \"provider_uri\": \"http://100.65.158.41:8084/api/v1\",\n        \"transaction_id\": \"ae9e6d90-fde1-11ec-b66a-f551703a8c52\"\n    },\n    \"message\": {\n        \"intent\": {\n            \"fulfillment\": {\n                \"agent\": {\n                    \"name\": \"deepak\"\n                },\n                \"start\": {\n                    \"time\": {\n                        \"timestamp\": \"2022-06-22T15:41:36\"\n                    }\n                },\n                \"end\": {\n                    \"time\": {\n                        \"timestamp\": \"2022-06-22T23:59:59\"\n                    }\n                },\n                \"type\": \"PhysicalConsultation\"\n            }\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/search",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"search"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"message\": {\n        \"ack\": {\n            \"status\": \"ACK\"\n        }\n    },\n    \"error\": {}\n}"
+						},
+						{
+							"name": "Search by HPRID",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n       \"context\": {\n        \"domain\": \"nic2004:85111\",\n        \"country\": \"IND\",\n        \"city\": \"std:080\",\n        \"action\": \"search\",\n        \"timestamp\": \"2022-07-07T10:43:48.705082Z\",\n        \"core_version\": \"0.7.1\",\n        \"consumer_id\": \"eua-nha\",\n        \"consumer_uri\": \"http://100.65.158.41:8901/api/v1/euaService\",\n        \"provider_id\": \"http://100.65.158.41:8084/api/v1\",\n        \"provider_uri\": \"http://100.65.158.41:8084/api/v1\",\n        \"transaction_id\": \"ae9e6d90-fde1-11ec-b66a-f551703a8c52\"\n    },\n    \"message\": {\n        \"intent\": {\n            \"fulfillment\": {\n                \"agent\": {\n                    \"name\": \"deepak.kumar@hpr.abdm\"\n                },\n                \"start\": {\n                    \"time\": {\n                        \"timestamp\": \"2022-06-22T15:41:36\"\n                    }\n                },\n                \"end\": {\n                    \"time\": {\n                        \"timestamp\": \"2022-06-22T23:59:59\"\n                    }\n                },\n                \"type\": \"PhysicalConsultation\"\n            }\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/search",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"search"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"message\": {\n        \"ack\": {\n            \"status\": \"ACK\"\n        }\n    },\n    \"error\": {}\n}"
+						},
+						{
+							"name": "Search by Speciality",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n       \"context\": {\n        \"domain\": \"nic2004:85111\",\n        \"country\": \"IND\",\n        \"city\": \"std:080\",\n        \"action\": \"on_search\",\n        \"timestamp\": \"2022-07-07T10:43:48.705082Z\",\n        \"core_version\": \"0.7.1\",\n        \"consumer_id\": \"eua-nha\",\n        \"consumer_uri\": \"http://100.65.158.41:8901/api/v1/euaService\",\n        \"provider_id\": \"http://100.65.158.41:8084/api/v1\",\n        \"provider_uri\": \"http://100.65.158.41:8084/api/v1\",\n        \"transaction_id\": \"ae9e6d90-fde1-11ec-b66a-f551703a8c52\"\n    },\n    \"message\": {\n        \"intent\": {\n            \"fulfillment\": {\n                \"agent\": {\n                    \"tags\": {\n                            \"@abdm/gov/in/speciality\": \"ENT\"\n                },\n                \"start\": {\n                    \"time\": {\n                        \"timestamp\": \"2022-06-22T15:41:36\"\n                    }\n                },\n                \"end\": {\n                    \"time\": {\n                        \"timestamp\": \"2022-06-22T23:59:59\"\n                    }\n                },\n                \"type\": \"PhysicalConsultation\"\n            }\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/search",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"search"
+									]
+								}
+							},
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"message\": {\n        \"ack\": {\n            \"status\": \"ACK\"\n        }\n    },\n    \"error\": {}\n}"
+						}
+					]
+				},
+				{
+					"name": "on_search",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Gateway-Authorization",
+								"value": "{{auth_value}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"context\": {\n        \"domain\": \"nic2004:85111\",\n        \"country\": \"IND\",\n        \"city\": \"std:080\",\n        \"action\": \"on_search\",\n        \"timestamp\": \"2022-07-14T09:58:16.837097Z\",\n        \"core_version\": \"0.7.1\",\n        \"consumer_id\": \"eua-nha\",\n        \"consumer_uri\": \"http://100.96.9.173:8080/api/v1/euaService\",\n        \"provider_id\": \"http://100.96.9.171:8084/api/v1\",\n        \"provider_uri\": \"http://100.96.9.171:8084/api/v1\",\n        \"transaction_id\": \"7b459b60-035b-11ed-8882-a5e3ac18090e\",\n        \"message_id\": \"7b459b60-035b-11ed-8882-a5e3ac18090e\"\n    },\n    \"message\": {\n        \"catalog\": {\n            \"descriptor\": {\n                \"name\": \"HSPA\"\n            },\n            \"items\": [\n                {\n                    \"id\": \"0\",\n                    \"descriptor\": {\n                        \"name\": \"Consultation\"\n                    },\n                    \"price\": {\n                        \"currency\": \"INR\",\n                        \"value\": \"500.0\"\n                    },\n                    \"fulfillment_id\": \"0\"\n                }\n            ],\n            \"fulfillments\": [\n                {\n                    \"id\": \"0\",\n                    \"type\": \"Teleconsultation\",\n                    \"agent\": {\n                        \"id\": \"deepak.kumar@hpr.abdm\",\n                        \"name\": \"deepak.kumar@hpr.abdm - Deepak Kumar\",\n                        \"gender\": \"M\",\n                        \"tags\": {\n                            \"@abdm/gov/in/first_consultation\": \"500.0\",\n                            \"@abdm/gov/in/upi_id\": \"9896271877@okicici\",\n                            \"@abdm/gov/in/follow_up\": \"200.0\",\n                            \"@abdm/gov/in/experience\": \"7.0\",\n                            \"@abdm/gov/in/languages\": \"Eng, Hin\",\n                            \"@abdm/gov/in/speciality\": \"ENT\",\n                            \"@abdm/gov/in/lab_report_consultation\": \"1000.0\",\n                            \"@abdm/gov/in/education\": \"MS\",\n                            \"@abdm/gov/in/hpr_id\": \"10696314\",\n                            \"@abdm/gov/in/signature\": null\n                        }\n                    },\n                    \"start\": {\n                        \"time\": {\n                            \"timestamp\": \"T15:28+05:30\"\n                        }\n                    },\n                    \"end\": {\n                        \"time\": {\n                            \"timestamp\": \"T15:28+05:30\"\n                        }\n                    }\n                }\n            ]\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{gateway_base_url}}/api/v1/on_search",
+							"host": [
+								"{{gateway_base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"on_search"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Search result for all search intents",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Gateway-Authorization",
+										"value": "{{auth_value}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"context\": {\n        \"domain\": \"nic2004:85111\",\n        \"country\": \"IND\",\n        \"city\": \"std:080\",\n        \"action\": \"on_search\",\n        \"timestamp\": \"2022-07-07T10:43:48.705082Z\",\n        \"core_version\": \"0.7.1\",\n        \"consumer_id\": \"eua-nha\",\n        \"consumer_uri\": \"http://100.65.158.41:8901/api/v1/euaService\",\n        \"provider_id\": \"http://100.65.158.41:8084/api/v1\",\n        \"provider_uri\": \"http://100.65.158.41:8084/api/v1\",\n        \"transaction_id\": \"ae9e6d90-fde1-11ec-b66a-f551703a8c52\"\n    },\n    \"message\": {\n        \"catalog\": {\n            \"descriptor\": {\n                \"name\": \"HSPA\"\n            },\n            \"items\": [\n                {\n                    \"id\": \"0\",\n                    \"descriptor\": {\n                        \"name\": \"Consultation\"\n                    },\n                    \"price\": {\n                        \"currency\": \"INR\",\n                        \"value\": \"500.0\"\n                    },\n                    \"fulfillment_id\": \"0\"\n                }\n            ],\n            \"fulfillments\": [\n                {\n                    \"id\": \"0\",\n                    \"type\": \"Teleconsultation\",\n                    \"agent\": {\n                        \"id\": \"deepak.kumar@hpr.abdm\",\n                        \"name\": \"deepak.kumar@hpr.abdm - Deepak Kumar\",\n                        \"gender\": \"M\",\n                        \"tags\": {\n                            \"@abdm/gov/in/first_consultation\": \"500.0\",\n                            \"@abdm/gov/in/upi_id\": \"9896271877@okicici\",\n                            \"@abdm/gov/in/follow_up\": \"200.0\",\n                            \"@abdm/gov/in/experience\": \"7.0\",\n                            \"@abdm/gov/in/languages\": \"Eng, Hin\",\n                            \"@abdm/gov/in/speciality\": \"ENT\",\n                            \"@abdm/gov/in/lab_report_consultation\": \"1000.0\",\n                            \"@abdm/gov/in/education\": \"MS\",\n                            \"@abdm/gov/in/hpr_id\": \"10696314\",\n                            \"@abdm/gov/in/signature\": null\n                        }\n                    },\n                    \"start\": {\n                        \"time\": {\n                            \"timestamp\": \"T16:13+05:30\"\n                        }\n                    },\n                    \"end\": {\n                        \"time\": {\n                            \"timestamp\": \"T16:13+05:30\"\n                        }\n                    }\n                }\n            ]\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/on_search",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"on_search"
+									]
+								}
+							},
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"message\": {\n        \"ack\": {\n            \"status\": \"ACK\"\n        }\n    },\n    \"error\": {}\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "HSPA Search",
+			"item": [
+				{
+					"name": "search",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"message\": {\n        \"intent\": {\n            \"fulfillment\": {\n                \"type\": \"Teleconsultation\",\n                \"agent\": {\n                    \"name\": \"mohit\"\n                },\n                \"start\": {\n                    \"time\": {\n                        \"timestamp\": \"2022-07-14T13:24:20\"\n                    }\n                },\n                \"end\": {\n                    \"time\": {\n                        \"timestamp\": \"2022-07-14T23:59:59\"\n                    }\n                }\n            }\n        }\n    },\n    \"context\": {\n        \"domain\": \"nic2004:85111\",\n        \"country\": \"IND\",\n        \"city\": \"std:080\",\n        \"action\": \"search\",\n        \"timestamp\": \"2022-07-14T08:05:55.252760Z\",\n        \"core_version\": \"0.7.1\",\n        \"consumer_id\": \"eua-nha\",\n        \"consumer_uri\": \"http://100.96.9.173:8080/api/v1/euaService\",\n        \"transaction_id\": \"c8f9ad70-034b-11ed-a6d6-c13d491ee158\",\n        \"message_id\": \"c8f9ad70-034b-11ed-a6d6-c13d491ee158\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{hspa_base_url}}/api/v1/search",
+							"host": [
+								"{{hspa_base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"search"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "EUA On Search",
+			"item": [
+				{
+					"name": "on_search",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"context\": {\n        \"domain\": \"nic2004:85111\",\n        \"country\": \"IND\",\n        \"city\": \"std:080\",\n        \"action\": \"on_search\",\n        \"timestamp\": \"2022-07-07T10:43:48.705082Z\",\n        \"core_version\": \"0.7.1\",\n        \"consumer_id\": \"eua-nha\",\n        \"consumer_uri\": \"http://100.96.9.173:8080/api/v1/euaService\",\n        \"provider_id\": \"http://100.96.9.171:8084/api/v1\",\n        \"provider_uri\": \"http://100.96.9.171:8084/api/v1\",\n        \"transaction_id\": \"ae9e6d90-fde1-11ec-b66a-f551703a8c52\",\n        \"message_id\": \"7b459b60-035b-11ed-8882-a5e3ac18090e\"\n    },\n    \"message\": {\n        \"catalog\": {\n            \"descriptor\": {\n                \"name\": \"HSPA\"\n            },\n            \"items\": [\n                {\n                    \"id\": \"0\",\n                    \"descriptor\": {\n                        \"name\": \"Consultation\"\n                    },\n                    \"fulfillment_id\": \"1c9c0fbd-ccc9-4ae0-ad33-2b982116f041\"\n                },\n                {\n                    \"id\": \"1\",\n                    \"descriptor\": {\n                        \"name\": \"Consultation\"\n                    },\n                    \"fulfillment_id\": \"009a20cd-2218-4e0f-884b-852f07c3f1e2\"\n                },\n                {\n                    \"id\": \"2\",\n                    \"descriptor\": {\n                        \"name\": \"Consultation\"\n                    },\n                    \"fulfillment_id\": \"af23cdb6-dfab-4168-9663-4d5add340200\"\n                },\n                {\n                    \"id\": \"3\",\n                    \"descriptor\": {\n                        \"name\": \"Consultation\"\n                    },\n                    \"fulfillment_id\": \"23cfc7c5-1a4f-475c-bdbd-7e33ae81d73a\"\n                },\n                {\n                    \"id\": \"4\",\n                    \"descriptor\": {\n                        \"name\": \"Consultation\"\n                    },\n                    \"fulfillment_id\": \"23b1ad00-da9e-49f5-ac99-bd00b9a91802\"\n                },\n                {\n                    \"id\": \"5\",\n                    \"descriptor\": {\n                        \"name\": \"Consultation\"\n                    },\n                    \"fulfillment_id\": \"496421f4-d1a4-4e07-a154-391bc8d9846a\"\n                },\n                {\n                    \"id\": \"6\",\n                    \"descriptor\": {\n                        \"name\": \"Consultation\"\n                    },\n                    \"fulfillment_id\": \"b16f6100-4a8c-41d4-b0c6-eb62e4aa757e\"\n                },\n                {\n                    \"id\": \"7\",\n                    \"descriptor\": {\n                        \"name\": \"Consultation\"\n                    },\n                    \"fulfillment_id\": \"a1332589-9831-4ce2-afe4-e2bb4bae220e\"\n                },\n                {\n                    \"id\": \"8\",\n                    \"descriptor\": {\n                        \"name\": \"Consultation\"\n                    },\n                    \"fulfillment_id\": \"4ae270d9-8f6f-4cb0-96db-ea086d34d6e0\"\n                },\n                {\n                    \"id\": \"9\",\n                    \"descriptor\": {\n                        \"name\": \"Consultation\"\n                    },\n                    \"fulfillment_id\": \"2cc94b04-853e-4a9f-9f9f-6d1c124b16db\"\n                },\n                {\n                    \"id\": \"10\",\n                    \"descriptor\": {\n                        \"name\": \"Consultation\"\n                    },\n                    \"fulfillment_id\": \"398a5441-664f-44ae-b9f9-3699c709a258\"\n                }\n            ],\n            \"fulfillments\": [\n                {\n                    \"id\": \"1c9c0fbd-ccc9-4ae0-ad33-2b982116f041\",\n                    \"type\": \"DIGITAL-CONSULTATION\",\n                    \"agent\": {\n                        \"id\": \"amodjoshi@hpr.ndhm\",\n                        \"name\": \"amodjoshi@hpr.ndhm - Amod Suresh Joshi\",\n                        \"gender\": \"M\"\n                    },\n                    \"start\": {\n                        \"time\": {\n                            \"timestamp\": \"2022-07-15T11:15:00\"\n                        }\n                    },\n                    \"end\": {\n                        \"time\": {\n                            \"timestamp\": \"2022-07-15T11:30:00\"\n                        }\n                    },\n                    \"tags\": {\n                        \"@abdm/gov.in/slot\": \"1c9c0fbd-ccc9-4ae0-ad33-2b982116f041\"\n                    },\n                    \"quote\": {\n                        \"price\": {\n                            \"currency\": \"INR\"\n                        }\n                    }\n                },\n                {\n                    \"id\": \"009a20cd-2218-4e0f-884b-852f07c3f1e2\",\n                    \"type\": \"DIGITAL-CONSULTATION\",\n                    \"agent\": {\n                        \"id\": \"amodjoshi@hpr.ndhm\",\n                        \"name\": \"amodjoshi@hpr.ndhm - Amod Suresh Joshi\",\n                        \"gender\": \"M\"\n                    },\n                    \"start\": {\n                        \"time\": {\n                            \"timestamp\": \"2022-07-15T11:30:00\"\n                        }\n                    },\n                    \"end\": {\n                        \"time\": {\n                            \"timestamp\": \"2022-07-15T11:45:00\"\n                        }\n                    },\n                    \"tags\": {\n                        \"@abdm/gov.in/slot\": \"009a20cd-2218-4e0f-884b-852f07c3f1e2\"\n                    },\n                    \"quote\": {\n                        \"price\": {\n                            \"currency\": \"INR\"\n                        }\n                    }\n                },\n                {\n                    \"id\": \"af23cdb6-dfab-4168-9663-4d5add340200\",\n                    \"type\": \"DIGITAL-CONSULTATION\",\n                    \"agent\": {\n                        \"id\": \"amodjoshi@hpr.ndhm\",\n                        \"name\": \"amodjoshi@hpr.ndhm - Amod Suresh Joshi\",\n                        \"gender\": \"M\"\n                    },\n                    \"start\": {\n                        \"time\": {\n                            \"timestamp\": \"2022-07-15T11:45:00\"\n                        }\n                    },\n                    \"end\": {\n                        \"time\": {\n                            \"timestamp\": \"2022-07-15T12:00:00\"\n                        }\n                    },\n                    \"tags\": {\n                        \"@abdm/gov.in/slot\": \"af23cdb6-dfab-4168-9663-4d5add340200\"\n                    },\n                    \"quote\": {\n                        \"price\": {\n                            \"currency\": \"INR\"\n                        }\n                    }\n                },\n                {\n                    \"id\": \"23cfc7c5-1a4f-475c-bdbd-7e33ae81d73a\",\n                    \"type\": \"DIGITAL-CONSULTATION\",\n                    \"agent\": {\n                        \"id\": \"amodjoshi@hpr.ndhm\",\n                        \"name\": \"amodjoshi@hpr.ndhm - Amod Suresh Joshi\",\n                        \"gender\": \"M\"\n                    },\n                    \"start\": {\n                        \"time\": {\n                            \"timestamp\": \"2022-07-16T10:00:00\"\n                        }\n                    },\n                    \"end\": {\n                        \"time\": {\n                            \"timestamp\": \"2022-07-16T10:15:00\"\n                        }\n                    },\n                    \"tags\": {\n                        \"@abdm/gov.in/slot\": \"23cfc7c5-1a4f-475c-bdbd-7e33ae81d73a\"\n                    },\n                    \"quote\": {\n                        \"price\": {\n                            \"currency\": \"INR\"\n                        }\n                    }\n                },\n                {\n                    \"id\": \"23b1ad00-da9e-49f5-ac99-bd00b9a91802\",\n                    \"type\": \"DIGITAL-CONSULTATION\",\n                    \"agent\": {\n                        \"id\": \"amodjoshi@hpr.ndhm\",\n                        \"name\": \"amodjoshi@hpr.ndhm - Amod Suresh Joshi\",\n                        \"gender\": \"M\"\n                    },\n                    \"start\": {\n                        \"time\": {\n                            \"timestamp\": \"2022-07-16T10:15:00\"\n                        }\n                    },\n                    \"end\": {\n                        \"time\": {\n                            \"timestamp\": \"2022-07-16T10:30:00\"\n                        }\n                    },\n                    \"tags\": {\n                        \"@abdm/gov.in/slot\": \"23b1ad00-da9e-49f5-ac99-bd00b9a91802\"\n                    },\n                    \"quote\": {\n                        \"price\": {\n                            \"currency\": \"INR\"\n                        }\n                    }\n                },\n                {\n                    \"id\": \"496421f4-d1a4-4e07-a154-391bc8d9846a\",\n                    \"type\": \"DIGITAL-CONSULTATION\",\n                    \"agent\": {\n                        \"id\": \"amodjoshi@hpr.ndhm\",\n                        \"name\": \"amodjoshi@hpr.ndhm - Amod Suresh Joshi\",\n                        \"gender\": \"M\"\n                    },\n                    \"start\": {\n                        \"time\": {\n                            \"timestamp\": \"2022-07-16T10:30:00\"\n                        }\n                    },\n                    \"end\": {\n                        \"time\": {\n                            \"timestamp\": \"2022-07-16T10:45:00\"\n                        }\n                    },\n                    \"tags\": {\n                        \"@abdm/gov.in/slot\": \"496421f4-d1a4-4e07-a154-391bc8d9846a\"\n                    },\n                    \"quote\": {\n                        \"price\": {\n                            \"currency\": \"INR\"\n                        }\n                    }\n                },\n                {\n                    \"id\": \"b16f6100-4a8c-41d4-b0c6-eb62e4aa757e\",\n                    \"type\": \"DIGITAL-CONSULTATION\",\n                    \"agent\": {\n                        \"id\": \"amodjoshi@hpr.ndhm\",\n                        \"name\": \"amodjoshi@hpr.ndhm - Amod Suresh Joshi\",\n                        \"gender\": \"M\"\n                    },\n                    \"start\": {\n                        \"time\": {\n                            \"timestamp\": \"2022-07-16T10:45:00\"\n                        }\n                    },\n                    \"end\": {\n                        \"time\": {\n                            \"timestamp\": \"2022-07-16T11:00:00\"\n                        }\n                    },\n                    \"tags\": {\n                        \"@abdm/gov.in/slot\": \"b16f6100-4a8c-41d4-b0c6-eb62e4aa757e\"\n                    },\n                    \"quote\": {\n                        \"price\": {\n                            \"currency\": \"INR\"\n                        }\n                    }\n                },\n                {\n                    \"id\": \"a1332589-9831-4ce2-afe4-e2bb4bae220e\",\n                    \"type\": \"DIGITAL-CONSULTATION\",\n                    \"agent\": {\n                        \"id\": \"amodjoshi@hpr.ndhm\",\n                        \"name\": \"amodjoshi@hpr.ndhm - Amod Suresh Joshi\",\n                        \"gender\": \"M\"\n                    },\n                    \"start\": {\n                        \"time\": {\n                            \"timestamp\": \"2022-07-16T11:00:00\"\n                        }\n                    },\n                    \"end\": {\n                        \"time\": {\n                            \"timestamp\": \"2022-07-16T11:15:00\"\n                        }\n                    },\n                    \"tags\": {\n                        \"@abdm/gov.in/slot\": \"a1332589-9831-4ce2-afe4-e2bb4bae220e\"\n                    },\n                    \"quote\": {\n                        \"price\": {\n                            \"currency\": \"INR\"\n                        }\n                    }\n                },\n                {\n                    \"id\": \"4ae270d9-8f6f-4cb0-96db-ea086d34d6e0\",\n                    \"type\": \"DIGITAL-CONSULTATION\",\n                    \"agent\": {\n                        \"id\": \"amodjoshi@hpr.ndhm\",\n                        \"name\": \"amodjoshi@hpr.ndhm - Amod Suresh Joshi\",\n                        \"gender\": \"M\"\n                    },\n                    \"start\": {\n                        \"time\": {\n                            \"timestamp\": \"2022-07-16T11:15:00\"\n                        }\n                    },\n                    \"end\": {\n                        \"time\": {\n                            \"timestamp\": \"2022-07-16T11:30:00\"\n                        }\n                    },\n                    \"tags\": {\n                        \"@abdm/gov.in/slot\": \"4ae270d9-8f6f-4cb0-96db-ea086d34d6e0\"\n                    },\n                    \"quote\": {\n                        \"price\": {\n                            \"currency\": \"INR\"\n                        }\n                    }\n                },\n                {\n                    \"id\": \"2cc94b04-853e-4a9f-9f9f-6d1c124b16db\",\n                    \"type\": \"DIGITAL-CONSULTATION\",\n                    \"agent\": {\n                        \"id\": \"amodjoshi@hpr.ndhm\",\n                        \"name\": \"amodjoshi@hpr.ndhm - Amod Suresh Joshi\",\n                        \"gender\": \"M\"\n                    },\n                    \"start\": {\n                        \"time\": {\n                            \"timestamp\": \"2022-07-16T11:30:00\"\n                        }\n                    },\n                    \"end\": {\n                        \"time\": {\n                            \"timestamp\": \"2022-07-16T11:45:00\"\n                        }\n                    },\n                    \"tags\": {\n                        \"@abdm/gov.in/slot\": \"2cc94b04-853e-4a9f-9f9f-6d1c124b16db\"\n                    },\n                    \"quote\": {\n                        \"price\": {\n                            \"currency\": \"INR\"\n                        }\n                    }\n                },\n                {\n                    \"id\": \"398a5441-664f-44ae-b9f9-3699c709a258\",\n                    \"type\": \"DIGITAL-CONSULTATION\",\n                    \"agent\": {\n                        \"id\": \"amodjoshi@hpr.ndhm\",\n                        \"name\": \"amodjoshi@hpr.ndhm - Amod Suresh Joshi\",\n                        \"gender\": \"M\"\n                    },\n                    \"start\": {\n                        \"time\": {\n                            \"timestamp\": \"2022-07-16T11:45:00\"\n                        }\n                    },\n                    \"end\": {\n                        \"time\": {\n                            \"timestamp\": \"2022-07-16T12:00:00\"\n                        }\n                    },\n                    \"tags\": {\n                        \"@abdm/gov.in/slot\": \"398a5441-664f-44ae-b9f9-3699c709a258\"\n                    },\n                    \"quote\": {\n                        \"price\": {\n                            \"currency\": \"INR\"\n                        }\n                    }\n                }\n            ]\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{eua_base_url}}/api/v1/euaService/on_search",
+							"host": [
+								"{{eua_base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"euaService",
+								"on_search"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "HSPA Init",
+			"item": [
+				{
+					"name": "init",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"context\": {\n        \"domain\": \"nic2004:85111\",\n        \"country\": \"IND\",\n        \"city\": \"std:080\",\n        \"action\": \"init\",\n        \"timestamp\": \"2022-07-14T08:05:55.252760Z\",\n        \"core_version\": \"0.7.1\",\n        \"consumer_id\": \"eua-nha\",\n        \"consumer_uri\": \"http://100.96.9.173:8080/api/v1/euaService\",\n        \"transaction_id\": \"c8f9ad70-034b-11ed-a6d6-c13d491ee158\",\n        \"message_id\": \"c8f9ad70-034b-11ed-a6d6-c13d491ee158\"\n    },\n    \"message\": {\n        \"order\": {\n            \"id\": \"d49a3f60-e630-11ec-b41c-99795ccbf2d5\",\n            \"item\": {\n                \"id\": \"1\",\n                \"descriptor\": {\n                    \"name\": \"Consultation\"\n                },\n                \"fulfillment_id\": \"e61a1aa1-c66d-4fcf-9467-85389c0f49b1\",\n                \"price\": {\n                    \"currency\": \"INR\",\n                    \"value\": \"1000\"\n                }\n            },\n            \"billing\": {\n                \"name\": \"Ganesh Borse\",\n                \"address\": {\n                    \"door\": \"21A\",\n                    \"name\": \"ABC Apartments\",\n                    \"locality\": \"Dwarka\",\n                    \"city\": \"New Delhi\",\n                    \"state\": \"New Delhi\",\n                    \"country\": \"India\",\n                    \"area_code\": \"110011\"\n                },\n                \"email\": \"\",\n                \"phone\": \"9595163508\"\n            },\n            \"fulfillment\": {\n                \"id\": \"e61a1aa1-c66d-4fcf-9467-85389c0f49b1\",\n                \"type\": \"Teleconsultation\",\n                \"agent\": {\n                    \"id\": \"sana.bhatt@hpr.abdm\",\n                    \"name\": \"sana.bhatt@hpr.abdm - Dr. Sana Bhatt\",\n                    \"gender\": \"F\",\n                    \"tags\": {\n                        \"@abdm/gov/in/education\": \"MD Medicine\",\n                        \"@abdm/gov/in/experience\": \"15.0\",\n                        \"@abdm/gov/in/follow_up\": \"300.0\",\n                        \"@abdm/gov/in/first_consultation\": \"500.0\",\n                        \"@abdm/gov/in/speciality\": \"Neurologist\",\n                        \"@abdm/gov/in/languages\": \"English, Hindi\",\n                        \"@abdm/gov/in/upi_id\": \"sana.bhatt@okaxis\",\n                        \"@abdm/gov/in/hpr_id\": \"12345678\"\n                    }\n                },\n                \"start\": {\n                    \"time\": {\n                        \"timestamp\": \"2022-06-10T12:30:00\"\n                    }\n                },\n                \"end\": {\n                    \"time\": {\n                        \"timestamp\": \"2022-06-10T12:45:00\"\n                    }\n                },\n                \"tags\": {\n                    \"@abdm/gov.in/slot_id\": \"e61a1aa1-c66d-4fcf-9467-85389c0f49b1\"\n                }\n            },\n            \"customer\": {\n                \"id\": \"61-8787-9274-4422\",\n                \"cred\": \"ganeshborse@sbxabdm\"\n            }\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{hspa_base_url}}/api/v1/init",
+							"host": [
+								"{{hspa_base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"init"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "EUA On Init",
+			"item": [
+				{
+					"name": "on_init",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"context\": {\r\n        \"domain\": \"nic2004:85111\",\r\n        \"country\": \"IND\",\r\n        \"city\": \"std:080\",\r\n        \"action\": \"on_init\",\r\n        \"timestamp\": \"2022-07-18T10:17:43.290643Z\",\r\n        \"core_version\": \"0.7.1\",\r\n        \"consumer_id\": \"eua-nha\",\r\n        \"consumer_uri\": \"http://100.96.9.173:8080/api/v1/euaService\",\r\n        \"provider_uri\": \"http://100.96.9.171:8084/api/v1\",\r\n        \"transaction_id\": \"329925a0-035e-11ed-8882-a5e3ac18090e\",\r\n        \"message_id\": \"329925a0-035e-11ed-8882-a5e3ac18090e\"\r\n    },\r\n    \"message\": {\r\n        \"order\": {\r\n            \"id\": \"32d34870-035e-11ed-8882-a5e3ac18090e\",\r\n            \"item\": {\r\n                \"id\": \"1\",\r\n                \"descriptor\": {\r\n                    \"name\": \"Consultation\"\r\n                },\r\n                \"price\": {\r\n                    \"currency\": \"INR\",\r\n                    \"value\": \"1000\"\r\n                },\r\n                \"fulfillment_id\": \"35dce66c-fc03-4708-bfe2-81a2461c80db\"\r\n            },\r\n            \"fulfillment\": {\r\n                \"id\": \"35dce66c-fc03-4708-bfe2-81a2461c80db\",\r\n                \"type\": \"Teleconsultation\",\r\n                \"agent\": {\r\n                    \"id\": \"deepak.kumar@hpr.abdm\",\r\n                    \"name\": \"deepak.kumar@hpr.abdm - Deepak Kumar\",\r\n                    \"gender\": \"M\",\r\n                    \"tags\": {\r\n                        \"@abdm/gov/in/education\": \"MS\",\r\n                        \"@abdm/gov/in/experience\": \"7.0\",\r\n                        \"@abdm/gov/in/follow_up\": \"200.0\",\r\n                        \"@abdm/gov/in/first_consultation\": \"500.0\",\r\n                        \"@abdm/gov/in/speciality\": \"ENT\",\r\n                        \"@abdm/gov/in/languages\": \"Eng, Hin\",\r\n                        \"@abdm/gov/in/upi_id\": \"9896271877@okicici\",\r\n                        \"@abdm/gov/in/hpr_id\": \"10696314\"\r\n                    }\r\n                },\r\n                \"start\": {\r\n                    \"time\": {\r\n                        \"timestamp\": \"2022-07-14T16:30:00\"\r\n                    }\r\n                },\r\n                \"end\": {\r\n                    \"time\": {\r\n                        \"timestamp\": \"2022-07-14T16:45:00\"\r\n                    }\r\n                },\r\n                \"tags\": {\r\n                    \"@abdm/gov.in/slot_id\": \"35dce66c-fc03-4708-bfe2-81a2461c80db\"\r\n                }\r\n            },\r\n            \"billing\": {\r\n                \"name\": \"Deepak Kumar\",\r\n                \"address\": {\r\n                    \"door\": \"21A\",\r\n                    \"name\": \"ABC Apartments\",\r\n                    \"building\": null,\r\n                    \"street\": null,\r\n                    \"locality\": \"Dwarka\",\r\n                    \"ward\": null,\r\n                    \"city\": \"New Delhi\",\r\n                    \"state\": \"New Delhi\",\r\n                    \"country\": \"India\",\r\n                    \"area_code\": \"110011\"\r\n                },\r\n                \"email\": \"\",\r\n                \"phone\": \"9896271877\"\r\n            },\r\n            \"quote\": {\r\n                \"price\": {\r\n                    \"currency\": \"INR\",\r\n                    \"value\": \"1000\"\r\n                },\r\n                \"breakup\": [\r\n                    {\r\n                        \"title\": \"Consultation\",\r\n                        \"price\": {\r\n                            \"currency\": \"1000\"\r\n                        }\r\n                    },\r\n                    {\r\n                        \"title\": \"CGST @ 5%\",\r\n                        \"price\": {\r\n                            \"currency\": \"1000\"\r\n                        }\r\n                    },\r\n                    {\r\n                        \"title\": \"SGST @ 5%\",\r\n                        \"price\": {\r\n                            \"currency\": \"1000\"\r\n                        }\r\n                    },\r\n                    {\r\n                        \"title\": \"Registration\",\r\n                        \"price\": {\r\n                            \"currency\": \"1000\"\r\n                        }\r\n                    }\r\n                ]\r\n            },\r\n            \"customer\": {\r\n                \"id\": \"\",\r\n                \"cred\": \"deepakkumar3004@sbx\"\r\n            },\r\n            \"payment\": {\r\n                \"uri\": \"https://api.bpp.com/pay?amt=100&txn_id=ksh87yriuro34iyr3p4&mode=upi&vpa=doctor@upi\",\r\n                \"type\": \"ON-ORDER\",\r\n                \"status\": \"NOT-PAID\",\r\n                \"tl_method\": null,\r\n                \"params\": null\r\n            }\r\n        }\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{eua_base_url}}/api/v1/euaService/on_init",
+							"host": [
+								"{{eua_base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"euaService",
+								"on_init"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "HSPA Confirm",
+			"item": [
+				{
+					"name": "confirm",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n     \"context\": {\n        \"domain\": \"nic2004:85111\",\n        \"country\": \"IND\",\n        \"city\": \"std:080\",\n        \"action\": \"confirm\",\n        \"timestamp\": \"2022-07-14T08:05:55.252760Z\",\n        \"core_version\": \"0.7.1\",\n        \"consumer_id\": \"eua-nha\",\n        \"consumer_uri\": \"http://100.96.9.173:8080/api/v1/euaService\",\n        \"transaction_id\": \"c8f9ad70-034b-11ed-a6d6-c13d491ee158\",\n        \"message_id\": \"c8f9ad70-034b-11ed-a6d6-c13d491ee158\"\n    },\n    \"message\": {\n        \"order\": {\n            \"id\": \"d5c3cce0-fbc9-11ec-8065-1b33c5dfb7fd\",\n            \"item\": {\n                \"id\": \"1\",\n                \"descriptor\": {\n                    \"name\": \"Consultation\"\n                },\n                \"fulfillment_id\": \"c3f44469-28c2-4dfa-b231-524c8e42362d\",\n                \"price\": {\n                    \"currency\": \"INR\",\n                    \"value\": \"1000\"\n                }\n            },\n            \"billing\": {\n                \"name\": \"Amod Suresh Joshi\",\n                \"address\": {\n                    \"door\": \"21A\",\n                    \"name\": \"ABC Apartments\",\n                    \"locality\": \"Dwarka\",\n                    \"city\": \"New Delhi\",\n                    \"state\": \"New Delhi\",\n                    \"country\": \"India\",\n                    \"area_code\": \"110011\"\n                },\n                \"email\": \"joshiamod@gmail.com\",\n                \"phone\": \"9970983214\"\n            },\n            \"fulfillment\": {\n                \"id\": \"c3f44469-28c2-4dfa-b231-524c8e42362d\",\n                \"type\": \"Teleconsultation\",\n                \"agent\": {\n                    \"id\": \"ganeshborse@hpr.ndhm\",\n                    \"name\": \"ganeshborse@hpr.ndhm - Ganesh Vikram Borse\",\n                    \"gender\": \"M\",\n                    \"tags\": {\n                        \"@abdm/gov/in/education\": \"MBBS\",\n                        \"@abdm/gov/in/experience\": \"5.0\",\n                        \"@abdm/gov/in/follow_up\": \"200.0\",\n                        \"@abdm/gov/in/first_consultation\": \"300.0\",\n                        \"@abdm/gov/in/speciality\": \"Cardiology\",\n                        \"@abdm/gov/in/languages\": \"Eng, Hin\",\n                        \"@abdm/gov/in/upi_id\": \"ganeshborse@icici\",\n                        \"@abdm/gov/in/hpr_id\": \"73-5232-1888-8686\"\n                    }\n                },\n                \"start\": {\n                    \"time\": {\n                        \"timestamp\": \"2022-07-11T11:45:00\"\n                    }\n                },\n                \"end\": {\n                    \"time\": {\n                        \"timestamp\": \"2022-07-11T12:00:00\"\n                    }\n                },\n                \"tags\": {\n                    \"@abdm/gov.in/slot_id\": \"c3f44469-28c2-4dfa-b231-524c8e42362d\"\n                }\n            },\n            \"quote\": {\n                \"price\": {\n                    \"currency\": \"INR\",\n                    \"value\": \"1000\"\n                },\n                \"breakup\": [\n                    {\n                        \"title\": \"Consultation\",\n                        \"price\": {\n                            \"currency\": \"INR\",\n                            \"value\": \"1000\"\n                        }\n                    },\n                    {\n                        \"title\": \"CGST @ 5%\",\n                        \"price\": {\n                            \"currency\": \"INR\",\n                            \"value\": \"50\"\n                        }\n                    },\n                    {\n                        \"title\": \"SGST @ 5%\",\n                        \"price\": {\n                            \"currency\": \"INR\",\n                            \"value\": \"50\"\n                        }\n                    },\n                    {\n                        \"title\": \"Registration\",\n                        \"price\": {\n                            \"currency\": \"INR\",\n                            \"value\": \"400\"\n                        }\n                    }\n                ]\n            },\n            \"payment\": {\n                \"uri\": \"https://api.bpp.com/pay?amt=1500&txn_id=ksh87yriuro34iyr3p4&mode=upi&vpa=sana.bhatt@upi\",\n                \"params\": {\n                    \"amount\": \"1500\",\n                    \"mode\": \"UPI\",\n                    \"vpa\": \"sana.bhatt@upi\",\n                    \"transaction_id\": \"abc128-riocn83920\"\n                },\n                \"type\": \"ON-ORDER\",\n                \"status\": \"PAID\",\n                \"tl_method\": \"http/get\"\n            },\n            \"customer\": {\n                \"id\": \"\",\n                \"cred\": \"amodjoshi@sbx\"\n            }\n        }\n    }\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{hspa_base_url}}/api/v1/confirm",
+							"host": [
+								"{{hspa_base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"confirm"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "EUA On Confirm",
+			"item": [
+				{
+					"name": "on_confirm",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"context\": {\r\n        \"domain\": \"nic2004:85111\",\r\n        \"country\": \"IND\",\r\n        \"city\": \"std:080\",\r\n        \"action\": \"on_confirm\",\r\n        \"timestamp\": \"2022-07-18T10:19:07.075713Z\",\r\n        \"core_version\": \"0.7.1\",\r\n        \"consumer_id\": \"eua-nha\",\r\n        \"consumer_uri\": \"http://100.96.9.173:8080/api/v1/euaService\",\r\n        \"provider_uri\": \"http://100.96.9.171:8084/api/v1\",\r\n        \"transaction_id\": \"648a2e60-035e-11ed-8882-a5e3ac18090e\",\r\n        \"message_id\": \"648a2e60-035e-11ed-8882-a5e3ac18090e\"\r\n    },\r\n    \"message\": {\r\n        \"order\": {\r\n            \"id\": \"32d34870-035e-11ed-8882-a5e3ac18090e\",\r\n            \"state\": \"CONFIRMED\",\r\n            \"item\": {\r\n                \"id\": \"1\",\r\n                \"descriptor\": {\r\n                    \"name\": \"Consultation\"\r\n                },\r\n                \"price\": {\r\n                    \"currency\": \"INR\",\r\n                    \"value\": \"1000\"\r\n                },\r\n                \"fulfillment_id\": \"35dce66c-fc03-4708-bfe2-81a2461c80db\"\r\n            },\r\n            \"fulfillment\": {\r\n                \"id\": \"35dce66c-fc03-4708-bfe2-81a2461c80db\",\r\n                \"type\": \"Teleconsultation\",\r\n                \"agent\": {\r\n                    \"id\": \"deepak.kumar@hpr.abdm\",\r\n                    \"name\": \"deepak.kumar@hpr.abdm - Deepak Kumar\",\r\n                    \"gender\": \"M\",\r\n                    \"tags\": {\r\n                        \"@abdm/gov/in/education\": \"MS\",\r\n                        \"@abdm/gov/in/experience\": \"7.0\",\r\n                        \"@abdm/gov/in/follow_up\": \"200.0\",\r\n                        \"@abdm/gov/in/first_consultation\": \"500.0\",\r\n                        \"@abdm/gov/in/speciality\": \"ENT\",\r\n                        \"@abdm/gov/in/languages\": \"Eng, Hin\",\r\n                        \"@abdm/gov/in/upi_id\": \"9896271877@okicici\",\r\n                        \"@abdm/gov/in/hpr_id\": \"10696314\"\r\n                    }\r\n                },\r\n                \"start\": {\r\n                    \"time\": {\r\n                        \"timestamp\": \"2022-07-14T16:30:00\"\r\n                    }\r\n                },\r\n                \"end\": {\r\n                    \"time\": {\r\n                        \"timestamp\": \"2022-07-14T16:45:00\"\r\n                    }\r\n                },\r\n                \"tags\": {\r\n                    \"@abdm/gov.in/slot_id\": \"35dce66c-fc03-4708-bfe2-81a2461c80db\"\r\n                }\r\n            },\r\n            \"billing\": {\r\n                \"name\": \"Deepak Kumar\",\r\n                \"address\": {\r\n                    \"door\": \"21A\",\r\n                    \"name\": \"ABC Apartments\",\r\n                    \"building\": null,\r\n                    \"street\": null,\r\n                    \"locality\": \"Dwarka\",\r\n                    \"ward\": null,\r\n                    \"city\": \"New Delhi\",\r\n                    \"state\": \"New Delhi\",\r\n                    \"country\": \"India\",\r\n                    \"area_code\": \"110011\"\r\n                },\r\n                \"email\": \"\",\r\n                \"phone\": \"9896271877\"\r\n            },\r\n            \"quote\": {\r\n                \"price\": {\r\n                    \"currency\": \"INR\",\r\n                    \"value\": \"1000\"\r\n                },\r\n                \"breakup\": [\r\n                    {\r\n                        \"title\": \"Consultation\",\r\n                        \"price\": {\r\n                            \"currency\": \"INR\",\r\n                            \"value\": \"1000\"\r\n                        }\r\n                    },\r\n                    {\r\n                        \"title\": \"CGST @ 5%\",\r\n                        \"price\": {\r\n                            \"currency\": \"INR\",\r\n                            \"value\": \"50\"\r\n                        }\r\n                    },\r\n                    {\r\n                        \"title\": \"SGST @ 5%\",\r\n                        \"price\": {\r\n                            \"currency\": \"INR\",\r\n                            \"value\": \"50\"\r\n                        }\r\n                    },\r\n                    {\r\n                        \"title\": \"Registration\",\r\n                        \"price\": {\r\n                            \"currency\": \"INR\",\r\n                            \"value\": \"400\"\r\n                        }\r\n                    }\r\n                ]\r\n            },\r\n            \"customer\": {\r\n                \"id\": \"\",\r\n                \"cred\": \"deepakkumar3004@sbx\"\r\n            },\r\n            \"payment\": {\r\n                \"uri\": \"https://api.bpp.com/pay?amt=1500&txn_id=ksh87yriuro34iyr3p4&mode=upi&vpa=sana.bhatt@upi\",\r\n                \"type\": \"ON-ORDER\",\r\n                \"status\": \"PAID\",\r\n                \"tl_method\": \"http/get\",\r\n                \"params\": {\r\n                    \"transaction_id\": \"abc128-riocn83920\",\r\n                    \"amount\": \"1500\",\r\n                    \"mode\": \"UPI\",\r\n                    \"vpa\": \"sana.bhatt@upi\"\r\n                }\r\n            }\r\n        }\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{eua_base_url}}/api/v1/euaService/on_confirm",
+							"host": [
+								"{{eua_base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"euaService",
+								"on_confirm"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "HSPA/EUA Message",
+			"item": [
+				{
+					"name": "on_message",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"context\": {\n        \"domain\": \"nic2004:85111\",\n        \"country\": \"IND\",\n        \"city\": \"std:080\",\n        \"action\": \"on_message\",\n        \"timestamp\": \"2022-07-14T08:05:55.252760Z\",\n        \"core_version\": \"0.7.1\",\n        \"consumer_id\": \"eua-nha\",\n        \"consumer_uri\": \"http://100.96.9.173:8080/api/v1/bookingService\",\n        \"transaction_id\": \"c8f9ad70-034b-11ed-a6d6-c13d491ee158\",\n        \"message_id\": \"c8f9ad70-034b-11ed-a6d6-c13d491ee158\"\n    },\n    \"message\": {\n        \"intent\": {\n            \"chat\": {\n                \"sender\": {\n                    \"person\": {\n                        \"cred\": \"abc@hpr\",\n                        \"gender\": \"F\",\n                        \"name\":\"abd\",\n                        \"image\":\"dcsdcdscsd\"\n                    }\n                },\n                \"receiver\": {\n                    \"person\": {\n                        \"cred\": \"abc@abha\",\n                        \"gender\": \"F\",\n                        \"name\":\"abc\",\n                        \"image\":\"dcsdcdscsd\"\n\n                    }\n                },\n                \"content\": {\n                    \"content_id\": \"scsdc\",\n                    \"content_value\": \"dscsdc\"\n                },\n                \"time\": {\n                    \"timestamp\": \"2022-06-22T15:41:36\"\n                }\n            }\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{eua_base_url}}/api/v1/bookingService/on_message",
+							"host": [
+								"{{eua_base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"bookingService",
+								"on_message"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "eua_base_url",
+			"value": "http://121.242.73.125:8080",
+			"type": "string"
+		},
+		{
+			"key": "auth_value",
+			"value": "value",
+			"type": "string"
+		},
+		{
+			"key": "gateway_base_url",
+			"value": "http://121.242.73.120:8083",
+			"type": "string"
+		},
+		{
+			"key": "hspa_base_url",
+			"value": "http://121.242.73.124:8084",
+			"type": "string"
+		}
+	]
+}
