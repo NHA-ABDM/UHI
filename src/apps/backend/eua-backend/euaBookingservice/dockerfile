@@ -1,8 +1,7 @@
 FROM openjdk:17.0-jdk
 RUN mkdir /APP
 WORKDIR /APP
-COPY EUA-BookingService/target/EUA-BookingService-0.0.1-SNAPSHOT.jar  /APP/EUA-BookingService-0.0.1-SNAPSHOT.jar
-COPY opentelemetry-javaagent.jar /APP/opentelemetry-javaagent.jar
+COPY ["EUA-BookingService/target/EUA-BookingService-0.0.1-SNAPSHOT.jar", "opentelemetry-javaagent.jar", "./"]
 EXPOSE 8903
 ENV JAVA_TOOL_OPTIONS "-javaagent:/APP/opentelemetry-javaagent.jar"
 RUN chmod -R 777 /APP
