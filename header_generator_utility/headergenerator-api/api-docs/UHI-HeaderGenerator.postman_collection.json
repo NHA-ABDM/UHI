@@ -1,0 +1,67 @@
+{
+	"info": {
+		"_postman_id": "b7106b9f-e000-4e90-8251-fe4541499a3f",
+		"name": "UHI-HeaderGenerator",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30867649",
+		"_collection_link": "https://galactic-trinity-791096.postman.co/workspace/UHI~30320cb0-b19f-4e98-a108-d72bd7a34d4f/collection/30867649-b7106b9f-e000-4e90-8251-fe4541499a3f?action=share&source=collection_link&creator=30867649"
+	},
+	"item": [
+		{
+			"name": "HG_genrate",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"subscriberId\": \"\",\r\n    \"publicKeyId\": \"\",\r\n    \"privateKey\": \"\",\r\n    \"payload\": \"{\\\"context\\\":{\\\"domain\\\":\\\"nic2004:85111\\\",\\\"country\\\":\\\"IND\\\",\\\"city\\\":\\\"std:011\\\",\\\"action\\\":\\\"search\\\",\\\"core_version\\\":\\\"0.7.1\\\",\\\"consumer_id\\\":\\\"eua-nha\\\",\\\"consumer_uri\\\":\\\"https://webhook.site/d66902ce-9ad6-4684-a4fb-d6d20b5e1f8d\\\",\\\"message_id\\\":\\\"137398aa-ea12-4abb-9c1f-904271310934\\\",\\\"timestamp\\\":\\\"2023-07-06T09:04:31.649755Z\\\",\\\"transaction_id\\\":\\\"137398aa-ea12-4abb-9c1f-904271310934\\\"},\\\"message\\\":{\\\"intent\\\":{\\\"fulfillment\\\":{\\\"type\\\":\\\"Online\\\",\\\"start\\\":{\\\"time\\\":{\\\"timestamp\\\":\\\"2023-07-07T00:00:00\\\"}},\\\"end\\\":{\\\"time\\\":{\\\"timestamp\\\":\\\"2024-07-07T23:59:59\\\"}}},\\\"item\\\":{\\\"descriptor\\\":{\\\"name\\\":\\\"Consultation\\\",\\\"code\\\":\\\"Consultation\\\"}}}}}\",\r\n    \"header\": \"\",\r\n    \"error\": \"\"\r\n}"
+				},
+				"url": {
+					"raw": "localhost:8999/header/generator",
+					"host": [
+						"localhost"
+					],
+					"port": "8999",
+					"path": [
+						"header",
+						"generator"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HG_Verify",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"signature\":\"\",\r\n    \"created_date\":\"1710228533\",\r\n    \"expires\":\"1710228543\",\r\n    \"keyId\":\"\",\r\n    \"publicKey\":\"\",\r\n    \"payload\":\"{\\\"context\\\":{\\\"domain\\\":\\\"nic2004:85111\\\",\\\"country\\\":\\\"IND\\\",\\\"city\\\":\\\"std:011\\\",\\\"action\\\":\\\"search\\\",\\\"core_version\\\":\\\"0.7.1\\\",\\\"consumer_id\\\":\\\"eua-nha\\\",\\\"consumer_uri\\\":\\\"https://webhook.site/d66902ce-9ad6-4684-a4fb-d6d20b5e1f8d\\\",\\\"message_id\\\":\\\"137398aa-ea12-4abb-9c1f-904271310934\\\",\\\"timestamp\\\":\\\"2023-07-06T09:04:31.649755Z\\\",\\\"transaction_id\\\":\\\"137398aa-ea12-4abb-9c1f-904271310934\\\"},\\\"message\\\":{\\\"intent\\\":{\\\"fulfillment\\\":{\\\"type\\\":\\\"Online\\\",\\\"start\\\":{\\\"time\\\":{\\\"timestamp\\\":\\\"2023-07-07T00:00:00\\\"}},\\\"end\\\":{\\\"time\\\":{\\\"timestamp\\\":\\\"2024-07-07T23:59:59\\\"}}},\\\"item\\\":{\\\"descriptor\\\":{\\\"name\\\":\\\"Consultation\\\",\\\"code\\\":\\\"Consultation\\\"}}}}}\"\r\n\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8999/header/verify",
+					"host": [
+						"localhost"
+					],
+					"port": "8999",
+					"path": [
+						"header",
+						"verify"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
