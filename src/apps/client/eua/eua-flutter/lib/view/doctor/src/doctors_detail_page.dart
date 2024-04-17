@@ -12,20 +12,15 @@ import 'package:stomp_dart_client/stomp.dart';
 import 'package:uhi_flutter_app/common/common.dart';
 import 'package:uhi_flutter_app/constants/src/strings.dart';
 import 'package:uhi_flutter_app/controller/discovery/src/post_professional_details_controller.dart';
-import 'package:uhi_flutter_app/model/common/src/context_model.dart';
-import 'package:uhi_flutter_app/model/common/src/time_slot_model.dart';
 import 'package:uhi_flutter_app/model/model.dart';
 import 'package:uhi_flutter_app/model/request/src/booking_init_request_model.dart';
-import 'package:uhi_flutter_app/model/response/response.dart';
 import 'package:uhi_flutter_app/model/response/src/booking_confirm_response_model.dart';
 import 'package:uhi_flutter_app/model/response/src/booking_on_init_response_model.dart';
-import 'package:uhi_flutter_app/model/response/src/discovery_response_model.dart';
 import 'package:uhi_flutter_app/services/src/stomp_socket_connection.dart';
 import 'package:uhi_flutter_app/theme/theme.dart';
 import 'package:uhi_flutter_app/utils/src/shared_preferences.dart';
 import 'package:uhi_flutter_app/utils/utils.dart';
 import 'package:uhi_flutter_app/view/appointment/src/appointment_details_page.dart';
-import 'package:uhi_flutter_app/view/appointment/src/appointment_status_confirm_page.dart';
 import 'package:uhi_flutter_app/widgets/src/calendar_date_range_picker.dart';
 import 'package:uhi_flutter_app/widgets/src/doctor_details_view.dart';
 import 'package:uuid/uuid.dart';
@@ -241,8 +236,9 @@ class _DiscoveryResultsPageState extends State<DoctorsDetailPage> {
       TimeSlotStartTime timeSlotStartTime = TimeSlotStartTime();
       TimeSlotStartTime timeSlotEndTime = TimeSlotStartTime();
 
-      if (Jiffy(DateTime.parse(element.start!.time!.timestamp!))
-          .isSameOrAfter(DateTime.now())) {
+      if (Jiffy.parseFromDateTime(
+              DateTime.parse(element.start!.time!.timestamp!))
+          .isSameOrAfter(Jiffy.now())) {
         timeSlotStartTime.timestamp = element.start?.time?.timestamp;
         timeSlotStart.time = timeSlotStartTime;
 
@@ -725,7 +721,7 @@ class _DiscoveryResultsPageState extends State<DoctorsDetailPage> {
       return iosDeviceInfo.identifierForVendor; // unique ID on iOS
     } else if (Platform.isAndroid) {
       var androidDeviceInfo = await deviceInfo.androidInfo;
-      return androidDeviceInfo.androidId; // unique ID on Android
+      return androidDeviceInfo.id; // unique ID on Android
     }
     return null;
   }

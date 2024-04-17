@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:uhi_flutter_app/constants/src/strings.dart';
 import 'package:uhi_flutter_app/model/request/src/booking_init_request_model.dart';
-import 'package:uhi_flutter_app/model/response/response.dart';
-import 'package:uhi_flutter_app/view/chat/src/chat_page.dart';
 import 'package:uhi_flutter_app/view/view.dart';
 import 'package:uhi_flutter_app/widgets/src/doctor_details_view.dart';
 import 'package:uhi_flutter_app/widgets/src/spacing.dart';
@@ -43,7 +41,7 @@ class _BookAppointmentAgainPageState extends State<BookAppointmentAgain> {
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            primary: AppColors.amountColor,
+            backgroundColor: AppColors.amountColor,
             minimumSize: const Size.fromHeight(48),
           ),
           onPressed: () {

@@ -1,7 +1,6 @@
 import 'package:uhi_flutter_app/model/model.dart';
 import 'package:uhi_flutter_app/model/request/src/booking_init_request_model.dart';
 import 'package:uhi_flutter_app/model/response/src/booking_on_init_response_model.dart';
-import 'package:uhi_flutter_app/model/response/src/discovery_response_model.dart';
 
 class BookingConfirmResponseModel {
   ContextModel? context;

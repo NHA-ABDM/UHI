@@ -11,7 +11,6 @@ import 'package:uhi_flutter_app/controller/controller.dart';
 import 'package:uhi_flutter_app/model/model.dart';
 import 'package:uhi_flutter_app/view/view.dart';
 import 'package:uhi_flutter_app/model/request/src/booking_init_request_model.dart';
-import 'package:uhi_flutter_app/model/response/src/discovery_response_model.dart';
 import 'package:uhi_flutter_app/services/src/stomp_socket_connection.dart';
 import 'package:uhi_flutter_app/theme/theme.dart';
 import 'package:uhi_flutter_app/utils/src/loading_indicator.dart';
@@ -298,7 +297,7 @@ class _DiscoveryResultsPageState extends State<DiscoveryResultsPage> {
       return iosDeviceInfo.identifierForVendor; // unique ID on iOS
     } else if (Platform.isAndroid) {
       var androidDeviceInfo = await deviceInfo.androidInfo;
-      return androidDeviceInfo.androidId; // unique ID on Android
+      return androidDeviceInfo.id; // unique ID on Android
     }
     return null;
   }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../theme/src/app_colors.dart';
 
-class AppbarBottomLine extends StatelessWidget with PreferredSizeWidget {
+class AppbarBottomLine extends StatelessWidget implements PreferredSizeWidget {
   const AppbarBottomLine({Key? key}) : super(key: key);
 
   @override

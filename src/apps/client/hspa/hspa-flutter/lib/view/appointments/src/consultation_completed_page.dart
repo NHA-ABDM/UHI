@@ -7,9 +7,7 @@ import '../../../constants/src/strings.dart';
 import '../../../model/src/appointments.dart';
 import '../../../theme/src/app_colors.dart';
 import '../../../theme/src/app_text_style.dart';
-import '../../../utils/src/utility.dart';
 import '../../../widgets/src/spacing.dart';
-import 'share_physical_prescription_page.dart';
 
 class ConsultationCompletedPage extends StatefulWidget {
   const ConsultationCompletedPage({Key? key}) : super(key: key);
@@ -71,7 +69,7 @@ class _ConsultationCompletedPageState extends State<ConsultationCompletedPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             confirmStatusView(),
-            Spacing(isWidth: false, size: 8),
+            const Spacing(isWidth: false, size: 8),
             Container(
               padding: const EdgeInsets.only(left: 12.0, right: 4),
               child: Text(
@@ -102,7 +100,7 @@ class _ConsultationCompletedPageState extends State<ConsultationCompletedPage> {
             width: 20,
             color: AppColors.appointmentStatusColor,
           ),
-          Spacing(size: 8),
+          const Spacing(size: 8),
           Text(
             AppStrings().labelConsultationCompleted,
             style: AppTextStyle.textBoldStyle(
@@ -150,7 +148,7 @@ class _ConsultationCompletedPageState extends State<ConsultationCompletedPage> {
                         )
                     ),
 
-                    Spacing(size: 16),
+                    const Spacing(size: 16),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -171,7 +169,7 @@ class _ConsultationCompletedPageState extends State<ConsultationCompletedPage> {
                     ),
                   ],
                 ),
-                Spacing(isWidth: false, size: 10),
+                const Spacing(isWidth: false, size: 10),
                 Padding(
                   padding: const EdgeInsets.only(top: 8, right: 12, bottom: 16),
                   child: Row(
@@ -182,7 +180,7 @@ class _ConsultationCompletedPageState extends State<ConsultationCompletedPage> {
                         style: AppTextStyle.textSemiBoldStyle(
                             fontSize: 18, color: AppColors.testColor),
                       ),
-                      Spacing(),
+                      const Spacing(),
                       Text(
                         appointment.appointmentTime,
                         style: AppTextStyle.textSemiBoldStyle(
@@ -241,7 +239,7 @@ class _ConsultationCompletedPageState extends State<ConsultationCompletedPage> {
             width: 24,
             color: color,
           ),
-          Spacing(size: 5),
+          const Spacing(size: 5),
           Text(
             actionText,
             style: AppTextStyle.textLightStyle(color: color, fontSize: 14),

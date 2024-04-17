@@ -101,7 +101,7 @@ class Provider {
     if (json['attributes'] != null) {
       attributes = <Attributes>[];
       json['attributes'].forEach((v) {
-        attributes!.add(new Attributes.fromJson(v));
+        attributes!.add(Attributes.fromJson(v));
       });
     }
     retired = json['retired'];

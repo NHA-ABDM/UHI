@@ -129,13 +129,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
             )
           ]),
-          Spacing(
+          const Spacing(
             isWidth: false,
           ),
           Text(_profile?.displayName ?? 'Dr. Sana Bhatt',
               style: AppTextStyle.textBoldStyle(
                   fontSize: 22, color: AppColors.drNameTextColor)),
-          Spacing(
+          const Spacing(
             isWidth: false,
             size: 20,
           ),
@@ -169,7 +169,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Spacing(size: 16),
+                const Spacing(size: 16),
                 Expanded(
                   child: GestureDetector(
                     onTap: () {},
@@ -270,7 +270,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ),
                   ),
                 ),
-                Spacing(size: 16),
+                const Spacing(size: 16),
                 Expanded(
                   child: GestureDetector(
                     onTap: () {},
@@ -371,7 +371,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ),
                   ),
                 ),
-                Spacing(size: 16),
+                const Spacing(size: 16),
               ],
             ),
           ),
@@ -425,7 +425,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             style: AppTextStyle.textSemiBoldStyle(
                 fontSize: 13, color: AppColors.drNameTextColor),
           ),
-          Spacing(
+          const Spacing(
             isWidth: false,
             size: 6,
           ),

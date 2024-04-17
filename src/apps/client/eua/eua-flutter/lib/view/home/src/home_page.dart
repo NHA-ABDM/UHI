@@ -14,7 +14,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uhi_flutter_app/common/common.dart';
 import 'package:uhi_flutter_app/common/src/get_pages.dart';
 import 'package:uhi_flutter_app/constants/constants.dart';
-import 'package:uhi_flutter_app/constants/src/strings.dart';
 import 'package:uhi_flutter_app/controller/login/src/home_screen_controller.dart';
 import 'package:uhi_flutter_app/controller/login/src/logout_controller.dart';
 import 'package:uhi_flutter_app/model/response/src/booking_confirm_response_model.dart';
@@ -32,7 +31,6 @@ import '../../../controller/controller.dart';
 import '../../../controller/login/src/post_fcm_token_controller.dart';
 import '../../../model/common/src/doctor_image_model.dart';
 import '../../../model/model.dart';
-import '../../discovery/src/book_a_teleconsultation_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -323,7 +321,7 @@ class _DiscoverServicesPageState extends State<HomePage>
       return iosDeviceInfo.identifierForVendor; // unique ID on iOS
     } else if (Platform.isAndroid) {
       var androidDeviceInfo = await deviceInfo.androidInfo;
-      return androidDeviceInfo.androidId; // unique ID on Android
+      return androidDeviceInfo.id; // unique ID on Android
     }
     return null;
   }

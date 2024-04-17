@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uhi_flutter_app/view/appointment/src/appointment_status_confirm_page.dart';
 
 import 'src/call_sample/call_sample.dart';
 import 'src/call_sample/data_channel_sample.dart';
@@ -107,12 +106,12 @@ class _UHIWebRTCState extends State<UHIWebRTC> {
               textAlign: TextAlign.center,
             ),
             actions: <Widget>[
-              FlatButton(
+              TextButton(
                   child: const Text('CANCEL'),
                   onPressed: () {
                     Navigator.pop(context, DialogDemoAction.cancel);
                   }),
-              FlatButton(
+              TextButton(
                   child: const Text('CONNECT'),
                   onPressed: () {
                     debugPrint('In web rtc connect');

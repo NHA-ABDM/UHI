@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import '../../theme/src/app_colors.dart';
 import '../../theme/src/app_shadows.dart';
 import '../../theme/src/app_text_style.dart';
 
 class BottomButtonWithFees extends StatelessWidget {
-  var width;
-  var height;
-  String fees;
-  String buttonName;
-  Function() onButtonTap;
+  final double width;
+  final double height;
+  final String fees;
+  final String buttonName;
+  final Function() onButtonTap;
 
-  BottomButtonWithFees({
+  const BottomButtonWithFees({
     Key? key,
     required this.width,
     required this.height,
@@ -33,7 +32,7 @@ class BottomButtonWithFees extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              padding: EdgeInsets.only(left: 30, top: 5),
+              padding: const EdgeInsets.only(left: 30, top: 5),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,

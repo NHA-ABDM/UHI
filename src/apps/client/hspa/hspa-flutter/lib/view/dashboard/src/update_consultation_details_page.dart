@@ -6,8 +6,6 @@ import '../../../common/src/dialog_helper.dart';
 import '../../../constants/src/strings.dart';
 import '../../../theme/src/app_colors.dart';
 import '../../../theme/src/app_text_style.dart';
-import '../../../utils/src/utility.dart';
-import '../../doctor_setup/src/days_time_selection_page.dart';
 
 class UpdateConsultationDetailsPage extends StatefulWidget {
   const UpdateConsultationDetailsPage({Key? key}) : super(key: key);

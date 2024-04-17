@@ -1,5 +1,4 @@
 
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -21,10 +20,6 @@ class GetChatMessagesController extends GetxController with ExceptionHandler {
   ///ERROR STRING
   var errorString = '';
 
-  @override
-  void onInit() {
-    super.onInit();
-  }
 
   Future<void> getChatMessages({String? sender, String? receiver}) async {
     debugPrint('In getChatMessages  $sender and $receiver');
@@ -39,12 +34,12 @@ class GetChatMessagesController extends GetxController with ExceptionHandler {
           List tmpList = value;
           List<ChatMessageModel> messages = List.empty(growable: true);
 
-          tmpList.forEach((element) {
+          for (var element in tmpList) {
             debugPrint('In list for each $element');
             ChatMessageModel chatMessageModel =
                 ChatMessageModel.fromJson(element);
             messages.add(chatMessageModel);
-          });
+          }
 
           setChatMessages(listOfMessages: messages);
         }

@@ -5,14 +5,11 @@ import 'package:uuid/uuid.dart';
 
 import '../../../constants/src/appointment_status.dart';
 import '../../../constants/src/asset_images.dart';
-import '../../../constants/src/request_urls.dart';
 import '../../../constants/src/strings.dart';
 import '../../../controller/src/appointments_controller.dart';
 import '../../../model/request/src/cancel_appointment_request.dart';
 import '../../../model/response/src/acknowledgement_response_model.dart';
-import '../../../model/response/src/cancel_appointment_response.dart';
 import '../../../model/response/src/provider_appointments_response.dart';
-import '../../../model/src/chat_message_dhp_model.dart';
 import '../../../model/src/context_model.dart';
 import '../../../theme/src/app_colors.dart';
 import '../../../theme/src/app_text_style.dart';
@@ -126,7 +123,7 @@ class _CancelAppointmentPageState extends State<CancelAppointmentPage> {
                                       style: AppTextStyle.textSemiBoldStyle(
                                           color: AppColors.testColor, fontSize: 16),
                                     ),
-                                    Spacing(),
+                                    const Spacing(),
                                     Text(
                                       Utility.getAppointmentDisplayDate(date: DateTime.parse(providerAppointment.timeSlot!.startDate!)),
                                       style: AppTextStyle
@@ -145,7 +142,7 @@ class _CancelAppointmentPageState extends State<CancelAppointmentPage> {
                                       style: AppTextStyle.textNormalStyle(
                                           color: AppColors.testColor, fontSize: 12),
                                     ),
-                                    Spacing(),
+                                    const Spacing(),
                                     Text(
                                       Utility.getAppointmentDisplayTimeRange(startDateTime: DateTime.parse(providerAppointment.timeSlot!.startDate!.split('.').first), endDateTime: DateTime.parse(providerAppointment.timeSlot!.endDate!.split('.').first)),
                                       style: AppTextStyle

@@ -6,7 +6,6 @@ import 'package:uhi_flutter_app/controller/controller.dart';
 import 'package:uhi_flutter_app/model/request/src/access_token_request_model.dart';
 import 'package:uhi_flutter_app/model/response/src/access_token_response_model.dart';
 import 'package:uhi_flutter_app/services/services.dart';
-import 'package:uhi_flutter_app/model/model.dart';
 import 'package:uhi_flutter_app/utils/src/shared_preferences.dart';
 
 class AccessTokenController extends GetxController with ExceptionHandler {

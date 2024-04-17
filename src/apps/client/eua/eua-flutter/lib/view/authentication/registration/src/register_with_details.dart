@@ -8,7 +8,6 @@ import 'package:uhi_flutter_app/model/response/src/district_list_response_model%
 import 'package:uhi_flutter_app/model/response/src/state_list_response_model.dart';
 import 'package:uhi_flutter_app/theme/theme.dart';
 import 'package:uhi_flutter_app/utils/src/new_dialog_screen.dart';
-import 'package:uhi_flutter_app/utils/src/shared_preferences.dart';
 import 'package:uhi_flutter_app/view/authentication/registration/src/create_new_abha_address.dart';
 import 'package:uhi_flutter_app/widgets/src/calendar_date_range_picker.dart';
 import 'package:uhi_flutter_app/widgets/widgets.dart';

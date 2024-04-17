@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:hspa_app/constants/src/strings.dart';
 
 import '../../constants/src/asset_images.dart';
@@ -14,7 +15,7 @@ class AlertDialogWithSingleAction extends StatelessWidget {
     this.description = '',
     this.submitButtonText,
     this.showIcon = false,
-    this.iconAssetImage = AssetImages.appointmentCanceled
+    this.iconAssetImage = AssetImages.appointmentCanceled,
   }) : super(key: key);
 
   ///PARENT CONTEXT
@@ -36,7 +37,6 @@ class AlertDialogWithSingleAction extends StatelessWidget {
   }
 
   showAlertDialog() {
-
     return showDialog(
       context: context,
       barrierDismissible: true,
@@ -46,13 +46,14 @@ class AlertDialogWithSingleAction extends StatelessWidget {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           title: Text(
             title,
-            style: AppTextStyle.textMediumStyle(color: AppColors.black, fontSize: 16),
+            style: AppTextStyle.textMediumStyle(
+                color: AppColors.black, fontSize: 16),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if(showIcon)
+              if (showIcon)
                 Container(
                   alignment: Alignment.center,
                   child: Image.asset(
@@ -61,10 +62,9 @@ class AlertDialogWithSingleAction extends StatelessWidget {
                     width: 72,
                   ),
                 ),
-              Text(
-                  description,
-                  style: AppTextStyle.textNormalStyle(fontSize: 14, color: AppColors.testColor)
-              ),
+              Text(description,
+                  style: AppTextStyle.textNormalStyle(
+                      fontSize: 14, color: AppColors.testColor)),
             ],
           ),
           actions: [
@@ -75,7 +75,7 @@ class AlertDialogWithSingleAction extends StatelessWidget {
             SizedBox(
               height: 48,
               child: InkWell(
-                overlayColor: MaterialStateProperty.resolveWith((states){
+                overlayColor: MaterialStateProperty.resolveWith((states) {
                   return states.contains(MaterialState.pressed)
                       ? AppColors.tileColors.withAlpha(50)
                       : null;

@@ -26,7 +26,7 @@ class _WaitingRoomScreenState extends State<WaitingRoomScreen> {
           onPressed: () {
             Navigator.pop(context);
           },
-          icon: Icon(
+          icon: const Icon(
             Icons.chevron_left_rounded,
             color: Color(0xFF324755),
             size: 32,
@@ -34,13 +34,13 @@ class _WaitingRoomScreenState extends State<WaitingRoomScreen> {
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(),
         ),
-        title: Text(
+        title: const Text(
           "Waiting Room",
           style: TextStyle(color: Colors.black, fontSize: 16),
         ),
         centerTitle: true,
       ),
-      body: Container(
+      body: SizedBox(
         width: width,
         height: height,
         child: Column(
@@ -49,7 +49,7 @@ class _WaitingRoomScreenState extends State<WaitingRoomScreen> {
           children: [
             Expanded(
               child: Container(
-                child: Column(
+                child: const Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -69,13 +69,13 @@ class _WaitingRoomScreenState extends State<WaitingRoomScreen> {
             Container(
               width: width * 0.92,
               // height: height * 0.08,
-              padding: EdgeInsets.all(20),
-              margin: EdgeInsets.only(bottom: 20),
+              padding: const EdgeInsets.all(20),
+              margin: const EdgeInsets.only(bottom: 20),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(5),
-                color: Color(0xFFE8705A),
+                color: const Color(0xFFE8705A),
               ),
-              child: Center(
+              child: const Center(
                 child: Text(
                   "LEAVE ROOM",
                   style: TextStyle(

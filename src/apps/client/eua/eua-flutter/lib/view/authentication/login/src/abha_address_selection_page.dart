@@ -13,7 +13,6 @@ import 'package:uhi_flutter_app/utils/src/shared_preferences.dart';
 import 'package:uhi_flutter_app/view/view.dart';
 
 import '../../../../controller/login/src/post_fcm_token_controller.dart';
-import '../../../../model/common/src/fcm_token_model.dart';
 
 class ABHAAddressSelectionPage extends StatefulWidget {
   List<String> mappedPhrAddress;
@@ -113,7 +112,7 @@ class _ABHAAddressSelectionPageState extends State<ABHAAddressSelectionPage> {
       return iosDeviceInfo.identifierForVendor; // unique ID on iOS
     } else if (Platform.isAndroid) {
       var androidDeviceInfo = await deviceInfo.androidInfo;
-      return androidDeviceInfo.androidId; // unique ID on Android
+      return androidDeviceInfo.id; // unique ID on Android
     }
     return null;
   }

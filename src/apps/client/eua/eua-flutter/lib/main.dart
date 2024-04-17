@@ -12,7 +12,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:uhi_flutter_app/common/src/get_pages.dart';
 import 'package:uhi_flutter_app/firebase_options.dart';
 import 'package:uhi_flutter_app/theme/src/app_colors.dart';
@@ -151,24 +150,22 @@ class _MyAppState extends State<MyApp> {
   initializeSettings() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
-    final IOSInitializationSettings initializationSettingsIOS =
-        IOSInitializationSettings(
+    final DarwinInitializationSettings initializationSettingsIOS =
+        DarwinInitializationSettings(
             onDidReceiveLocalNotification: onDidReceiveLocalNotification);
-    const MacOSInitializationSettings initializationSettingsMacOS =
-        MacOSInitializationSettings();
     final InitializationSettings initializationSettings =
         InitializationSettings(
             android: initializationSettingsAndroid,
             iOS: initializationSettingsIOS,
-            macOS: initializationSettingsMacOS);
+            macOS: initializationSettingsIOS);
     await flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onSelectNotification: selectNotification);
+        onDidReceiveNotificationResponse: selectNotification);
   }
 
-  void selectNotification(String? payload) async {
-    if (payload != null) {
-      debugPrint('notification payload: $payload');
-      Map<String, dynamic> messageMap = json.decode(payload);
+  void selectNotification(NotificationResponse response) async {
+    if (response.payload != null) {
+      debugPrint('notification payload: $response');
+      Map<String, dynamic> messageMap = json.decode(response.payload!);
       RemoteMessage message = RemoteMessage.fromMap(messageMap);
       checkMessageTypeAndOpenPage(message);
     }

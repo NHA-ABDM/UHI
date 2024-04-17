@@ -4,13 +4,10 @@ import 'package:hspa_app/constants/src/asset_images.dart';
 import 'package:hspa_app/widgets/src/square_rounded_button_with_icon.dart';
 import 'package:hspa_app/widgets/widgets.dart';
 
-import '../../../constants/src/get_pages.dart';
 import '../../../constants/src/strings.dart';
 import '../../../constants/src/web_urls.dart';
 import '../../../theme/src/app_colors.dart';
 import '../../../theme/src/app_text_style.dart';
-import '../../../utils/src/utility.dart';
-import '../../authentication/src/register_provider_page.dart';
 
 class ProfileNotFoundPage extends StatelessWidget {
   const ProfileNotFoundPage({Key? key}) : super(key: key);
@@ -76,7 +73,7 @@ class ProfileNotFoundPage extends StatelessWidget {
                       Get.back(result: true);
                     }
                 ),
-                Spacing(isWidth: false, size: 12,),
+                const Spacing(isWidth: false, size: 12,),
                 SquareRoundedButtonWithIcon(
                     text: AppStrings().btnSignUp,
                     assetImage: AssetImages.logIn,
@@ -93,7 +90,7 @@ class ProfileNotFoundPage extends StatelessWidget {
                       //Get.toNamed(AppRoutes.registerProviderPage);
                     }
                 ),
-                Spacing(isWidth: false, size: 36,)
+                const Spacing(isWidth: false, size: 36,)
               ],
             ),
           ),

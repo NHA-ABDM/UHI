@@ -716,7 +716,7 @@ class Person {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['uuid'] = uuid;
     data['display'] = display;
     data['gender'] = gender;

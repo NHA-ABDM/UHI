@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hspa_app/constants/src/get_pages.dart';
 import 'package:hspa_app/constants/src/provider_attributes.dart';
-import 'package:hspa_app/view/doctor_setup/src/fees_page.dart';
 import 'package:intl/intl.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
@@ -257,7 +256,7 @@ class _DayTimeSelectionPageState extends State<DayTimeSelectionPage> {
                             ),
                           ),
                         ),
-                        Spacing(
+                        const Spacing(
                           size: 20,
                         ),
                         Expanded(
@@ -370,7 +369,7 @@ class _DayTimeSelectionPageState extends State<DayTimeSelectionPage> {
           ),
           Column(
             children: [
-              Spacing(
+              const Spacing(
                 isWidth: false,
                 size: 16,
               ),

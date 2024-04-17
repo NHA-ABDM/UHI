@@ -5,14 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hspa_app/constants/src/get_pages.dart';
 import 'package:hspa_app/model/src/doctor_profile.dart';
-import 'package:hspa_app/settings/src/preferences.dart';
-import 'package:hspa_app/view/dashboard/src/dashboard_page.dart';
 
 import '../../../constants/src/asset_images.dart';
 import '../../../constants/src/strings.dart';
 import '../../../theme/src/app_colors.dart';
 import '../../../theme/src/app_text_style.dart';
-import '../../role/src/user_role_page.dart';
 
 class SplashScreenPage extends StatefulWidget {
   const SplashScreenPage({Key? key}) : super(key: key);

@@ -12,8 +12,6 @@ import '../../../constants/src/strings.dart';
 import '../../../settings/src/preferences.dart';
 import '../../../theme/src/app_colors.dart';
 import '../../../theme/src/app_text_style.dart';
-import '../../../utils/src/utility.dart';
-import '../../doctor_setup/src/setup_services.dart';
 
 class DoctorProfilePage extends StatefulWidget {
   const DoctorProfilePage({Key? key}) : super(key: key);
@@ -141,13 +139,13 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                       ),
                     ]
                 ),
-                Spacing(isWidth: false,),
+                const Spacing(isWidth: false,),
                 _profile == null
                     ? Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text('Dr. Sana Bhatt', style: AppTextStyle.textBoldStyle(fontSize: 22, color: AppColors.drNameTextColor)),
-                          Spacing(isWidth: false, size: 20,),
+                          const Spacing(isWidth: false, size: 20,),
                           generateDetailRow(firstKey: 'Cardiologist', firstValue: AppStrings().labelDepartment, secondKey: 'Allopathy', secondValue: AppStrings().labelType),
                           generateDetailRow(firstKey: '6 Years', firstValue: AppStrings().labelExperience, secondKey: 'MBBS', secondValue: AppStrings().labelEducation),
                           generateDetailRow(firstKey: 'Hindi,English,Punjabi', firstValue: AppStrings().labelLanguages, secondKey: 'sana.bhat@hpr.abdm', secondValue: AppStrings().labelHPRAddress),
@@ -160,7 +158,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                               style: AppTextStyle.textBoldStyle(
                                   fontSize: 22,
                                   color: AppColors.drNameTextColor)),
-                          Spacing(
+                          const Spacing(
                             isWidth: false,
                             size: 20,
                           ),
@@ -187,9 +185,9 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
         ),
         Column(
           children: [
-            Spacing(isWidth: false, size: 24,),
+            const Spacing(isWidth: false, size: 24,),
             Text(AppStrings().labelMoveNext, style: AppTextStyle.textMediumStyle(fontSize: 14, color: AppColors.titleTextColor)),
-            Spacing(isWidth: false, size: 16,),
+            const Spacing(isWidth: false, size: 16,),
             SquareRoundedButtonWithIcon(text: AppStrings().btnNext, assetImage: AssetImages.arrowLongRight, onPressed: (){
               DoctorSetupValues doctorSetUpValues = DoctorSetupValues();
               doctorSetUpValues.clear();
@@ -197,7 +195,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                 transition: Utility.pageTransition,);*/
               Get.toNamed(AppRoutes.setUpServicesPage);
             }),
-            Spacing(isWidth: false, size: 24,),
+            const Spacing(isWidth: false, size: 24,),
           ],
         ),
       ],
@@ -233,7 +231,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(key, style: AppTextStyle.textSemiBoldStyle(fontSize: 13, color: AppColors.drNameTextColor),textAlign: TextAlign.center,),
-          Spacing(isWidth: false, size: 6,),
+          const Spacing(isWidth: false, size: 6,),
           Text(value, style: AppTextStyle.textNormalStyle(fontSize: 13, color: AppColors.drDetailsTextColor),textAlign: TextAlign.center),
         ],
       ),

@@ -94,7 +94,7 @@ class _AppointmentOngoingPageState extends State<AppointmentOngoingPage> {
                             style: AppTextStyle.textSemiBoldStyle(
                                 color: AppColors.testColor, fontSize: 16),
                           ),
-                          Spacing(),
+                          const Spacing(),
                           Text(
                             appointment.appointmentDate,
                             style: AppTextStyle
@@ -113,7 +113,7 @@ class _AppointmentOngoingPageState extends State<AppointmentOngoingPage> {
                             style: AppTextStyle.textNormalStyle(
                                 color: AppColors.testColor, fontSize: 12),
                           ),
-                          Spacing(),
+                          const Spacing(),
                           Text(
                             appointment.appointmentTime,
                             style: AppTextStyle

@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:uhi_flutter_app/constants/src/strings.dart';
 import 'package:uhi_flutter_app/theme/theme.dart';
-import 'package:uhi_flutter_app/view/authentication/registration/src/register_with_details.dart';
 import 'package:uhi_flutter_app/view/authentication/registration/src/registration_otp_verification.dart';
 
 class RegisterWithMobile extends StatefulWidget {
