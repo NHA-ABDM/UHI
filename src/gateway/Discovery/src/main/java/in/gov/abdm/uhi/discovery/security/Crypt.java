@@ -138,7 +138,6 @@ public class Crypt {
 
     public HeaderDTO extractAuthorizationParams(String headerName, Map<String, String> httpRequestHeaders) throws JsonProcessingException {
         String authHeader = httpRequestHeaders.get(headerName);
-
         return objectMapper.readValue(authHeader, HeaderDTO.class);
     }
 

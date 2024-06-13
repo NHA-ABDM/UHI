@@ -35,6 +35,5 @@ public class RequestRoot{
 	private Message message;
 	@Valid
 	private Context context;
-	//private Error error;
 
 }

@@ -2,13 +2,12 @@ package in.gov.abdm.uhi.registry.serviceImpl;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Locale;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import in.gov.abdm.uhi.registry.dto.SubscriberDto;
+import in.gov.abdm.uhi.registry.entity.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
@@ -17,10 +16,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import in.gov.abdm.uhi.registry.dto.NetworkRoleDto;
-import in.gov.abdm.uhi.registry.entity.Domains;
-import in.gov.abdm.uhi.registry.entity.NetworkParticipant;
-import in.gov.abdm.uhi.registry.entity.NetworkRole;
-import in.gov.abdm.uhi.registry.entity.Status;
 import in.gov.abdm.uhi.registry.exception.RecordAlreadyExists;
 import in.gov.abdm.uhi.registry.exception.ResourceNotFoundException;
 import in.gov.abdm.uhi.registry.repository.DomainRepository;
@@ -102,7 +97,6 @@ public class NetworkRoleServiceImpl implements NetworkRoleService {
 	public NetworkRole updateNetworkRole(NetworkRole networkRole) {
 		logger.info("NetworkRoleServiceImp::updateNetworkRole()");
 		NetworkRole networkRoleData = this.getOneNetworkRole(networkRole.getId());
-		// NetworkRole oneNetworkRole = this.getOneNetworkRole(networkRole.getId());
 		List<NetworkRole> findBySubscriberid = networkRoleRepository.findBySubscriberid(networkRole.getSubscriberid());
 
 		if (networkRoleData != null) {
@@ -187,6 +181,31 @@ public class NetworkRoleServiceImpl implements NetworkRoleService {
 		String subscriberId = networkParticipant.getParticipantId() + "." + type.toLowerCase();
 		return subscriberId;
 
+	}
+
+
+
+	public List<SubscriberDto> isSubscriberIdExists(String subscriberId){
+		List<SubscriberDto> listofAllRecords = new ArrayList<>();
+		List<NetworkRole> networkRole=networkRoleRepository.findBySubscriberid(subscriberId);
+		if (networkRole==null) {
+			throw new ResourceNotFoundException("No record found!");
+		}
+		for(NetworkRole networkRole1:networkRole){
+			mapToSub(listofAllRecords,networkRole1);
+		}
+		return listofAllRecords;
+	}
+
+
+	private void mapToSub(List<SubscriberDto> listofAllRecords,NetworkRole role) {
+		SubscriberDto subscriberData = new SubscriberDto();
+		subscriberData.setDomain(role.getDomain().getCode());
+		subscriberData.setStatus(role.getStatus().getName());
+		subscriberData.setSubscriber_id(role.getSubscriberid());
+		subscriberData.setSubscriber_url(role.getSubscriberurl());
+		subscriberData.setType(role.getType());
+		listofAllRecords.add(subscriberData);
 	}
 
 }

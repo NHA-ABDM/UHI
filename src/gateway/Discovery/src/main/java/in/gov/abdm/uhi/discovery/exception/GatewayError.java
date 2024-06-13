@@ -14,13 +14,16 @@ public enum GatewayError {
     EUA_NOT_REGISTERED("UHI-1406", "EUA not regsitered in Network Registry"),
     HSPA_NOT_REGISTERED("UHI-1406", "HSPA not regsitered in Network Registry"),
     INTERNAL_SERVER_ERROR("UHI-1407", "Internal server error"),
-
     HEADER_VERFICATION_FAILED("UHI-1408", "Header verification failed"),
     EUA_EXCEPTION("UHI-1409", "EUA failure response"),
     INVALID_KEY("UHI_1410", "Invalid key specification"),
     INVALID_JSON_ERROR("UHI-1411", "Invalid Json passed in either request or header. Kindly check"),
     UNKNOWN_ERROR_OCCURRED("UHI-1500", "Unknown error"),
-    PARTICIPANT_VALIDATION_FAILURE("UHI-1412", "Participant failure response. Either partner not registered or Invalid partner");
+    PARTICIPANT_VALIDATION_FAILURE("UHI-1412", "Participant failure response. Either partner not registered or Invalid partner"),
+    EUA_SUBSCRIBER_ID_NOT_FOUND("UHI-1413","EUA SubscriberId not found"),
+    EUA_SUBSCRIBER_URL_NOT_FOUND("UHI-1414","EUA SubscriberUrl not found"),
+    HSPA_SUBSCRIBER_ID_NOT_FOUND("UHI-1415","HSPA SubscriberId not found"),
+    HSPA_SUBSCRIBER_URL_NOT_FOUND("UHI-1416","HSPA Subscriber Url not found");
     private final String code;
     private final String message;
 }

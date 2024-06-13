@@ -10,7 +10,5 @@ public class CityDto {
 		private String stdCode;
 		private String description;
 		private int stateId;
-		//@ManyToOne
-		//@JsonBackReference
-		//private State state;
+
 }

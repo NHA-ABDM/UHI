@@ -26,7 +26,7 @@ info:
 paths:
   /search:
     post:
-      tags:x``x``
+      tags:
         - HSPA - Provider Platform
       description: Search for services by intent<br> <b><i>First search coming from UHI gateway will include header(X-Gateway-Authorization)<br> Second search will be a peer to peer connection and will now contain contain the header Authorization</i></b>
       requestBody:

@@ -25,4 +25,6 @@ public class Intent {
     private Map<String, String> tags;
 
     private Chat chat;
+
+    private Location location;
 }

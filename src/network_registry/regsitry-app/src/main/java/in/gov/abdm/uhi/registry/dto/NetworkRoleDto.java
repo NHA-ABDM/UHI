@@ -19,9 +19,6 @@ public class NetworkRoleDto implements Serializable {
 	private Integer id;
 	@Column(name = "netowrk_participant_id")
 	private Integer networkParticipantId;
-	//@NotBlank(message = "Subscriber id can't be blank!")
-	//@Column(name = "subscriber_id")
-	//private String subscriberId;
 	@NotBlank(message = "Domain can't be blank!")
 	@Column(name = "domain")
 	private String domain;

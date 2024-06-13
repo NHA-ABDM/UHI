@@ -46,7 +46,6 @@ public class ParticipantKey extends DateAudit {
 	@Column(name = "valid_to")
 	private String validTo;
 	@JsonIgnore
-	 //@JsonBackReference
 	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 	@OneToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE },fetch = FetchType.LAZY)
     @JoinColumn(name="networkrole_id",unique = true)

@@ -6,12 +6,22 @@ public class GlobalConstants {
     public static final String NACK = "NACK";
     public static final String HSPA = "HSPA";
     public static final String EUA = "EUA";
+    public static final String TELECONSULTATION="online";
+    public static final String PHYSICALCONSULTATION="physical";
     public static final String SUBSCRIBED = "SUBSCRIBED";
     public static final String AUTH_HEADER_NOT_FOUND = "AUTHORIZATION HEADER NOT FOUND";
     public static final String SIGN_HEADER_VALIDATION_FAILED = "SIGNING HEADER VERIFICATION FAILED";
     public static final String LOOKUP_FAILED = "INTERNAL SERVER ERROR";
     public static final String EUA_VALIDATION_FAILED = "EUA not registered with UHI. Pls get yourself registered.";
+
+    public static final String SEARCH_AUDIT = "search_audit";
     public static final String ON_SEARCH = "on_search";
+    public static final String ON_CONFIRM_AUDIT = "on_confirm_audit";
+
+    public static final String ON_STATUS_AUDIT="on_status_audit";
+
+    public static final String ON_CANCEL_AUDIT="on_cancel_audit";
+
     public static final String SEARCH = "search";
     public static final String AUTHORIZATION = "Authorization";
     public static final String ED_25519 = "Ed25519";
@@ -22,6 +32,11 @@ public class GlobalConstants {
     public static final String REQUESTER_SERVICE_PROCESSOR = "RequesterService::processor::{}";
     public static final String SEARCH_ENDPOINT = "/search";
     public static final String ON_SEARCH_ENDPOINT = "/on_search";
+    public static final String SEARCH_AUDIT_ENDPOINT="/search_audit";
+    public static final String ON_CONFIRM_AUDIT_ENDPOINT = "/on_confirm_audit";
+
+    public static final String ON_STATUS_AUDIT_ENDPOINT="/on_status_audit";
+    public static final String ON_CANCEL_AUDIT_ENDPOINT="/on_cancel_audit";
     public static final String GATEWAY_UTILITY = "GatewayUtility";
     public static final String INTERNAL = "/internal";
 

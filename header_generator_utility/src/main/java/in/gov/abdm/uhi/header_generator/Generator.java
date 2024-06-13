@@ -19,8 +19,6 @@ public class Generator implements ApplicationRunner {
     }
 
 
-//    Private Key::MC4CAQAwBQYDK2VwBCIEIDG5xPKFZLueCAjLyWlBtX8+7S+qh/yzBJQ0T/oizoXX
-//    Public key::MCowBQYDK2VwAyEAa07Q7iQ3Ro+BkXGHXiLsuTmFeFCFoS7fNzEMD1kBByk=
 
     @Override
     public void run(ApplicationArguments args) throws Exception {

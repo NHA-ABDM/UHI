@@ -2,15 +2,8 @@ package in.gov.abdm.uhi.registry.entity;
 
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -23,7 +16,6 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper=true)
 public class NetworkParticipant extends DateAudit {
-
 	private static final long serialVersionUID = 1L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -31,6 +23,8 @@ public class NetworkParticipant extends DateAudit {
 	private Integer id;
 	@Column(name = "participant_id",unique = true)
 	private String participantId;
+	@Column(name = "participant_name",unique = true)
+	private String participantName;
 	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinColumn(referencedColumnName = "id", nullable = false, name = "participant_id")

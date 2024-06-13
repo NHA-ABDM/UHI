@@ -23,6 +23,5 @@ public class Provider {
     private List<Fulfillment> fulfillments;
     private List<Item> items;
     private Location location;
-
-
+    private Contact contact;
 }

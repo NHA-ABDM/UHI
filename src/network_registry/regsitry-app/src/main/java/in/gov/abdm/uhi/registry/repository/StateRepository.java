@@ -9,5 +9,4 @@ import in.gov.abdm.uhi.registry.entity.State;
 
 public interface StateRepository extends JpaRepository<State, Integer>{
 public List<State> findByNameIgnoreCase(String name);
-//public List<State> findByNameIgnoreCase(String name);
 }
