@@ -6,10 +6,16 @@ import lombok.Data;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown=true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Location {
     private String id;
+    private Descriptor descriptor;
+    private City city;
+    private Country country;
     private String gps;
-    private Address address;
+    private String address;
+    private AddState state;
+    private AddDistrict district;
+    private Radius radius;
 
 }

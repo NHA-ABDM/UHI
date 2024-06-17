@@ -21,6 +21,14 @@ import javax.net.ssl.SSLException;
 public class EuaConfiguration {
     private static final Logger LOGGER = LoggerFactory.getLogger(EuaConfiguration.class);
 
+    private static ExchangeFilterFunction logRequest() {
+        return ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
+            LOGGER.info("Request: {} {}", clientRequest.method(), clientRequest.url());
+            clientRequest.headers().forEach((name, values) -> values.forEach(value -> LOGGER.info("{}={}", name, value)));
+            return Mono.just(clientRequest);
+        });
+    }
+
     @Bean
     public WebClient webClient() throws SSLException {
         SslContext context = SslContextBuilder.forClient()
@@ -35,15 +43,6 @@ public class EuaConfiguration {
                 .clientConnector(new ReactorClientHttpConnector(httpClient)).build();
 
         return wc;
-    }
-
-
-    private static ExchangeFilterFunction logRequest() {
-        return ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
-            LOGGER.info("Request: {} {}", clientRequest.method(), clientRequest.url());
-            clientRequest.headers().forEach((name, values) -> values.forEach(value -> LOGGER.info("{}={}", name, value)));
-            return Mono.just(clientRequest);
-        });
     }
 
     @Bean

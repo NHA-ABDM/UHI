@@ -8,8 +8,8 @@ import java.util.List;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown=true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Quote {
-	private Price price;
-	private List<Breakup> breakup;
+    private Price price;
+    private List<Breakup> breakup;
 }

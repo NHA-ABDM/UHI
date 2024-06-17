@@ -1,19 +1,9 @@
 package in.gov.abdm.eua.userManagement.model;
 
-import java.util.Set;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-
 import lombok.Data;
+
+import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Table(schema = "eua")
@@ -47,7 +37,7 @@ public class User {
     @Column(name = "address")
     private String address;
 
-    @Column(name ="gender")
+    @Column(name = "gender")
     private String gender;
 
     @Column(name = "date_of_birth")
@@ -108,30 +98,8 @@ public class User {
     private String pincode;
 
 
-
     @ElementCollection
     private Set<String> authMethods;
 
-
-    @OneToMany(mappedBy = "user")
-    private Set<Orders> orders;
-
-    @OneToMany(mappedBy = "user")
-    private Set<Payments> payments;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<UserRefreshToken> userRefreshTokens;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<UserAbhaAddress> user_abhaAddresses;
-
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private Set<Address> addresses;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<UserDevice> userDevices;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Message> messages;
 
 }
