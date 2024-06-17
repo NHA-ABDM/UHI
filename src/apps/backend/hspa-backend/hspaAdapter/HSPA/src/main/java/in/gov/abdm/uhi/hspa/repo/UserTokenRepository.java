@@ -8,10 +8,11 @@ import java.util.List;
 
 
 @Repository
-public interface UserTokenRepository extends JpaRepository<UserTokenModel, String>{
+public interface UserTokenRepository extends JpaRepository<UserTokenModel, String> {
 
-	List<UserTokenModel> findByUserName(String userName);
-	Integer deleteByUserId(String userId);
+    List<UserTokenModel> findByUserName(String userName);
+
+    Integer deleteByUserId(String userId);
 
 
 }

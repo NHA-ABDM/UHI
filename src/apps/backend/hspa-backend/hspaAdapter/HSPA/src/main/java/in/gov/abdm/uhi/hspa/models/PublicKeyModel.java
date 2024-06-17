@@ -12,13 +12,12 @@ import javax.persistence.Table;
 @Table(schema = ConstantsUtils.HSPA_SCHEMA_NAME, name = "PublicKey")
 @Data
 public class PublicKeyModel {
-    @Id    
+    @Id
     @Column(name = "username")
     private String userName;
-    
+
     @Column(name = "publicKey")
     private String publicKey;
-   
-  
+
 
 }

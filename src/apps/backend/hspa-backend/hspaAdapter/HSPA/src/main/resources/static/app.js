@@ -5,8 +5,7 @@ function setConnected(connected) {
     $("#disconnect").prop("disabled", !connected);
     if (connected) {
         $("#conversation").show();
-    }
-    else {
+    } else {
         $("#conversation").hide();
     }
     $("#req").html("");
@@ -18,7 +17,7 @@ function connect() {
     var socket = new SockJS('/test-hspa');
     stompClient = Stomp.over(socket);
     var messageid = $("#messageId").val()
-    stompClient.connect({ chatid:messageid}, function (frame) {
+    stompClient.connect({chatid: messageid}, function (frame) {
         setConnected(true);
         console.log('Connected: ' + frame);
         stompClient.subscribe(destination, function (res) {
@@ -36,47 +35,47 @@ function disconnect() {
 }
 
 function sendReqOnSearch() {
-    stompClient.send("/on_search",{}, JSON.stringify(JSON.parse($("#name").val())));
+    stompClient.send("/on_search", {}, JSON.stringify(JSON.parse($("#name").val())));
 }
 
 function sendReqOnSelect() {
-    stompClient.send("/on_select",{}, JSON.stringify(JSON.parse($("#name").val())));
+    stompClient.send("/on_select", {}, JSON.stringify(JSON.parse($("#name").val())));
 }
 
 function sendReqOnInit() {
-    stompClient.send("/on_init",{}, JSON.stringify(JSON.parse($("#name").val())));
+    stompClient.send("/on_init", {}, JSON.stringify(JSON.parse($("#name").val())));
 }
 
 function sendReqOnConfirm() {
-    stompClient.send("/on_confirm",{}, JSON.stringify(JSON.parse($("#name").val())));
+    stompClient.send("/on_confirm", {}, JSON.stringify(JSON.parse($("#name").val())));
 }
 
 function sendReqOnStatus() {
-    stompClient.send("/on_status",{}, JSON.stringify(JSON.parse($("#name").val())));
+    stompClient.send("/on_status", {}, JSON.stringify(JSON.parse($("#name").val())));
 }
 
 function sendReqSearch() {
-    stompClient.send("/search",{}, JSON.stringify(JSON.parse($("#name").val())));
+    stompClient.send("/search", {}, JSON.stringify(JSON.parse($("#name").val())));
 }
 
 function sendReqSelect() {
-    stompClient.send("/select",{}, JSON.stringify(JSON.parse($("#name").val())));
+    stompClient.send("/select", {}, JSON.stringify(JSON.parse($("#name").val())));
 }
 
 function sendReqInit() {
-    stompClient.send("/init",{}, JSON.stringify(JSON.parse($("#name").val())));
+    stompClient.send("/init", {}, JSON.stringify(JSON.parse($("#name").val())));
 }
 
 function sendReqConfirm() {
-    stompClient.send("/confirm",{}, JSON.stringify(JSON.parse($("#name").val())));
+    stompClient.send("/confirm", {}, JSON.stringify(JSON.parse($("#name").val())));
 }
 
 function sendReqStatus() {
-    stompClient.send("/status",{}, JSON.stringify(JSON.parse($("#name").val())));
+    stompClient.send("/status", {}, JSON.stringify(JSON.parse($("#name").val())));
 }
 
 function sendReqGetResponseByMsgId() {
-    stompClient.send("/get-response-by-msgId",{}, JSON.stringify(JSON.parse($("#name").val())));
+    stompClient.send("/get-response-by-msgId", {}, JSON.stringify(JSON.parse($("#name").val())));
 }
 
 function showGreeting(message) {
@@ -87,22 +86,48 @@ $(function () {
     $("form").on('submit', function (e) {
         e.preventDefault();
     });
-    $( "#connect" ).click(function() { connect(); });
-    $( "#disconnect" ).click(function() { disconnect(); });
+    $("#connect").click(function () {
+        connect();
+    });
+    $("#disconnect").click(function () {
+        disconnect();
+    });
 
-    $( "#sendOnSearch" ).click(function() { sendReqOnSearch(); });
-    $( "#SendOnSelect" ).click(function() { sendReqOnSelect(); });
-    $( "#SendOnInit" ).click(function() { sendReqOnInit(); });
-    $( "#SendOnConfirm" ).click(function() { sendReqOnConfirm(); });
-    $( "#SendOnStatus" ).click(function() { sendReqOnStatus(); });
+    $("#sendOnSearch").click(function () {
+        sendReqOnSearch();
+    });
+    $("#SendOnSelect").click(function () {
+        sendReqOnSelect();
+    });
+    $("#SendOnInit").click(function () {
+        sendReqOnInit();
+    });
+    $("#SendOnConfirm").click(function () {
+        sendReqOnConfirm();
+    });
+    $("#SendOnStatus").click(function () {
+        sendReqOnStatus();
+    });
 
 
-    $( "#get-response-by-msgId" ).click(function() { sendReqGetResponseByMsgId(); });
+    $("#get-response-by-msgId").click(function () {
+        sendReqGetResponseByMsgId();
+    });
 
-    $( "#sendSearch" ).click(function() { sendReqSearch(); });
-    $( "#sendSelect" ).click(function() { sendReqSelect(); });
-    $( "#sendInit" ).click(function() { sendReqInit(); });
-    $( "#sendConfirm" ).click(function() { sendReqConfirm(); });
-    $( "#sendStatus" ).click(function() { sendReqStatus(); });
+    $("#sendSearch").click(function () {
+        sendReqSearch();
+    });
+    $("#sendSelect").click(function () {
+        sendReqSelect();
+    });
+    $("#sendInit").click(function () {
+        sendReqInit();
+    });
+    $("#sendConfirm").click(function () {
+        sendReqConfirm();
+    });
+    $("#sendStatus").click(function () {
+        sendReqStatus();
+    });
 
 });

@@ -1,0 +1,547 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "context": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        },
+        "core_version": {
+          "type": "string"
+        },
+        "consumer_id": {
+          "type": "string"
+        },
+        "consumer_uri": {
+          "type": "string"
+        },
+        "message_id": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "provider_id": {
+          "type": "string"
+        },
+        "provider_uri": {
+          "type": "string"
+        },
+        "transaction_id": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "domain",
+        "city",
+        "action",
+        "core_version",
+        "consumer_id",
+        "consumer_uri",
+        "message_id",
+        "timestamp",
+        "provider_uri",
+        "transaction_id"
+      ]
+    },
+    "message": {
+      "type": "object",
+      "properties": {
+        "order": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "provider": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "descriptor": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "long_desc": {
+                      "type": "string"
+                    },
+                    "short_desc": {
+                      "type": "string"
+                    },
+                    "images": {
+                      "type": "string"
+                    },
+                    "3d_render": {
+                      "type": "string"
+                    },
+                    "symbol": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "audio": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "location": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "gps": {
+                      "type": "string"
+                    },
+                    "city": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "address": {
+                      "type": "string"
+                    },
+                    "country": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "descriptor": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "long_desc": {
+                          "type": "string"
+                        },
+                        "short_desc": {
+                          "type": "string"
+                        },
+                        "images": {
+                          "type": "string"
+                        },
+                        "3d_render": {
+                          "type": "string"
+                        },
+                        "symbol": {
+                          "type": "string"
+                        },
+                        "code": {
+                          "type": "string"
+                        },
+                        "audio": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "id"
+              ]
+            },
+            "item": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "fulfillment_id": {
+                  "type": "string"
+                },
+                "descriptor": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "long_desc": {
+                      "type": "string"
+                    },
+                    "short_desc": {
+                      "type": "string"
+                    },
+                    "images": {
+                      "type": "string"
+                    },
+                    "3d_render": {
+                      "type": "string"
+                    },
+                    "symbol": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "audio": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "price": {
+                  "type": "object",
+                  "properties": {
+                    "currency": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "currency",
+                    "value"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "descriptor",
+                "price"
+              ]
+            },
+            "fulfillment": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "agent": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "gender": {
+                      "type": "string"
+                    },
+                    "image": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "object",
+                      "properties": {
+                        "@abdm/gov.in/education": {
+                          "type": "string"
+                        },
+                        "@abdm/gov.in/experience": {
+                          "type": "string"
+                        },
+                        "@abdm/gov.in/languages": {
+                          "type": "string"
+                        },
+                        "@abdm/gov.in/hpr_id": {
+                          "type": "string"
+                        },
+                        "@abdm/gov.in/groupConsultation": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false,
+                      "required": [
+                        "@abdm/gov.in/education",
+                        "@abdm/gov.in/experience",
+                        "@abdm/gov.in/languages",
+                        "@abdm/gov.in/hpr_id"
+                      ]
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "name",
+                    "gender",
+                    "tags"
+                  ]
+                },
+                "start": {
+                  "type": "object",
+                  "properties": {
+                    "time": {
+                      "type": "object",
+                      "properties": {
+                        "timestamp": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false,
+                      "required": [
+                        "timestamp"
+                      ]
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "time"
+                  ]
+                },
+                "end": {
+                  "type": "object",
+                  "properties": {
+                    "time": {
+                      "type": "object",
+                      "properties": {
+                        "timestamp": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false,
+                      "required": [
+                        "timestamp"
+                      ]
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "time"
+                  ]
+                },
+                "tags": {
+                  "type": "object",
+                  "properties": {
+                    "@abdm/gov.in/patient_key": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "type",
+                "agent",
+                "start",
+                "end"
+              ]
+            },
+            "billing": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "address": {
+                  "type": "object",
+                  "properties": {
+                    "door": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "locality": {
+                      "type": "string"
+                    },
+                    "city": {
+                      "type": "string"
+                    },
+                    "state": {
+                      "type": "string"
+                    },
+                    "country": {
+                      "type": "string"
+                    },
+                    "area_code": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "door",
+                    "name",
+                    "locality",
+                    "city",
+                    "state",
+                    "country"
+                  ]
+                },
+                "phone": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "name",
+                "address",
+                "phone",
+                "email"
+              ]
+            },
+            "customer": {
+              "type": "object",
+              "properties": {
+                "contact": {
+                  "type": "object",
+                  "properties": {
+                    "cred": {
+                      "type": "string"
+                    },
+                    "phone": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "person": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "gender": {
+                      "type": "string"
+                    },
+                    "dob": {
+                      "type": "string"
+                    },
+                    "dayOfBirth": {
+                      "type": "integer"
+                    },
+                    "monthOfBirth": {
+                      "type": "integer"
+                    },
+                    "yearOfBirth": {
+                      "type": "integer"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "gender",
+                    "dob",
+                    "dayOfBirth",
+                    "monthOfBirth",
+                    "yearOfBirth"
+                  ]
+                },
+                "id": {
+                  "type": "string"
+                },
+                "cred": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "person",
+                "id"
+              ]
+            },
+            "payment": {
+              "type": "object",
+              "properties": {
+                "tl_method": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "uri": {
+                  "type": "string"
+                },
+                "params": {
+                  "type": "object",
+                  "properties": {
+                    "amount": {
+                      "type": "string"
+                    },
+                    "mode": {
+                      "type": "string"
+                    },
+                    "vpa": {
+                      "type": "string"
+                    },
+                    "transaction_id": {
+                      "type": "string"
+                    },
+                    "redirect_url": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "redirect_url"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "params"
+              ]
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "provider",
+            "item",
+            "fulfillment",
+            "billing",
+            "customer"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "order"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "context",
+    "message"
+  ]
+}

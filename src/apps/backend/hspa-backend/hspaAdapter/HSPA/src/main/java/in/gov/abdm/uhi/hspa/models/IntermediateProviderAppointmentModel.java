@@ -23,6 +23,7 @@ public class IntermediateProviderAppointmentModel {
     public String startDateTime;
     public String endDateTime;
     public String timeSlot;
+    public String countOfAppointments;
 
 
 }

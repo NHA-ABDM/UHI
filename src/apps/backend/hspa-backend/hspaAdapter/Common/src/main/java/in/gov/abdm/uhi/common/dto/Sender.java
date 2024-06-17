@@ -6,7 +6,8 @@ import lombok.Data;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown=true)public class Sender {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class Sender {
 
     private Person person;
 }

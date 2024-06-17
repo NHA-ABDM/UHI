@@ -8,12 +8,12 @@ import lombok.EqualsAndHashCode;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RequestSharedKeyDTO extends ServiceResponseDTO {
-  
-	   private String userName;    
 
-	   private String publicKey;  
-	    
-	   private String privateKey;    
+    private String userName;
+
+    private String publicKey;
+
+    private String privateKey;
 
 
 }

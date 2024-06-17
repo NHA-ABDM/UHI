@@ -15,3 +15,5 @@ public class PushNotificationResponseDTO extends ServiceResponseDTO {
     private int status;
     private String message;
 }
+
+

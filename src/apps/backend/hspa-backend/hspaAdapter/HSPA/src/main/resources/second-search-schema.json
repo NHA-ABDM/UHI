@@ -1,0 +1,482 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "context": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        },
+        "core_version": {
+          "type": "string"
+        },
+        "consumer_id": {
+          "type": "string"
+        },
+        "consumer_uri": {
+          "type": "string"
+        },
+        "message_id": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "transaction_id": {
+          "type": "string"
+        },
+      "provider_id": {
+        "type": "string"
+      },
+      "provider_uri": {
+        "type": "string"
+      }
+    },
+      "additionalProperties": false,
+      "required": [
+        "domain",
+        "country",
+        "city",
+        "action",
+        "core_version",
+        "consumer_id",
+        "consumer_uri",
+        "message_id",
+        "timestamp",
+        "transaction_id"
+      ]
+    },
+    "message": {
+      "type": "object",
+      "properties": {
+        "intent": {
+          "type": "object",
+          "properties": {
+            "provider": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "descriptor": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "long_desc": {
+                      "type": "string"
+                    },
+                    "short_desc": {
+                      "type": "string"
+                    },
+                    "images": {
+                      "type": "string"
+                    },
+                    "3d_render": {
+                      "type": "string"
+                    },
+                    "symbol": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "audio": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "location": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "gps": {
+                      "type": "string"
+                    },
+                    "city": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "address": {
+                      "type": "string"
+                    },
+                    "country": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "descriptor": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "long_desc": {
+                          "type": "string"
+                        },
+                        "short_desc": {
+                          "type": "string"
+                        },
+                        "images": {
+                          "type": "string"
+                        },
+                        "3d_render": {
+                          "type": "string"
+                        },
+                        "symbol": {
+                          "type": "string"
+                        },
+                        "code": {
+                          "type": "string"
+                        },
+                        "audio": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "categories": {
+                  "type": "array",
+                  "items": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "parent_category_id": {
+                          "type": "string"
+                        },
+                        "descriptor": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string"
+                            },
+                            "long_desc": {
+                              "type": "string"
+                            },
+                            "short_desc": {
+                              "type": "string"
+                            },
+                            "images": {
+                              "type": "string"
+                            },
+                            "3d_render": {
+                              "type": "string"
+                            },
+                            "symbol": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "audio": {
+                              "type": "string"
+                            }
+                          },
+                          "additionalProperties": false
+                        }
+                      },
+                      "additionalProperties": false,
+                      "required": [
+                        "id",
+                        "parent_category_id",
+                        "descriptor"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "descriptor": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string"
+                            },
+                            "long_desc": {
+                              "type": "string"
+                            },
+                            "short_desc": {
+                              "type": "string"
+                            },
+                            "images": {
+                              "type": "string"
+                            },
+                            "3d_render": {
+                              "type": "string"
+                            },
+                            "symbol": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "audio": {
+                              "type": "string"
+                            }
+                          },
+                          "additionalProperties": false
+                        }
+                      },
+                      "additionalProperties": false,
+                      "required": [
+                        "id",
+                        "descriptor"
+                      ]
+                    }
+                  ],
+                  "maxItems": 2,
+                  "additionalItems": false
+                },
+                "fulfillments": {
+                  "type": "array",
+                  "items": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "agent": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "gender": {
+                              "type": "string"
+                            },
+                            "image": {
+                              "type": "string"
+                            },
+                            "tags": {
+                              "type": "object",
+                              "properties": {
+                                "@abdm/gov.in/education": {
+                                  "type": "string"
+                                },
+                                "@abdm/gov.in/experience": {
+                                  "type": "string"
+                                },
+                                "@abdm/gov.in/languages": {
+                                  "type": "string"
+                                },
+                                "@abdm/gov.in/hpr_id": {
+                                  "type": "string"
+                                },
+                                "@abdm/gov.in/groupConsultation": {
+                                  "type": "string"
+                                }
+                              },
+                              "additionalProperties": false,
+                              "required": [
+                                "@abdm/gov.in/education",
+                                "@abdm/gov.in/experience",
+                                "@abdm/gov.in/languages",
+                                "@abdm/gov.in/hpr_id"
+                              ]
+                            }
+                          },
+                          "additionalProperties": false,
+                          "required": [
+                            "id"
+                          ]
+                        },
+                        "start": {
+                          "type": "object",
+                          "properties": {
+                            "time": {
+                              "type": "object",
+                              "properties": {
+                                "timestamp": {
+                                  "type": "string"
+                                }
+                              },
+                              "additionalProperties": false,
+                              "required": [
+                                "timestamp"
+                              ]
+                            }
+                          },
+                          "additionalProperties": false,
+                          "required": [
+                            "time"
+                          ]
+                        },
+                        "end": {
+                          "type": "object",
+                          "properties": {
+                            "time": {
+                              "type": "object",
+                              "properties": {
+                                "timestamp": {
+                                  "type": "string"
+                                }
+                              },
+                              "additionalProperties": false,
+                              "required": [
+                                "timestamp"
+                              ]
+                            }
+                          },
+                          "additionalProperties": false,
+                          "required": [
+                            "time"
+                          ]
+                        },
+                        "type": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false,
+                      "required": [
+                        "agent",
+                        "start",
+                        "end",
+                        "type"
+                      ]
+                    }
+                  ],
+                  "maxItems": 1,
+                  "additionalItems": false
+                },
+                "items": {
+                  "type": "array",
+                  "items": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "category_id": {
+                          "type": "string"
+                        },
+                        "fulfillment_id": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "descriptor": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string"
+                            },
+                            "long_desc": {
+                              "type": "string"
+                            },
+                            "short_desc": {
+                              "type": "string"
+                            },
+                            "images": {
+                              "type": "string"
+                            },
+                            "3d_render": {
+                              "type": "string"
+                            },
+                            "symbol": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "audio": {
+                              "type": "string"
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        "price": {
+                          "type": "object",
+                          "properties": {
+                            "currency": {
+                              "type": "string"
+                            },
+                            "value": {
+                              "type": "string"
+                            }
+                          },
+                          "additionalProperties": false,
+                          "required": [
+                            "currency",
+                            "value"
+                          ]
+                        }
+                      },
+                      "additionalProperties": false,
+                      "required": [
+                        "category_id",
+                        "fulfillment_id",
+                        "id",
+                        "descriptor"
+                      ]
+                    }
+                  ],
+                  "additionalItems": false
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "categories",
+                "fulfillments",
+                "items"
+              ]
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "provider"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "intent"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "context",
+    "message"
+  ]
+}
