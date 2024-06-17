@@ -1,28 +1,23 @@
-server.port=8081
+server.port=
 
-spring.application.name=GATEWAY-SERVICE
-eureka.client.register-with-eureka=true
-eureka.client.fetch-registry=true
-#service-url.defaultZone=http://100.96.9.173:8762/eureka
-eureka.client.serviceUrl.defaultZone:http://100.96.9.173:8762/eureka/
-eureka.instance.hostname=100.65.158.41
+spring.application.name=
+eureka.client.register-with-eureka=
+eureka.client.fetch-registry=
+eureka.client.serviceUrl.defaultZone:
+eureka.instance.hostname=
 
-spring.cloud.gateway.routes[0].id=USER-SERVICE
-spring.cloud.gateway.routes[0].uri=lb://USER-SERVICE
-#spring.cloud.gateway.routes[0].uri=http://localhost:9192
-spring.cloud.gateway.routes[0].predicates=Path=/api/v1/user/**
+spring.cloud.gateway.routes[0].id=
+spring.cloud.gateway.routes[0].uri=
+spring.cloud.gateway.routes[0].predicates=
 
-spring.cloud.gateway.routes[1].id=BOOKING-SERVICE
-spring.cloud.gateway.routes[1].uri=lb://BOOKING-SERVICE
-#spring.cloud.gateway.routes[1].uri=http://localhost:9192
-spring.cloud.gateway.routes[1].predicates=Path=/api/v1/bookingService/**
+spring.cloud.gateway.routes[1].id=
+spring.cloud.gateway.routes[1].uri=
+spring.cloud.gateway.routes[1].predicates=
 
-spring.cloud.gateway.routes[2].id=EUA-SERVICE
-spring.cloud.gateway.routes[2].uri=lb://EUA-SERVICE
-#spring.cloud.gateway.routes[1].uri=http://localhost:9192
-spring.cloud.gateway.routes[2].predicates=Path=/api/v1/euaService/**
+spring.cloud.gateway.routes[2].id=
+spring.cloud.gateway.routes[2].uri=
+spring.cloud.gateway.routes[2].predicates=
 
-spring.cloud.gateway.routes[3].id=WRAPPER-SERVICE
-spring.cloud.gateway.routes[3].uri=lb://WRAPPER-SERVICE
-#spring.cloud.gateway.routes[1].uri=http://localhost:9192
-spring.cloud.gateway.routes[3].predicates=Path=/api/v1/wrapper/**
+spring.cloud.gateway.routes[3].id=
+spring.cloud.gateway.routes[3].uri=
+spring.cloud.gateway.routes[3].predicates=
