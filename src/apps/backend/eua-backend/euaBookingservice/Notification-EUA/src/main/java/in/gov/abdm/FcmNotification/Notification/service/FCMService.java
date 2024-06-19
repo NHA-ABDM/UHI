@@ -76,6 +76,8 @@ public class FCMService {
                 .putData("type", request.getType())
                 .putData("senderName", request.getTitle())
                 .putData("contentType", request.getContentType())
-                .putData("sharedKey", request.getSharedKey());	
+                .putData("sharedKey", request.getSharedKey())
+                .putData("transId", request.getTransId());	
+                
     }
 }

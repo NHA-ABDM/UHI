@@ -2,8 +2,6 @@ package in.gov.abdm.uhi.EUABookingService.service;
 
 import java.util.List;
 
-import javax.validation.Valid;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import in.gov.abdm.uhi.EUABookingService.entity.Categories;
@@ -26,6 +24,9 @@ Orders saveDataInDb(Request request ,String action ) throws UserException , Json
 	Orders saveDataInDbCancel(Request request);
 
 	List<Orders> getOrderDetailsByAbhaIdDesc(String abhaid);
+
+	List<Orders> getOrderDetailsByFilterParams(String abhaid, String aType, Integer limit, String startDate,
+			String endDate, String sort, String state)throws UserException;
 	
 
 }

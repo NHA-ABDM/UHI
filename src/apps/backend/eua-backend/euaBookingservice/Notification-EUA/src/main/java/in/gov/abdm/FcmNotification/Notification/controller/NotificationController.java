@@ -1,11 +1,7 @@
 package in.gov.abdm.FcmNotification.Notification.controller;
 
-import in.gov.abdm.FcmNotification.Notification.dto.CancelOrderDTO;
-import in.gov.abdm.FcmNotification.Notification.dto.ErrorResponseDTO;
-import in.gov.abdm.FcmNotification.Notification.dto.ServiceResponseDTO;
-import in.gov.abdm.FcmNotification.Notification.service.NotificationService;
-import in.gov.abdm.uhi.common.dto.Request;
-import in.gov.abdm.uhi.common.dto.Response;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,15 +10,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Mono;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.concurrent.ExecutionException;
+import in.gov.abdm.FcmNotification.Notification.dto.CancelOrderDTO;
+import in.gov.abdm.FcmNotification.Notification.dto.ErrorResponseDTO;
+import in.gov.abdm.FcmNotification.Notification.dto.ServiceResponseDTO;
+import in.gov.abdm.FcmNotification.Notification.service.NotificationService;
+import in.gov.abdm.uhi.common.dto.Request;
+import reactor.core.publisher.Mono;
 
 @RestController
 public class NotificationController {
-	Logger LOGGER = LogManager.getLogger(NotificationController.class);
+	Logger logger = LogManager.getLogger(NotificationController.class);
     final NotificationService notificationService;
 
     public NotificationController(NotificationService notificationService) {
@@ -32,13 +30,25 @@ public class NotificationController {
     @PostMapping("/sendNotification")
     public ResponseEntity<Mono<ServiceResponseDTO>> sendNotification(@RequestBody Request request) {
         try {
-        	LOGGER.info("inside sendNotification  "+request);
+        	logger.info("inside sendNotification  "+request);
             notificationService.sendNotificationToReceiver(request);
-            LOGGER.info("process Completed   "+DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now()));
+            logger.info("process Completed   "+DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now()));
         	
             
-        } catch (Exception e) {
-        	LOGGER.error("send notification exception  "+e.getStackTrace());
+        }
+        catch (InterruptedException e) {        	
+        	logger.error("send notification exception  "+e.getStackTrace()+e);
+        	Thread.currentThread().interrupt();
+            ServiceResponseDTO responseDTO = new ServiceResponseDTO();
+            ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO();
+            errorResponseDTO.setErrorString(e.getMessage());
+            errorResponseDTO.setCode("500");
+            errorResponseDTO.setPath("NotificationController");
+            responseDTO.setError(errorResponseDTO);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Mono.just(responseDTO));
+        }
+        catch (Exception e) {
+        	logger.error("send notification exception  "+e.getStackTrace()+e);
             ServiceResponseDTO responseDTO = new ServiceResponseDTO();
             ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO();
             errorResponseDTO.setErrorString(e.getMessage());
@@ -56,13 +66,25 @@ public class NotificationController {
     @PostMapping("/sendCancelNotification")
     public ResponseEntity<Mono<ServiceResponseDTO>> sendCancelNotification(@RequestBody CancelOrderDTO request) {
         try {
-        	LOGGER.info("inside sendCancelNotification  "+request);
+        	logger.info("inside sendCancelNotification  "+request);
             notificationService.sendCancelNotificationToReceiver(request);
-            LOGGER.info("process Completed   "+DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now()));
+            logger.info("process Completed   "+DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now()));
         	
             
-        } catch (Exception e) {
-        	LOGGER.error("send Cancel notification exception  "+e.getStackTrace());
+        } 
+        catch (InterruptedException e) {        	
+        	logger.error("send notification exception  "+e.getStackTrace()+e);
+        	Thread.currentThread().interrupt();
+            ServiceResponseDTO responseDTO = new ServiceResponseDTO();
+            ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO();
+            errorResponseDTO.setErrorString(e.getMessage());
+            errorResponseDTO.setCode("500");
+            errorResponseDTO.setPath("NotificationController");
+            responseDTO.setError(errorResponseDTO);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Mono.just(responseDTO));
+        }
+        catch (Exception e) {
+        	logger.error("send Cancel notification exception  "+e.getStackTrace()+e);
             ServiceResponseDTO responseDTO = new ServiceResponseDTO();
             ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO();
             errorResponseDTO.setErrorString(e.getMessage());

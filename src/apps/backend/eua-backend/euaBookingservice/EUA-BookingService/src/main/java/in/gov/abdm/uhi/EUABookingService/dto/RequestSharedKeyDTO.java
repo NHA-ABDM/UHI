@@ -1,6 +1,7 @@
 package in.gov.abdm.uhi.EUABookingService.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

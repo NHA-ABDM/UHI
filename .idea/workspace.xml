@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="18daeedd-e2a3-4c60-ab8e-ae2b56af64de" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/Common/src/main/java/in/gov/abdm/uhi/common/dto/Content.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/Common/src/main/java/in/gov/abdm/uhi/common/dto/Content.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/Common/src/main/java/in/gov/abdm/uhi/common/dto/Provider.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/Common/src/main/java/in/gov/abdm/uhi/common/dto/Provider.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/Configuration/ChatConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/Configuration/ChatConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/Configuration/SwaggerConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/Configuration/SwaggerConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/Configuration/SwaggerSpecConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/Configuration/SwaggerSpecConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/Configuration/UserInterceptor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/Configuration/UserInterceptor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/Configuration/WebSocketsConf.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/Configuration/WebSocketsConf.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/Entity/Orders.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/Entity/Orders.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/Entity/Payments.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/Entity/Payments.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/EuaBookingServiceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/EuaBookingServiceApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/Service/SaveDataDbService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/Service/SaveDataDbService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/ServiceImpl/FileStorageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/ServiceImpl/FileStorageService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/ServiceImpl/SaveChatIndbServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/ServiceImpl/SaveChatIndbServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/ServiceImpl/SaveInDbServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/ServiceImpl/SaveInDbServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/constants/ConstantsUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/constants/ConstantsUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/controller/ChatController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/controller/ChatController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/controller/EuaBookingController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/controller/EuaBookingController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/dto/RequestSharedKeyDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/dto/RequestSharedKeyDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/exceptions/FileStorageException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/exceptions/FileStorageException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/notification/FCMInitializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/notification/FCMInitializer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/notification/FCMService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/notification/FCMService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/repository/MessagesRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/repository/MessagesRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/repository/OrderRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/repository/OrderRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/java/in/gov/abdm/uhi/EUABookingService/repository/UserRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/resources/application-beta.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/resources/application-beta.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/resources/application-local.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/resources/application-local.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/resources/application-sandbox.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/resources/application-sandbox.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/main/resources/chat-application-3773d-firebase-adminsdk-eir1a-aa77b71232.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/test/java/in/gov/abdm/uhi/EUABookingService/EuaBookingServiceApplicationTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/EUA-BookingService/src/test/java/in/gov/abdm/uhi/EUABookingService/EuaBookingServiceApplicationTests.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/Notification-EUA/src/main/java/in/gov/abdm/FcmNotification/Notification/controller/NotificationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/Notification-EUA/src/main/java/in/gov/abdm/FcmNotification/Notification/controller/NotificationController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/Notification-EUA/src/main/java/in/gov/abdm/FcmNotification/Notification/dto/CancelOrderDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/Notification-EUA/src/main/java/in/gov/abdm/FcmNotification/Notification/dto/CancelOrderDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/Notification-EUA/src/main/java/in/gov/abdm/FcmNotification/Notification/dto/PushNotificationRequestDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/Notification-EUA/src/main/java/in/gov/abdm/FcmNotification/Notification/dto/PushNotificationRequestDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/Notification-EUA/src/main/java/in/gov/abdm/FcmNotification/Notification/service/FCMInitializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/Notification-EUA/src/main/java/in/gov/abdm/FcmNotification/Notification/service/FCMInitializer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/Notification-EUA/src/main/java/in/gov/abdm/FcmNotification/Notification/service/FCMService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/Notification-EUA/src/main/java/in/gov/abdm/FcmNotification/Notification/service/FCMService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/Notification-EUA/src/main/java/in/gov/abdm/FcmNotification/Notification/service/NotificationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/Notification-EUA/src/main/java/in/gov/abdm/FcmNotification/Notification/service/NotificationService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/Notification-EUA/src/main/resources/application-beta.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/Notification-EUA/src/main/resources/application-beta.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/Notification-EUA/src/main/resources/application-hackathon.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/Notification-EUA/src/main/resources/application-hackathon.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/Notification-EUA/src/main/resources/application-sandbox.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/Notification-EUA/src/main/resources/application-sandbox.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/Notification-EUA/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/apps/backend/eua-backend/euaBookingservice/Notification-EUA/src/main/resources/application.properties" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="UHI-1908" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4
+}</component>
+  <component name="ProjectId" id="2hmBrbail4gqM0LnFBqglpQv6fF" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feature/latestEuaBackend&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="UHI" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="UHI" />
+      <option name="filePath" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="18daeedd-e2a3-4c60-ab8e-ae2b56af64de" name="Changes" comment="" />
+      <created>1718189571226</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1718189571226</updated>
+    </task>
+    <servers />
+  </component>
+</project>

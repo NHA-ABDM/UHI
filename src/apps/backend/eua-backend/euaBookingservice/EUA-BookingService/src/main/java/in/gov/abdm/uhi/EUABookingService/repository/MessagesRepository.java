@@ -11,6 +11,6 @@ import in.gov.abdm.uhi.EUABookingService.entity.Messages;
 @Repository
 public interface MessagesRepository extends JpaRepository<Messages, String>{
 	
-	Page<Messages> findBySenderAndReceiver(String sender,String Receiver,Pageable p);
+	Page<Messages> findBySenderAndReceiver(String sender,String receiver,Pageable p);
 
 }

@@ -9,7 +9,7 @@ import in.gov.abdm.uhi.EUABookingService.entity.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>{
 	
-	User findByHealthIdNumber(String abha_id);
+	User findByHealthIdNumber(String abhaid);
 
     User findById(String abhaAddress);
 }
