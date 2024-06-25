@@ -13,15 +13,15 @@
 <noscript><h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Websocket relies on Javascript being
     enabled. Please enable
     Javascript and reload this page!</h2></noscript>
-<div id="main-content" class="container">
+<div class="container" id="main-content">
     <div class="row">
         <div class="col-md-6">
             <form class="form-inline">
                 <div class="form-group">
                     <label for="connect">WebSocket connection:</label>
-                    <button id="connect" class="btn btn-default" type="submit">Connect</button>
-                    <input type="text" id="messageId" name="messageId"/>
-                    <button id="disconnect" class="btn btn-default" type="submit" disabled="disabled">Disconnect
+                    <button class="btn btn-default" id="connect" type="submit">Connect</button>
+                    <input id="messageId" name="messageId" type="text"/>
+                    <button class="btn btn-default" disabled="disabled" id="disconnect" type="submit">Disconnect
                     </button>
                 </div>
             </form>
@@ -30,19 +30,20 @@
             <form class="form-inline">
                 <div class="form-group">
                     <label for="name">Enter the JSON request</label>
-                    <textarea rows="8" cols="6" id="name" class="form-control" placeholder="Your req here..."></textarea>
+                    <textarea class="form-control" cols="6" id="name" placeholder="Your req here..."
+                              rows="8"></textarea>
                 </div>
-<!--                <button id="sendOnSearch" class="btn btn-default" type="submit">SendOnSearch</button>-->
-<!--                <button id="SendOnSelect" class="btn btn-default" type="submit">SendOnSelect</button>-->
-<!--                <button id="SendOnInit" class="btn btn-default" type="submit">SendOnInit</button>-->
-<!--                <button id="SendOnConfirm" class="btn btn-default" type="submit">SendOnConfirm</button>-->
-<!--                <button id="SendOnStatus" class="btn btn-default" type="submit">SendOnStatus</button>-->
-<!--                <button id="get-response-by-msgId" class="btn btn-default" type="submit">Send Get-response-clientId</button>-->
-<!--                <button id="sendSearch" class="btn btn-default" type="submit">Send search</button>-->
-<!--                <button id="sendSelect" class="btn btn-default" type="submit">Send select</button>-->
-<!--                <button id="sendInit" class="btn btn-default" type="submit">Send init</button>-->
-<!--                <button id="sendConfirm" class="btn btn-default" type="submit">Send confirm</button>-->
-<!--                <button id="sendStatus" class="btn btn-default" type="submit">Send status</button>-->
+                <!--                <button id="sendOnSearch" class="btn btn-default" type="submit">SendOnSearch</button>-->
+                <!--                <button id="SendOnSelect" class="btn btn-default" type="submit">SendOnSelect</button>-->
+                <!--                <button id="SendOnInit" class="btn btn-default" type="submit">SendOnInit</button>-->
+                <!--                <button id="SendOnConfirm" class="btn btn-default" type="submit">SendOnConfirm</button>-->
+                <!--                <button id="SendOnStatus" class="btn btn-default" type="submit">SendOnStatus</button>-->
+                <!--                <button id="get-response-by-msgId" class="btn btn-default" type="submit">Send Get-response-clientId</button>-->
+                <!--                <button id="sendSearch" class="btn btn-default" type="submit">Send search</button>-->
+                <!--                <button id="sendSelect" class="btn btn-default" type="submit">Send select</button>-->
+                <!--                <button id="sendInit" class="btn btn-default" type="submit">Send init</button>-->
+                <!--                <button id="sendConfirm" class="btn btn-default" type="submit">Send confirm</button>-->
+                <!--                <button id="sendStatus" class="btn btn-default" type="submit">Send status</button>-->
 
 
                 <!--
@@ -53,7 +54,7 @@
     </div>
     <div class="row">
         <div class="col-md-12">
-            <table id="conversation" class="table table-striped">
+            <table class="table table-striped" id="conversation">
                 <thead>
                 <tr>
                     <th>Ack</th>

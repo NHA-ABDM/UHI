@@ -30,8 +30,6 @@ public class SwaggerSpecConfig {
         wsResource.setName(resource);
         wsResource.setSwaggerVersion("2.0");
         wsResource.setLocation("/swagger-docs/" + resource + "/BookingService.yaml");
-       //System.out.println("+++"+yaml_path);
-       //wsResource.setLocation("/Gateway.yaml");
         return wsResource;
     }
 }

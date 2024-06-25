@@ -5,20 +5,22 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import javax.transaction.Transactional;
 
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -37,6 +39,7 @@ import in.gov.abdm.uhi.EUABookingService.entity.ChatUser;
 import in.gov.abdm.uhi.EUABookingService.entity.Messages;
 import in.gov.abdm.uhi.EUABookingService.entity.SharedKey;
 import in.gov.abdm.uhi.EUABookingService.entity.UserToken;
+import in.gov.abdm.uhi.EUABookingService.exceptions.GenericCustomException;
 import in.gov.abdm.uhi.EUABookingService.notification.PushNotificationRequest;
 import in.gov.abdm.uhi.EUABookingService.notification.PushNotificationResponse;
 import in.gov.abdm.uhi.EUABookingService.notification.PushNotificationService;
@@ -55,7 +58,7 @@ import reactor.core.publisher.Mono;
 
 @Repository
 public class SaveChatIndbServiceImpl implements ChatDataDbService {
-	Logger LOGGER = LogManager.getLogger(SaveChatIndbServiceImpl.class);
+	Logger logger = LogManager.getLogger(SaveChatIndbServiceImpl.class);
 
 	@Autowired
 	WebClient webclient;
@@ -88,17 +91,19 @@ public class SaveChatIndbServiceImpl implements ChatDataDbService {
 		      messagesSaved = saveMessage(request);
 		      saveSenderAndReceiver(request);
 		   } catch (NullPointerException e) {
-		      LOGGER.error(request.getContext().getMessageId() + "  Null pointer Exception  " + e);
+			   logger.error("null pointer"+e);
+			   logger.error(request.getContext().getMessageId() + "  Null pointer Exception  " + e);
 
 		   } catch (Exception e) {
-		      LOGGER.error(request.getContext().getMessageId() + "  Something went wrong  " + e);
+			   logger.error("Exception while saving in db"+e);
+			   logger.error(request.getContext().getMessageId() + "  Something went wrong  " + e);
 
 		   }
 
 		   return messagesSaved;
 		}
 
-	private void saveSenderAndReceiver(Request request) throws Exception {
+	private void saveSenderAndReceiver(Request request) throws GenericCustomException {
 		   ChatUser sender = getSenderOrReceiver(request.getMessage().getIntent().getChat().getSender().getPerson());
 		   ChatUser receiver = getSenderOrReceiver(request.getMessage().getIntent().getChat().getReceiver().getPerson());
 		   List<ChatUser> user=new ArrayList<>();
@@ -106,12 +111,12 @@ public class SaveChatIndbServiceImpl implements ChatDataDbService {
 		   user.add(sender);
 		   List<ChatUser> saveAll = chatUserRepo.saveAll(user);
 		   if(saveAll.isEmpty())
-		      throw new Exception("Error occurred while saving data");
+		      throw new GenericCustomException("Error occurred while saving data");
 		}
 
 		private ChatUser getSenderOrReceiver(Person request) {
 		   ChatUser sender=new ChatUser();
-		   sender.setUserId(request.getCred());
+		   sender.setUserId(request.getId());
 		   sender.setUserName(request.getName());
 		   sender.setImage(request.getImage());
 		   return sender;
@@ -123,12 +128,12 @@ public class SaveChatIndbServiceImpl implements ChatDataDbService {
 		   m.setContentId(request.getMessage().getIntent().getChat().getContent().getContent_id());
 		   
 		   if(contentType.equalsIgnoreCase(ConstantsUtils.TEXT))
-		   m.setContentValue(request.getMessage().getIntent().getChat().getContent().getContent_value());
+		    m.setContentValue(request.getMessage().getIntent().getChat().getContent().getContent_value());
 		   
 		   m.setContentType(contentType);
 		   m.setContentUrl(request.getMessage().getIntent().getChat().getContent().getContent_url());
-		   m.setReceiver(request.getMessage().getIntent().getChat().getReceiver().getPerson().getCred());
-		   m.setSender(request.getMessage().getIntent().getChat().getSender().getPerson().getCred());
+		   m.setReceiver(request.getMessage().getIntent().getChat().getReceiver().getPerson().getId());
+		   m.setSender(request.getMessage().getIntent().getChat().getSender().getPerson().getId());
 		   m.setTime(getLocalDateTimeFromString(request));
 		   m.setConsumerUrl(request.getContext().getConsumerUri());
 		   m.setProviderUrl(request.getContext().getProviderUri());
@@ -138,16 +143,16 @@ public class SaveChatIndbServiceImpl implements ChatDataDbService {
 	private LocalDateTime getLocalDateTimeFromString(Request request) {
 		DateTimeFormatter ofPattern = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
 		String time = request.getMessage().getIntent().getChat().getTime().getTimestamp();
-		LocalDateTime dateParsed = LocalDateTime.parse(time, ofPattern);
-		return dateParsed;
+		return LocalDateTime.parse(time, ofPattern);
+		
 	}
 
 	@Override
 	public List<Messages> getMessageDetails(Integer pageNumber, Integer pageSize) {
 		Pageable p = PageRequest.of(pageNumber, pageSize, Sort.by("time").ascending());
 		Page<Messages> findAll2 = messagesRepo.findAll(p);
-		List<Messages> findAll = findAll2.getContent();
-		return findAll;
+		return findAll2.getContent();
+		
 	}
 
 	@Override
@@ -155,12 +160,12 @@ public class SaveChatIndbServiceImpl implements ChatDataDbService {
 
 		Pageable p = PageRequest.of(pageNumber, pageSize, Sort.by("time").ascending());
 		Page<Messages> findBySenderAndReceiver = messagesRepo.findBySenderAndReceiver(sender, receiver, p);
-		List<Messages> SenderAndReceiver = findBySenderAndReceiver.getContent();
+		List<Messages> senderAndReceiver = findBySenderAndReceiver.getContent();
 		Page<Messages> findBySenderAndReceiver1 = messagesRepo.findBySenderAndReceiver(receiver, sender, p);
-		List<Messages> SenderAndReceiver1 = findBySenderAndReceiver1.getContent();
-		List<Messages> combination = new ArrayList<Messages>();
-		combination.addAll(SenderAndReceiver);
-		combination.addAll(SenderAndReceiver1);
+		List<Messages> senderAndReceiver1 = findBySenderAndReceiver1.getContent();
+		List<Messages> combination = new ArrayList<>();
+		combination.addAll(senderAndReceiver);
+		combination.addAll(senderAndReceiver1);
 		return combination;
 	}
 
@@ -169,21 +174,21 @@ public class SaveChatIndbServiceImpl implements ChatDataDbService {
 		return receiver + "|" + sender;
 	}
 
-	public ResponseEntity<Response> sendErrorIfProviderUriAndDataIsNull(Request request,
+	public ResponseEntity<Mono<Response>> sendErrorIfProviderUriAndDataIsNull(Request request,
 			Messages saveDataInDb) {
 		if (applyDataValidation(request, saveDataInDb)) {
-			return ResponseEntity.status(HttpStatus.OK).body(createAcknowledgementTO());
+			return ResponseEntity.status(HttpStatus.OK).body(Mono.just(createAcknowledgementTO()));
 		} else {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createNacknowledgementTO(null));
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Mono.just(createNacknowledgementTO(null)));
 		}
 	}
 
 	public ResponseEntity<Mono<Response>> checkIfDataIsNullAndCallHspa(Request request,
-			Messages saveDataInDb) {
+																	   Messages saveDataInDb, String req, Map<String, String> headers) {
 		if (applyDataValidation(request, saveDataInDb)) {
 			request.getContext().setAction(ConstantsUtils.ON_MESSAGE);
-			Mono<Response> onErrorResume = webClientCall(request);
-			onErrorResume.subscribe(e->LOGGER.info("INSIDE SUBSCRIBE "));
+			Mono<Response> onErrorResume = webClientCall(request, req,headers);
+			onErrorResume.subscribe(e->logger.info("INSIDE SUBSCRIBE "));
 			
 			return ResponseEntity.status(HttpStatus.OK).body(Mono.just(createAcknowledgementTO()));
 		} else {
@@ -192,25 +197,26 @@ public class SaveChatIndbServiceImpl implements ChatDataDbService {
 		}
 	}
 
-	public Boolean applyDataValidation(Request request, Messages saveDataInDb) {
+	public boolean applyDataValidation(Request request, Messages saveDataInDb) {
 		if (saveDataInDb != null ) {			
 			return true;
-
 		} else {
 			return false;
 		}
 	}
 
-	public Mono<Response> webClientCall(Request request) {
+	public Mono<Response> webClientCall(Request request, String req, Map<String, String> headers) {
+		String providerUri = request.getContext().getProviderUri();
 		Mono<Response> onErrorResume = webclient.post()
-				.uri(request.getContext().getProviderUri() + "/" + ConstantsUtils.ON_MESSAGE)
-				.body(BodyInserters.fromValue(request)).retrieve().bodyToMono(Response.class)
+				.uri(providerUri + "/" + ConstantsUtils.ON_MESSAGE)
+				.contentType(MediaType.APPLICATION_JSON)
+				.header(ConstantsUtils.AUTHORIZATION, headers.get(ConstantsUtils.AUTHORIZATION.toLowerCase()))
+				.body(BodyInserters.fromValue(req)).retrieve().bodyToMono(Response.class)
 				.onErrorResume(error -> {
-					LOGGER.error("Unable to call hspa :error::onErrorResume::" + error);
+					logger.error("Unable to call hspa :error::onErrorResume::" + error);
 					return Mono.empty();
 				});
 		return onErrorResume;
-	
 	}
 
 	public Response createAcknowledgementTO() {
@@ -239,33 +245,31 @@ public class SaveChatIndbServiceImpl implements ChatDataDbService {
 	    return messagesDTOS;
 	}
 	
-	public List<MessagesDTO> convertToMessageDto(List<Messages> getMessageDetails) {	  
+	public List<MessagesDTO> convertToMessageDto(List<Messages> getMessageDetails) {	  		
 	    return modelMapper.map(getMessageDetails, new TypeToken<List<MessagesDTO>>() {}.getType());
 	}
 
 	@Override
 	public List<ChatUser> getUserdetails(String userId) {
-		List<ChatUser> findByUserId = chatUserRepo.findByUserId(userId);
-		return findByUserId;
+		return chatUserRepo.findByUserId(userId);
+		
 	}
 
 	@Override
 	public List<ChatUser> getAllUsers() {
-		List<ChatUser> findAllUsers= chatUserRepo.findAll();
-		return findAllUsers;
+		return chatUserRepo.findAll();
+		
 	}
 
 	@Override
-	public UserToken saveUserToken(RequestTokenDTO requesttoken) {
-		
+	public UserToken saveUserToken(RequestTokenDTO requesttoken) {		
 		UserToken ut=new UserToken();
 		String userid=requesttoken.getUserName()+"|"+requesttoken.getDeviceId();
 		ut.setUserId(userid);
 		ut.setUserName(requesttoken.getUserName());
 		ut.setToken(requesttoken.getToken());
 		ut.setDeviceId(requesttoken.getDeviceId());
-		UserToken save = userTokenRepo.save(ut);		
-		return save;
+		return userTokenRepo.save(ut);
 	}
 
 	@Override
@@ -282,8 +286,8 @@ public class SaveChatIndbServiceImpl implements ChatDataDbService {
 
 	@Override
 	public void sendNotificationToreceiver(Request request) throws InterruptedException, ExecutionException {		
-		String receiver=request.getMessage().getIntent().getChat().getReceiver().getPerson().getCred();
-		String sender =request.getMessage().getIntent().getChat().getSender().getPerson().getCred();
+		String receiver=request.getMessage().getIntent().getChat().getReceiver().getPerson().getId();
+		String sender =request.getMessage().getIntent().getChat().getSender().getPerson().getId();
 		String contentType=request.getMessage().getIntent().getChat().getContent().getContent_type();
 		List<UserToken> userTokenByName = getUserTokenByName(receiver);
 		String userName=receiver+"|"+sender;
@@ -304,8 +308,10 @@ public class SaveChatIndbServiceImpl implements ChatDataDbService {
 					{
 						pushnot.setMessage(request.getMessage().getIntent().getChat().getContent().getContent_url());
 					}else {
-						pushnot.setMessage(request.getMessage().getIntent().getChat().getContent().getContent_value());	
+						pushnot.setMessage(request.getMessage().getIntent().getChat().getContent().getContent_value());
 					}
+					pushnot.setMessage(request.getMessage().getIntent().getChat().getContent().getContent_value());
+
 					pushnot.setSenderAbhaAddress(sender);
 					pushnot.setGender(request.getMessage().getIntent().getChat().getSender().getPerson().getGender());
 					pushnot.setReceiverAbhaAddress(receiver);
@@ -315,18 +321,17 @@ public class SaveChatIndbServiceImpl implements ChatDataDbService {
 					pushnot.setSharedKey(sharedKey);
 					pushnot.setContentType(contentType);
 					pushNotificationService.sendPushNotificationToToken(pushnot);
-					pushnot=null;
 				}
 		}
 		}	
 	}
-	public Boolean isValidFCMToken(String fcmToken) {
+	public boolean isValidFCMToken(String fcmToken) {
         Message message = Message.builder().setToken(fcmToken).build();
         try {
             FirebaseMessaging.getInstance().send(message);
             return true;
         } catch (FirebaseMessagingException fme) {
-        	LOGGER.error("Firebase token verification exception");
+        	logger.error("Firebase token verification exception"+fme);
             return false;
         }
     }
@@ -339,7 +344,7 @@ public class SaveChatIndbServiceImpl implements ChatDataDbService {
 		   if (null != userTokenModel) {
 			   return new ResponseEntity<>(new PushNotificationResponse(HttpStatus.OK.value(), "token deleted"), HttpStatus.OK);
 		   }
-		   throw new RuntimeException("Error logging out. Either Token not found or some error occurred");
+		   throw new GenericCustomException("Error logging out. Either Token not found or some error occurred");
 	}
 
 	@Override

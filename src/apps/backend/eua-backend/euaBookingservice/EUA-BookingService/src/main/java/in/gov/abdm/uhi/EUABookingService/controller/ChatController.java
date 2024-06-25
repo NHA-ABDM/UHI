@@ -8,15 +8,16 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import org.apache.tomcat.util.codec.binary.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -25,13 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -39,6 +34,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import in.gov.abdm.uhi.EUABookingService.constants.ConstantsUtils;
 import in.gov.abdm.uhi.EUABookingService.dto.ErrorResponseDTO;
@@ -56,7 +52,6 @@ import in.gov.abdm.uhi.EUABookingService.notification.PushNotificationService;
 import in.gov.abdm.uhi.EUABookingService.service.ChatDataDbService;
 import in.gov.abdm.uhi.EUABookingService.serviceImpl.FileStorageService;
 import in.gov.abdm.uhi.EUABookingService.serviceImpl.SaveChatIndbServiceImpl;
-import in.gov.abdm.uhi.common.dto.Error;
 import in.gov.abdm.uhi.common.dto.Request;
 import in.gov.abdm.uhi.common.dto.Response;
 import io.swagger.annotations.Api;
@@ -69,18 +64,18 @@ import reactor.core.publisher.Mono;
 @RequestMapping(value = "/api/v1/bookingService")
 @Api(tags = "Chat Service", value = "Chatservice")
 public class ChatController {
-	Logger LOGGER = LogManager.getLogger(ChatController.class);
+	Logger logger = LogManager.getLogger(ChatController.class);
 
 	@Value("${spring.file.upload-dir}")
     private String uploadDir;
 	
 	@Value("${spring.notificationService.baseUrl}")
-	private String notificationService_baseUrl;
+	private String notificationServiceBaseUrl;
 	
 	@Value("${spring.base.url}")
 	private String baseUrl;
-	@Autowired
-	ChatDataDbService chatdatadb;
+//	@Autowired
+//	ChatDataDbService chatdatadb;
 
 	@Autowired
 	private SimpMessagingTemplate messagingTemplate;
@@ -93,6 +88,9 @@ public class ChatController {
 	
 	@Autowired
     FileStorageService fileStorageService;
+
+	@Autowired
+	ObjectMapper objectMapper;
 	
 
 	@Autowired
@@ -104,37 +102,38 @@ public class ChatController {
 	
 	@ApiOperation(value ="Message reponse from HSPA", notes="HSPA will hit this api as a response to EUA and save in database")
 	@PostMapping(path = "/on_message")
-	public ResponseEntity<Response> saveChatForMessage(@RequestBody @Valid Request request) {
-		
+	public ResponseEntity<Mono<Response>> saveChatForMessage(@RequestBody @Valid Request request) {
 		try {
-			LOGGER.info(request.getContext().getMessageId() + "Received request inside on_message " + request);
+			logger.info(request.getContext().getMessageId() + "Received request inside on_message " + objectMapper.writeValueAsString(request));
 
-			String receiver = request.getMessage().getIntent().getChat().getReceiver().getPerson().getCred();
-			String sender = request.getMessage().getIntent().getChat().getSender().getPerson().getCred();
+			String receiver = request.getMessage().getIntent().getChat().getReceiver().getPerson().getId();
+			String sender = request.getMessage().getIntent().getChat().getSender().getPerson().getId();
 			String fileDownloadUri="";
-			String concatReceiverSender = chatdatadb.concatReceiverSender(receiver, sender);		
+			String concatReceiverSender = request.getContext().getTransactionId();
 			String contentType= request.getMessage().getIntent().getChat().getContent().getContent_type();
 			if(contentType.equalsIgnoreCase(ConstantsUtils.MEDIA))
 			{
 				String messageid=request.getContext().getMessageId();
-				String content_fileName = messageid+request.getMessage().getIntent().getChat().getContent().getContent_fileName();
+				String contentFileName = messageid+request.getMessage().getIntent().getChat().getContent().getContent_filename();
 				
 				Files.createDirectories(Paths.get(uploadDir).toAbsolutePath().normalize());
-				try (OutputStream stream = new FileOutputStream(uploadDir+"/"+ content_fileName)) {
-				   String content_value = request.getMessage().getIntent().getChat().getContent().getContent_value();
-				   byte[] fileBytes = Base64.decodeBase64(content_value);
+				try (OutputStream stream = new FileOutputStream(uploadDir+"/"+ contentFileName)) {
+				   String contentValue = request.getMessage().getIntent().getChat().getContent().getContent_value();
+				   byte[] fileBytes = Base64.decodeBase64(contentValue);
 				   stream.write(fileBytes);
 				}
-		         fileDownloadUri = baseUrl+"/downloadFile/"+content_fileName;		        
-		         request.getMessage().getIntent().getChat().getContent().setContent_value("");
-		         request.getMessage().getIntent().getChat().getContent().setContent_url(fileDownloadUri);
-			}		
+		         fileDownloadUri = baseUrl+ConstantsUtils.DOWNLOADFILE+contentFileName;
+				request.getMessage().getIntent().getChat().getContent().setContent_value("");
+				request.getMessage().getIntent().getChat().getContent().setContent_url(fileDownloadUri);
+			}
+			messagingTemplate.convertAndSendToUser(concatReceiverSender, "/queue/specific-user", request);
+			if((contentType.equalsIgnoreCase(ConstantsUtils.MEDIA))||(contentType.equalsIgnoreCase(ConstantsUtils.TEXT)))
+					{
 			
-			Messages saveDataInDb = chatdatadb.saveChatDataInDb(request);
-			messagingTemplate.convertAndSendToUser(concatReceiverSender, "/queue/specific-user", request);			
-			//chatdatadb.sendNotificationToreceiver(request);		
-			
-			webclient.post().uri(notificationService_baseUrl+"/sendNotification")
+			Messages saveDataInDb = saveChatService.saveChatDataInDb(request);
+					
+						
+			webclient.post().uri(notificationServiceBaseUrl+"/sendNotification")
 		      .body(BodyInserters.fromValue(request))
 		      .retrieve()
 		      .onStatus(HttpStatus::is4xxClientError,
@@ -143,20 +142,24 @@ public class ChatController {
 		            response -> response.bodyToMono(String.class).map(Exception::new))
 		      .toEntity(String.class)
 		      .doOnError(throwable -> {
-		         LOGGER.error("Error sending notification---"+throwable.getMessage());
-		      }).subscribe(res ->LOGGER.info("Sent notification---"+res.getBody()));
+		    	  logger.error("Error sending notification---"+throwable.getMessage());
+		      }).subscribe(res ->logger.info("Sent notification---"+res.getBody()));
 			
-			LOGGER.info("after save to db" + saveDataInDb);
+			logger.info("after save to db" + saveDataInDb);
 			return saveChatService.sendErrorIfProviderUriAndDataIsNull(request, saveDataInDb);
-		} catch (NullPointerException e) {
-			LOGGER.error(request.getContext().getMessageId() + "  Null pointer Exception  " + e);
+					}
+			
+			return ResponseEntity.status(HttpStatus.OK)
+					.body(Mono.just(saveChatService.createAcknowledgementTO()));
+		} catch (NullPointerException  e) {
+			logger.error(request.getContext().getMessageId() + "  Null pointer Exception  " + e);
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body(saveChatService.createNacknowledgementTO(e.getMessage()));
+					.body(Mono.just(saveChatService.createNacknowledgementTO(e.getMessage())));
 
 		} catch (Exception e) {
-			LOGGER.error(request.getContext().getMessageId() + "  Something went wrong  " + e);
+			logger.error(request.getContext().getMessageId() + "  Something went wrong  " + e);
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body(saveChatService.createNacknowledgementTO(e.getMessage()));
+					.body(Mono.just(saveChatService.createNacknowledgementTO(e.getMessage())));
 		}
 		
 		
@@ -164,22 +167,21 @@ public class ChatController {
 
 	@ApiOperation(value ="Message reponse from EUA", notes="EUA will hit this api as a request to HSPA and save in database")
 	@PostMapping(path = "/message",consumes = {MediaType.APPLICATION_JSON_VALUE,MediaType.MULTIPART_FORM_DATA_VALUE})
-	public ResponseEntity<Mono<Response>> saveChatForOnMessage(@RequestBody @Valid String req) {
+	public ResponseEntity<Mono<Response>> saveChatForOnMessage(@RequestBody @Valid String req, @RequestHeader Map<String, String> headers) {
 		 String fileDownloadUri="";
-		 ObjectMapper objectMapper = new ObjectMapper();
 			Request request;
 			
 			try {
 				request = objectMapper.readValue(req,Request.class);
 				String contentType= request.getMessage().getIntent().getChat().getContent().getContent_type();
 				try {
-					
-					LOGGER.error(request.getContext().getMessageId() + "Received request inside message " + req);
+					Messages saveDataInDb=new Messages();
+					logger.error(request.getContext().getMessageId() + "Received request inside message " + req);
 	
 					if(contentType.equalsIgnoreCase(ConstantsUtils.MEDIA))
 					{
 						String messageid=request.getContext().getMessageId();
-						String content_fileName = messageid+request.getMessage().getIntent().getChat().getContent().getContent_fileName();
+						String content_fileName = messageid+request.getMessage().getIntent().getChat().getContent().getContent_filename();
 						
 						Files.createDirectories(Paths.get(uploadDir).toAbsolutePath().normalize());
 						try (OutputStream stream = new FileOutputStream(uploadDir+"/"+ content_fileName)) {
@@ -187,30 +189,27 @@ public class ChatController {
 						   byte[] fileBytes = Base64.decodeBase64(content_value);
 						   stream.write(fileBytes);
 						}
-				         fileDownloadUri = baseUrl+"/downloadFile/"+content_fileName;		        
+				         fileDownloadUri = baseUrl+"/downloadFile/"+content_fileName;
+						request.getMessage().getIntent().getChat().getContent().setContent_url(fileDownloadUri);
 				   
-				         request.getMessage().getIntent().getChat().getContent().setContent_url(fileDownloadUri);
 					}
-					
-					
-					Messages saveDataInDb = chatdatadb.saveChatDataInDb(request);
-					
-				
-					return saveChatService.checkIfDataIsNullAndCallHspa(request, saveDataInDb);
-
+					if((contentType.equalsIgnoreCase(ConstantsUtils.MEDIA))||(contentType.equalsIgnoreCase(ConstantsUtils.TEXT)))
+					{					
+					 saveDataInDb = saveChatService.saveChatDataInDb(request);						
+					}
+					return saveChatService.checkIfDataIsNullAndCallHspa(request, saveDataInDb, req,headers);
 				} catch (NullPointerException e) {
-					LOGGER.error(request.getContext().getMessageId() + "  Null pointer Exception  " + e);					
+					logger.error(request.getContext().getMessageId() + "  Null pointer Exception  " + e);					
 					Response createNacknowledgementTO = saveChatService.createNacknowledgementTO(e.getMessage());
 					return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Mono.just(createNacknowledgementTO));
 
 				} catch (Exception e) {
-					LOGGER.error(request.getContext().getMessageId() + "  Something went wrong  " + e);
+					logger.error(request.getContext().getMessageId() + "  Something went wrong  " + e);
 					Response createNacknowledgementTO = saveChatService.createNacknowledgementTO(e.getMessage());
 					return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Mono.just(createNacknowledgementTO));
-
 				}
 			} catch (JsonProcessingException e1) {
-				// TODO Auto-generated catch block
+				logger.error("  JsonProcessingException  " + e1);
 				e1.printStackTrace();
 			}
 			
@@ -222,25 +221,25 @@ public class ChatController {
 	@GetMapping(path = "/getMessage")
 	public ResponseEntity<List<MessagesDTO>> getMessage(
 			@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
-			@RequestParam(value = "pageSize", defaultValue = "200", required = false) Integer pageSize) {
-		LOGGER.info("inside Get all Messages");
-		List<Messages> getMessageDetails = chatdatadb.getMessageDetails(pageNumber, pageSize);
+			@RequestParam(value = "pageSize", defaultValue = "200", required = false) Integer pageSize) throws JsonProcessingException {
+		logger.info("inside Get all Messages");
+		List<Messages> getMessageDetails = saveChatService.getMessageDetails(pageNumber, pageSize);
 		return new ResponseEntity<>(saveChatService.convertToMessageDto(getMessageDetails), HttpStatus.OK);
 	}	
 	
 	@ApiOperation(value = "Get users by userid", notes="This endpoint will give users by userid ")
 	@GetMapping(path = "/getUser/{userid}")
 	public ResponseEntity<List<ChatUser>> getUserById(@PathVariable("userid") String userId) {
-		LOGGER.info("inside Get user by id");
-		List<ChatUser> getUserDetails = chatdatadb.getUserdetails(userId);
+		logger.info("inside Get user by id");
+		List<ChatUser> getUserDetails = saveChatService.getUserdetails(userId);
 		return new ResponseEntity<>(getUserDetails, HttpStatus.OK);
 	}
 	
 	@ApiOperation(value = "Get all users ", notes="This endpoint will give all available users")
 	@GetMapping(path = "/getUser")
 	public ResponseEntity<List<ChatUser>> getAllUsers() {
-		LOGGER.info("inside Get all Users");
-		List<ChatUser> getUserDetails = chatdatadb.getAllUsers();
+		logger.info("inside Get all Users");
+		List<ChatUser> getUserDetails = saveChatService.getAllUsers();
 		return new ResponseEntity<>(getUserDetails, HttpStatus.OK);
 	}
 
@@ -253,13 +252,13 @@ public class ChatController {
 			@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
 			@RequestParam(value = "pageSize", defaultValue = "200", required = false) Integer pageSize) {
 		try {
-			LOGGER.info("inside Get message by sender receiver");
-			List<Messages> getMessageDetails = chatdatadb.getMessagesBetweenTwo(sender, receiver, pageNumber, pageSize);
+			logger.info("inside Get message by sender receiver");
+			List<Messages> getMessageDetails = saveChatService.getMessagesBetweenTwo(sender, receiver, pageNumber, pageSize);
 			return new ResponseEntity<>(saveChatService.convertToMessageDto(getMessageDetails), HttpStatus.OK);
 		} catch (Exception e) {
-			LOGGER.info("Requester::error::sender ::" + sender);
-			LOGGER.info("Requester::error::receiver ::" + receiver);
-			LOGGER.error(e.getMessage());
+			logger.info("Requester::error::sender ::" + sender);
+			logger.info("Requester::error::receiver ::" + receiver);
+			logger.error(e.getMessage(),e);
 			List<MessagesDTO> messagesDTOS = saveChatService.getErrorMessage(e.getMessage());
 			return new ResponseEntity<>(messagesDTOS, HttpStatus.INTERNAL_SERVER_ERROR);
 
@@ -271,17 +270,18 @@ public class ChatController {
     public ResponseEntity<PushNotificationResponse> sendTokenNotification(@RequestBody PushNotificationRequest request) {
 			 try {
 				pushNotificationService.sendPushNotificationToToken(request);
-				 System.out.println("send notification");
+				logger.info("send notification");
 			        return new ResponseEntity<>(new PushNotificationResponse(HttpStatus.OK.value(), "Notification has been sent."), HttpStatus.OK);
 			} catch (InterruptedException | ExecutionException e) {
-				 System.out.println("send notification");
+				logger.error("exception while sending notification"+e);
+				Thread.currentThread().interrupt();
 			        return new ResponseEntity<>(new PushNotificationResponse(HttpStatus.OK.value(), "some thing went wrong."), HttpStatus.BAD_REQUEST);
 			}
 		}
 	@ApiOperation(value = "Save user token in database ", notes="app will hit this endpoint to save user token ")
 	@PostMapping("/saveToken")
     public ResponseEntity<PushNotificationResponse> saveToken(@RequestBody RequestTokenDTO request) {
-		UserToken saveUserToken = chatdatadb.saveUserToken(request);
+		UserToken saveUserToken = saveChatService.saveUserToken(request);
         if(null!=saveUserToken)
         {
         return new ResponseEntity<>(new PushNotificationResponse(HttpStatus.OK.value(), "token saved"), HttpStatus.OK);
@@ -296,8 +296,8 @@ public class ChatController {
 	@ApiOperation(value = "Get token assigned to users", notes="Get details of all token assigned to users")
 	@GetMapping(path = "/getTokenUsers")
 	public ResponseEntity<List<UserToken>> getAllTokenUsers() {
-		LOGGER.info("inside Get all Token Users");
-	List<UserToken> allUserToken = chatdatadb.getAllUserToken();
+		logger.info("inside Get all Token Users");
+	List<UserToken> allUserToken = saveChatService.getAllUserToken();
 		return new ResponseEntity<>(allUserToken, HttpStatus.OK);
 	}
 	
@@ -305,9 +305,10 @@ public class ChatController {
 	public ResponseEntity<PushNotificationResponse> logout(@RequestBody RequestTokenDTO request) {
 		PushNotificationResponse userToken = null;
 	    try {	       
-	        return chatdatadb.deleteToken(request);
+	        return saveChatService.deleteToken(request);
 	    }
 	    catch(RuntimeException re) {
+	    	logger.error("Exception deleting token"+re);
 	    	PushNotificationResponse errorMessage = getErrorMessage(re.getMessage()).get(0);
 	        userToken = new PushNotificationResponse();
 	        userToken.setError(errorMessage.getError());
@@ -331,7 +332,7 @@ public class ChatController {
 	   
     @PostMapping("/saveKey")
     public ResponseEntity<SharedKey> savePublicKey(@RequestBody RequestSharedKeyDTO request) {
-    	SharedKey saveSharedKey = chatdatadb.saveSharedKey(request);
+    	SharedKey saveSharedKey = saveChatService.saveSharedKey(request);
         if(null!= saveSharedKey)
         {
             return new ResponseEntity<>(saveSharedKey, HttpStatus.OK);
@@ -344,8 +345,8 @@ public class ChatController {
     
     @GetMapping(path = "/getKey/{userName}")
 	public ResponseEntity<List<SharedKey>> getKeyByUsername(@PathVariable("userName") String userName){
-		LOGGER.info("Get Key  by User Name");
-		List<SharedKey> getKeyDetails = chatdatadb.getKeyDetails(userName);		
+    	logger.info("Get Key  by User Name");
+		List<SharedKey> getKeyDetails = saveChatService.getKeyDetails(userName);		
 		return new ResponseEntity<>(getKeyDetails,HttpStatus.OK);		
 	}
     
@@ -373,18 +374,15 @@ public class ChatController {
 	
 	    @GetMapping("/downloadFile/{fileName}")
 	    public ResponseEntity<Resource> downloadFile(@PathVariable String fileName, HttpServletRequest request) {
-	        // Load file as Resource
-	        Resource resource = fileStorageService.loadFileAsResource(fileName,uploadDir);
-
-	        // Try to determine file's content type
+	        
+	        Resource resource = fileStorageService.loadFileAsResource(fileName,uploadDir);	       
 	        String contentType = null;
 	        try {
 	            contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
 	        } catch (IOException ex) {
-	        	LOGGER.info("Could not determine file type.");
+	        	logger.info("Could not determine file type."+ex);
 	        }
-
-	        // Fallback to the default content type if type could not be determined
+	       
 	        if(contentType == null) {
 	            contentType = "application/octet-stream";
 	        }

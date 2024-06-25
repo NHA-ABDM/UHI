@@ -31,7 +31,7 @@ public class FCMInitializer {
                 logger.info("Firebase application has been initialized");
             }
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            logger.error(e.getMessage()+e);
         }
     }
 }

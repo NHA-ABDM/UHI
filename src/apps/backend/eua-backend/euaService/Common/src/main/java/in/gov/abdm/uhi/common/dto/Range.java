@@ -6,10 +6,10 @@ import lombok.Data;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown=true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Range {
-	private String start;
-	private String end;
-	private Long min;
-	private Long max;
+    private String start;
+    private String end;
+    private Long min;
+    private Long max;
 }

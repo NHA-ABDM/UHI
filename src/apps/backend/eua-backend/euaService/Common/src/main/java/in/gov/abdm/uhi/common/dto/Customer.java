@@ -6,10 +6,10 @@ import lombok.Data;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown=true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Customer {
-	private String id;
-	private String cred;
-	private Person person;
-	private Contact contact;
+    private String id;
+    private String cred;
+    private Person person;
+    private Contact contact;
 }

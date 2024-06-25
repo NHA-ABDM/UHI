@@ -31,8 +31,8 @@ import in.gov.abdm.uhi.common.dto.Response;
 @Service
 public class NotificationService {
 
-    private final Logger LOGGER = LogManager.getLogger(PushNotificationService.class);
-
+    private final Logger logger = LogManager.getLogger(NotificationService.class);
+    static final String dateFormat="yyyy-MM-dd HH:mm:ss";
 
     @Value("${spring.media.type.text}")
     private String mediaTypeText;
@@ -76,16 +76,16 @@ public class NotificationService {
 
     private void prepareSendNotification(Request request) throws ExecutionException, InterruptedException {		
 
-    	LOGGER.info("before serching for token in db"+DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now()));
+    	logger.info("before serching for token in db"+DateTimeFormatter.ofPattern(dateFormat).format(LocalDateTime.now()));
     	
-    	String receiver=request.getMessage().getIntent().getChat().getReceiver().getPerson().getCred();
-		String sender =request.getMessage().getIntent().getChat().getSender().getPerson().getCred();
+    	String receiver=request.getMessage().getIntent().getChat().getReceiver().getPerson().getId();
+		String sender =request.getMessage().getIntent().getChat().getSender().getPerson().getId();
 		String contentType=request.getMessage().getIntent().getChat().getContent().getContent_type();
 		List<UserToken> userTokenByName = getUserTokenByName(receiver);
-		LOGGER.info("after serching for token in db"+DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now()));
-		//String userName=sender;
+		logger.info("after serching for token in db"+DateTimeFormatter.ofPattern(dateFormat).format(LocalDateTime.now()));
+		
 		List<SharedKey> lsk=getSharedKeyDetails(sender);
-		LOGGER.info("after serching for shared key in db"+DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now()));
+		logger.info("after serching for shared key in db"+DateTimeFormatter.ofPattern(dateFormat).format(LocalDateTime.now()));
 		
 		String sharedKey="";
 		if(!lsk.isEmpty())
@@ -95,20 +95,17 @@ public class NotificationService {
 	for(UserToken token:userTokenByName){		
 		if(token.getToken()!=null)
 		{		
-			LOGGER.info("token being processed   "+token.getToken()+"   "+DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now()));
+			logger.info("token being processed   "+token.getToken()+"   "+DateTimeFormatter.ofPattern(dateFormat).format(LocalDateTime.now()));
 			
 			if(isValidFCMToken(token.getToken()))
 				{				
 					PushNotificationRequestDTO pushnot=new PushNotificationRequestDTO();
 					pushnot.setTitle(request.getMessage().getIntent().getChat().getSender().getPerson().getName());
-					if(contentType.equalsIgnoreCase("media"))
-					{
-						//pushnot.setMessage(request.getMessage().getIntent().getChat().getContent().getContent_url());
-						pushnot.setMessage(contentMessage);
-					}else {
-						//pushnot.setMessage(request.getMessage().getIntent().getChat().getContent().getContent_value());	
-						pushnot.setMessage(contentMessage);
-					}
+					if(contentType.equalsIgnoreCase("media"))											
+						pushnot.setMessage(contentMessage);					
+					else {						
+						    pushnot.setMessage(contentMessage);
+						 }
 					pushnot.setSenderAbhaAddress(sender);
 					pushnot.setGender(request.getMessage().getIntent().getChat().getSender().getPerson().getGender());
 					pushnot.setReceiverAbhaAddress(receiver);
@@ -116,25 +113,26 @@ public class NotificationService {
 					pushnot.setType(ConstantsUtils.CHAT);
 					pushnot.setToken(token.getToken());			
 					pushnot.setSharedKey(sharedKey);
+					pushnot.setTransId(request.getContext().getTransactionId());
 					pushnot.setContentType(contentType);
 					pushNotificationService.sendPushNotificationToToken(pushnot);
 					pushnot=null;
 				}
 		}
 		}	
-		LOGGER.info("finished processing all token   "+DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now()));
+	logger.info("finished processing all token   "+DateTimeFormatter.ofPattern(dateFormat).format(LocalDateTime.now()));
 	}
     
     private void prepareSendCancelNotification(CancelOrderDTO request) throws ExecutionException, InterruptedException {		
     	
-    	LOGGER.info("before serching for token in db"+DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now()));
+    	logger.info("before serching for token in db"+DateTimeFormatter.ofPattern(dateFormat).format(LocalDateTime.now()));
     	
     	String receiver=request.getAbhaId();
 		String sender =request.getHealthcareProfessionalId();
 		String contentType=null;		
 		 contentType="on_cancel";	
 		String startDate=request.getServiceFulfillmentStartTime();
-		String endDate=request.getServiceFulfillmentEndTime();
+		
 		
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 		LocalDateTime dateTime = LocalDateTime.parse(startDate, formatter);
@@ -142,24 +140,24 @@ public class NotificationService {
 		DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("dd MMM, yyyy 'at' hh:mm a");
 
         String newStartDate = dateTime.format(formatter1);
-        LOGGER.info("new startdate"+newStartDate);
+        logger.info("new startdate"+newStartDate);
 		
 		String doctorName=request.getHealthcareProfessionalName();
 		if(doctorName.contains("-"))
 		{
 			doctorName=doctorName.substring(doctorName.lastIndexOf("-") + 1);
 		}
-		LOGGER.info("Doctors name       "+doctorName);
+		logger.info("Doctors name       "+doctorName);
 		
 		
 		
 		List<UserToken> userTokenByName = getUserTokenByName(receiver);
-		LOGGER.info("after serching for token in db"+DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now()));
+		logger.info("after serching for token in db"+DateTimeFormatter.ofPattern(dateFormat).format(LocalDateTime.now()));
 
 		for(UserToken token:userTokenByName){		
 		if(token.getToken()!=null)
 		{		
-			LOGGER.info("token being processed   "+token.getToken()+"   "+DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now()));
+			logger.info("token being processed   "+token.getToken()+"   "+DateTimeFormatter.ofPattern(dateFormat).format(LocalDateTime.now()));
 			
 			if(isValidFCMToken(token.getToken()))
 				{				
@@ -175,23 +173,25 @@ public class NotificationService {
 					pushnot.setType("cancel order");
 					pushnot.setToken(token.getToken());			
 					pushnot.setSharedKey("");
+					pushnot.setTransId("");
+					
 					pushnot.setContentType(contentType);
 					pushNotificationService.sendPushNotificationToToken(pushnot);
 					pushnot=null;
 				}
 		}
 		}	
-	LOGGER.info("finished processing all token   "+DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now()));
+		logger.info("finished processing all token   "+DateTimeFormatter.ofPattern(dateFormat).format(LocalDateTime.now()));
 	
 	}
 
-    private Boolean isValidFCMToken(String fcmToken) {
+    private boolean isValidFCMToken(String fcmToken) {
         Message message = Message.builder().setToken(fcmToken).build();
         try {
             FirebaseMessaging.getInstance().send(message);
             return true;
         } catch (FirebaseMessagingException fme) {
-			LOGGER.error("Firebase token verification exception", fme);
+        	logger.error("Firebase token verification exception", fme);
             return false;
         }
     }

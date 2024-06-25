@@ -7,16 +7,16 @@ import lombok.Data;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown=true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Item {
-	private String id;
-	private Quantity quantity;
-	private Descriptor descriptor;
-	@JsonProperty(value = "category_id")
-	private String categoryId;
-	@JsonProperty(value = "fulfillment_id")
-	private String fulfillmentId;
-	@JsonProperty(value = "provider_id")
-	private String providerId;
-	private Price price;
+    private String id;
+    private Quantity quantity;
+    private Descriptor descriptor;
+    @JsonProperty(value = "category_id")
+    private String categoryId;
+    @JsonProperty(value = "fulfillment_id")
+    private String fulfillmentId;
+    @JsonProperty(value = "provider_id")
+    private String providerId;
+    private Price price;
 }

@@ -1,6 +1,7 @@
 package in.gov.abdm.uhi.common.dto;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -20,4 +21,5 @@ public class Provider {
 	private ArrayList<Category> categories;
 	private ArrayList<Fulfillment> fulfillments;
 	private ArrayList<Items> items;
+	private List<Location> locations;
 }

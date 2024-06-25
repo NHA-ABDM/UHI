@@ -6,11 +6,10 @@
 		<artifactId>uhi</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	
-	
+
 
 	<groupId>in.gov.abdm.uhi</groupId>
-	<artifactId>EUA-BookingService</artifactId>	
+	<artifactId>EUA-BookingService</artifactId>
 	<name>EUA-BookingService</name>
 	<description>Spring Boot project for Bookking service</description>
 	<properties>
@@ -18,11 +17,11 @@
 		<spring-cloud.version>2021.0.1</spring-cloud.version>
 	</properties>
 	<dependencies>
-	<dependency>
-  		 <groupId>in.gov.abdm.uhi</groupId>
-   		<artifactId>common</artifactId>
- 		  <version>0.0.1-SNAPSHOT</version>
-	</dependency>
+		<dependency>
+			<groupId>in.gov.abdm.uhi</groupId>
+			<artifactId>common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
@@ -131,10 +130,22 @@
 			<version>3.1.0</version>
 		</dependency>
 		<dependency>
-     <groupId>com.google.firebase</groupId>
-     <artifactId>firebase-admin</artifactId>
-     <version>7.0.0</version>
+			<groupId>com.google.firebase</groupId>
+			<artifactId>firebase-admin</artifactId>
+			<version>7.0.0</version>
 		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId> <!-- NOT org.junit here -->
+			<artifactId>junit-dep</artifactId>
+			<version>4.8.2</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+  <groupId>com.fasterxml.jackson.datatype</groupId>
+  <artifactId>jackson-datatype-jsr310</artifactId>
+  <version>2.13.4</version>
+</dependency>
 
 	</dependencies>
 

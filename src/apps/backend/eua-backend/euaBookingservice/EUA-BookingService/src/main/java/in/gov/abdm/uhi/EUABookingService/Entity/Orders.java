@@ -1,5 +1,8 @@
 package in.gov.abdm.uhi.EUABookingService.entity;
 
+
+import java.time.LocalDateTime;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -8,12 +11,16 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import in.gov.abdm.uhi.EUABookingService.dto.ServiceResponseDTO;
 import lombok.Data;
 
 @Entity
 @Table(schema = "eua")
 @Data
-public class Orders {
+public class Orders extends ServiceResponseDTO {
     @Id
     @Column(name = "order_id")
     private String orderId;
@@ -21,6 +28,8 @@ public class Orders {
     @Column(name = "category_id")
     private String categoryId;
 
+    @Column(name = "appointment_id")
+    private String appointmentId;
 
     @Column(name = "order_date")
     private String orderDate;
@@ -50,6 +59,8 @@ public class Orders {
     private String healthcareProfessionalId;
     @Column(name = "healthcare_professional_gender")
     private String healthcareProfessionalGender;
+
+
     @Column(name = "service_fulfillment_start_time")
     private String serviceFulfillmentStartTime;
     @Column(name = "service_fulfillment_end_time")
@@ -71,11 +82,62 @@ public class Orders {
     @Column(name = "slot_id")
     private String slotId;
 
+    @Column(name = "patient_gender")
+    private String patientGender;
+    @Column(name = "patient_name")
+    private String patientName;
+    @Column(name = "patient_consumer_url")
+    private String patientConsumerUrl;
+
+
+    @Column(name = "transId")
+    private String transId;
+
+    @Column(name = "primary_doctor_name")
+    private String primaryDoctorName;
+
+    @Column(name = "primary_doctor_hpr_address")
+    private String primaryDoctorHprAddress;
+
+    @Column(name = "primary_doctor_gender")
+    private String PrimaryDoctorGender;
+
+    @Column(name = "primary_doctor_provider_url")
+    private String PrimaryDoctorProviderURI;
+
+    @Column(name = "secondary_doctor_name")
+    private String secondaryDoctorName;
+
+    @Column(name = "secondary_doctor_hpr_address")
+    private String secondaryDoctorHprAddress;
+
+    @Column(name = "secondary_doctor_gender")
+    private String SecondaryDoctorGender;
+
+    @Column(name = "secondary_doctor_provider_url")
+    private String SecondaryDoctorProviderURI;
+
+    @Column(name = "teleconUrl",length = 50000)
+    private String teleconUrl; 
+    
+    @Column(name = "groupConsultStatus")
+    private String groupConsultStatus;
+
+    @Column(name = "healthIdNumber")
+    private String abhaId;
+
+    @CreationTimestamp
+    @Column(name= "creation_date", updatable = false)
+    private LocalDateTime createDate;
+
+    @UpdateTimestamp
+    @Column(name = "modify_date")
+    private LocalDateTime modifyDate;
+
     @ManyToOne
     @JoinColumn(name = "user_id",  referencedColumnName ="id")
     private User user;
-    @Column(name = "healthIdNumber")
-    private String abhaId;
+
 
 
     @OneToOne

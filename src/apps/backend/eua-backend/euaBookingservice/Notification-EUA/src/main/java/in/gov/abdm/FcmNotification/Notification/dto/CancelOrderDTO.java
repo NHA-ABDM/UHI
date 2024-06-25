@@ -3,7 +3,6 @@ package in.gov.abdm.FcmNotification.Notification.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import in.gov.abdm.uhi.common.dto.Descriptor;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
