@@ -8,10 +8,12 @@ import java.util.List;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown=true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Catalog {
-	private Descriptor descriptor;
-	private List<Provider> providers;
-	private List<Item> items;
-	private List<Fulfillment> fulfillments;
+    private Descriptor descriptor;
+    private List<Provider> providers;
+    private List<Item> items;
+    private List<Fulfillment> fulfillments;
+    private List<Location> locationslist;
+    private List<Locations> locations;
 }

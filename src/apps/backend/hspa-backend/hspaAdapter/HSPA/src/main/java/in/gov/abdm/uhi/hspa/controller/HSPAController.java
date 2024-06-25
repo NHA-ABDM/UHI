@@ -10,22 +10,24 @@
  */
 package in.gov.abdm.uhi.hspa.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import in.gov.abdm.uhi.common.dto.Response;
 import in.gov.abdm.uhi.hspa.dto.*;
+import in.gov.abdm.uhi.hspa.exceptions.UserException;
 import in.gov.abdm.uhi.hspa.models.*;
 import in.gov.abdm.uhi.hspa.service.*;
+import in.gov.abdm.uhi.hspa.utils.ConstantsUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -35,351 +37,275 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
+import java.util.Map;
 
-@Validated
+import static in.gov.abdm.uhi.hspa.service.CommonService.*;
+import static in.gov.abdm.uhi.hspa.utils.ConstantsUtils.*;
+
 @RestController
 @RequestMapping("/api/v1")
 public class HSPAController {
 
+    public static final String GET_USER_USERID_ENDPOINT = "/getUser/{userid}";
     private static final Logger LOGGER = LogManager.getLogger(HSPAController.class);
-
-    @Value("${spring.file.upload-dir}")
-    private String uploadDir;
-
     final
     SearchService searchService;
-
     final
     SelectService selectService;
-
     final
     InitService initService;
-
     final
     ConfirmService confirmService;
-    
     final
     CancelService cancelService;
-
     final
     MessageService messageService;
-
     final
     StatusService statusService;
     final
     SaveChatService chatIndb;
-
     final FileStorageService fileStorageService;
-
     final
     ModelMapper modelMapper;
-    
-    @Autowired
-    PaymentService paymentService;
 
+    final ObjectMapper objectMapper;
+    final
+    PaymentService paymentService;
     final
     PushNotificationService pushNotificationService;
-    public HSPAController(SearchService searchService, SelectService selectService, InitService initService, ConfirmService confirmService, StatusService statusService, SaveChatService chatIndb, ModelMapper modelMapper, MessageService messageService, FileStorageService fileStorageService, PushNotificationService pushNotificationService,CancelService cancelService) {
+
+    @Value("${spring.file.upload-dir}")
+    private String uploadDir;
+
+    public HSPAController(SearchService searchService, SelectService selectService, InitService initService, ConfirmService confirmService, StatusService statusService, SaveChatService chatIndb, ModelMapper modelMapper, MessageService messageService, FileStorageService fileStorageService, ObjectMapper objectMapper, PushNotificationService pushNotificationService, CancelService cancelService, PaymentService paymentService) {
         this.searchService = searchService;
         this.selectService = selectService;
         this.initService = initService;
         this.confirmService = confirmService;
-		this.cancelService = cancelService;
+        this.objectMapper = objectMapper;
+        this.cancelService = cancelService;
         this.statusService = statusService;
         this.chatIndb = chatIndb;
         this.modelMapper = modelMapper;
         this.messageService = messageService;
         this.fileStorageService = fileStorageService;
         this.pushNotificationService = pushNotificationService;
+        this.paymentService = paymentService;
     }
 
-    @PostMapping(value = "/search", consumes = "application/json", produces = "application/json")
-    public Mono<Response> search(@Valid @RequestBody String request, @RequestHeader(value = "X-Gateway-Authorization", required = false) String gatewayHeader){
-        LOGGER.info("Search::called");
+    @PostMapping(value = SEARCH_ENDPOINT, consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
+    public ResponseEntity<Mono<Response>> search(@Valid @RequestBody String request, @RequestHeader Map<String, String> headers) throws Exception {
+        LOGGER.info(REQUESTER_CALLED + SEARCH_ENDPOINT);
 
+        ResponseEntity<Mono<Response>> res = null;
 
-        Mono<Response> res = Mono.just(new Response());
-        try
-        {
-            if(gatewayHeader == null)
-            {
-                res =  selectService.processor(request);
+            if (headers.get(X_GATEWAY_AUTHORIZATION.toLowerCase()) == null) {
+                    return ResponseEntity.status(HttpStatus.OK).body(selectService.processor(request, headers));
+
+            } else {
+                LOGGER.info("Gateway Headers {}", headers);
+
+                    return ResponseEntity.status(HttpStatus.OK).body(searchService.processor(request, headers));
+
             }
-            else {
-                System.out.println(gatewayHeader);
-                res = searchService.processor(request);
-            }
-        } catch (Exception ex) {
-            LOGGER.info("Search::error::" + request);
-            LOGGER.error("Search::error::" + ex);
-        }
-
-        return res;
     }
 
-    @PostMapping(value = "/select", consumes = "application/json", produces = "application/json")
-    public Mono<Response> select(@Valid @RequestBody String request) {
-        LOGGER.info("Requester::called");
-        Mono<Response> res = Mono.just(new Response());
-        try {
-            res = selectService.processor(request);
+    @PostMapping(value = INIT_ENDPOINT, consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
+    public ResponseEntity<Mono<Response>> init(@Valid @RequestBody String request, @RequestHeader Map<String, String> headers) throws Exception {
+        LOGGER.info(REQUESTER_CALLED + " " + INIT_ENDPOINT);
+        ResponseEntity<Mono<Response>> res = null;
+            res = CommonService.validateJson(request, INIT_SCHEMA_JSON_FILE);
+            boolean ifrequestDoesntContainErrors = res == null;
 
-        } catch (Exception ex) {
-            LOGGER.info("Requester::error::" + request);
-            LOGGER.error("Requester::error::" + ex);
-        }
-        return res;
+
+                return ResponseEntity.status(HttpStatus.OK).body(initService.processor(request,headers));
     }
 
-    @PostMapping(value = "/init", consumes = "application/json", produces = "application/json")
-    public Mono<Response> init(@Valid @RequestBody String request)  {
-        LOGGER.info("Requester::called");
-        Mono<Response> res = Mono.just(new Response());
-        try
-        {
-            res =  initService.processor(request);
-
-        } catch (Exception ex) {
-            LOGGER.info("Requester::error::" + request);
-            LOGGER.error("Requester::error::" + ex);
-        }
-        return res;
+    @PostMapping(value = CONFIRM_ENDPOINT, consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
+    public ResponseEntity<Mono<Response>> confirm(@Valid @RequestBody String request, @RequestHeader Map<String, String> headers) throws Exception {
+        LOGGER.info(REQUESTER_CALLED + CONFIRM_ENDPOINT);
+        ResponseEntity<Mono<Response>> res = null;
+                return ResponseEntity.status(HttpStatus.OK).body(confirmService.processor(request, headers));
     }
 
-    @PostMapping(value = "/confirm", consumes = "application/json", produces = "application/json")
-    public Mono<Response> confirm(@Valid @RequestBody String request)  {
-        LOGGER.info("Requester::called");
-
-        Mono<Response> res = Mono.just(new Response());
-        try
-        {
-           res =  confirmService.processor(request);
-        } catch (Exception ex) {
-            LOGGER.info("Requester::error::" + request);
-            LOGGER.error("Requester::error::" + ex);
-        }
-        return res;
+    @PostMapping(value = STATUS_ENDPOINT, consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
+    public ResponseEntity<Mono<Response>> status(@Valid @RequestBody String request, @RequestHeader Map<String, String> headers) throws Exception {
+        LOGGER.info(REQUESTER_CALLED + STATUS_ENDPOINT);
+        ResponseEntity<Mono<Response>> res = null;
+                return ResponseEntity.status(HttpStatus.OK).body(statusService.processor(request, headers));
     }
 
-    @PostMapping(value = "/cancel", consumes = "application/json", produces = "application/json")
-    public Mono<Response> cancel(@Valid @RequestBody String request)  {
-        LOGGER.info("Requester::called");
-
-        Mono<Response> res = Mono.just(new Response());
-        try
-        {
-           res =  cancelService.processor(request);
-        } catch (Exception ex) {
-            LOGGER.info("Requester::error::" + request);
-            LOGGER.error("Requester::error::" + ex);
-        }
-        return res;
-    }
-    @PostMapping(value = "/status", consumes = "application/json", produces = "application/json")
-    public Mono<Response> status(@Valid @RequestBody String request) {
-        LOGGER.info("Requester::called");
-
-        Mono<Response> res = Mono.just(new Response());
-        try
-        {
-            res = statusService.processor(request);
-
-        } catch (Exception ex) {
-            LOGGER.info("Requester::error::" + request);
-            LOGGER.error("Requester::error::" + ex);
-        }
-
-        return res;
+    @PostMapping(value = CANCEL_ENDPOINT, consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
+    public ResponseEntity<Mono<Response>> cancel(@Valid @RequestBody String request, @RequestHeader Map<String, String> headers) throws Exception {
+        LOGGER.info(REQUESTER_CALLED + CANCEL_ENDPOINT);
+               return ResponseEntity.status(HttpStatus.OK).body(cancelService.processor(request,headers));
     }
 
-    @PostMapping(value = "/on_message", consumes = "application/json", produces = "application/json")
-    public Mono<Response> onMessage(@Valid @RequestBody String request) {
-        LOGGER.info("Requester::called on_message");
-        Mono<Response> res = Mono.just(new Response());
-        try
-        {
-            res =  messageService.processor(request);
+    @PostMapping(value = ON_MESSAGE_ENDPOINT, consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
+    public ResponseEntity<Mono<Response>> onMessage(@RequestBody String request, @RequestHeader Map<String, String> headers) throws Exception {
+        LOGGER.info(REQUESTER_CALLED + ON_MESSAGE_ENDPOINT);
 
-        } catch (Exception ex) {
-            LOGGER.info("Requester::error::" + request);
-            LOGGER.error("Requester::error::" + ex);
-            res = MessageService.generateNack(ex);
-        }
+        ResponseEntity<Mono<Response>> res = null;
 
-        return res;
+            return ResponseEntity.status(HttpStatus.OK).body(messageService.processor(request, headers));
     }
 
-    @PostMapping(value = "/message", produces = "application/json")
-    public Mono<Response> message(@RequestBody String req) {
-        LOGGER.info("Requester::called message");
-
-        Mono<Response> res;
-        try
-        {
-            res =  messageService.processor(req);
-        } catch (Exception ex) {
-            LOGGER.info("Requester::error::" + req);
-            LOGGER.error("Requester::error::" + ex);
-            res = MessageService.generateNack(ex);
-
-        }
-
-        return res;
+    @PostMapping(value = MESSAGE_ENDPOINT, produces = APPLICATION_JSON)
+    public ResponseEntity<Mono<Response>> message(@RequestBody String req, @RequestHeader Map<String, String> headers) throws Exception {
+        LOGGER.info(REQUESTER_CALLED + MESSAGE_ENDPOINT);
+            return ResponseEntity.status(HttpStatus.OK).body(messageService.processor(req, headers));
     }
 
-    @GetMapping(path = "/getMessages/{sender}/{receiver}")
-    public ResponseEntity<List<? extends ServiceResponseDTO>> getMessagesBetweenTwo(@PathVariable("sender") String sender, @PathVariable("receiver") String receiver,
-                                                                                    @RequestParam(value ="pageNumber",defaultValue="0",required=false)Integer pageNumber,
-                                                                                    @RequestParam(value ="pageSize",defaultValue="200",required=false)Integer pageSize) {
-        LOGGER.info("inside getMessagesBetweenTwo");
+    @GetMapping(path = GET_MESSAGES_SENDER_RECEIVER_ENDPOINT)
+    public ResponseEntity<List<MessagesDTO>> getMessagesBetweenTwo(@PathVariable("sender") String sender, @PathVariable("receiver") String receiver,
+                                                                          @RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
+                                                                          @RequestParam(value = "pageSize", defaultValue = "200", required = false) Integer pageSize) {
+        LOGGER.info(REQUESTER_CALLED + GET_MESSAGES_SENDER_RECEIVER_ENDPOINT);
 
-        LOGGER.info("Requester::sender ::" + sender);
-        LOGGER.info("Requester::receiver ::" + receiver);
-        LOGGER.info("Requester::pageNumber ::" + pageNumber);
-        LOGGER.info("Requester::pageSize ::" + pageSize);
+        LOGGER.info("Requester::sender ::{}", sender);
+        LOGGER.info("Requester::receiver :: {}", receiver);
+        LOGGER.info("Requester::pageNumber :: {}", pageNumber);
+        LOGGER.info("Requester::pageSize :: {}", pageSize);
 
-        try {
             List<MessagesModel> getMessageDetails = chatIndb.getMessagesBetweenTwo(sender, receiver, pageNumber, pageSize);
             List<MessagesDTO> messagesDto = convertToMessageDto(getMessageDetails);
             return new ResponseEntity<>(messagesDto, HttpStatus.OK);
-        } catch (Exception e) {
-            LOGGER.info("Requester::error::sender ::" + sender);
-            LOGGER.info("Requester::error::receiver ::" + receiver);
-
-            LOGGER.error(e.getMessage());
-            List<? extends ServiceResponseDTO> messagesDTOS = getErrorMessage(e.getMessage());
-
-            return new ResponseEntity<>(messagesDTOS, HttpStatus.INTERNAL_SERVER_ERROR);
-
-        }
 
     }
 
-    @GetMapping(path = "/getUser/{userid}")
-    public ResponseEntity<List<? extends ServiceResponseDTO>> getUserById(@Valid @NotEmpty(message = "user id is required") @PathVariable("userid") String userId) {
-        LOGGER.info("inside Get user by id");
-        try {
-//            if(userId == null)
-            LOGGER.info("user id given is -: ->>>>>>" + userId);
+    @GetMapping(path = GET_USER_USERID_ENDPOINT)
+    public ResponseEntity<List<ChatUserModel>> getUserById(@Valid @NotEmpty(message = "user id is required") @PathVariable("userid") String userId) {
+        LOGGER.info(REQUESTER_CALLED + GET_USER_USERID_ENDPOINT);
+
+
+            LOGGER.info("user id given is -: ->>>>>> {}", userId);
             List<ChatUserModel> getUserDetails = chatIndb.getUserDetails(userId);
             return new ResponseEntity<>(getUserDetails, HttpStatus.OK);
-        }catch (Exception e) {
-            LOGGER.info("Requester::error ::" + e.getMessage());
-            ChatUserModel error = new ChatUserModel();
-            List<? extends ServiceResponseDTO> messagesDTOS = getErrorMessage(e.getMessage());
 
-            return new ResponseEntity<>(messagesDTOS, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
-
-
-
-//    @ApiOperation(value = "Send notification to HSPA ", notes="this endpoint will send notification to HSPA based on given token ")
-    @PostMapping("/notification/token")
+    @PostMapping(NOTIFICATION_TOKEN_ENDPOINT)
     public ResponseEntity<PushNotificationResponseDTO> sendTokenNotification(@RequestBody PushNotificationRequestDTO request) {
+        LOGGER.info(REQUESTER_CALLED + NOTIFICATION_TOKEN_ENDPOINT);
+        PushNotificationResponseDTO res = null;
         try {
             pushNotificationService.sendPushNotificationToToken(request);
-        } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOGGER.error("HSPA Controller :: POST:notification/token error {}", e.getMessage());
+            res = new PushNotificationResponseDTO();
+            res.setResponse(getErrorMessage(e.getMessage()));
+            return new ResponseEntity<>(res, HttpStatus.INTERNAL_SERVER_ERROR);
+
         }
-        System.out.println("send notification");
-        return new ResponseEntity<>(new PushNotificationResponseDTO(HttpStatus.OK.value(), "Notification has been sent."), HttpStatus.OK);
+        res = new PushNotificationResponseDTO();
+        res.setResponse(generateAck());
+        LOGGER.info("sent notification");
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
-        @PostMapping("/saveToken")
-    public ResponseEntity<PushNotificationResponseDTO> saveToken(@RequestBody RequestTokenDTO request) throws ExecutionException, InterruptedException {
-        UserTokenModel saveUserTokenModel = chatIndb.saveUserToken(request);
-        if(null!= saveUserTokenModel)
-        {
-            return new ResponseEntity<>(new PushNotificationResponseDTO(HttpStatus.OK.value(), "token saved"), HttpStatus.OK);
+    @PostMapping(SAVE_TOKEN_ENDPOINT)
+    public ResponseEntity<PushNotificationResponseDTO> saveToken(@RequestBody String request) {
+        LOGGER.info(REQUESTER_CALLED + SAVE_TOKEN_ENDPOINT);
+        ResponseEntity<Mono<Response>> responseMono = null;
+        PushNotificationResponseDTO res = null;
+        try {
+            responseMono = CommonService.validateJson(request, ConstantsUtils.SAVE_TOKEN_SCHEMA_JSON_SCHEMA);
+            if (responseMono == null) {
+                UserTokenModel saveUserTokenModel = chatIndb.saveUserToken(request);
+                res = new PushNotificationResponseDTO();
+                if (null != saveUserTokenModel) {
+                    res.setResponse(generateAck());
+                    return new ResponseEntity<>(res, HttpStatus.OK);
+                } else {
+                    res.setResponse(getErrorMessage("Unable to save token"));
+                    return new ResponseEntity<>(res, HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+            }
+        } catch (Exception e) {
+            res = new PushNotificationResponseDTO();
+            res.setResponse(generateNack(e, INVALID_JSON_REQUEST, INVALID_JSON_REQUEST));
         }
-        else
-        {
-            return new ResponseEntity<>(new PushNotificationResponseDTO(HttpStatus.BAD_REQUEST.value(), "token not saved"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        res = new PushNotificationResponseDTO();
+        Response resErr = generateNack(new UserException("Something went wrong"), INVALID_JSON_REQUEST, INVALID_JSON_REQUEST);
+        res.setResponse(resErr);
+        return new ResponseEntity<>(res, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @PostMapping("/logout")
+    @PostMapping(LOGOUT_ENDPOINT)
     public ResponseEntity<PushNotificationResponseDTO> logout(@RequestBody RequestTokenDTO request) {
-        PushNotificationResponseDTO userToken = null;
+        LOGGER.info(REQUESTER_CALLED + LOGOUT_ENDPOINT);
+        PushNotificationResponseDTO res;
+        res = new PushNotificationResponseDTO();
         try {
             chatIndb.deleteToken(request);
-            return new ResponseEntity<>(new PushNotificationResponseDTO(HttpStatus.OK.value(), "token deleted"), HttpStatus.OK);
+            res.setResponse(generateAck());
+            return new ResponseEntity<>(res, HttpStatus.OK);
+        } catch (Exception re) {
+            res.setResponse(getErrorMessage(re.getMessage()));
+            return new ResponseEntity<>(res, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        catch(Exception re) {
-            return new ResponseEntity<>(new PushNotificationResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Error deleting token"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 
 
-    private List<MessagesDTO> convertToMessageDto(List<MessagesModel> getMessageDetails) {
-        return modelMapper.map(getMessageDetails, new TypeToken<List<MessagesDTO>>() {}.getType());
-    }
-
-    private List<? extends ServiceResponseDTO> getErrorMessage(String message) {
-        ServiceResponseDTO messagesDTO = new ServiceResponseDTO();
-        ErrorResponseDTO errorResponseDTO =  new ErrorResponseDTO();
-        errorResponseDTO.setErrorString(message);
-        errorResponseDTO.setCode("500");
-        errorResponseDTO.setPath("HSPAController");
-        messagesDTO.setError(errorResponseDTO);
-
-        List<ServiceResponseDTO> messagesDTOS = new ArrayList<>();
-        messagesDTOS.add(messagesDTO);
-        return messagesDTOS;
-    }
-    
-    
-    @PostMapping("/savePublicKey")
+    @PostMapping(SAVE_PUBLIC_KEY_ENDPOINT)
     public ResponseEntity<PushNotificationResponseDTO> savePublicKey(@RequestBody RequestPublicKeyDTO request) {
-    	PublicKeyModel savePublicKeyModel = chatIndb.savePublicKey(request);
-        if(null!= savePublicKeyModel)
-        {
-            return new ResponseEntity<>(new PushNotificationResponseDTO(HttpStatus.OK.value(), "Key saved"), HttpStatus.OK);
-        }
-        else
-        {
-            return new ResponseEntity<>(new PushNotificationResponseDTO(HttpStatus.BAD_REQUEST.value(), "Key not saved"), HttpStatus.INTERNAL_SERVER_ERROR);
+        LOGGER.info(REQUESTER_CALLED + SAVE_PUBLIC_KEY_ENDPOINT);
+
+        PushNotificationResponseDTO res;
+        res = new PushNotificationResponseDTO();
+        PublicKeyModel savePublicKeyModel = chatIndb.savePublicKey(request);
+        if (null != savePublicKeyModel) {
+            res.setResponse(generateAck());
+            return new ResponseEntity<>(res, HttpStatus.OK);
+        } else {
+            res.setResponse(getErrorMessage("Failed to save public key"));
+            return new ResponseEntity<>(res, HttpStatus.INTERNAL_SERVER_ERROR);
+
         }
     }
-    
-    @GetMapping(path = "/getPublicKey/{username}")
-	public ResponseEntity<List<PublicKeyModel>> getKeyByUsername(@PathVariable("username") String userName){
-		LOGGER.info("Get Key  by hpr address");
-		List<PublicKeyModel> getKeyDetails = chatIndb.getKeyDetails(userName);		
-		return new ResponseEntity<>(getKeyDetails,HttpStatus.OK);		
-	}
-    
-    
-    @PostMapping("/saveKey")
+
+    @GetMapping(path = GET_PUBLIC_KEY_USERNAME_ENDPOINT)
+    public ResponseEntity<List<PublicKeyModel>> getKeyByUsername(@PathVariable("username") String userName) {
+        LOGGER.info(REQUESTER_CALLED + GET_PUBLIC_KEY_USERNAME_ENDPOINT);
+
+        List<PublicKeyModel> getKeyDetails = chatIndb.getKeyDetails(userName);
+        return new ResponseEntity<>(getKeyDetails, HttpStatus.OK);
+    }
+
+
+    @PostMapping(SAVE_KEY_ENDPOINT)
     public ResponseEntity<SharedKeyModel> saveSharedKey(@RequestBody RequestSharedKeyDTO request) {
-    	SharedKeyModel saveSharedKey = chatIndb.saveSharedKey(request);
-        if(null!= saveSharedKey)
-        {
+        LOGGER.info(REQUESTER_CALLED + SAVE_KEY_ENDPOINT);
+        SharedKeyModel res;
+        SharedKeyModel saveSharedKey = chatIndb.saveSharedKey(request);
+        res = new SharedKeyModel();
+        if (null != saveSharedKey) {
+            res.setResponse(generateAck());
             return new ResponseEntity<>(saveSharedKey, HttpStatus.OK);
-        }
-        else
-        {
-            return new ResponseEntity<>(new SharedKeyModel(), HttpStatus.INTERNAL_SERVER_ERROR);
+        } else {
+            res.setResponse(getErrorMessage("Failed to save key"));
+            return new ResponseEntity<>(res, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-    @GetMapping(path = "/getKey/{userName}")
-	public ResponseEntity<List<SharedKeyModel>> getSharedKeyByUsername(@PathVariable("userName") String userName){
-		LOGGER.info("Get Key  by consumer provider");
-		List<SharedKeyModel> getKeyDetails = chatIndb.getSharedKeyDetails(userName);		
-		return new ResponseEntity<>(getKeyDetails,HttpStatus.OK);		
-	}
+
+    @GetMapping(path = GET_KEY_USER_NAME_ENDPOINT)
+    public ResponseEntity<List<SharedKeyModel>> getSharedKeyByUsername(@PathVariable("userName") String userName) {
+        LOGGER.info(REQUESTER_CALLED + GET_KEY_USER_NAME_ENDPOINT);
+        List<SharedKeyModel> getKeyDetails = chatIndb.getSharedKeyDetails(userName);
+        return new ResponseEntity<>(getKeyDetails, HttpStatus.OK);
+    }
 
 
-    @PostMapping("/uploadFile")
+    @PostMapping(UPLOAD_FILE_ENDPOINT)
     public UploadFileResponse uploadFile(@RequestParam("file") MultipartFile file) {
-        String fileName = fileStorageService.storeFile(file,uploadDir);
+        LOGGER.info(REQUESTER_CALLED + UPLOAD_FILE_ENDPOINT);
+
+        String fileName = fileStorageService.storeFile(file, uploadDir);
 
         String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/downloadFile/")
@@ -390,17 +316,21 @@ public class HSPAController {
                 file.getContentType(), file.getSize());
     }
 
-    @PostMapping("/uploadMultipleFiles")
+    @PostMapping(UPLOAD_MULTIPLE_FILES_ENDPOINT)
     public List<UploadFileResponse> uploadMultipleFiles(@RequestParam("files") MultipartFile[] files) {
+        LOGGER.info(REQUESTER_CALLED + UPLOAD_MULTIPLE_FILES_ENDPOINT);
+
         return Arrays.stream(files)
                 .map(this::uploadFile)
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    @GetMapping("/downloadFile/{fileName}")
+    @GetMapping(DOWNLOAD_FILE_FILE_NAME_ENDPOINT)
     public ResponseEntity<Resource> downloadFile(@PathVariable String fileName, HttpServletRequest request) {
+        LOGGER.info(REQUESTER_CALLED + DOWNLOAD_FILE_FILE_NAME_ENDPOINT);
+
         // Load file as Resource
-        Resource resource = fileStorageService.loadFileAsResource(fileName,uploadDir);
+        Resource resource = fileStorageService.loadFileAsResource(fileName, uploadDir);
 
         // Try to determine file's content type
         String contentType = null;
@@ -411,7 +341,7 @@ public class HSPAController {
         }
 
         // Fallback to the default content type if type could not be determined
-        if(contentType == null) {
+        if (contentType == null) {
             contentType = "application/octet-stream";
         }
 
@@ -420,37 +350,90 @@ public class HSPAController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
                 .body(resource);
     }
-    
 
-	@GetMapping(path = "/getOrders")
-	public ResponseEntity<List<OrdersModel>> getOrders(){		
-		LOGGER.info("inside Get Orders");		
-		List<OrdersModel> getOrderDetails = paymentService.getOrderDetails();		 
-		return new ResponseEntity<>(getOrderDetails,HttpStatus.OK);		
-	}
-	
 
-	@GetMapping(path = "/getOrdersByOrderid/{orderid}")
-	public ResponseEntity<List<OrdersModel>> getOrderByOrderid(@PathVariable("orderid") String orderid){	
-		LOGGER.info("inside Get order by orderid");
-		List<OrdersModel> getOrderDetails = paymentService.getOrderDetailsByOrderId(orderid);		
-		return new ResponseEntity<>(getOrderDetails,HttpStatus.OK);		
-	}
-	
+    @GetMapping(path = GET_ORDERS_ENDPOINT)
+    public ResponseEntity<List<OrdersModel>> getOrders() {
+        LOGGER.info(REQUESTER_CALLED + GET_ORDERS_ENDPOINT);
+        List<OrdersModel> getOrderDetails = paymentService.getOrderDetails();
+        return new ResponseEntity<>(getOrderDetails, HttpStatus.OK);
+    }
 
-	@GetMapping(path = "/getOrdersByAbhaId/{abhaid}")
-	public ResponseEntity<List<OrdersModel>> getOrderByAbhaid(@PathVariable("abhaid") String abhaid){	
-		LOGGER.info("inside Get order by abhaid");
-		List<OrdersModel> getOrderDetails = paymentService.getOrderDetailsByAbhaId(abhaid);		
-		return new ResponseEntity<>(getOrderDetails,HttpStatus.OK);		
-	}
-	
-	@GetMapping(path = "/getOrdersByHprId/{hprid}")
-	public ResponseEntity<List<OrdersModel>> getOrderByHprid(@PathVariable("hprid") String hprid){	
-		LOGGER.info("inside Get order by hprid");
-		List<OrdersModel> getOrderDetails = paymentService.getOrderDetailsByHprId(hprid);		
-		return new ResponseEntity<>(getOrderDetails,HttpStatus.OK);		
-	}
-    
 
+    @GetMapping(path = GET_ORDERS_BY_ORDERID_ORDERID_ENDPOINT)
+    public ResponseEntity<List<OrdersModel>> getOrderByOrderid(@PathVariable("orderid") String orderid) {
+        LOGGER.info(REQUESTER_CALLED + GET_ORDERS_BY_ORDERID_ORDERID_ENDPOINT);
+        List<OrdersModel> getOrderDetails = paymentService.getOrderDetailsByOrderId(orderid);
+        return new ResponseEntity<>(getOrderDetails, HttpStatus.OK);
+    }
+
+
+    @GetMapping(path = GET_ORDERS_BY_ABHA_ID_ABHAID_ENDPOINT)
+    public ResponseEntity<List<OrdersModel>> getOrderByAbhaid(@PathVariable("abhaid") String abhaid) {
+        LOGGER.info(REQUESTER_CALLED + GET_ORDERS_BY_ABHA_ID_ABHAID_ENDPOINT);
+        List<OrdersModel> getOrderDetails = paymentService.getOrderDetailsByAbhaId(abhaid);
+        return new ResponseEntity<>(getOrderDetails, HttpStatus.OK);
+    }
+
+    @GetMapping(path = GET_ORDERS_BY_HPR_ID_HPRID_ENDPOINT)
+    public ResponseEntity<List<OrdersModel>> getOrderByHprid(@PathVariable("hprid") String hprid) {
+        LOGGER.info(REQUESTER_CALLED + GET_ORDERS_BY_HPR_ID_HPRID_ENDPOINT);
+
+        List<OrdersModel> getOrderDetails = paymentService.getOrderDetailsByHprId(hprid);
+        return new ResponseEntity<>(getOrderDetails, HttpStatus.OK);
+    }
+
+    @GetMapping(path = GET_ORDERS_BY_HPR_ID_AND_TYPE_HPRID_ENDPOINT)
+    public ResponseEntity<List<OrdersModel>> getOrderByHpridAndType(@PathVariable("hprid") String hprid,
+                                                                    @RequestParam(value = "limit", defaultValue = "100", required = false) Integer limit,
+                                                                    @RequestParam(value = "aType", required = false) String aType,
+                                                                    @RequestParam(value = "startDate", required = false) String startDate,
+                                                                    @RequestParam(value = "endDate", required = false) String endDate,
+                                                                    @RequestParam(value = "sort", required = false) String sort,
+                                                                    @RequestParam(value = "state", required = false) String state) {
+        LOGGER.info(REQUESTER_CALLED + GET_ORDERS_BY_HPR_ID_AND_TYPE_HPRID_ENDPOINT);
+
+
+        List<OrdersModel> getOrderDetails = null;
+        OrdersModel res;
+        try {
+            getOrderDetails = paymentService.getOrderDetailsByFilterParams(hprid, aType, limit, startDate, endDate, sort, state);
+        } catch (Exception e) {
+            LOGGER.error("HSPAController :: /getOrdersByHprIdAndType/{hprid}:: error {}", e.getMessage());
+            res = new OrdersModel();
+            res.setResponse(getErrorMessage(e.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonList(res));
+        }
+        return new ResponseEntity<>(getOrderDetails, HttpStatus.OK);
+    }
+
+    @GetMapping(path = GET_ORDERS_BY_HPR_ID_AND_TYPE_HPRID_A_TYPE_ENDPOINT)
+    public ResponseEntity<List<OrdersModel>> getOrderByHpridAndType(@PathVariable("hprid") String hprid, @PathVariable("aType") String aType) {
+        LOGGER.info(REQUESTER_CALLED + GET_ORDERS_BY_HPR_ID_AND_TYPE_HPRID_A_TYPE_ENDPOINT);
+
+        List<OrdersModel> getOrderDetails = paymentService.getOrderDetailsByHprIdAndType(hprid, aType);
+        return new ResponseEntity<>(getOrderDetails, HttpStatus.OK);
+    }
+
+    private List<MessagesDTO> convertToMessageDto(List<MessagesModel> getMessageDetails) {
+        return modelMapper.map(getMessageDetails, new TypeToken<List<MessagesDTO>>() {
+        }.getType());
+    }
+
+    @PutMapping(path = UPDATE_ORDER_ID_ENDPOINT)
+    public ResponseEntity<UpdateOrderDTO> updateOrder(@RequestBody String status, @PathVariable(name = "orderId") String orderId) throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException {
+        UpdateOrderDTO statusUpdate = null;
+        try {
+          if(statusService.updateOrderStatus(status,orderId)){
+              statusUpdate = new UpdateOrderDTO();
+              statusUpdate.setResponse(generateAck());
+              return new ResponseEntity<>(statusUpdate, HttpStatus.OK);
+          }
+        } catch (UserException | JsonProcessingException e) {
+            statusUpdate = new UpdateOrderDTO();
+            statusUpdate.setResponse(getErrorMessage(e.getLocalizedMessage()));
+            return new ResponseEntity<>(statusUpdate, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return null;
+    }
 }

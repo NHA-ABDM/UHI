@@ -1,11 +1,13 @@
 package in.gov.abdm.uhi.hspa.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class PushNotificationRequestDTO {
+public class PushNotificationRequestDTO extends ServiceResponseDTO {
     private String title;
-    private String message;
+    @JsonProperty("message")
+    private String messageString;
     private String senderAbhaAddress;
     private String receiverAbhaAddress;
     private String providerUri;
@@ -15,7 +17,6 @@ public class PushNotificationRequestDTO {
     private String gender;
     private String sharedKey;
     private String contentType;
-
-    
-    
+    private String consumerUrl;
+    private String deviceId;
 }

@@ -5,31 +5,29 @@ public class SubscriberModel {
     private Integer participant_id;
     private String subscriber_id;
     private String country;
-    private String city ;
+    private String city;
     private String domain;
-    private String unique_key_id ;
-    private String pub_key_id ;
-    private String signing_public_key ;
-    private String encr_public_key ;
-    private String valid_from ;
-    private String valid_to ;
-    private String status ;
-    private String created ;
-    private String updated ;
-    private String radius ;
-    private String type ;
-    private String sub_type ;
-    private String url ;
+    private String unique_key_id;
+    private String pub_key_id;
+    private String signing_public_key;
+    private String encr_public_key;
+    private String valid_from;
+    private String valid_to;
+    private String status;
+    private String created;
+    private String updated;
+    private String radius;
+    private String type;
+    private String sub_type;
+    private String url;
 
 
-    public SubscriberModel()
-    {
+    public SubscriberModel() {
         super();
     }
 
     //{country=IND, city=std:080, domain=nic2004:85110, type=HSPA, status=SUBSCRIBED}
-    public SubscriberModel(String country, String city, String domain, String status, String sub_type)
-    {
+    public SubscriberModel(String country, String city, String domain, String status, String sub_type) {
         super();
         this.country = country;
         this.city = city;
@@ -38,8 +36,8 @@ public class SubscriberModel {
         this.type = sub_type;
 
     }
-    public SubscriberModel(String subscriber_id, String country, String city, String domain, String status, String sub_type)
-    {
+
+    public SubscriberModel(String subscriber_id, String country, String city, String domain, String status, String sub_type) {
         super();
         this.subscriber_id = subscriber_id;
         this.country = country;
@@ -213,7 +211,6 @@ public class SubscriberModel {
     public void setRadius(String radius) {
         this.radius = radius;
     }
-
 
 
     public String getType() {

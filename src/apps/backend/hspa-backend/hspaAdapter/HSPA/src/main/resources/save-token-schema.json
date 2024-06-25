@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "userName": {
+      "type": "string"
+    },
+    "token": {
+      "type": "string"
+    },
+    "deviceId": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "userName",
+    "token",
+    "deviceId",
+    "type"
+  ]
+}

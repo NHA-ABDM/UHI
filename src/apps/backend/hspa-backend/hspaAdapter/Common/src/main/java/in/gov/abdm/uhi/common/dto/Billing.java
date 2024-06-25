@@ -7,18 +7,18 @@ import lombok.Data;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown=true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Billing {
-	private String name;
-	private Organization organization;
-	private Address address;
-	private String email;
-	private String phone;
-	@JsonProperty(value = "tax_number")
-	private String taxNumber;
-	private Time time;
-	@JsonProperty(value = "created_at")
-	private String createdAt;
-	@JsonProperty(value = "updated_at")
-	private String updatedAt;
+    private String name;
+    private Organization organization;
+    private Address address;
+    private String email;
+    private String phone;
+    @JsonProperty(value = "tax_number")
+    private String taxNumber;
+    private Time time;
+    @JsonProperty(value = "created_at")
+    private String createdAt;
+    @JsonProperty(value = "updated_at")
+    private String updatedAt;
 }
