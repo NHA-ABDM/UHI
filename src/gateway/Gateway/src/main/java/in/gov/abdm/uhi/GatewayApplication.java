@@ -82,12 +82,35 @@ public class GatewayApplication {
                		   .path(targetPrefix + "/on_search")
                		   .filters(f->f.circuitBreaker(c->c.setName("on_searchCB").setFallbackUri(DEFAULT_FALLBACK)))
                          .uri(responderUri))
-                  
 
                   .route(p->p
-               		   .path(targetPrefix1+ "/lookup")
-               		   .filters(f->f.circuitBreaker(c->c.setName("lookup").setFallbackUri(DEFAULT_FALLBACK)))
-                         .uri(registryUrl))
+                          .path(targetPrefix + "/search_audit")
+                          .filters(f->f.circuitBreaker(c->c.setName("searchCB").setFallbackUri(DEFAULT_FALLBACK)))
+                          .uri(requesterUri))
+
+                  .route(p->p
+                          .path(targetPrefix + "/on_confirm_audit")
+                          .filters(f->f.circuitBreaker(c->c.setName("on_confirmCB").setFallbackUri(DEFAULT_FALLBACK)))
+                          .uri(responderUri))
+
+                  .route(p->p
+                          .path(targetPrefix+ "/on_status_audit")
+                          .filters(f->f.circuitBreaker(c->c.setName("on_statusSB").setFallbackUri(DEFAULT_FALLBACK)))
+                          .uri(responderUri))
+
+                  .route(p->p
+                          .path(targetPrefix+ "/on_cancel_audit")
+                          .filters(f->f.circuitBreaker(c->c.setName("on_cancelCB").setFallbackUri(DEFAULT_FALLBACK)))
+                          .uri(responderUri))
+                  .route(p->p
+                          .path(targetPrefix1+ "/lookup")
+                          .filters(f->f.circuitBreaker(c->c.setName("lookup").setFallbackUri(DEFAULT_FALLBACK)))
+                          .uri(registryUrl))
+
+                  .route(p->p
+                          .path(targetPrefix1+ "/lookup/test")
+                          .filters(f->f.circuitBreaker(c->c.setName("lookup").setFallbackUri(DEFAULT_FALLBACK)))
+                          .uri(registryUrl))
                   .build();
     }
 	public Customizer<ReactiveResilience4JCircuitBreakerFactory> defaultCustomizer() {

@@ -22,7 +22,7 @@ info:
   license:
     name: License 1.0
     url: 'https://licenseUrl.com'
-  version: 1.0.5
+  version: 1.0.6
 paths:
   /search:
     post:
@@ -2207,6 +2207,249 @@ paths:
           in: header
           description: UHI Auth header
           name: Authorization
+          required: true
+  /api/v1/on_confirm_audit:
+    post:
+      tags:
+        - UHI - Gateway
+      summary: Accepter for all the on_confirm_audit response from the HSPAs
+      operationId: AuditOnConfirmPOST
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                context:
+                  $ref: '#/components/schemas/Context'
+                message:
+                  type: object
+                  properties:
+                    order:
+                      type: object
+                      properties:
+                        id:
+                          $ref: '#/components/schemas/Order/properties/id'
+                        provider:
+                          type: object
+                          properties:
+                            id:
+                              $ref: '#/components/schemas/Provider/properties/id'
+                        state:
+                          $ref: '#/components/schemas/State'
+                        item:
+                          type: object
+                          properties:
+                            id:
+                              $ref: '#/components/schemas/Item/properties/id'
+                            descriptor:
+                              type: object
+                              properties:
+                                code:
+                                  $ref: '#/components/schemas/Descriptor/properties/code'
+                                name:
+                                  $ref: '#/components/schemas/Descriptor/properties/name'
+                        fulfillment:
+                          $ref: '#/components/schemas/Fulfillment'
+                      required:
+                        - state
+                  required:
+                    - order
+                error:
+                  $ref: '#/components/schemas/Error'
+              required:
+                - context
+            examples:
+              HSPA Platform sends CONFIRMED order status:
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_confirm_audit
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    message_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    timestamp: '2022-07-05T15:24:35.481906'
+                    provider_id: hspa-nha
+                    provider_uri: 'http://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                  message:
+                    order:
+                      id: 8441-696786-1042
+                      state: CONFIRMED
+                      item:
+                        id: '1'
+                        descriptor:
+                          code: Consultation
+                          name: Consultation
+                      fulfillment:
+                        id: d680dd36-1d0d-43c6-96c4-dec0f06008ea
+                        type: Online
+                        start:
+                          time:
+                            timestamp: '2022-09-15T15:00:00'
+                        end:
+                          time:
+                            timestamp: '2022-09-15T15:15:00'
+              HSPA Platform sends CANCELLED order status:
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_confirm_audit
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    message_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    timestamp: '2022-07-05T15:24:35.481906'
+                    provider_id: hspa-nha
+                    provider_uri: 'http://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                  message:
+                    order:
+                      id: 8441-696786-1042
+                      state: CANCELLED
+                      item:
+                        id: '1'
+                        descriptor:
+                          code: Consultation
+                          name: Consultation
+                      fulfillment:
+                        id: d680dd36-1d0d-43c6-96c4-dec0f06008ea
+                        type: Online
+                        start:
+                          time:
+                            timestamp: '2022-09-15T15:00:00'
+                        end:
+                          time:
+                            timestamp: '2022-09-15T15:15:00'
+              HSPA Platform sends PROCESSING order status:
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_confirm_audit
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    message_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    timestamp: '2022-07-05T15:24:35.481906'
+                    provider_id: hspa-nha
+                    provider_uri: 'http://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                  message:
+                    order:
+                      id: 8441-696786-1042
+                      state: PROCESSING
+                      item:
+                        id: '1'
+                        descriptor:
+                          code: Consultation
+                          name: Consultation
+                      fulfillment:
+                        id: d680dd36-1d0d-43c6-96c4-dec0f06008ea
+                        type: Online
+                        start:
+                          time:
+                            timestamp: '2022-09-15T15:00:00'
+                        end:
+                          time:
+                            timestamp: '2022-09-15T15:15:00'
+              HSPA Platform sends FAILED status:
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_confirm_audit
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    message_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    timestamp: '2022-07-05T15:24:35.481906'
+                    provider_id: hspa-nha
+                    provider_uri: 'http://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                  message:
+                    order:
+                      id: 8441-696786-1042
+                      state: FAILED
+                      item:
+                        id: '1'
+                        descriptor:
+                          code: Consultation
+                          name: Consultation
+                      fulfillment:
+                        id: d680dd36-1d0d-43c6-96c4-dec0f06008ea
+                        type: Online
+                        start:
+                          time:
+                            timestamp: '2022-09-15T15:00:00'
+                        end:
+                          time:
+                            timestamp: '2022-09-15T15:15:00'
+              HSPA Platform sends COMPLETED order status:
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_confirm_audit
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    message_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    timestamp: '2022-07-05T15:24:35.481906'
+                    provider_id: hspa-nha
+                    provider_uri: 'http://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                  message:
+                    order:
+                      id: 8441-696786-1042
+                      state: COMPLETED
+                      item:
+                        id: '1'
+                        descriptor:
+                          code: Consultation
+                          name: Consultation
+                      fulfillment:
+                        id: d680dd36-1d0d-43c6-96c4-dec0f06008ea
+                        type: Online
+                        start:
+                          time:
+                            timestamp: '2022-09-15T15:00:00'
+                        end:
+                          time:
+                            timestamp: '2022-09-15T15:15:00'
+      responses:
+        '200':
+          description: Acknowledgement of message received
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: object
+                    properties:
+                      ack:
+                        $ref: '#/components/schemas/Ack'
+                    required:
+                      - ack
+                  error:
+                    $ref: '#/components/schemas/Error'
+                required:
+                  - message
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          description: UHI Auth header
           required: true
   /on_search:
     post:
@@ -6166,6 +6409,7 @@ components:
             - on_select
             - on_init
             - on_confirm
+            - on_confirm_audit
             - on_status
         core_version:
           type: string

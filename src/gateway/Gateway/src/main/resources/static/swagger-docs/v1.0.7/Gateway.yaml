@@ -22,7 +22,7 @@ info:
   license:
     name: License 1.0
     url: 'https://licenseUrl.com'
-  version: 1.0.5
+  version: 1.0.7
 paths:
   /search:
     post:
@@ -101,6 +101,12 @@ paths:
                         agent:
                           name: ganesh
                         type: Online
+                        start:
+                          time:
+                            timestamp: '2022-07-15T00:00:00'
+                        end:
+                          time:
+                            timestamp: '2022-07-16T00:00:00'
                       item:
                         descriptor:
                           code: Consultation
@@ -131,6 +137,12 @@ paths:
                         agent:
                           name: ganesh
                         type: Online
+                        start:
+                          time:
+                            timestamp: '2022-07-15T00:00:00'
+                        end:
+                          time:
+                            timestamp: '2022-07-16T00:00:00'
                       item:
                         descriptor:
                           code: Consultation
@@ -258,6 +270,12 @@ paths:
                         descriptor:
                           code: Consultation
                           name: Consultation
+                      location:
+                        gps: '12.423423,77.325647'
+                        radius:
+                          type: 'CONSTANT'
+                          value: '5'
+                          unit: 'km'
               Search doctor by name and speciality(PhysicalConsultation):
                 value:
                   context:
@@ -281,10 +299,22 @@ paths:
                         agent:
                           name: ganesh
                         type: Physical
+                        start:
+                          time:
+                            timestamp: '2022-07-15T00:00:00'
+                        end:
+                          time:
+                            timestamp: '2022-07-16T00:00:00'
                       item:
                         descriptor:
                           code: Consultation
                           name: Consultation
+                      location:
+                        gps: '12.423423,77.325647'
+                        radius:
+                          type: 'CONSTANT'
+                          value: '5'
+                          unit: 'km'
               Search by Doctor and facility (PhysicalConsultation):
                 value:
                   context:
@@ -311,10 +341,22 @@ paths:
                         agent:
                           name: ganesh
                         type: Physical
+                        start:
+                          time:
+                            timestamp: '2022-07-15T00:00:00'
+                        end:
+                          time:
+                            timestamp: '2022-07-16T00:00:00'
                       item:
                         descriptor:
                           code: Consultation
                           name: Consultation
+                      location:
+                        gps: '12.423423,77.325647'
+                        radius:
+                          type: 'CONSTANT'
+                          value: '5'
+                          unit: 'km'
               Search by provider facility and specialty (PhysicalConsultation):
                 value:
                   context:
@@ -349,6 +391,12 @@ paths:
                         descriptor:
                           code: Consultation
                           name: Consultation
+                      location:
+                        gps: '12.423423,77.325647'
+                        radius:
+                          type: 'CONSTANT'
+                          value: '5'
+                          unit: 'km'
               Search by HPR Address (PhysicalConsultation):
                 value:
                   context:
@@ -378,6 +426,12 @@ paths:
                         descriptor:
                           code: Consultation
                           name: Consultation
+                      location:
+                        gps: '12.423423,77.325647'
+                        radius:
+                          type: 'CONSTANT'
+                          value: '5'
+                          unit: 'km'
               Search by Doctor Name(PhysicalConsultation):
                 value:
                   context:
@@ -397,6 +451,12 @@ paths:
                         descriptor:
                           code: Consultation
                           name: Consultation
+                      location:
+                        gps: '12.423423,77.325647'
+                        radius:
+                          type: 'CONSTANT'
+                          value: '5'
+                          unit: 'km'
                       fulfillment:
                         agent:
                           name: ganesh
@@ -445,7 +505,8 @@ paths:
                                 '@abdm/gov/in/experience': '10.0'
                                 '@abdm/gov/in/languages': 'Hindi, English'
                                 '@abdm/gov/in/education': 'MBBS, BDS'
-                                '@abdm/gov/in/hpr_id': 73-5232-1888-8686
+                                '@abdm/gov/in/hpr_id': 73-5232-1888-8686,
+                                '@abdm/gov/in/hfr_id': 73-5232-1888-8687
                             start:
                               time:
                                 timestamp: '2022-07-22T13:21:41'
@@ -462,6 +523,12 @@ paths:
                             descriptor:
                               code: Consultation
                               name: Consultation
+                        location:
+                          gps: '12.423423,77.325647'
+                          radius:
+                            type: 'CONSTANT'
+                            value: '5'
+                            unit: 'km'
       responses:
         '200':
           description: Acknowledgement of message received
@@ -656,7 +723,8 @@ paths:
                             '@abdm/gov/in/education': MBBS
                             '@abdm/gov/in/experience': '10.0'
                             '@abdm/gov/in/languages': 'Hindi, Marathi, English'
-                            '@abdm/gov/in/hpr_id': 71-4453-8853-6840
+                            '@abdm/gov/in/hpr_id': 71-4453-8853-6840,
+                            '@abdm/gov/in/hfr_id': 71-4453-8853-6840
                             '@abdm/gov/in/groupConsultation': 'false'
                         start:
                           time:
@@ -795,7 +863,8 @@ paths:
                             '@abdm/gov/in/education': MBBS
                             '@abdm/gov/in/experience': '5.0'
                             '@abdm/gov/in/languages': 'Eng, Hin'
-                            '@abdm/gov/in/hpr_id': 73-5232-1888-8686
+                            '@abdm/gov/in/hpr_id': 73-5232-1888-8686,
+                            '@abdm/gov/in/hfr_id': 73-5232-1888-8687,
                             '@abdm/gov/in/groupConsultation': 'false'
                         start:
                           time:
@@ -1134,6 +1203,12 @@ paths:
                         agent:
                           name: ganesh
                         type: Online
+                        start:
+                          time:
+                            timestamp: '2022-07-15T00:00:00'
+                        end:
+                          time:
+                            timestamp: '2022-07-16T00:00:00'
                       item:
                         descriptor:
                           code: Consultation
@@ -1164,6 +1239,12 @@ paths:
                         agent:
                           name: ganesh
                         type: Online
+                        start:
+                          time:
+                            timestamp: '2022-07-15T00:00:00'
+                        end:
+                          time:
+                            timestamp: '2022-07-16T00:00:00'
                       item:
                         descriptor:
                           code: Consultation
@@ -1287,10 +1368,17 @@ paths:
                         end:
                           time:
                             timestamp: '2022-07-16T00:00:00'
+
                       item:
                         descriptor:
                           code: Consultation
                           name: Consultation
+                      location:
+                        gps: '12.423423,77.325647'
+                        radius:
+                          type: 'CONSTANT'
+                          value: '5'
+                          unit: 'km'
               Search doctor by name and speciality(PhysicalConsultation):
                 value:
                   context:
@@ -1314,10 +1402,22 @@ paths:
                         agent:
                           name: ganesh
                         type: Physical
+                        start:
+                          time:
+                            timestamp: '2022-07-15T00:00:00'
+                        end:
+                          time:
+                            timestamp: '2022-07-16T00:00:00'
                       item:
                         descriptor:
                           code: Consultation
                           name: Consultation
+                      location:
+                        gps: '12.423423,77.325647'
+                        radius:
+                          type: 'CONSTANT'
+                          value: '5'
+                          unit: 'km'
               Search by Doctor and facility (PhysicalConsultation):
                 value:
                   context:
@@ -1344,10 +1444,22 @@ paths:
                         agent:
                           name: ganesh
                         type: Physical
+                        start:
+                          time:
+                            timestamp: '2022-07-15T00:00:00'
+                        end:
+                          time:
+                            timestamp: '2022-07-16T00:00:00'
                       item:
                         descriptor:
                           code: Consultation
                           name: Consultation
+                      location:
+                        gps: '12.423423,77.325647'
+                        radius:
+                          type: 'CONSTANT'
+                          value: '5'
+                          unit: 'km'
               Search by provider facility and specialty (PhysicalConsultation):
                 value:
                   context:
@@ -1382,6 +1494,12 @@ paths:
                         descriptor:
                           code: Consultation
                           name: Consultation
+                      location:
+                        gps: '12.423423,77.325647'
+                        radius:
+                          type: 'CONSTANT'
+                          value: '5'
+                          unit: 'km'
               Search by HPR Address (PhysicalConsultation):
                 value:
                   context:
@@ -1411,6 +1529,12 @@ paths:
                         descriptor:
                           code: Consultation
                           name: Consultation
+                      location:
+                        gps: '12.423423,77.325647'
+                        radius:
+                          type: 'CONSTANT'
+                          value: '5'
+                          unit: 'km'
               Search by Doctor Name(PhysicalConsultation):
                 value:
                   context:
@@ -1430,6 +1554,12 @@ paths:
                         descriptor:
                           code: Consultation
                           name: Consultation
+                      location:
+                        gps: '12.423423,77.325647'
+                        radius:
+                          type: 'CONSTANT'
+                          value: '5'
+                          unit: 'km'
                       fulfillment:
                         agent:
                           name: ganesh
@@ -1479,7 +1609,9 @@ paths:
                                 '@abdm/gov/in/experience': '10.0'
                                 '@abdm/gov/in/languages': 'Hindi, English'
                                 '@abdm/gov/in/education': 'MBBS, BDS'
-                                '@abdm/gov/in/hpr_id': 73-5232-1888-8686
+                                '@abdm/gov/in/hpr_id': 73-5232-1888-8686,
+                                '@abdm/gov/in/hfr_id': 73-5232-1888-8687
+
                             start:
                               time:
                                 timestamp: '2022-07-22T13:21:41'
@@ -1496,6 +1628,12 @@ paths:
                             descriptor:
                               code: Consultation
                               name: Consultation
+                        location:
+                          gps: '12.423423,77.325647'
+                          radius:
+                            type: 'CONSTANT'
+                            value: '5'
+                            unit: 'km'
       responses:
         '200':
           description: Acknowledgement of message received
@@ -1541,7 +1679,7 @@ paths:
               required:
                 - context
             examples:
-              1st Onsearch for search with Specialty:
+              1st Onsearch for search with Specialty(Teleconsultation):
                 value:
                   context:
                     domain: 'nic2004:85111'
@@ -1595,7 +1733,9 @@ paths:
                                   '@abdm/gov/in/experience': '10.0'
                                   '@abdm/gov/in/languages': 'Hindi, English'
                                   '@abdm/gov/in/education': 'MBBS, BDS'
-                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686
+                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686,
+                                  '@abdm/gov/in/hfr_id': 73-5232-1888-8687
+
                               start:
                                 time:
                                   timestamp: '2023-01-03T12:30:00'
@@ -1612,7 +1752,9 @@ paths:
                                   '@abdm/gov/in/experience': '5.0'
                                   '@abdm/gov/in/languages': 'Eng, Hin'
                                   '@abdm/gov/in/education': MBBS
-                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686
+                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686,
+                                  '@abdm/gov/in/hfr_id': 73-5232-1888-8687
+
                               start:
                                 time:
                                   timestamp: '2023-01-03T12:30:00'
@@ -1650,86 +1792,7 @@ paths:
                               code: '+91'
                             gps: '18.5246036,73.792927'
                             address: '3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001'
-              '1st on_search  for Search by Doctor and specialty ':
-                value:
-                  context:
-                    domain: 'nic2004:85111'
-                    country: IND
-                    city: 'std:011'
-                    action: on_search
-                    timestamp: '2022-07-05T15:24:35'
-                    core_version: 0.7.1
-                    consumer_id: eua-nha
-                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
-                    provider_id: hspa-nha
-                    provider_uri: 'https://hspasbx.abdm.gov.in/api/v1'
-                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
-                    message_id: e9a19230-f951-11ec-b135-53aea776f66b
-                  message:
-                    catalog:
-                      descriptor:
-                        name: Ref HSPA
-                        images: HSPA IMAGE
-                        short_desc: Reference HSPA Test hospital
-                        long_desc: Expert institution providing patient treatment with specialized health science and auxiliary healthcare staff and extraordinary medical equipments.
-                      providers:
-                        - id: '1'
-                          descriptor:
-                            name: Test Hospital
-                            short_desc: Expertise in every field with renowned staff.
-                            long_desc: We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.
-                          categories:
-                            - id: '0'
-                              parent_category_id: '101'
-                              descriptor:
-                                name: Cardiology
-                                code: CARDIOLOGY
-                            - id: '101'
-                              descriptor:
-                                name: Allopathy
-                                code: ALLOPATHY
-                          fulfillments:
-                            - id: '0'
-                              type: Physical
-                              agent:
-                                id: ganeshborse@hpr.ndhm
-                                name: Ganesh Vikram Borse
-                                gender: M
-                                tags:
-                                  '@abdm/gov/in/experience': '5.0'
-                                  '@abdm/gov/in/languages': 'Eng, Hin'
-                                  '@abdm/gov/in/education': MBBS
-                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686
-                              start:
-                                time:
-                                  timestamp: '2023-01-03T12:30:00'
-                              end:
-                                time:
-                                  timestamp: '2023-01-03T12:45:00'
-                          items:
-                            - id: '0'
-                              descriptor:
-                                name: Consultation
-                              price:
-                                currency: INR
-                                value: '300.0'
-                              category_id: '0'
-                              fulfillment_id: '0'
-                          location:
-                            id: '1'
-                            descriptor:
-                              name: Test Hospital
-                              short_desc: Expertise in every field with renowned staff.
-                              long_desc: We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.
-                            city:
-                              name: Delhi
-                              code: '011'
-                            country:
-                              name: INDIA
-                              code: '+91'
-                            gps: '18.5246036,73.792927'
-                            address: '3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001'
-              1st on_search for search by doctor and facility:
+              '1st on_search  for Search by Doctor and specialty(Teleconsultation)':
                 value:
                   context:
                     domain: 'nic2004:85111'
@@ -1778,7 +1841,9 @@ paths:
                                   '@abdm/gov/in/experience': '5.0'
                                   '@abdm/gov/in/languages': 'Eng, Hin'
                                   '@abdm/gov/in/education': MBBS
-                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686
+                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686,
+                                  '@abdm/gov/in/hfr_id': 73-5232-1888-8687
+
                               start:
                                 time:
                                   timestamp: '2023-01-03T12:30:00'
@@ -1808,7 +1873,88 @@ paths:
                               code: '+91'
                             gps: '18.5246036,73.792927'
                             address: '3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001'
-              '1st on_search for search by provider facility and specialty ':
+              1st on_search for search by doctor and facility(Teleconsultation):
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_search
+                    timestamp: '2022-07-05T15:24:35'
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    provider_id: hspa-nha
+                    provider_uri: 'https://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    message_id: e9a19230-f951-11ec-b135-53aea776f66b
+                  message:
+                    catalog:
+                      descriptor:
+                        name: Ref HSPA
+                        images: HSPA IMAGE
+                        short_desc: Reference HSPA Test hospital
+                        long_desc: Expert institution providing patient treatment with specialized health science and auxiliary healthcare staff and extraordinary medical equipments.
+                      providers:
+                        - id: '1'
+                          descriptor:
+                            name: Test Hospital
+                            short_desc: Expertise in every field with renowned staff.
+                            long_desc: We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.
+                          categories:
+                            - id: '0'
+                              parent_category_id: '101'
+                              descriptor:
+                                name: Cardiology
+                                code: CARDIOLOGY
+                            - id: '101'
+                              descriptor:
+                                name: Allopathy
+                                code: ALLOPATHY
+                          fulfillments:
+                            - id: '0'
+                              type: Online
+                              agent:
+                                id: ganeshborse@hpr.ndhm
+                                name: Ganesh Vikram Borse
+                                gender: M
+                                tags:
+                                  '@abdm/gov/in/experience': '5.0'
+                                  '@abdm/gov/in/languages': 'Eng, Hin'
+                                  '@abdm/gov/in/education': MBBS
+                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686,
+                                  '@abdm/gov/in/hfr_id': 73-5232-1888-8687
+
+                              start:
+                                time:
+                                  timestamp: '2023-01-03T12:30:00'
+                              end:
+                                time:
+                                  timestamp: '2023-01-03T12:45:00'
+                          items:
+                            - id: '0'
+                              descriptor:
+                                name: Consultation
+                              price:
+                                currency: INR
+                                value: '300.0'
+                              category_id: '0'
+                              fulfillment_id: '0'
+                          location:
+                            id: '1'
+                            descriptor:
+                              name: Test Hospital
+                              short_desc: Expertise in every field with renowned staff.
+                              long_desc: We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.
+                            city:
+                              name: Delhi
+                              code: '011'
+                            country:
+                              name: INDIA
+                              code: '+91'
+                            gps: '18.5246036,73.792927'
+                            address: '3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001'
+              '1st on_search for search by provider facility and specialty(Teleconsultation) ':
                 value:
                   context:
                     domain: 'nic2004:85111'
@@ -1848,7 +1994,7 @@ paths:
                                 code: ALLOPATHY
                           fulfillments:
                             - id: '0'
-                              type: Physical
+                              type: Online
                               agent:
                                 id: amodborse@hpr.abdm
                                 name: Amod Borse
@@ -1857,7 +2003,9 @@ paths:
                                   '@abdm/gov/in/experience': '5.0'
                                   '@abdm/gov/in/languages': 'Eng, Hin'
                                   '@abdm/gov/in/education': MBBS
-                                  '@abdm/gov/in/hpr_id': 73-4331-9088-8684
+                                  '@abdm/gov/in/hpr_id': 73-4331-9088-8684,
+                                  '@abdm/gov/in/hfr_id': 73-4331-9088-8684
+
                               start:
                                 time:
                                   timestamp: '2023-01-03T12:30:00'
@@ -1874,7 +2022,8 @@ paths:
                                   '@abdm/gov/in/experience': '5.0'
                                   '@abdm/gov/in/languages': 'Eng, Hin'
                                   '@abdm/gov/in/education': MBBS
-                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686
+                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686,
+                                  '@abdm/gov/in/hfr_id': 73-5232-1888-8687
                           items:
                             - id: '0'
                               descriptor:
@@ -1906,7 +2055,7 @@ paths:
                               code: '+91'
                             gps: '18.5246036,73.792927'
                             address: '3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001'
-              '1st on_search for search by HPR address ':
+              '1st on_search for search by HPR address(Teleconsultation) ':
                 value:
                   context:
                     domain: 'nic2004:85111'
@@ -1955,7 +2104,8 @@ paths:
                                   '@abdm/gov/in/experience': '10.0'
                                   '@abdm/gov/in/languages': 'Hindi, English'
                                   '@abdm/gov/in/education': 'MBBS, BDS'
-                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686
+                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686,
+                                  '@abdm/gov/in/hfr_id': 73-5232-1888-8687
                               start:
                                 time:
                                   timestamp: '2023-01-03T12:30:00'
@@ -1985,7 +2135,7 @@ paths:
                               code: '+91'
                             gps: '18.5246036,73.792927'
                             address: '3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001'
-              1st on_search for search by Doctor name:
+              1st on_search for search by Doctor name(Teleconsultation):
                 value:
                   context:
                     domain: 'nic2004:85111'
@@ -2034,7 +2184,9 @@ paths:
                                   '@abdm/gov/in/experience': '5.0'
                                   '@abdm/gov/in/languages': 'Eng, Hin'
                                   '@abdm/gov/in/education': MBBS
-                                  '@abdm/gov/in/hpr_id': 73-4331-9088-8684
+                                  '@abdm/gov/in/hpr_id': 73-4331-9088-8684,
+                                  '@abdm/gov/in/hfr_id': 73-4331-9088-8684
+
                               start:
                                 time:
                                   timestamp: '2023-01-03T12:30:00'
@@ -2051,7 +2203,8 @@ paths:
                                   '@abdm/gov/in/experience': '12.0'
                                   '@abdm/gov/in/languages': 'Eng, Hin'
                                   '@abdm/gov/in/education': 'MBBS, MD'
-                                  '@abdm/gov/in/hpr_id': 71-5362-8737-7250
+                                  '@abdm/gov/in/hpr_id': 71-5362-8737-7250,
+                                  '@abdm/gov/in/hfr_id': 71-5362-8737-7250
                               start:
                                 time:
                                   timestamp: '2023-01-03T12:30:00'
@@ -2089,6 +2242,570 @@ paths:
                               code: '+91'
                             gps: '18.5246036,73.792927'
                             address: '3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001'
+              1st Onsearch for search with Specialty(PhysicalConsultation):
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_search
+                    timestamp: '2022-07-05T15:24:35'
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://100.65.158.41:8901/api/v1/euaService'
+                    provider_id: hspa-nha
+                    provider_uri: 'https://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    message_id: e9
+                  message:
+                    catalog:
+                      descriptor:
+                        name: Ref HSPA
+                        images: HSPA IMAGE
+                        short_desc: Reference HSPA Test hospital
+                        long_desc: Expert institution providing patient treatment with specialized health science and auxiliary healthcare staff and extraordinary medical equipments.
+                      providers:
+                        - id: '1'
+                          descriptor:
+                            name: Test Hospital
+                            short_desc: Expertise in every field with renowned staff.
+                            long_desc: We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.
+                          categories:
+                            - id: '1'
+                              parent_category_id: '101'
+                              descriptor:
+                                name: Cardiology
+                                code: CARDIOLOGY
+                            - id: '101'
+                              descriptor:
+                                name: Allopathy
+                                code: ALLOPATHY
+                            - id: '0'
+                              parent_category_id: '101'
+                              descriptor:
+                                name: 'General Medicine, Pharmacy, Dental surgery'
+                                code: 'GENERAL MEDICINE, PHARMACY, DENTAL SURGERY'
+                          fulfillments:
+                            - id: '0'
+                              type: Physical
+                              agent:
+                                id: ganeshborse@hpr.abdm
+                                name: Ganesh Vikram Borse
+                                gender: M
+                                tags:
+                                  '@abdm/gov/in/experience': '10.0'
+                                  '@abdm/gov/in/languages': 'Hindi, English'
+                                  '@abdm/gov/in/education': 'MBBS, BDS'
+                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686,
+                                  '@abdm/gov/in/hfr_id': 73-5232-1888-8687
+
+                              start:
+                                time:
+                                  timestamp: '2023-01-03T12:30:00'
+                              end:
+                                time:
+                                  timestamp: '2023-01-03T12:45:00'
+                            - id: '1'
+                              type: Online
+                              agent:
+                                id: ganeshborse@hpr.ndhm
+                                name: Ganesh Vikram Borse
+                                gender: M
+                                tags:
+                                  '@abdm/gov/in/experience': '5.0'
+                                  '@abdm/gov/in/languages': 'Eng, Hin'
+                                  '@abdm/gov/in/education': MBBS
+                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686,
+                                  '@abdm/gov/in/hfr_id': 73-5232-1888-8687
+
+                              start:
+                                time:
+                                  timestamp: '2023-01-03T12:30:00'
+                              end:
+                                time:
+                                  timestamp: '2023-01-03T12:45:00'
+                          items:
+                            - id: '0'
+                              descriptor:
+                                name: Consultation
+                              price:
+                                currency: INR
+                                value: '20.0'
+                              category_id: '0'
+                              fulfillment_id: '0'
+                            - id: '1'
+                              descriptor:
+                                name: Consultation
+                              price:
+                                currency: INR
+                                value: '300.0'
+                              category_id: '1'
+                              fulfillment_id: '1'
+                          location:
+                            id: '1'
+                            descriptor:
+                              name: Test Hospital
+                              short_desc: Expertise in every field with renowned staff.
+                              long_desc: We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.
+                            city:
+                              name: Delhi
+                              code: '011'
+                            country:
+                              name: INDIA
+                              code: '+91'
+                            gps: '18.5246036,73.792927'
+                            address: '3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001'
+              '1st on_search  for Search by Doctor and specialty(PhysicalConsultation)':
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_search
+                    timestamp: '2022-07-05T15:24:35'
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    provider_id: hspa-nha
+                    provider_uri: 'https://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    message_id: e9a19230-f951-11ec-b135-53aea776f66b
+                  message:
+                    catalog:
+                      descriptor:
+                        name: Ref HSPA
+                        images: HSPA IMAGE
+                        short_desc: Reference HSPA Test hospital
+                        long_desc: Expert institution providing patient treatment with specialized health science and auxiliary healthcare staff and extraordinary medical equipments.
+                      providers:
+                        - id: '1'
+                          descriptor:
+                            name: Test Hospital
+                            short_desc: Expertise in every field with renowned staff.
+                            long_desc: We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.
+                          categories:
+                            - id: '0'
+                              parent_category_id: '101'
+                              descriptor:
+                                name: Cardiology
+                                code: CARDIOLOGY
+                            - id: '101'
+                              descriptor:
+                                name: Allopathy
+                                code: ALLOPATHY
+                          fulfillments:
+                            - id: '0'
+                              type: Physical
+                              agent:
+                                id: ganeshborse@hpr.ndhm
+                                name: Ganesh Vikram Borse
+                                gender: M
+                                tags:
+                                  '@abdm/gov/in/experience': '5.0'
+                                  '@abdm/gov/in/languages': 'Eng, Hin'
+                                  '@abdm/gov/in/education': MBBS
+                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686,
+                                  '@abdm/gov/in/hfr_id': 73-5232-1888-8687
+
+                              start:
+                                time:
+                                  timestamp: '2023-01-03T12:30:00'
+                              end:
+                                time:
+                                  timestamp: '2023-01-03T12:45:00'
+                          items:
+                            - id: '0'
+                              descriptor:
+                                name: Consultation
+                              price:
+                                currency: INR
+                                value: '300.0'
+                              category_id: '0'
+                              fulfillment_id: '0'
+                          location:
+                            id: '1'
+                            descriptor:
+                              name: Test Hospital
+                              short_desc: Expertise in every field with renowned staff.
+                              long_desc: We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.
+                            city:
+                              name: Delhi
+                              code: '011'
+                            country:
+                              name: INDIA
+                              code: '+91'
+                            gps: '18.5246036,73.792927'
+                            address: '3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001'
+              1st on_search for search by doctor and facility(PhysicalConsultation):
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_search
+                    timestamp: '2022-07-05T15:24:35'
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    provider_id: hspa-nha
+                    provider_uri: 'https://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    message_id: e9a19230-f951-11ec-b135-53aea776f66b
+                  message:
+                    catalog:
+                      descriptor:
+                        name: Ref HSPA
+                        images: HSPA IMAGE
+                        short_desc: Reference HSPA Test hospital
+                        long_desc: Expert institution providing patient treatment with specialized health science and auxiliary healthcare staff and extraordinary medical equipments.
+                      providers:
+                        - id: '1'
+                          descriptor:
+                            name: Test Hospital
+                            short_desc: Expertise in every field with renowned staff.
+                            long_desc: We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.
+                          categories:
+                            - id: '0'
+                              parent_category_id: '101'
+                              descriptor:
+                                name: Cardiology
+                                code: CARDIOLOGY
+                            - id: '101'
+                              descriptor:
+                                name: Allopathy
+                                code: ALLOPATHY
+                          fulfillments:
+                            - id: '0'
+                              type: Physical
+                              agent:
+                                id: ganeshborse@hpr.ndhm
+                                name: Ganesh Vikram Borse
+                                gender: M
+                                tags:
+                                  '@abdm/gov/in/experience': '5.0'
+                                  '@abdm/gov/in/languages': 'Eng, Hin'
+                                  '@abdm/gov/in/education': MBBS
+                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686,
+                                  '@abdm/gov/in/hfr_id': 73-5232-1888-8687
+
+                              start:
+                                time:
+                                  timestamp: '2023-01-03T12:30:00'
+                              end:
+                                time:
+                                  timestamp: '2023-01-03T12:45:00'
+                          items:
+                            - id: '0'
+                              descriptor:
+                                name: Consultation
+                              price:
+                                currency: INR
+                                value: '300.0'
+                              category_id: '0'
+                              fulfillment_id: '0'
+                          location:
+                            id: '1'
+                            descriptor:
+                              name: Test Hospital
+                              short_desc: Expertise in every field with renowned staff.
+                              long_desc: We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.
+                            city:
+                              name: Delhi
+                              code: '011'
+                            country:
+                              name: INDIA
+                              code: '+91'
+                            gps: '18.5246036,73.792927'
+                            address: '3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001'
+              '1st on_search for search by provider facility and specialty(PhysicalConsultation) ':
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_search
+                    timestamp: '2022-07-05T15:24:35'
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    provider_id: hspa-nha
+                    provider_uri: 'https://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    message_id: e9a19230-f951-11ec-b135-53aea776f66b
+                  message:
+                    catalog:
+                      descriptor:
+                        name: Ref HSPA
+                        images: HSPA IMAGE
+                        short_desc: Reference HSPA Test hospital
+                        long_desc: Expert institution providing patient treatment with specialized health science and auxiliary healthcare staff and extraordinary medical equipments.
+                      providers:
+                        - id: '1'
+                          descriptor:
+                            name: Test Hospital
+                            short_desc: Expertise in every field with renowned staff.
+                            long_desc: We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.
+                          categories:
+                            - id: '201'
+                              parent_category_id: '101'
+                              descriptor:
+                                name: Cardiology
+                                code: CARDIOLOGY
+                            - id: '101'
+                              descriptor:
+                                name: Allopathy
+                                code: ALLOPATHY
+                          fulfillments:
+                            - id: '0'
+                              type: Physical
+                              agent:
+                                id: amodborse@hpr.abdm
+                                name: Amod Borse
+                                gender: M
+                                tags:
+                                  '@abdm/gov/in/experience': '5.0'
+                                  '@abdm/gov/in/languages': 'Eng, Hin'
+                                  '@abdm/gov/in/education': MBBS
+                                  '@abdm/gov/in/hpr_id': 73-4331-9088-8684,
+                                  '@abdm/gov/in/hfr_id': 73-4331-9088-8684
+
+                              start:
+                                time:
+                                  timestamp: '2023-01-03T12:30:00'
+                              end:
+                                time:
+                                  timestamp: '2023-01-03T12:45:00'
+                            - id: '1'
+                              type: Physical
+                              agent:
+                                id: ganeshborse@hpr.ndhm
+                                name: Ganesh Vikram Borse
+                                gender: M
+                                tags:
+                                  '@abdm/gov/in/experience': '5.0'
+                                  '@abdm/gov/in/languages': 'Eng, Hin'
+                                  '@abdm/gov/in/education': MBBS
+                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686,
+                                  '@abdm/gov/in/hfr_id': 73-5232-1888-8687
+                          items:
+                            - id: '0'
+                              descriptor:
+                                name: Consultation
+                              price:
+                                currency: INR
+                                value: '300.0'
+                              category_id: '201'
+                              fulfillment_id: '0'
+                            - id: '1'
+                              descriptor:
+                                name: Consultation
+                              price:
+                                currency: INR
+                                value: '300.0'
+                              category_id: '201'
+                              fulfillment_id: '1'
+                          location:
+                            id: '1'
+                            descriptor:
+                              name: Test Hospital
+                              short_desc: Expertise in every field with renowned staff.
+                              long_desc: We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.
+                            city:
+                              name: Delhi
+                              code: '011'
+                            country:
+                              name: INDIA
+                              code: '+91'
+                            gps: '18.5246036,73.792927'
+                            address: '3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001'
+              '1st on_search for search by HPR address(PhysicalConsultation) ':
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_search
+                    timestamp: '2022-11-14T07:20:54.005277Z'
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    provider_id: hspa-nha
+                    provider_uri: 'https://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: dfa04e10-63ec-11ed-9f98-49dd5c7c4d8a
+                    message_id: dfa04e10-63ec-11ed-9f98-49dd5c7c4d8a
+                  message:
+                    catalog:
+                      descriptor:
+                        name: Ref HSPA
+                        images: HSPA IMAGE
+                        short_desc: Reference HSPA Test hospital
+                        long_desc: Expert institution providing patient treatment with specialized health science and auxiliary healthcare staff and extraordinary medical equipments.
+                      providers:
+                        - id: '1'
+                          descriptor:
+                            name: Test Hospital
+                            short_desc: Expertise in every field with renowned staff.
+                            long_desc: We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.
+                          categories:
+                            - id: '209'
+                              parent_category_id: '101'
+                              descriptor:
+                                name: Dental surgery
+                                code: DENTAL SURGERY
+                            - id: '101'
+                              descriptor:
+                                name: Allopathy
+                                code: ALLOPATHY
+                          fulfillments:
+                            - id: '0'
+                              type: Physical
+                              agent:
+                                id: ganeshborse@hpr.abdm
+                                name: Ganesh Vikram Borse
+                                gender: M
+                                tags:
+                                  '@abdm/gov/in/experience': '10.0'
+                                  '@abdm/gov/in/languages': 'Hindi, English'
+                                  '@abdm/gov/in/education': 'MBBS, BDS'
+                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686,
+                                  '@abdm/gov/in/hfr_id': 73-5232-1888-8687
+                              start:
+                                time:
+                                  timestamp: '2023-01-03T12:30:00'
+                              end:
+                                time:
+                                  timestamp: '2023-01-03T12:45:00'
+                          items:
+                            - id: '0'
+                              descriptor:
+                                name: Consultation
+                              price:
+                                currency: INR
+                                value: '20.0'
+                              category_id: '209'
+                              fulfillment_id: '0'
+                          location:
+                            id: '1'
+                            descriptor:
+                              name: Test Hospital
+                              short_desc: Expertise in every field with renowned staff.
+                              long_desc: We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.
+                            city:
+                              name: Delhi
+                              code: '011'
+                            country:
+                              name: INDIA
+                              code: '+91'
+                            gps: '18.5246036,73.792927'
+                            address: '3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001'
+              1st on_search for search by Doctor name(PhysicalConsultation):
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_search
+                    timestamp: '2022-07-05T15:24:35'
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://100.65.158.41:8901/api/v1/euaService'
+                    provider_id: hspa-nha
+                    provider_uri: 'https://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    message_id: e9
+                  message:
+                    catalog:
+                      descriptor:
+                        name: Ref HSPA
+                        images: HSPA IMAGE
+                        short_desc: Reference HSPA Test hospital
+                        long_desc: Expert institution providing patient treatment with specialized health science and auxiliary healthcare staff and extraordinary medical equipments.
+                      providers:
+                        - id: '1'
+                          descriptor:
+                            name: Test Hospital
+                            short_desc: Expertise in every field with renowned staff.
+                            long_desc: We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.
+                          categories:
+                            - id: '201'
+                              parent_category_id: '101'
+                              descriptor:
+                                name: Cardiology
+                                code: CARDIOLOGY
+                            - id: '101'
+                              descriptor:
+                                name: Allopathy
+                                code: ALLOPATHY
+                          fulfillments:
+                            - id: '0'
+                              type: Physical
+                              agent:
+                                id: amodborse@hpr.abdm
+                                name: Amod Borse
+                                gender: M
+                                tags:
+                                  '@abdm/gov/in/experience': '5.0'
+                                  '@abdm/gov/in/languages': 'Eng, Hin'
+                                  '@abdm/gov/in/education': MBBS
+                                  '@abdm/gov/in/hpr_id': 73-4331-9088-8684,
+                                  '@abdm/gov/in/hfr_id': 73-4331-9088-8684
+
+                              start:
+                                time:
+                                  timestamp: '2023-01-03T12:30:00'
+                              end:
+                                time:
+                                  timestamp: '2023-01-03T12:45:00'
+                            - id: '1'
+                              type: Online
+                              agent:
+                                id: amodjoshi@hpr.ndhm
+                                name: Amod Suresh Joshi
+                                gender: M
+                                tags:
+                                  '@abdm/gov/in/experience': '12.0'
+                                  '@abdm/gov/in/languages': 'Eng, Hin'
+                                  '@abdm/gov/in/education': 'MBBS, MD'
+                                  '@abdm/gov/in/hpr_id': 71-5362-8737-7250,
+                                  '@abdm/gov/in/hfr_id': 71-5362-8737-7250
+                              start:
+                                time:
+                                  timestamp: '2023-01-03T12:30:00'
+                              end:
+                                time:
+                                  timestamp: '2023-01-03T12:45:00'
+                          items:
+                            - id: '0'
+                              descriptor:
+                                name: Consultation
+                              price:
+                                currency: INR
+                                value: '300.0'
+                              category_id: '201'
+                              fulfillment_id: '0'
+                            - id: '1'
+                              descriptor:
+                                name: Consultation
+                              price:
+                                currency: INR
+                                value: '0.0'
+                              category_id: '201'
+                              fulfillment_id: '1'
+                          location:
+                            id: '1'
+                            descriptor:
+                              name: Test Hospital
+                              short_desc: Expertise in every field with renowned staff.
+                              long_desc: We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.
+                            city:
+                              name: Delhi
+                              code: '011'
+                            country:
+                              name: INDIA
+                              code: '+91'
+                            gps: '18.5246036,73.792927'
+                            address: '3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001'
+
               '2nd on_search response ':
                 value:
                   context:
@@ -2127,7 +2844,8 @@ paths:
                                   '@abdm/gov/in/experience': '5.0'
                                   '@abdm/gov/in/languages': 'Eng, Hin'
                                   '@abdm/gov/in/education': MBBS
-                                  '@abdm/gov/in/hpr_id': ganeshborse@hpr.ndhm
+                                  '@abdm/gov/in/hpr_id': ganeshborse@hpr.ndhm,
+                                  '@abdm/gov/in/hfr_id': ganeshborse@hfr.ndhm
                               start:
                                 time:
                                   timestamp: '2023-01-19T12:00:00'
@@ -2144,7 +2862,8 @@ paths:
                                   '@abdm/gov/in/experience': '5.0'
                                   '@abdm/gov/in/languages': 'Eng, Hin'
                                   '@abdm/gov/in/education': MBBS
-                                  '@abdm/gov/in/hpr_id': ganeshborse@hpr.ndhm
+                                  '@abdm/gov/in/hpr_id': ganeshborse@hpr.ndhm,
+                                  '@abdm/gov/in/hfr_id': ganeshborse@hfr.ndhm
                               start:
                                 time:
                                   timestamp: '2023-01-19T12:15:00'
@@ -2208,6 +2927,809 @@ paths:
           description: UHI Auth header
           name: Authorization
           required: true
+  /api/v1/on_confirm_audit:
+    post:
+      tags:
+        - UHI - Gateway
+      summary: Accepter for all the on_confirm_audit response from the HSPAs
+      operationId: AuditOnConfirmPOST
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                context:
+                  $ref: '#/components/schemas/Context'
+                message:
+                  type: object
+                  properties:
+                    order:
+                      type: object
+                      properties:
+                        id:
+                          $ref: '#/components/schemas/Order/properties/id'
+                        provider:
+                          type: object
+                          properties:
+                            id:
+                              $ref: '#/components/schemas/Provider/properties/id'
+                        state:
+                          $ref: '#/components/schemas/State'
+                        item:
+                          type: object
+                          properties:
+                            id:
+                              $ref: '#/components/schemas/Item/properties/id'
+                            descriptor:
+                              type: object
+                              properties:
+                                code:
+                                  $ref: '#/components/schemas/Descriptor/properties/code'
+                                name:
+                                  $ref: '#/components/schemas/Descriptor/properties/name'
+                        fulfillment:
+                          $ref: '#/components/schemas/Fulfillment'
+                      required:
+                        - state
+                  required:
+                    - order
+                error:
+                  $ref: '#/components/schemas/Error'
+              required:
+                - context
+            examples:
+              HSPA Platform sends CONFIRMED order status:
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_confirm_audit
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    message_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    timestamp: '2022-07-05T15:24:35.481906'
+                    provider_id: hspa-nha
+                    provider_uri: 'http://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                  message:
+                    order:
+                      id: 8441-696786-1042
+                      state: CONFIRMED
+                      item:
+                        id: '1'
+                        descriptor:
+                          code: Consultation
+                          name: Consultation
+                      fulfillment:
+                        id: d680dd36-1d0d-43c6-96c4-dec0f06008ea
+                        type: Online
+                        start:
+                          time:
+                            timestamp: '2022-09-15T15:00:00'
+                        end:
+                          time:
+                            timestamp: '2022-09-15T15:15:00'
+              HSPA Platform sends CANCELLED order status:
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_confirm_audit
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    message_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    timestamp: '2022-07-05T15:24:35.481906'
+                    provider_id: hspa-nha
+                    provider_uri: 'http://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                  message:
+                    order:
+                      id: 8441-696786-1042
+                      state: CANCELLED
+                      item:
+                        id: '1'
+                        descriptor:
+                          code: Consultation
+                          name: Consultation
+                      fulfillment:
+                        id: d680dd36-1d0d-43c6-96c4-dec0f06008ea
+                        type: Online
+                        start:
+                          time:
+                            timestamp: '2022-09-15T15:00:00'
+                        end:
+                          time:
+                            timestamp: '2022-09-15T15:15:00'
+              HSPA Platform sends PROCESSING order status:
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_confirm_audit
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    message_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    timestamp: '2022-07-05T15:24:35.481906'
+                    provider_id: hspa-nha
+                    provider_uri: 'http://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                  message:
+                    order:
+                      id: 8441-696786-1042
+                      state: PROCESSING
+                      item:
+                        id: '1'
+                        descriptor:
+                          code: Consultation
+                          name: Consultation
+                      fulfillment:
+                        id: d680dd36-1d0d-43c6-96c4-dec0f06008ea
+                        type: Online
+                        start:
+                          time:
+                            timestamp: '2022-09-15T15:00:00'
+                        end:
+                          time:
+                            timestamp: '2022-09-15T15:15:00'
+              HSPA Platform sends FAILED status:
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_confirm_audit
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    message_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    timestamp: '2022-07-05T15:24:35.481906'
+                    provider_id: hspa-nha
+                    provider_uri: 'http://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                  message:
+                    order:
+                      id: 8441-696786-1042
+                      state: FAILED
+                      item:
+                        id: '1'
+                        descriptor:
+                          code: Consultation
+                          name: Consultation
+                      fulfillment:
+                        id: d680dd36-1d0d-43c6-96c4-dec0f06008ea
+                        type: Online
+                        start:
+                          time:
+                            timestamp: '2022-09-15T15:00:00'
+                        end:
+                          time:
+                            timestamp: '2022-09-15T15:15:00'
+              HSPA Platform sends COMPLETED order status:
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_confirm_audit
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    message_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    timestamp: '2022-07-05T15:24:35.481906'
+                    provider_id: hspa-nha
+                    provider_uri: 'http://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                  message:
+                    order:
+                      id: 8441-696786-1042
+                      state: COMPLETED
+                      item:
+                        id: '1'
+                        descriptor:
+                          code: Consultation
+                          name: Consultation
+                      fulfillment:
+                        id: d680dd36-1d0d-43c6-96c4-dec0f06008ea
+                        type: Online
+                        start:
+                          time:
+                            timestamp: '2022-09-15T15:00:00'
+                        end:
+                          time:
+                            timestamp: '2022-09-15T15:15:00'
+      responses:
+        '200':
+          description: Acknowledgement of message received
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: object
+                    properties:
+                      ack:
+                        $ref: '#/components/schemas/Ack'
+                    required:
+                      - ack
+                  error:
+                    $ref: '#/components/schemas/Error'
+                required:
+                  - message
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          description: UHI Auth header
+          required: true
+
+  /api/v1/on_status_audit:
+    post:
+      tags:
+        - UHI - Gateway
+      summary: Accepter for all the on_status_audit response from the HSPAs
+      operationId: AuditOnStatusPOST
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                context:
+                  $ref: '#/components/schemas/Context'
+                message:
+                  type: object
+                  properties:
+                    order:
+                      type: object
+                      properties:
+                        id:
+                          $ref: '#/components/schemas/Order/properties/id'
+                        provider:
+                          type: object
+                          properties:
+                            id:
+                              $ref: '#/components/schemas/Provider/properties/id'
+                        state:
+                          $ref: '#/components/schemas/State'
+                        item:
+                          type: object
+                          properties:
+                            id:
+                              $ref: '#/components/schemas/Item/properties/id'
+                            descriptor:
+                              type: object
+                              properties:
+                                code:
+                                  $ref: '#/components/schemas/Descriptor/properties/code'
+                                name:
+                                  $ref: '#/components/schemas/Descriptor/properties/name'
+                        fulfillment:
+                          $ref: '#/components/schemas/Fulfillment'
+                      required:
+                        - state
+                  required:
+                    - order
+                error:
+                  $ref: '#/components/schemas/Error'
+              required:
+                - context
+            examples:
+              HSPA Platform sends CONFIRMED order status:
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_status_audit
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    message_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    timestamp: '2022-07-05T15:24:35.481906'
+                    provider_id: hspa-nha
+                    provider_uri: 'http://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                  message:
+                    order:
+                      id: 8441-696786-1042
+                      state: CONFIRMED
+                      item:
+                        id: '1'
+                        descriptor:
+                          code: Consultation
+                          name: Consultation
+                      fulfillment:
+                        id: d680dd36-1d0d-43c6-96c4-dec0f06008ea
+                        type: Online
+                        start:
+                          time:
+                            timestamp: '2022-09-15T15:00:00'
+                        end:
+                          time:
+                            timestamp: '2022-09-15T15:15:00'
+                      customer:
+                        id: satishc661994@sbx
+                      provider:
+                        id: '1'
+              HSPA Platform sends CANCELLED order status:
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_status_audit
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    message_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    timestamp: '2022-07-05T15:24:35.481906'
+                    provider_id: hspa-nha
+                    provider_uri: 'http://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                  message:
+                    order:
+                      id: 8441-696786-1042
+                      state: CANCELLED
+                      item:
+                        id: '1'
+                        descriptor:
+                          code: Consultation
+                          name: Consultation
+                      fulfillment:
+                        id: d680dd36-1d0d-43c6-96c4-dec0f06008ea
+                        type: Online
+                        start:
+                          time:
+                            timestamp: '2022-09-15T15:00:00'
+                        end:
+                          time:
+                            timestamp: '2022-09-15T15:15:00'
+                      customer:
+                        id: satishc661994@sbx
+                      provider:
+                        id: '1'
+              HSPA Platform sends PROCESSING order status:
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_status_audit
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    message_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    timestamp: '2022-07-05T15:24:35.481906'
+                    provider_id: hspa-nha
+                    provider_uri: 'http://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                  message:
+                    order:
+                      id: 8441-696786-1042
+                      state: PROCESSING
+                      item:
+                        id: '1'
+                        descriptor:
+                          code: Consultation
+                          name: Consultation
+                      fulfillment:
+                        id: d680dd36-1d0d-43c6-96c4-dec0f06008ea
+                        type: Online
+                        start:
+                          time:
+                            timestamp: '2022-09-15T15:00:00'
+                        end:
+                          time:
+                            timestamp: '2022-09-15T15:15:00'
+                      customer:
+                        id: satishc661994@sbx
+                      provider:
+                        id: '1'
+              HSPA Platform sends FAILED status:
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_status_audit
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    message_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    timestamp: '2022-07-05T15:24:35.481906'
+                    provider_id: hspa-nha
+                    provider_uri: 'http://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                  message:
+                    order:
+                      id: 8441-696786-1042
+                      state: FAILED
+                      item:
+                        id: '1'
+                        descriptor:
+                          code: Consultation
+                          name: Consultation
+                      fulfillment:
+                        id: d680dd36-1d0d-43c6-96c4-dec0f06008ea
+                        type: Online
+                        start:
+                          time:
+                            timestamp: '2022-09-15T15:00:00'
+                        end:
+                          time:
+                            timestamp: '2022-09-15T15:15:00'
+                      customer:
+                        id: satishc661994@sbx
+                      provider:
+                        id: '1'
+              HSPA Platform sends REFUND_COMPLETED status:
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_status_audit
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    message_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    timestamp: '2022-07-05T15:24:35.481906'
+                    provider_id: hspa-nha
+                    provider_uri: 'http://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                  message:
+                    order:
+                      id: 8441-696786-1042
+                      state: REFUND_COMPLETED
+                      item:
+                        id: '1'
+                        descriptor:
+                          code: Consultation
+                          name: Consultation
+                      fulfillment:
+                        id: d680dd36-1d0d-43c6-96c4-dec0f06008ea
+                        type: Online
+                        start:
+                          time:
+                            timestamp: '2022-09-15T15:00:00'
+                        end:
+                          time:
+                            timestamp: '2022-09-15T15:15:00'
+                      customer:
+                        id: satishc661994@sbx
+                      provider:
+                        id: '1'
+              HSPA Platform sends REFUND_INITIATED status:
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_status_audit
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    message_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    timestamp: '2022-07-05T15:24:35.481906'
+                    provider_id: hspa-nha
+                    provider_uri: 'http://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                  message:
+                    order:
+                      id: 8441-696786-1042
+                      state: REFUND_INITIATED
+                      item:
+                        id: '1'
+                        descriptor:
+                          code: Consultation
+                          name: Consultation
+                      fulfillment:
+                        id: d680dd36-1d0d-43c6-96c4-dec0f06008ea
+                        type: Online
+                        start:
+                          time:
+                            timestamp: '2022-09-15T15:00:00'
+                        end:
+                          time:
+                            timestamp: '2022-09-15T15:15:00'
+                      customer:
+                        id: satishc661994@sbx
+                      provider:
+                        id: '1'
+              HSPA Platform sends REFUND_REQ_RECEIVED status:
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_status_audit
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    message_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    timestamp: '2022-07-05T15:24:35.481906'
+                    provider_id: hspa-nha
+                    provider_uri: 'http://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                  message:
+                    order:
+                      id: 8441-696786-1042
+                      state: REFUND_REQ_RECEIVED
+                      item:
+                        id: '1'
+                        descriptor:
+                          code: Consultation
+                          name: Consultation
+                      fulfillment:
+                        id: d680dd36-1d0d-43c6-96c4-dec0f06008ea
+                        type: Online
+                        start:
+                          time:
+                            timestamp: '2022-09-15T15:00:00'
+                        end:
+                          time:
+                            timestamp: '2022-09-15T15:15:00'
+                      customer:
+                        id: satishc661994@sbx
+                      provider:
+                        id: '1'
+              HSPA Platform sends REFUND_REJECTED status:
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_status_audit
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    message_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    timestamp: '2022-07-05T15:24:35.481906'
+                    provider_id: hspa-nha
+                    provider_uri: 'http://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                  message:
+                    order:
+                      id: 8441-696786-1042
+                      state: REFUND_REJECTED
+                      item:
+                        id: '1'
+                        descriptor:
+                          code: Consultation
+                          name: Consultation
+                      fulfillment:
+                        id: d680dd36-1d0d-43c6-96c4-dec0f06008ea
+                        type: Online
+                        start:
+                          time:
+                            timestamp: '2022-09-15T15:00:00'
+                        end:
+                          time:
+                            timestamp: '2022-09-15T15:15:00'
+                      customer:
+                        id: satishc661994@sbx
+                      provider:
+                        id: '1'
+              HSPA Platform sends COMPLETED order status:
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_status_audit
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    message_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    timestamp: '2022-07-05T15:24:35.481906'
+                    provider_id: hspa-nha
+                    provider_uri: 'http://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                  message:
+                    order:
+                      id: 8441-696786-1042
+                      state: COMPLETED
+                      item:
+                        id: '1'
+                        descriptor:
+                          code: Consultation
+                          name: Consultation
+                      fulfillment:
+                        id: d680dd36-1d0d-43c6-96c4-dec0f06008ea
+                        type: Online
+                        start:
+                          time:
+                            timestamp: '2022-09-15T15:00:00'
+                        end:
+                          time:
+                            timestamp: '2022-09-15T15:15:00'
+                      customer:
+                        id: satishc661994@sbx
+                      provider:
+                        id: '1'
+      responses:
+        '200':
+          description: Acknowledgement of message received
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: object
+                    properties:
+                      ack:
+                        $ref: '#/components/schemas/Ack'
+                    required:
+                      - ack
+                  error:
+                    $ref: '#/components/schemas/Error'
+                required:
+                  - message
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          description: UHI Auth header
+          required: true
+
+
+  /api/v1/on_cancel_audit:
+    post:
+      tags:
+        - UHI - Gateway
+      summary: Accepter for all the on_cancel_audit response from the HSPAs
+      operationId: AuditOnCancelPOST
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                context:
+                  $ref: '#/components/schemas/Context'
+                message:
+                  type: object
+                  properties:
+                    order:
+                      type: object
+                      properties:
+                        id:
+                          $ref: '#/components/schemas/Order/properties/id'
+                        provider:
+                          type: object
+                          properties:
+                            id:
+                              $ref: '#/components/schemas/Provider/properties/id'
+                        state:
+                          $ref: '#/components/schemas/State'
+                        item:
+                          type: object
+                          properties:
+                            id:
+                              $ref: '#/components/schemas/Item/properties/id'
+                            descriptor:
+                              type: object
+                              properties:
+                                code:
+                                  $ref: '#/components/schemas/Descriptor/properties/code'
+                                name:
+                                  $ref: '#/components/schemas/Descriptor/properties/name'
+                        fulfillment:
+                          $ref: '#/components/schemas/Fulfillment'
+                      required:
+                        - state
+                  required:
+                    - order
+                error:
+                  $ref: '#/components/schemas/Error'
+              required:
+                - context
+            examples:
+              On_cancel for patient cancelling appointment:
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_cancel_audit
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    message_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    timestamp: '2022-07-05T15:24:35.481906'
+                    provider_id: hspa-nha
+                    provider_uri: 'http://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                  message:
+                    order:
+                      id: 8441-696786-1042
+                      state: CANCELLED
+                      item:
+                        id: '1'
+                        descriptor:
+                          code: Consultation
+                          name: Consultation
+                      fulfillment:
+                        tags:
+                          '@abdm/gov.in/cancelledby': patient
+                        start:
+                          time:
+                            timestamp: '2022-09-15T15:00:00'
+                        end:
+                          time:
+                            timestamp: '2022-09-15T15:15:00'
+              On_cancel for doctor cancelling appointment:
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_cancel_audit
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    message_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    timestamp: '2022-07-05T15:24:35.481906'
+                    provider_id: hspa-nha
+                    provider_uri: 'http://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                  message:
+                    order:
+                      id: 8441-696786-1042
+                      state: CANCELLED
+                      item:
+                        id: '1'
+                        descriptor:
+                          code: Consultation
+                          name: Consultation
+                      fulfillment:
+                        tags:
+                          '@abdm/gov.in/cancelledby': doctor
+                        start:
+                          time:
+                            timestamp: '2022-09-15T15:00:00'
+                        end:
+                          time:
+                            timestamp: '2022-09-15T15:15:00'
+
+      responses:
+        '200':
+          description: Acknowledgement of message received
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: object
+                    properties:
+                      ack:
+                        $ref: '#/components/schemas/Ack'
+                    required:
+                      - ack
+                  error:
+                    $ref: '#/components/schemas/Error'
+                required:
+                  - message
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          description: UHI Auth header
+          required: true
+
   /on_search:
     post:
       tags:
@@ -2239,7 +3761,7 @@ paths:
               required:
                 - context
             examples:
-              '1st Onsearch for search with Specialty ':
+              '1st Onsearch for search with Specialty(Teleconsultation) ':
                 value:
                   context:
                     domain: 'nic2004:85111'
@@ -2293,7 +3815,8 @@ paths:
                                   '@abdm/gov/in/experience': '10.0'
                                   '@abdm/gov/in/languages': 'Hindi, English'
                                   '@abdm/gov/in/education': 'MBBS, BDS'
-                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686
+                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686,
+                                  '@abdm/gov/in/hfr_id': 73-5232-1888-8687
                               start:
                                 time:
                                   timestamp: '2023-01-03T12:30:00'
@@ -2310,7 +3833,8 @@ paths:
                                   '@abdm/gov/in/experience': '5.0'
                                   '@abdm/gov/in/languages': 'Eng, Hin'
                                   '@abdm/gov/in/education': MBBS
-                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686
+                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686,
+                                  '@abdm/gov/in/hfr_id': 73-5232-1888-8687
                               start:
                                 time:
                                   timestamp: '2023-01-03T12:30:00'
@@ -2348,7 +3872,7 @@ paths:
                               code: '+91'
                             gps: '18.5246036,73.792927'
                             address: '3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001'
-              '1st on_search  for Search by Doctor and specialty ':
+              '1st on_search  for Search by Doctor and specialty(Teleconsultation) ':
                 value:
                   context:
                     domain: 'nic2004:85111'
@@ -2397,7 +3921,8 @@ paths:
                                   '@abdm/gov/in/experience': '5.0'
                                   '@abdm/gov/in/languages': 'Eng, Hin'
                                   '@abdm/gov/in/education': MBBS
-                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686
+                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686,
+                                  '@abdm/gov/in/hfr_id': 73-5232-1888-8687
                               start:
                                 time:
                                   timestamp: '2023-01-03T12:30:00'
@@ -2427,7 +3952,7 @@ paths:
                               code: '+91'
                             gps: '18.5246036,73.792927'
                             address: '3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001'
-              1st on_search for search by doctor and facility:
+              1st on_search for search by doctor and facility(Teleconsultation):
                 value:
                   context:
                     domain: 'nic2004:85111'
@@ -2476,7 +4001,8 @@ paths:
                                   '@abdm/gov/in/experience': '5.0'
                                   '@abdm/gov/in/languages': 'Eng, Hin'
                                   '@abdm/gov/in/education': MBBS
-                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686
+                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686,
+                                  '@abdm/gov/in/hfr_id': 73-5232-1888-8687
                               start:
                                 time:
                                   timestamp: '2023-01-03T12:30:00'
@@ -2506,7 +4032,7 @@ paths:
                               code: '+91'
                             gps: '18.5246036,73.792927'
                             address: '3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001'
-              '1st on_search for search by provider facility and specialty ':
+              '1st on_search for search by provider facility and specialty(Teleconsultation) ':
                 value:
                   context:
                     domain: 'nic2004:85111'
@@ -2555,7 +4081,8 @@ paths:
                                   '@abdm/gov/in/experience': '5.0'
                                   '@abdm/gov/in/languages': 'Eng, Hin'
                                   '@abdm/gov/in/education': MBBS
-                                  '@abdm/gov/in/hpr_id': 73-4331-9088-8684
+                                  '@abdm/gov/in/hpr_id': 73-4331-9088-8684,
+                                  '@abdm/gov/in/hfr_id': 73-4331-9088-8684
                               start:
                                 time:
                                   timestamp: '2023-01-03T12:30:00'
@@ -2572,7 +4099,8 @@ paths:
                                   '@abdm/gov/in/experience': '5.0'
                                   '@abdm/gov/in/languages': 'Eng, Hin'
                                   '@abdm/gov/in/education': MBBS
-                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686
+                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686,
+                                  '@abdm/gov/in/hfr_id': 73-5232-1888-8687
                           items:
                             - id: '0'
                               descriptor:
@@ -2604,7 +4132,7 @@ paths:
                               code: '+91'
                             gps: '18.5246036,73.792927'
                             address: '3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001'
-              '1st on_search for search by HPR address ':
+              '1st on_search for search by HPR address(Teleconsultation) ':
                 value:
                   context:
                     domain: 'nic2004:85111'
@@ -2653,7 +4181,8 @@ paths:
                                   '@abdm/gov/in/experience': '10.0'
                                   '@abdm/gov/in/languages': 'Hindi, English'
                                   '@abdm/gov/in/education': 'MBBS, BDS'
-                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686
+                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686,
+                                  '@abdm/gov/in/hfr_id': 73-5232-1888-8687
                               start:
                                 time:
                                   timestamp: '2023-01-03T12:30:00'
@@ -2683,7 +4212,7 @@ paths:
                               code: '+91'
                             gps: '18.5246036,73.792927'
                             address: '3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001'
-              1st on_search for search by Doctor name:
+              1st on_search for search by Doctor name(Teleconsultation):
                 value:
                   context:
                     domain: 'nic2004:85111'
@@ -2732,7 +4261,8 @@ paths:
                                   '@abdm/gov/in/experience': '5.0'
                                   '@abdm/gov/in/languages': 'Eng, Hin'
                                   '@abdm/gov/in/education': MBBS
-                                  '@abdm/gov/in/hpr_id': 73-4331-9088-8684
+                                  '@abdm/gov/in/hpr_id': 73-4331-9088-8684,
+                                  '@abdm/gov/in/hfr_id': 73-4331-9088-8684
                               start:
                                 time:
                                   timestamp: '2023-01-03T12:30:00'
@@ -2749,7 +4279,8 @@ paths:
                                   '@abdm/gov/in/experience': '12.0'
                                   '@abdm/gov/in/languages': 'Eng, Hin'
                                   '@abdm/gov/in/education': 'MBBS, MD'
-                                  '@abdm/gov/in/hpr_id': 71-5362-8737-7250
+                                  '@abdm/gov/in/hpr_id': 71-5362-8737-7250,
+                                  '@abdm/gov/in/hfr_id': 71-5362-8737-7250
                               start:
                                 time:
                                   timestamp: '2023-01-03T12:30:00'
@@ -2787,6 +4318,570 @@ paths:
                               code: '+91'
                             gps: '18.5246036,73.792927'
                             address: '3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001'
+              1st Onsearch for search with Specialty(PhysicalConsultation):
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_search
+                    timestamp: '2022-07-05T15:24:35'
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://100.65.158.41:8901/api/v1/euaService'
+                    provider_id: hspa-nha
+                    provider_uri: 'https://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    message_id: e9
+                  message:
+                    catalog:
+                      descriptor:
+                        name: Ref HSPA
+                        images: HSPA IMAGE
+                        short_desc: Reference HSPA Test hospital
+                        long_desc: Expert institution providing patient treatment with specialized health science and auxiliary healthcare staff and extraordinary medical equipments.
+                      providers:
+                        - id: '1'
+                          descriptor:
+                            name: Test Hospital
+                            short_desc: Expertise in every field with renowned staff.
+                            long_desc: We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.
+                          categories:
+                            - id: '1'
+                              parent_category_id: '101'
+                              descriptor:
+                                name: Cardiology
+                                code: CARDIOLOGY
+                            - id: '101'
+                              descriptor:
+                                name: Allopathy
+                                code: ALLOPATHY
+                            - id: '0'
+                              parent_category_id: '101'
+                              descriptor:
+                                name: 'General Medicine, Pharmacy, Dental surgery'
+                                code: 'GENERAL MEDICINE, PHARMACY, DENTAL SURGERY'
+                          fulfillments:
+                            - id: '0'
+                              type: Physical
+                              agent:
+                                id: ganeshborse@hpr.abdm
+                                name: Ganesh Vikram Borse
+                                gender: M
+                                tags:
+                                  '@abdm/gov/in/experience': '10.0'
+                                  '@abdm/gov/in/languages': 'Hindi, English'
+                                  '@abdm/gov/in/education': 'MBBS, BDS'
+                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686,
+                                  '@abdm/gov/in/hfr_id': 73-5232-1888-8687
+
+                              start:
+                                time:
+                                  timestamp: '2023-01-03T12:30:00'
+                              end:
+                                time:
+                                  timestamp: '2023-01-03T12:45:00'
+                            - id: '1'
+                              type: Online
+                              agent:
+                                id: ganeshborse@hpr.ndhm
+                                name: Ganesh Vikram Borse
+                                gender: M
+                                tags:
+                                  '@abdm/gov/in/experience': '5.0'
+                                  '@abdm/gov/in/languages': 'Eng, Hin'
+                                  '@abdm/gov/in/education': MBBS
+                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686,
+                                  '@abdm/gov/in/hfr_id': 73-5232-1888-8687
+
+                              start:
+                                time:
+                                  timestamp: '2023-01-03T12:30:00'
+                              end:
+                                time:
+                                  timestamp: '2023-01-03T12:45:00'
+                          items:
+                            - id: '0'
+                              descriptor:
+                                name: Consultation
+                              price:
+                                currency: INR
+                                value: '20.0'
+                              category_id: '0'
+                              fulfillment_id: '0'
+                            - id: '1'
+                              descriptor:
+                                name: Consultation
+                              price:
+                                currency: INR
+                                value: '300.0'
+                              category_id: '1'
+                              fulfillment_id: '1'
+                          location:
+                            id: '1'
+                            descriptor:
+                              name: Test Hospital
+                              short_desc: Expertise in every field with renowned staff.
+                              long_desc: We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.
+                            city:
+                              name: Delhi
+                              code: '011'
+                            country:
+                              name: INDIA
+                              code: '+91'
+                            gps: '18.5246036,73.792927'
+                            address: '3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001'
+              '1st on_search  for Search by Doctor and specialty(PhysicalConsultation)':
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_search
+                    timestamp: '2022-07-05T15:24:35'
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    provider_id: hspa-nha
+                    provider_uri: 'https://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    message_id: e9a19230-f951-11ec-b135-53aea776f66b
+                  message:
+                    catalog:
+                      descriptor:
+                        name: Ref HSPA
+                        images: HSPA IMAGE
+                        short_desc: Reference HSPA Test hospital
+                        long_desc: Expert institution providing patient treatment with specialized health science and auxiliary healthcare staff and extraordinary medical equipments.
+                      providers:
+                        - id: '1'
+                          descriptor:
+                            name: Test Hospital
+                            short_desc: Expertise in every field with renowned staff.
+                            long_desc: We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.
+                          categories:
+                            - id: '0'
+                              parent_category_id: '101'
+                              descriptor:
+                                name: Cardiology
+                                code: CARDIOLOGY
+                            - id: '101'
+                              descriptor:
+                                name: Allopathy
+                                code: ALLOPATHY
+                          fulfillments:
+                            - id: '0'
+                              type: Physical
+                              agent:
+                                id: ganeshborse@hpr.ndhm
+                                name: Ganesh Vikram Borse
+                                gender: M
+                                tags:
+                                  '@abdm/gov/in/experience': '5.0'
+                                  '@abdm/gov/in/languages': 'Eng, Hin'
+                                  '@abdm/gov/in/education': MBBS
+                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686,
+                                  '@abdm/gov/in/hfr_id': 73-5232-1888-8687
+
+                              start:
+                                time:
+                                  timestamp: '2023-01-03T12:30:00'
+                              end:
+                                time:
+                                  timestamp: '2023-01-03T12:45:00'
+                          items:
+                            - id: '0'
+                              descriptor:
+                                name: Consultation
+                              price:
+                                currency: INR
+                                value: '300.0'
+                              category_id: '0'
+                              fulfillment_id: '0'
+                          location:
+                            id: '1'
+                            descriptor:
+                              name: Test Hospital
+                              short_desc: Expertise in every field with renowned staff.
+                              long_desc: We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.
+                            city:
+                              name: Delhi
+                              code: '011'
+                            country:
+                              name: INDIA
+                              code: '+91'
+                            gps: '18.5246036,73.792927'
+                            address: '3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001'
+              1st on_search for search by doctor and facility(PhysicalConsultation):
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_search
+                    timestamp: '2022-07-05T15:24:35'
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    provider_id: hspa-nha
+                    provider_uri: 'https://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    message_id: e9a19230-f951-11ec-b135-53aea776f66b
+                  message:
+                    catalog:
+                      descriptor:
+                        name: Ref HSPA
+                        images: HSPA IMAGE
+                        short_desc: Reference HSPA Test hospital
+                        long_desc: Expert institution providing patient treatment with specialized health science and auxiliary healthcare staff and extraordinary medical equipments.
+                      providers:
+                        - id: '1'
+                          descriptor:
+                            name: Test Hospital
+                            short_desc: Expertise in every field with renowned staff.
+                            long_desc: We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.
+                          categories:
+                            - id: '0'
+                              parent_category_id: '101'
+                              descriptor:
+                                name: Cardiology
+                                code: CARDIOLOGY
+                            - id: '101'
+                              descriptor:
+                                name: Allopathy
+                                code: ALLOPATHY
+                          fulfillments:
+                            - id: '0'
+                              type: Physical
+                              agent:
+                                id: ganeshborse@hpr.ndhm
+                                name: Ganesh Vikram Borse
+                                gender: M
+                                tags:
+                                  '@abdm/gov/in/experience': '5.0'
+                                  '@abdm/gov/in/languages': 'Eng, Hin'
+                                  '@abdm/gov/in/education': MBBS
+                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686,
+                                  '@abdm/gov/in/hfr_id': 73-5232-1888-8687
+
+                              start:
+                                time:
+                                  timestamp: '2023-01-03T12:30:00'
+                              end:
+                                time:
+                                  timestamp: '2023-01-03T12:45:00'
+                          items:
+                            - id: '0'
+                              descriptor:
+                                name: Consultation
+                              price:
+                                currency: INR
+                                value: '300.0'
+                              category_id: '0'
+                              fulfillment_id: '0'
+                          location:
+                            id: '1'
+                            descriptor:
+                              name: Test Hospital
+                              short_desc: Expertise in every field with renowned staff.
+                              long_desc: We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.
+                            city:
+                              name: Delhi
+                              code: '011'
+                            country:
+                              name: INDIA
+                              code: '+91'
+                            gps: '18.5246036,73.792927'
+                            address: '3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001'
+              '1st on_search for search by provider facility and specialty(PhysicalConsultation) ':
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_search
+                    timestamp: '2022-07-05T15:24:35'
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    provider_id: hspa-nha
+                    provider_uri: 'https://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    message_id: e9a19230-f951-11ec-b135-53aea776f66b
+                  message:
+                    catalog:
+                      descriptor:
+                        name: Ref HSPA
+                        images: HSPA IMAGE
+                        short_desc: Reference HSPA Test hospital
+                        long_desc: Expert institution providing patient treatment with specialized health science and auxiliary healthcare staff and extraordinary medical equipments.
+                      providers:
+                        - id: '1'
+                          descriptor:
+                            name: Test Hospital
+                            short_desc: Expertise in every field with renowned staff.
+                            long_desc: We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.
+                          categories:
+                            - id: '201'
+                              parent_category_id: '101'
+                              descriptor:
+                                name: Cardiology
+                                code: CARDIOLOGY
+                            - id: '101'
+                              descriptor:
+                                name: Allopathy
+                                code: ALLOPATHY
+                          fulfillments:
+                            - id: '0'
+                              type: Physical
+                              agent:
+                                id: amodborse@hpr.abdm
+                                name: Amod Borse
+                                gender: M
+                                tags:
+                                  '@abdm/gov/in/experience': '5.0'
+                                  '@abdm/gov/in/languages': 'Eng, Hin'
+                                  '@abdm/gov/in/education': MBBS
+                                  '@abdm/gov/in/hpr_id': 73-4331-9088-8684,
+                                  '@abdm/gov/in/hfr_id': 73-4331-9088-8684
+
+                              start:
+                                time:
+                                  timestamp: '2023-01-03T12:30:00'
+                              end:
+                                time:
+                                  timestamp: '2023-01-03T12:45:00'
+                            - id: '1'
+                              type: Physical
+                              agent:
+                                id: ganeshborse@hpr.ndhm
+                                name: Ganesh Vikram Borse
+                                gender: M
+                                tags:
+                                  '@abdm/gov/in/experience': '5.0'
+                                  '@abdm/gov/in/languages': 'Eng, Hin'
+                                  '@abdm/gov/in/education': MBBS
+                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686,
+                                  '@abdm/gov/in/hfr_id': 73-5232-1888-8687
+                          items:
+                            - id: '0'
+                              descriptor:
+                                name: Consultation
+                              price:
+                                currency: INR
+                                value: '300.0'
+                              category_id: '201'
+                              fulfillment_id: '0'
+                            - id: '1'
+                              descriptor:
+                                name: Consultation
+                              price:
+                                currency: INR
+                                value: '300.0'
+                              category_id: '201'
+                              fulfillment_id: '1'
+                          location:
+                            id: '1'
+                            descriptor:
+                              name: Test Hospital
+                              short_desc: Expertise in every field with renowned staff.
+                              long_desc: We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.
+                            city:
+                              name: Delhi
+                              code: '011'
+                            country:
+                              name: INDIA
+                              code: '+91'
+                            gps: '18.5246036,73.792927'
+                            address: '3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001'
+              '1st on_search for search by HPR address(PhysicalConsultation) ':
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_search
+                    timestamp: '2022-11-14T07:20:54.005277Z'
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://uhieuasandbox.abdm.gov.in/api/v1/euaService'
+                    provider_id: hspa-nha
+                    provider_uri: 'https://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: dfa04e10-63ec-11ed-9f98-49dd5c7c4d8a
+                    message_id: dfa04e10-63ec-11ed-9f98-49dd5c7c4d8a
+                  message:
+                    catalog:
+                      descriptor:
+                        name: Ref HSPA
+                        images: HSPA IMAGE
+                        short_desc: Reference HSPA Test hospital
+                        long_desc: Expert institution providing patient treatment with specialized health science and auxiliary healthcare staff and extraordinary medical equipments.
+                      providers:
+                        - id: '1'
+                          descriptor:
+                            name: Test Hospital
+                            short_desc: Expertise in every field with renowned staff.
+                            long_desc: We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.
+                          categories:
+                            - id: '209'
+                              parent_category_id: '101'
+                              descriptor:
+                                name: Dental surgery
+                                code: DENTAL SURGERY
+                            - id: '101'
+                              descriptor:
+                                name: Allopathy
+                                code: ALLOPATHY
+                          fulfillments:
+                            - id: '0'
+                              type: Physical
+                              agent:
+                                id: ganeshborse@hpr.abdm
+                                name: Ganesh Vikram Borse
+                                gender: M
+                                tags:
+                                  '@abdm/gov/in/experience': '10.0'
+                                  '@abdm/gov/in/languages': 'Hindi, English'
+                                  '@abdm/gov/in/education': 'MBBS, BDS'
+                                  '@abdm/gov/in/hpr_id': 73-5232-1888-8686,
+                                  '@abdm/gov/in/hfr_id': 73-5232-1888-8687
+                              start:
+                                time:
+                                  timestamp: '2023-01-03T12:30:00'
+                              end:
+                                time:
+                                  timestamp: '2023-01-03T12:45:00'
+                          items:
+                            - id: '0'
+                              descriptor:
+                                name: Consultation
+                              price:
+                                currency: INR
+                                value: '20.0'
+                              category_id: '209'
+                              fulfillment_id: '0'
+                          location:
+                            id: '1'
+                            descriptor:
+                              name: Test Hospital
+                              short_desc: Expertise in every field with renowned staff.
+                              long_desc: We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.
+                            city:
+                              name: Delhi
+                              code: '011'
+                            country:
+                              name: INDIA
+                              code: '+91'
+                            gps: '18.5246036,73.792927'
+                            address: '3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001'
+              1st on_search for search by Doctor name(PhysicalConsultation):
+                value:
+                  context:
+                    domain: 'nic2004:85111'
+                    country: IND
+                    city: 'std:011'
+                    action: on_search
+                    timestamp: '2022-07-05T15:24:35'
+                    core_version: 0.7.1
+                    consumer_id: eua-nha
+                    consumer_uri: 'http://100.65.158.41:8901/api/v1/euaService'
+                    provider_id: hspa-nha
+                    provider_uri: 'https://hspasbx.abdm.gov.in/api/v1'
+                    transaction_id: e9a19230-f951-11ec-b135-53aea776f66b
+                    message_id: e9
+                  message:
+                    catalog:
+                      descriptor:
+                        name: Ref HSPA
+                        images: HSPA IMAGE
+                        short_desc: Reference HSPA Test hospital
+                        long_desc: Expert institution providing patient treatment with specialized health science and auxiliary healthcare staff and extraordinary medical equipments.
+                      providers:
+                        - id: '1'
+                          descriptor:
+                            name: Test Hospital
+                            short_desc: Expertise in every field with renowned staff.
+                            long_desc: We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.
+                          categories:
+                            - id: '201'
+                              parent_category_id: '101'
+                              descriptor:
+                                name: Cardiology
+                                code: CARDIOLOGY
+                            - id: '101'
+                              descriptor:
+                                name: Allopathy
+                                code: ALLOPATHY
+                          fulfillments:
+                            - id: '0'
+                              type: Physical
+                              agent:
+                                id: amodborse@hpr.abdm
+                                name: Amod Borse
+                                gender: M
+                                tags:
+                                  '@abdm/gov/in/experience': '5.0'
+                                  '@abdm/gov/in/languages': 'Eng, Hin'
+                                  '@abdm/gov/in/education': MBBS
+                                  '@abdm/gov/in/hpr_id': 73-4331-9088-8684,
+                                  '@abdm/gov/in/hfr_id': 73-4331-9088-8684
+
+                              start:
+                                time:
+                                  timestamp: '2023-01-03T12:30:00'
+                              end:
+                                time:
+                                  timestamp: '2023-01-03T12:45:00'
+                            - id: '1'
+                              type: Online
+                              agent:
+                                id: amodjoshi@hpr.ndhm
+                                name: Amod Suresh Joshi
+                                gender: M
+                                tags:
+                                  '@abdm/gov/in/experience': '12.0'
+                                  '@abdm/gov/in/languages': 'Eng, Hin'
+                                  '@abdm/gov/in/education': 'MBBS, MD'
+                                  '@abdm/gov/in/hpr_id': 71-5362-8737-7250,
+                                  '@abdm/gov/in/hfr_id': 71-5362-8737-7250
+                              start:
+                                time:
+                                  timestamp: '2023-01-03T12:30:00'
+                              end:
+                                time:
+                                  timestamp: '2023-01-03T12:45:00'
+                          items:
+                            - id: '0'
+                              descriptor:
+                                name: Consultation
+                              price:
+                                currency: INR
+                                value: '300.0'
+                              category_id: '201'
+                              fulfillment_id: '0'
+                            - id: '1'
+                              descriptor:
+                                name: Consultation
+                              price:
+                                currency: INR
+                                value: '0.0'
+                              category_id: '201'
+                              fulfillment_id: '1'
+                          location:
+                            id: '1'
+                            descriptor:
+                              name: Test Hospital
+                              short_desc: Expertise in every field with renowned staff.
+                              long_desc: We are Test hospital. We have established a very profound name in the healthcare industry by providing expert services in every healthcare fields that we have.
+                            city:
+                              name: Delhi
+                              code: '011'
+                            country:
+                              name: INDIA
+                              code: '+91'
+                            gps: '18.5246036,73.792927'
+                            address: '3rd, 7th & 9th Floor, Tower-L, Jeevan Bharati Building, Connaught Place, New Delhi, Delhi 110001'
+
               '2nd on_search response ':
                 value:
                   context:
@@ -2825,7 +4920,8 @@ paths:
                                   '@abdm/gov/in/experience': '5.0'
                                   '@abdm/gov/in/languages': 'Eng, Hin'
                                   '@abdm/gov/in/education': MBBS
-                                  '@abdm/gov/in/hpr_id': ganeshborse@hpr.ndhm
+                                  '@abdm/gov/in/hpr_id': ganeshborse@hpr.ndhm,
+                                  '@abdm/gov/in/hfr_id': ganeshborse@hfr.ndhm
                               start:
                                 time:
                                   timestamp: '2023-01-19T12:00:00'
@@ -2842,7 +4938,8 @@ paths:
                                   '@abdm/gov/in/experience': '5.0'
                                   '@abdm/gov/in/languages': 'Eng, Hin'
                                   '@abdm/gov/in/education': MBBS
-                                  '@abdm/gov/in/hpr_id': ganeshborse@hpr.ndhm
+                                  '@abdm/gov/in/hpr_id': ganeshborse@hpr.ndhm,
+                                  '@abdm/gov/in/hfr_id': ganeshborse@hfr.ndhm
                               start:
                                 time:
                                   timestamp: '2023-01-19T12:15:00'
@@ -3107,7 +5204,8 @@ paths:
                             '@abdm/gov/in/education': MBBS
                             '@abdm/gov/in/experience': '10.0'
                             '@abdm/gov/in/languages': 'Hindi, Marathi, English'
-                            '@abdm/gov/in/hpr_id': 71-4453-8853-6840
+                            '@abdm/gov/in/hpr_id': 71-4453-8853-6840,
+                            '@abdm/gov/in/hfr_id': 71-4453-8853-6840
                             '@abdm/gov/in/groupConsultation': 'false'
                         start:
                           time:
@@ -3276,7 +5374,8 @@ paths:
                             '@abdm/gov/in/education': 'MBBS,MS'
                             '@abdm/gov/in/experience': '15.0'
                             '@abdm/gov/in/languages': 'English, Hindi, Marathi'
-                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604
+                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604,
+                            '@abdm/gov/in/hfr_id': 71-0623-3144-1604
                         start:
                           time:
                             timestamp: '2022-09-15T15:00:00'
@@ -3374,7 +5473,8 @@ paths:
                             '@abdm/gov/in/education': 'MBBS,MS'
                             '@abdm/gov/in/experience': '15.0'
                             '@abdm/gov/in/languages': 'English, Hindi, Marathi'
-                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604
+                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604,
+                            '@abdm/gov/in/hfr_id': 71-0623-3144-1604
                         start:
                           time:
                             timestamp: '2022-09-15T15:00:00'
@@ -3472,7 +5572,8 @@ paths:
                             '@abdm/gov/in/education': 'MBBS,MS'
                             '@abdm/gov/in/experience': '15.0'
                             '@abdm/gov/in/languages': 'English, Hindi, Marathi'
-                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604
+                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604,
+                            '@abdm/gov/in/hfr_id': 71-0623-3144-1604
                         start:
                           time:
                             timestamp: '2022-09-15T15:00:00'
@@ -3570,7 +5671,8 @@ paths:
                             '@abdm/gov/in/education': 'MBBS,MS'
                             '@abdm/gov/in/experience': '15.0'
                             '@abdm/gov/in/languages': 'English, Hindi, Marathi'
-                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604
+                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604,
+                            '@abdm/gov/in/hfr_id': 71-0623-3144-1604
                         start:
                           time:
                             timestamp: '2022-09-15T15:00:00'
@@ -3668,7 +5770,8 @@ paths:
                             '@abdm/gov/in/education': 'MBBS,MS'
                             '@abdm/gov/in/experience': '15.0'
                             '@abdm/gov/in/languages': 'English, Hindi, Marathi'
-                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604
+                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604,
+                            '@abdm/gov/in/hfr_id': 71-0623-3144-1604
                         start:
                           time:
                             timestamp: '2022-09-15T15:00:00'
@@ -3847,7 +5950,8 @@ paths:
                             '@abdm/gov/in/education': 'MBBS,MS'
                             '@abdm/gov/in/experience': '15.0'
                             '@abdm/gov/in/languages': 'English, Hindi, Marathi'
-                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604
+                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604,
+                            '@abdm/gov/in/hfr_id': 71-0623-3144-1604
                         start:
                           time:
                             timestamp: '2022-09-15T15:00:00'
@@ -3945,7 +6049,8 @@ paths:
                             '@abdm/gov/in/education': 'MBBS,MS'
                             '@abdm/gov/in/experience': '15.0'
                             '@abdm/gov/in/languages': 'English, Hindi, Marathi'
-                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604
+                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604,
+                            '@abdm/gov/in/hfr_id': 71-0623-3144-1604
                         start:
                           time:
                             timestamp: '2022-09-15T15:00:00'
@@ -4043,7 +6148,8 @@ paths:
                             '@abdm/gov/in/education': 'MBBS,MS'
                             '@abdm/gov/in/experience': '15.0'
                             '@abdm/gov/in/languages': 'English, Hindi, Marathi'
-                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604
+                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604,
+                            '@abdm/gov/in/hfr_id': 71-0623-3144-1604
                         start:
                           time:
                             timestamp: '2022-09-15T15:00:00'
@@ -4141,7 +6247,8 @@ paths:
                             '@abdm/gov/in/education': 'MBBS,MS'
                             '@abdm/gov/in/experience': '15.0'
                             '@abdm/gov/in/languages': 'English, Hindi, Marathi'
-                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604
+                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604,
+                            '@abdm/gov/in/hfr_id': 71-0623-3144-1604
                         start:
                           time:
                             timestamp: '2022-09-15T15:00:00'
@@ -4239,7 +6346,8 @@ paths:
                             '@abdm/gov/in/education': 'MBBS,MS'
                             '@abdm/gov/in/experience': '15.0'
                             '@abdm/gov/in/languages': 'English, Hindi, Marathi'
-                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604
+                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604,
+                            '@abdm/gov/in/hfr_id': 71-0623-3144-1604
                         start:
                           time:
                             timestamp: '2022-09-15T15:00:00'
@@ -4337,7 +6445,8 @@ paths:
                             '@abdm/gov/in/education': 'MBBS,MS'
                             '@abdm/gov/in/experience': '15.0'
                             '@abdm/gov/in/languages': 'English, Hindi, Marathi'
-                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604
+                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604,
+                            '@abdm/gov/in/hfr_id': 71-0623-3144-1604
                         start:
                           time:
                             timestamp: '2022-09-15T15:00:00'
@@ -4435,7 +6544,8 @@ paths:
                             '@abdm/gov/in/education': 'MBBS,MS'
                             '@abdm/gov/in/experience': '15.0'
                             '@abdm/gov/in/languages': 'English, Hindi, Marathi'
-                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604
+                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604,
+                            '@abdm/gov/in/hfr_id': 71-0623-3144-1604
                         start:
                           time:
                             timestamp: '2022-09-15T15:00:00'
@@ -4533,7 +6643,8 @@ paths:
                             '@abdm/gov/in/education': 'MBBS,MS'
                             '@abdm/gov/in/experience': '15.0'
                             '@abdm/gov/in/languages': 'English, Hindi, Marathi'
-                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604
+                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604,
+                            '@abdm/gov/in/hfr_id': 71-0623-3144-1604
                         start:
                           time:
                             timestamp: '2022-09-15T15:00:00'
@@ -4631,7 +6742,8 @@ paths:
                             '@abdm/gov/in/education': 'MBBS,MS'
                             '@abdm/gov/in/experience': '15.0'
                             '@abdm/gov/in/languages': 'English, Hindi, Marathi'
-                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604
+                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604,
+                            '@abdm/gov/in/hfr_id': 71-0623-3144-1604
                         start:
                           time:
                             timestamp: '2022-09-15T15:00:00'
@@ -4810,7 +6922,8 @@ paths:
                             '@abdm/gov/in/education': 'MBBS,MS'
                             '@abdm/gov/in/experience': '15.0'
                             '@abdm/gov/in/languages': 'English, Hindi, Marathi'
-                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604
+                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604,
+                            '@abdm/gov/in/hfr_id': 71-0623-3144-1604
                         start:
                           time:
                             timestamp: '2022-09-15T15:00:00'
@@ -4908,7 +7021,8 @@ paths:
                             '@abdm/gov/in/education': 'MBBS,MS'
                             '@abdm/gov/in/experience': '15.0'
                             '@abdm/gov/in/languages': 'English, Hindi, Marathi'
-                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604
+                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604,
+                            '@abdm/gov/in/hfr_id': 71-0623-3144-1604
                         start:
                           time:
                             timestamp: '2022-09-15T15:00:00'
@@ -5006,7 +7120,8 @@ paths:
                             '@abdm/gov/in/education': 'MBBS,MS'
                             '@abdm/gov/in/experience': '15.0'
                             '@abdm/gov/in/languages': 'English, Hindi, Marathi'
-                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604
+                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604,
+                            '@abdm/gov/in/hfr_id': 71-0623-3144-1604
                         start:
                           time:
                             timestamp: '2022-09-15T15:00:00'
@@ -5104,7 +7219,8 @@ paths:
                             '@abdm/gov/in/education': 'MBBS,MS'
                             '@abdm/gov/in/experience': '15.0'
                             '@abdm/gov/in/languages': 'English, Hindi, Marathi'
-                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604
+                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604,
+                            '@abdm/gov/in/hfr_id': 71-0623-3144-1604
                         start:
                           time:
                             timestamp: '2022-09-15T15:00:00'
@@ -5202,7 +7318,8 @@ paths:
                             '@abdm/gov/in/education': 'MBBS,MS'
                             '@abdm/gov/in/experience': '15.0'
                             '@abdm/gov/in/languages': 'English, Hindi, Marathi'
-                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604
+                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604,
+                            '@abdm/gov/in/hfr_id': 71-0623-3144-1604
                         start:
                           time:
                             timestamp: '2022-09-15T15:00:00'
@@ -5300,7 +7417,8 @@ paths:
                             '@abdm/gov/in/education': 'MBBS,MS'
                             '@abdm/gov/in/experience': '15.0'
                             '@abdm/gov/in/languages': 'English, Hindi, Marathi'
-                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604
+                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604,
+                            '@abdm/gov/in/hfr_id': 71-0623-3144-1604
                         start:
                           time:
                             timestamp: '2022-09-15T15:00:00'
@@ -5398,7 +7516,8 @@ paths:
                             '@abdm/gov/in/education': 'MBBS,MS'
                             '@abdm/gov/in/experience': '15.0'
                             '@abdm/gov/in/languages': 'English, Hindi, Marathi'
-                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604
+                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604,
+                            '@abdm/gov/in/hfr_id': 71-0623-3144-1604
                         start:
                           time:
                             timestamp: '2022-09-15T15:00:00'
@@ -5496,7 +7615,8 @@ paths:
                             '@abdm/gov/in/education': 'MBBS,MS'
                             '@abdm/gov/in/experience': '15.0'
                             '@abdm/gov/in/languages': 'English, Hindi, Marathi'
-                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604
+                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604,
+                            '@abdm/gov/in/hfr_id': 71-0623-3144-1604
                         start:
                           time:
                             timestamp: '2022-09-15T15:00:00'
@@ -5594,7 +7714,8 @@ paths:
                             '@abdm/gov/in/education': 'MBBS,MS'
                             '@abdm/gov/in/experience': '15.0'
                             '@abdm/gov/in/languages': 'English, Hindi, Marathi'
-                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604
+                            '@abdm/gov/in/hpr_id': 71-0623-3144-1604,
+                            '@abdm/gov/in/hfr_id': 71-0623-3144-1604
                         start:
                           time:
                             timestamp: '2022-09-15T15:00:00'
@@ -6166,7 +8287,10 @@ components:
             - on_select
             - on_init
             - on_confirm
+            - on_confirm_audit
             - on_status
+            - on_status_audit
+            - on_cancel_audit
         core_version:
           type: string
           description: Version of DHP core API specification being used
@@ -6494,6 +8618,15 @@ components:
           type: string
         address:
           type: string
+        radius:
+          type: object
+          properties:
+            type:
+              type: string
+            value:
+              type: string
+            unit:
+              type: string
     LookupDto:
       type: object
       description: Look up subscriber(s) in a registry

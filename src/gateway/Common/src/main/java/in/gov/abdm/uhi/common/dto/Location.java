@@ -18,5 +18,7 @@ public class Location {
     private Country country;
     private String gps;
     private String address;
-
+    private Redius radius;
+    private AddDistrict district;
+    private AddState state;
 }

@@ -28,6 +28,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(GatewayConstants.API_VERSION)
@@ -46,9 +47,19 @@ public class ResponderController {
 
     @PostMapping(value = GlobalConstants.ON_SEARCH_ENDPOINT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<String> onSearch(@Valid @RequestBody String request, @RequestHeader Map<String, String> headers) throws JsonProcessingException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException {
-        Mono<String> response = null;
-            LOGGER.info("Responder::called::{}", request);
-            response = responderService.processor(request, headers);
-        return response;
+        try {
+            Mono<String> response = null;
+            String requestId = UUID.randomUUID().toString();
+            StackTraceElement trace = Thread.currentThread().getStackTrace()[1];
+            String origin = trace.getClassName() + "." + trace.getMethodName() + ":" + trace.getLineNumber();
+            LOGGER.info("55 ON_SEARCH onSearch() {} | Request ID: {} | Request received on: {}", origin + ":" + Thread.currentThread().getStackTrace()[1].getLineNumber(), requestId, GlobalConstants.ON_SEARCH_ENDPOINT);
+            response = responderService.processor(request, headers, requestId);
+            return response;
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("onSearch :: "+e.getStackTrace());
+
+        }
+        return null;
     }
 }

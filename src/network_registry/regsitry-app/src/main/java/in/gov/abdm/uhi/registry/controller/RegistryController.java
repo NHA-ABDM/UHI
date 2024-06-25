@@ -12,6 +12,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import in.gov.abdm.uhi.registry.dto.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,13 +29,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.gov.abdm.uhi.registry.dto.CitiesDto;
-import in.gov.abdm.uhi.registry.dto.LookupDto;
-import in.gov.abdm.uhi.registry.dto.NetworkRoleDto;
-import in.gov.abdm.uhi.registry.dto.OperatingRegionDto;
-import in.gov.abdm.uhi.registry.dto.ParticipantKeyDto;
-import in.gov.abdm.uhi.registry.dto.SearchDto;
-import in.gov.abdm.uhi.registry.dto.StateDto;
 import in.gov.abdm.uhi.registry.entity.Cities;
 import in.gov.abdm.uhi.registry.entity.Domains;
 import in.gov.abdm.uhi.registry.entity.NetworkParticipant;
@@ -87,24 +81,6 @@ public class RegistryController {
 	
 	LocalDate currentDate = LocalDate.now();
 	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
-	
-	/*public RegistryController(NetworkRoleRepository networkRoleRepository) {
-		this.networkRoleRepository=networkRoleRepository;
-		List<NetworkRole> networkroleData = networkRoleRepository.findAll();
-		 List<NetworkRole> listData=null;
-		if(!networkroleData.isEmpty()) { 
-	      listData = networkroleData.stream().filter(data->(LocalDate.parse(data.getParticipantKey
-		  ().getValidTo(), formatter).isBefore(currentDate.minusDays(1)))&&
-		  data.getStatus().getName().equalsIgnoreCase("SUBSCRIBED")).collect(Collectors.toList());
-		 // System.out.println("____________________"+listData.toString());
-		  }
-		//return listData;
-	}*/
-	
-	
-	
-	
-
 	@GetMapping("/find-all-networkparticipant")
 	public List<NetworkParticipant> findAllNetworkParticipant() {
 		logger.info("RegistryController ::findAllNetworkParticipant()");
@@ -117,6 +93,12 @@ public class RegistryController {
 		return new ResponseEntity<>(networkParticipantService.lookup(lookupDto), HttpStatus.OK);
 	}
 
+	@PostMapping("/lookup/hspa/test")
+	public ResponseEntity<Object> hspaLookupTest(@Validated @RequestBody LookupDto lookupDto) {
+		logger.info("RegistryController ::hspaLookupTest()");
+		return new ResponseEntity<>(networkParticipantService.lookupTest(lookupDto), HttpStatus.OK);
+	}
+
 	@PostMapping("/lookup")
 	public ResponseEntity<Object> lookup(@Validated @RequestBody String searchDto,
 			@RequestHeader Map<String, String> headers) throws JsonProcessingException, NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, NoSuchProviderException, InvalidKeyException {
@@ -124,14 +106,30 @@ public class RegistryController {
 		return new ResponseEntity<>(networkParticipantService.search(searchDto, headers, false), HttpStatus.OK);
 	}
 
+	@PostMapping("/lookup/test")
+	public ResponseEntity<Object> lookupTest(@Validated @RequestBody String searchDto,
+										 @RequestHeader Map<String, String> headers) throws JsonProcessingException, NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, NoSuchProviderException, InvalidKeyException {
+		logger.info("RegistryController ::lookup()");
+		return new ResponseEntity<>(networkParticipantService.searchTest(searchDto, headers, false), HttpStatus.OK);
+	}
+
+
 	@PostMapping("/lookup/internal")
 	public ResponseEntity<Object> lookupInternal(@Validated @RequestBody String searchDto,
 										 @RequestHeader Map<String, String> headers) throws JsonProcessingException, NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, NoSuchProviderException, InvalidKeyException {
 		logger.info("RegistryController ::lookupInternal()");
 		return new ResponseEntity<>(networkParticipantService.search(searchDto, headers, true), HttpStatus.OK);
 	}
-	
-	
+
+	@PostMapping("/lookup/test/internal")
+	public ResponseEntity<Object> lookupInternalTest(@Validated @RequestBody String searchDto,
+												 @RequestHeader Map<String, String> headers) throws JsonProcessingException, NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, NoSuchProviderException, InvalidKeyException {
+		logger.info("RegistryController ::lookupInternalTest()");
+		return new ResponseEntity<>(networkParticipantService.searchTest(searchDto, headers, true), HttpStatus.OK);
+	}
+
+
+
 	@PostMapping("/search")
 	public ResponseEntity<Object> search(@RequestBody SearchDto searchDto) {
 		logger.info("RegistryController ::lookup()");
@@ -150,7 +148,7 @@ public class RegistryController {
 		logger.info("RegistryController ::findAllDomain");
 		return domainServiceImpl.findAllDomain();
 	}
-	
+
 	@GetMapping("/states")
 	public List<StateDto> findAllState() {
 		logger.info("RegistryController ::findAllState");
@@ -161,7 +159,6 @@ public class RegistryController {
 		logger.info("RegistryController ::saveState()");
 		return new ResponseEntity<List<State>>(stateServiceImpl.saveAllState(state), HttpStatus.OK);
 	}
-
 	@PostMapping("/cities")
 	public ResponseEntity<List<Cities>> saveCities(@RequestBody List<Cities> cities) {
 		logger.info("RegistryController ::saveCities()");
@@ -317,6 +314,11 @@ public class RegistryController {
 	public ParticipantKey findParticipantKeyById(@PathVariable Integer id) {
 		return participantKeyService.getOneParticipantKey(id);
 	}
-	
-	
+
+	@GetMapping("/checkSubcriberId/{subscriberId}")
+	public List<SubscriberDto> isSubscriberIdExist(@PathVariable String subscriberId){
+		logger.info("RegistryController ::checkSubscriberId()");
+		return networkRoleService.isSubscriberIdExists(subscriberId);
+	}
+
 }

@@ -45,7 +45,7 @@ public class NetworkRole extends DateAudit {
 	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 	private Domains domain;
 	
-	@OneToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
+		@OneToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
 	@JoinColumn(referencedColumnName = "id",  name = "status_id")
 	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 	private Status status;
@@ -53,14 +53,7 @@ public class NetworkRole extends DateAudit {
 	@OneToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
 	@JoinColumn(referencedColumnName = "id",  name = "network_role_id")
 	private List<OperatingRegion> operatingregion;
-	
-	//@OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-	
-//	@JoinColumn(referencedColumnName = "subscriber_id", name = "subscriber_id")
-	/*@JoinColumns(value = {
-	          @JoinColumn(name = "networkrole_id", referencedColumnName = "id"),
-	          @JoinColumn(name = "subscriber_id", referencedColumnName = "subscriber_id") })*/
-	// @JsonManagedReference
+
 	 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 	 @OneToOne(mappedBy = "networkrole",cascade =CascadeType.ALL,fetch = FetchType.LAZY)
 	 ParticipantKey participantKey;

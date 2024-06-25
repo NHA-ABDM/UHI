@@ -21,7 +21,6 @@ public class ParticipantKeyDto implements Serializable {
 	private Integer networkRoleId;
 	private String subscriberid;
 	@NotBlank(message ="Key id can't be blank!")
-	//@JsonProperty(value = "unique_key_id")
 	private String uniqueKeyId;
 	private String signingPublicKey;
 	private String encrPublicKey;

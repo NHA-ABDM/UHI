@@ -8,6 +8,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 
 import in.gov.abdm.uhi.common.dto.HeaderDTO;
+import in.gov.abdm.uhi.registry.dto.*;
 import in.gov.abdm.uhi.registry.exception.*;
 import in.gov.abdm.uhi.registry.repository.*;
 import in.gov.abdm.uhi.registry.service.NetworkParticipantService;
@@ -24,14 +25,14 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import in.gov.abdm.uhi.registry.dto.ListofSubscribers;
-import in.gov.abdm.uhi.registry.dto.LookupDto;
-import in.gov.abdm.uhi.registry.dto.SearchDto;
-import in.gov.abdm.uhi.registry.dto.SubscriberDto;
 import in.gov.abdm.uhi.registry.entity.NetworkParticipant;
 import in.gov.abdm.uhi.registry.entity.NetworkRole;
 import in.gov.abdm.uhi.registry.entity.OperatingRegion;
 import in.gov.abdm.uhi.registry.entity.ParticipantKey;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 
 @Service
 public class NetworkParticipantServiceImpl implements NetworkParticipantService {
@@ -41,6 +42,10 @@ public class NetworkParticipantServiceImpl implements NetworkParticipantService 
 	private static Random rnd;
 	@Autowired
 	NetworkParticipantRepository networkParticipantRepository;
+
+
+	@PersistenceContext
+	private EntityManager entityManager;
 
 	@Value("${spring.application.isHeaderEnabled}")
 	Boolean isHeaderEnabled;
@@ -77,6 +82,7 @@ public class NetworkParticipantServiceImpl implements NetworkParticipantService 
 		
 		if (participantData == null) {
 			participant.setParticipantId(networkParticipant.getParticipantId());
+			participant.setParticipantName(networkParticipant.getParticipantName());
 		} else {
 			throw new RecordAlreadyExists("Participant id already exist");
 		}
@@ -99,10 +105,10 @@ public class NetworkParticipantServiceImpl implements NetworkParticipantService 
 	@Override
 	public List<NetworkParticipant> findAllNetworkParticipant() {
 		logger.debug("NetworkParticipantServiceImpl::findAllNetworkParticipant()");
-		logger.info("NetworkParticipantServiceImpl::findAllNetworkParticipant()");
 		List<NetworkParticipant> allNetworkParticipantData = networkParticipantRepository.findAll();
+		logger.debug("NetworkParticipantServiceImpl::findAllNetworkParticipant() allNetworkParticipantData :: {} ",allNetworkParticipantData.size());
 		if (allNetworkParticipantData.isEmpty()) {
-			logger.error("NetworkParticipantServiceImpl::findAllNetworkParticipant()");
+			logger.error("NetworkParticipantServiceImpl::findAllNetworkParticipant() empty network participent found");
 			throw new ResourceNotFoundException("No record found!");
 		}
 		return allNetworkParticipantData;
@@ -132,13 +138,33 @@ public class NetworkParticipantServiceImpl implements NetworkParticipantService 
 	}
 
 	@Override
+	public Object lookupTest(LookupDto subscriber) {
+		logger.info("NetworkParticipantServiceImpl::lookup()");
+		ListofSubscribers listsub = new ListofSubscribers();
+		List<SubscriberDto> listofAllRecords = new ArrayList<SubscriberDto>();
+		if(Boolean.TRUE.equals(cityFilter)) {
+			List<Object[]> subscribers = networkParticipantRepository.lookUpByCity(subscriber.getStatus(), subscriber.getDomain(), subscriber.getCountry(), subscriber.getCity());
+			for (Object[] sub : subscribers) {
+				mapToSubscriberTest(listofAllRecords,sub,true);
+			}
+		}
+		else{
+			List<Object[]> subscribers = networkParticipantRepository.lookUpByWithoutCity(subscriber.getStatus(), subscriber.getDomain(), subscriber.getCountry());
+			for (Object[] sub : subscribers) {
+				mapToSubscriberTest(listofAllRecords,sub,true);
+			}
+		}
+		listsub.setMessage(listofAllRecords);
+		return listsub;
+	}
+
+
+	@Override
 	public Object lookup(LookupDto subscriber) {
 		logger.info("NetworkParticipantServiceImpl::lookup()");
 		ListofSubscribers listsub = new ListofSubscribers();
 		List<SubscriberDto> listofAllRecords = new ArrayList<SubscriberDto>();
 		List<NetworkParticipant> findAllRecords = this.findAllNetworkParticipant();
-		// List<List<OperatingRegion>> collect =
-		// map.collect(Collectors.flatMapping(null, null));
 		for (NetworkParticipant networkParticipant : findAllRecords) {
 			List<NetworkRole> networkrole = networkParticipant.getNetworkrole();
 			for (NetworkRole role : networkrole) {
@@ -170,7 +196,6 @@ public class NetworkParticipantServiceImpl implements NetworkParticipantService 
 	private void extractSubscribersBasedOnConditionPassed(boolean opr, List<SubscriberDto> listofAllRecords, NetworkParticipant networkParticipant, NetworkRole role, ParticipantKey participantkey, OperatingRegion opr1, boolean check) {
 		if (opr) {
 			mapToSubscriber(listofAllRecords, networkParticipant, role, participantkey, opr1, check);
-
 		}
 	}
 
@@ -190,15 +215,16 @@ public class NetworkParticipantServiceImpl implements NetworkParticipantService 
 			}
 		}
 
-		List<SubscriberDto> listofAllRecords = new ArrayList<>();
+			List<SubscriberDto> listofAllRecords = new ArrayList<>();
 		List<NetworkParticipant> allRecords = this.findAllNetworkParticipant();
+	logger.debug("195 NetworkParticipantServiceImpl search() allRecords :: {} isInternal :: {} ",allRecords.size(),isInternal);
 		try {
 			searchDto = objectMapper.readValue(stringSearchDto, SearchDto.class);
 			if(Boolean.TRUE.equals(cityFilter)) {
-				filterParticipants(searchDto, listofAllRecords, allRecords);
+				filterParticipants(searchDto, listofAllRecords,allRecords);
 			}
 			else{
-				filterParticipantsExcludingCity(searchDto, listofAllRecords, allRecords);
+				filterParticipantsExcludingCity(searchDto, listofAllRecords,allRecords);
 			}
 		} catch (Exception e) {
 			logger.error("NetworkParticipantServiceImpl::search::{}", e.getMessage());
@@ -206,19 +232,74 @@ public class NetworkParticipantServiceImpl implements NetworkParticipantService 
 		if (listofAllRecords.isEmpty()) {
 			throw new ResourceNotFoundException("No record found!");
 		}
+
 		return listofAllRecords;
+
 	}
+
+	@Override
+	public Object searchTest(String stringSearchDto, @RequestHeader Map<String, String> headers, boolean isInternal) throws JsonProcessingException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException, SignatureException, InvalidKeyException {
+		SearchDto searchDto = null;
+
+		if(!isInternal) {
+			logger.info("{} | Authorization |", headers.get("authorization"));
+			if (!headers.containsKey("authorization") && Boolean.TRUE.equals(isHeaderEnabled)) {
+				throw new AuthHeaderNotFoundError(GlobalConstants.AUTH_HEADER_NOT_FOUND);
+			}
+			HeaderDTO authParams = crypt.extractAuthorizationParams("authorization", headers);
+			if(Boolean.TRUE.equals(isHeaderEnabled)) {
+				verifyHeaders(stringSearchDto, authParams);
+			}
+		}
+
+		List<SubscriberDto> listofAllRecords = new ArrayList<>();
+		logger.debug("195 NetworkParticipantServiceImpl search() allRecords :: {} isInternal :: {} ",isInternal);
+		try {
+			searchDto = objectMapper.readValue(stringSearchDto, SearchDto.class);
+			if(Boolean.TRUE.equals(cityFilter)) {
+				filterParticipantsTest(searchDto, listofAllRecords);
+			}
+			else{
+				filterParticipantsExcludingCityTest(searchDto, listofAllRecords);
+			}
+		} catch (Exception e) {
+			logger.error("NetworkParticipantServiceImpl::search::{}", e.getMessage());
+		}
+		if (listofAllRecords.isEmpty()) {
+			throw new ResourceNotFoundException("No record found!");
+		}
+
+		return listofAllRecords;
+
+	}
+
+
+
+	private void filterParticipantsTest(SearchDto searchDto, List<SubscriberDto> listofAllRecords) {
+	 List<Object[]> subscriberDtos=networkParticipantRepository.findByCity(searchDto.getSubscriberId(),searchDto.getType(),searchDto.getDomain(),searchDto.getCountry(),searchDto.getCity(),searchDto.getPublicKeyId(),searchDto.getSubscriberUrl());
+		for (Object[] sub : subscriberDtos) {
+			mapToSubscriberTest(listofAllRecords,sub,true);
+		}
+		}
+
+	private void filterParticipantsExcludingCityTest(SearchDto searchDto, List<SubscriberDto> listofAllRecords) {
+		List<Object[]> subscriberDtos=networkParticipantRepository.findByExcludingCity(searchDto.getSubscriberId(),searchDto.getType(),searchDto.getDomain(),searchDto.getCountry(),searchDto.getPublicKeyId(),searchDto.getSubscriberUrl());
+		for (Object[] sub : subscriberDtos) {
+		 mapToSubscriberTest(listofAllRecords,sub,false);
+		}
+	}
+
 
 	private void filterParticipants(SearchDto searchDto, List<SubscriberDto> listofAllRecords, List<NetworkParticipant> findAllRecords) {
 		for (NetworkParticipant networkParticipant : findAllRecords) {
 			List<NetworkRole> networkrole = networkParticipant.getNetworkrole();
 			for (NetworkRole role : networkrole) {
 				List<OperatingRegion> operatingregions = role.getOperatingregion();
-
 				ParticipantKey participantkey = role.getParticipantKey();
 				if (role.getParticipantKey() != null && operatingregions!=null) {
 					for (OperatingRegion opr : operatingregions) {
 						if (role.getSubscriberid().equalsIgnoreCase(searchDto.getSubscriberId())
+								&& role.getSubscriberurl().equalsIgnoreCase(searchDto.getSubscriberUrl())
 								&& role.getType().equalsIgnoreCase(searchDto.getType())
 								&& role.getDomain().getCode().equalsIgnoreCase(searchDto.getDomain())
 								&&  opr.getCity().getStdCode().equalsIgnoreCase(searchDto.getCity())
@@ -241,9 +322,11 @@ public class NetworkParticipantServiceImpl implements NetworkParticipantService 
 				if (role.getParticipantKey() != null && operatingregions!=null) {
 					for (OperatingRegion opr : operatingregions) {
 						if (role.getSubscriberid().equalsIgnoreCase(searchDto.getSubscriberId())
+								&& role.getSubscriberurl().equalsIgnoreCase(searchDto.getSubscriberUrl())
 								&& role.getType().equalsIgnoreCase(searchDto.getType())
 								&& role.getDomain().getCode().equalsIgnoreCase(searchDto.getDomain())
-								&& opr.getCountry().equalsIgnoreCase(searchDto.getCountry())&&participantkey.getUniqueKeyId().equals(searchDto.getPublicKeyId())) {
+								&& opr.getCountry().equalsIgnoreCase(searchDto.getCountry())
+								&&participantkey.getUniqueKeyId().equals(searchDto.getPublicKeyId())) {
 							mapToSubscriber(listofAllRecords, networkParticipant, role, participantkey, opr,false);
 						}
 					}
@@ -264,6 +347,27 @@ public class NetworkParticipantServiceImpl implements NetworkParticipantService 
 				throw new HeaderVerificationFailedError(GatewayError.HEADER_VERFICATION_FAILED.getMessage());
 			}
 	}
+
+
+	private void mapToSubscriberTest(List<SubscriberDto> listofAllRecords,Object[] sub,boolean check){
+			SubscriberDto dto = new SubscriberDto();
+			dto.setSubscriber_id((String) sub[0]);
+			dto.setParticipant_id((String) sub[1]);
+			dto.setCountry((String) sub[2]);
+			dto.setCity((String) sub[3]);
+			dto.setDomain((String) sub[4]);
+			dto.setEncr_public_key((String) sub[5]);
+			dto.setStatus((String) sub[7]);
+			dto.setType((String) sub[8]);
+			dto.setPubKeyId((String) sub[9]);
+		    dto.setValid_to((String) sub[10]);
+			dto.setSubscriber_url((String)sub[11]);
+		    if(check)
+			dto.setSigning_public_key((String)sub[12]);
+		    listofAllRecords.add(dto);
+
+		}
+
 
 	private void mapToSubscriber(List<SubscriberDto> listofAllRecords, NetworkParticipant networkParticipant,
 			NetworkRole role, ParticipantKey participantkey, OperatingRegion opr,boolean check) {
@@ -289,12 +393,8 @@ public class NetworkParticipantServiceImpl implements NetworkParticipantService 
 	@Override
 	public Object GatewaySearch(SearchDto searchDto) {
 		logger.info("NetworkParticipantServiceImpl::lookup()");
-		//ListofSubscribers listsub = new ListofSubscribers();
-		//SubscriberDto listofAllRecords = new SubscriberDto();
 		List<NetworkParticipant> findAllRecords = this.findAllNetworkParticipant();
 		SubscriberDto subscriberData = new SubscriberDto();
-		// List<List<OperatingRegion>> collect =
-		// map.collect(Collectors.flatMapping(null, null));
 		for (NetworkParticipant networkParticipant : findAllRecords) {
 			List<NetworkRole> networkrole = networkParticipant.getNetworkrole();
 			for (NetworkRole role : networkrole) {

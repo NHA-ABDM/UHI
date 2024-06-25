@@ -41,16 +41,6 @@ public class StateServiceImpl implements StateService {
 
 	@Override
 	public List<State> saveAllState(List<State> stateList) {
-		// List<List<Cities>> collect =
-		// stateList.stream().map(x->x.getCities()).collect(Collectors.toList());
-
-		// Cities cities=null;
-		/*
-		 * for (State s: stateList) { List<Cities> cityData = s.getCities(); for(Cities
-		 * c:cityData) { c.getStdCode(); String stdCode = c.getStdCode(); stdCode =
-		 * "std:0" + stdCode; c.setStdCode(stdCode); s.setCities(cityData); }
-		 * //stateList.add(st); }
-		 */
 		try {
 		return stateRepository.saveAll(stateList);
 		}catch (Exception e) {

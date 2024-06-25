@@ -32,6 +32,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(GatewayConstants.API_VERSION)
@@ -52,16 +53,18 @@ public class RequesterController {
     @PostMapping(value = GlobalConstants.SEARCH_ENDPOINT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Mono<String>> search(@Valid @RequestBody String request,
                                                @RequestHeader Map<String, String> headers) throws JsonProcessingException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException {
-
+        String requestId= UUID.randomUUID().toString();
+        StackTraceElement trace = Thread.currentThread().getStackTrace()[1];
+        String origin = trace.getClassName()+"."+trace.getMethodName();
+        LOGGER.info("59 SEARCH ENDPOINT search() {} | Request ID: {} | Request received on: {} | request {} ", origin+":"+Thread.currentThread().getStackTrace()[1].getLineNumber(), requestId, GlobalConstants.SEARCH_ENDPOINT);
         Mono<String> response = null;
         String validatorResp;
             validatorResp = JsonValidator.validateJson(request, "search-schema.json");
             if (validatorResp.contains("NACK")) {
+                LOGGER.debug("SEARCH ENDPOINT search() {} | Request ID: {} | Failed: Schema Validation: {}", origin+":"+Thread.currentThread().getStackTrace()[1].getLineNumber(), requestId, validatorResp);
                 return ResponseEntity.badRequest().body(Mono.just(validatorResp));
             }
-
-            LOGGER.info("Requester::called :: {}", request);
-            response = requesterService.processor(request, headers);
+            response = requesterService.processor(request, headers, requestId);
         return ResponseEntity.ok(response);
     }
 }

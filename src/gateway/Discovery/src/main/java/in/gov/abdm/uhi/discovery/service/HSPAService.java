@@ -27,6 +27,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -61,28 +62,31 @@ public class HSPAService {
         this.objectMapper = objectMapper;
     }
 
-    Mono<String> checklookupforHSPAs(String res, Request req) throws JsonProcessingException {
+    Mono<String> checklookupforHSPAs(String res, Request req, String requestId) throws JsonProcessingException {
+        StackTraceElement trace = Thread.currentThread().getStackTrace()[1];
+        String origin = trace.getClassName()+"."+trace.getMethodName();
         if (res.contains("Failed")) {
             Mono<String> resp = gatewayUtil.generateNack(GlobalConstants.LOOKUP_FAILED,
                     GatewayError.LOOKUP_FAILED.getCode(), req);
-            LOGGER.error("{} | {}", req.getContext().getMessageId(), resp.log());
+            LOGGER.error("Failed: {} | Request ID: {} | Message ID: {} | Log: {}", origin+":"+Thread.currentThread().getStackTrace()[1].getLineNumber(), requestId, req.getContext().getMessageId(), resp.log());
             return resp;
         } else {
+            LOGGER.error("73 HSPAService checklookupforHSPAs() Success: {} | Request ID: {} | Message ID: {} | HSPA Lookup success : {} getLocation {}", origin+":"+Thread.currentThread().getStackTrace()[1].getLineNumber(), requestId, req.getContext().getMessageId(), res,req.getMessage().getIntent().getLocation());
             Mono<String> data = Mono.just(res);
             return data.flatMapIterable(p -> extractURIListNew(p, req))
-                    .flatMap(uris ->
-                            {
-                                try {
-                                    return sendSignalToHSPANew(uris, req);
-                                } catch (NoSuchAlgorithmException | InvalidKeySpecException | NoSuchProviderException |
-                                         JsonProcessingException e) {
-                                    gatewayUtil.logErrorMessageForKibana(req,e.getMessage(), GatewayError.INVALID_KEY.getCode());
-                                    return Mono.error(new InvalidKeyError(GatewayError.INVALID_KEY.getMessage()));
-                                }
-                            }
-
-                    ).then(Mono.just(gatewayUtil.generateAck()))
-                    .log();
+            .flatMap(uris ->
+                {
+                    try {
+                        LOGGER.error("79 HSPAService checklookupforHSPAs() {} | Request ID: {} | Message ID: {} | Sending signal to HSPA : {} getLocation {} ", origin+":"+Thread.currentThread().getStackTrace()[1].getLineNumber(), requestId, req.getContext().getMessageId(), uris,req.getMessage().getIntent().getLocation());
+                        return sendSignalToHSPANew(uris, req);
+                    } catch (NoSuchAlgorithmException | InvalidKeySpecException | NoSuchProviderException |
+                             JsonProcessingException e) {
+                        LOGGER.error("Error: {} | Request ID: {} | Message ID: {} | Exception: {}", origin+":"+Thread.currentThread().getStackTrace()[1].getLineNumber(), requestId, req.getContext().getMessageId(), e.getMessage());
+                        gatewayUtil.logErrorMessageForKibana(req,e.getMessage(), GatewayError.INVALID_KEY.getCode());
+                        return Mono.error(new InvalidKeyError(GatewayError.INVALID_KEY.getMessage()));
+                    }
+                }
+            ).then(Mono.just(gatewayUtil.generateAck())).log();
         }
     }
 
@@ -94,11 +98,17 @@ public class HSPAService {
             listOfSubscribers = appConfig.objectMapper().readValue(request, ListofSubscribers.class);
 
             listOfSubscribers.getMessage().forEach(data -> {
+
                 if (GlobalConstants.HSPA.equalsIgnoreCase(data.getType())) {
                     listValue.add(data.getSubscriber_url() + "|" + data.getSubscriber_id());
-                    LOGGER.info("{} | {}", req.getContext().getMessageId(), data);
+                    LOGGER.info("103 extractURIListNew :: {} | {}", req.getContext().getMessageId(), data);
                 }
             });
+            if("Online".equalsIgnoreCase(req.getMessage().getIntent().getFulfillment().getType())){
+                List<String> res = new ArrayList<>(new HashSet<>(listValue));
+                LOGGER.info("108 extractURIListNew :: {} count {} ",res,res.size());
+                return res;
+            }
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
         }
@@ -106,18 +116,21 @@ public class HSPAService {
     }
 
     private Mono<String> sendSignalToHSPANew(String uriSubsid, Request req) throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException, JsonProcessingException {
-
-        String stringRequest = objectMapper.writeValueAsString(req);
-        String headers = getHspaHeaders(stringRequest);
-        String headersString = String.valueOf(headers);
-
         String[] uriSubsidArr = uriSubsid.split("\\|");
-        String uri = uriSubsidArr[0];
+        String uri = uriSubsidArr[0].strip();
         String subsId = uriSubsidArr[1];
 
         req.getContext().setProviderId(subsId);
+        req.getContext().setProviderId(subsId);
 
-        LOGGER.info("{} | RequesterService::info::sending Request to HSPA::{}, URL::{}", req.getContext().getMessageId(), subsId, uri);
+        String stringRequest = objectMapper.writeValueAsString(req);
+
+        LOGGER.info("114 HSPAService sendSignalToHSPANew() getTransactionId {} | RequesterService::info::sending Request to stringRequest::{}, req::{}", req.getContext().getTransactionId(), stringRequest, req.getMessage().getIntent().getLocation());
+        String headers = getHspaHeaders(stringRequest);
+        String headersString = String.valueOf(headers);
+        
+
+        LOGGER.info("124 HSPAService sendSignalToHSPANew() {} | RequesterService::info::sending Request to HSPA::{}, URL::{} | transactionid {} ", req.getContext().getMessageId(), subsId, uri, req.getContext().getTransactionId());
 
         Mono<String> response = null;
         response = getWebClient.post().uri(uri + "/search")
@@ -132,22 +145,20 @@ public class HSPAService {
                                 .bodyToMono(String.class).flatMap(error -> Mono.error(new GatewayException(error))))
                 .bodyToMono(String.class)
                 .doOnNext(p -> LOGGER.info(
-                        "created_on:{}, transaction_id:{}, message_id:{}, consumer_id:{}, provider_id:{}, domain:{}, city:{}, action:{}, Response:{}",
+                        "139 HSPAService sendSignalToHSPANew() created_on:{}, transaction_id:{}, message_id:{}, consumer_id:{}, provider_id:{}, domain:{}, city:{}, action:{}",
                         new Timestamp(System.currentTimeMillis()), req.getContext().getTransactionId(),
                         req.getContext().getMessageId(), req.getContext().getConsumerId(), subsId,
-                        req.getContext().getDomain(), req.getContext().getCity(), req.getContext().getAction(), p))
+                        req.getContext().getDomain(), req.getContext().getCity(), req.getContext().getAction()))
                 .onErrorResume(error -> {
                     gatewayUtil.logErrorMessageForKibana(req,error.getMessage(), GatewayError.INTERNAL_SERVER_ERROR.getCode());
                     return gatewayUtil.generateNack("HSPA exception",
                             GatewayError.HSPA_FAILED.getCode(), req);
 
                 }).log();
-
         return response;
     }
 
     public String getHspaHeaders(String reqString) throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException, JsonProcessingException {
         return crypt.generateAuthorizationParams(gatewaySubsId, gatewayPubKeyId, reqString, Crypt.getPrivateKey("Ed25519", Base64.getDecoder().decode(gatewayPrivateKey)));
-
     }
 }

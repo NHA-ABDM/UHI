@@ -26,7 +26,11 @@ public interface NetworkParticipantService {
 	public void deleteNetworkParticipant(Integer id);
 	public NetworkParticipant updateNetworkParticipant(NetworkParticipant networkParticipant);
 	public Object lookup(LookupDto subscriber);
+	public Object lookupTest(LookupDto subscriber);
+
 	public Object search(String stringSearchDto, @RequestHeader Map<String, String> headers, boolean isInternal) throws JsonProcessingException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException, SignatureException, InvalidKeyException;
+	public Object searchTest(String stringSearchDto, @RequestHeader Map<String, String> headers, boolean isInternal) throws JsonProcessingException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException, SignatureException, InvalidKeyException;
+
 	public Object GatewaySearch(SearchDto searchDto);
 
 }

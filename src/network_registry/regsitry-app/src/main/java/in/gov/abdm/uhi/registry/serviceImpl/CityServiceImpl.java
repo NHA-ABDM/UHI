@@ -48,9 +48,6 @@ public class CityServiceImpl implements CityService {
 		for (Cities ct : cities) {
 			for (State st : allState) {
 				if (st.getName().equalsIgnoreCase((ct.getState().getName()))) {
-				/*	ct.getStdCode(); String stdCode = ct.getStdCode(); 
-					stdCode ="std:0" + stdCode; 
-					ct.setStdCode(stdCode);*/
 					State state = entityManager.getReference(State.class, st.getId());
 					ct.setState(state);
 				}
