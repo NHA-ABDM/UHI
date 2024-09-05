@@ -1,0 +1,9 @@
+FROM openjdk:17.0-jdk
+RUN mkdir /APP
+WORKDIR /APP
+COPY target/openMrsWrapper-0.0.1-SNAPSHOT.jar  /APP/openMrsWrapper-0.0.1-SNAPSHOT.jar
+COPY opentelemetry-javaagent.jar /APP/opentelemetry-javaagent.jar
+EXPOSE 8083
+RUN chmod -R 777 /APP
+ENV JAVA_TOOL_OPTIONS "-javaagent:/APP/opentelemetry-javaagent.jar"
+ENTRYPOINT ["java","-jar","/APP/openMrsWrapper-0.0.1-SNAPSHOT.jar"]

@@ -1,0 +1,459 @@
+{
+	"info": {
+		"_postman_id": "6622f873-1185-40c0-aa46-220e7a9b5594",
+		"name": "MrsWrapper",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11132902"
+	},
+	"item": [
+		{
+			"name": "AddProvider",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Dr. Mavit Mav\",\r\n    \"person\": {\r\n        \"gender\": \"M\",\r\n        \"age\": 24,\r\n        \"names\": [\r\n            {\r\n                \"givenName\": \"Dr. Mavi\",\r\n                \"familyName\": \"Mav\"\r\n            }\r\n        ]\r\n    },\r\n    \"identifier\": \"mavit.mav@hpr.abdm\",\r\n    \"attributes\": [\r\n        {\r\n            \"attributeType\": \"8dfd2396-1cbb-4cfc-aa35-1823a235f8ca\",\r\n            \"value\": \"MBBS\"\r\n        },\r\n        {\r\n            \"attributeType\": \"5821548e-a7da-4de5-9782-80e2509a75b3\",\r\n            \"value\": \"17.0\"\r\n        },\r\n        {\r\n            \"attributeType\": \"2e785d23-11ba-4fd9-b62a-b87ac7e0a3d1\",\r\n            \"value\": \"swanand.marathe@hpr.abdm\"\r\n        },\r\n        {\r\n            \"attributeType\": \"23146ee3-3cad-4cd1-965f-d4b3a7ab4a7f\",\r\n            \"value\": \"12345678912\"\r\n        },\r\n        {\r\n            \"attributeType\": \"68b815fc-0829-44ed-b5d3-e428f40b1187\",\r\n            \"value\": \"English, Hindi, Marathi\"\r\n        },\r\n        {\r\n            \"attributeType\": \"a40ea080-df98-4cf2-8637-fac3c820060b\",\r\n            \"value\": \"Cardiologist\"\r\n        }\r\n    ],\r\n    \"retired\": false\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{MrsWrapper_sandbox}}/providers",
+					"host": [
+						"{{MrsWrapper_sandbox}}"
+					],
+					"path": [
+						"providers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add attribute to specified doctor",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"attributeType\": \"a0fcdff2-279d-46b5-bed9-86904716614b\",\r\n  \"value\": \"300\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{MrsWrapper_sandbox}}/providers/25894056-1997-415e-9b12-d10222ff5553/attribute",
+					"host": [
+						"{{MrsWrapper_sandbox}}"
+					],
+					"path": [
+						"providers",
+						"25894056-1997-415e-9b12-d10222ff5553",
+						"attribute"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updateAttribute",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"attributeType\": \"a0fcdff2-279d-46b5-bed9-86904716614b\",\r\n    \"value\": \"200\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{MrsWrapper_sandbox}}/providers/22c73a0e-11f9-4089-9e11-51f06f8b8792/attribute/4136ebd5-2a5c-4d46-9635-5a26110c14b3",
+					"host": [
+						"{{MrsWrapper_sandbox}}"
+					],
+					"path": [
+						"providers",
+						"22c73a0e-11f9-4089-9e11-51f06f8b8792",
+						"attribute",
+						"4136ebd5-2a5c-4d46-9635-5a26110c14b3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deleteAttribute",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"attributeType\": \"5821548e-a7da-4de5-9782-80e2509a75b3\",\r\n    \"value\": \"200\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{MrsWrapper_sandbox}}/providers/eb5b68b9-8c65-4e5b-96d3-03f7bbb5b674/attribute/a1356f86-0ddf-48cb-9ccb-b1a6999d1218",
+					"host": [
+						"{{MrsWrapper_sandbox}}"
+					],
+					"path": [
+						"providers",
+						"eb5b68b9-8c65-4e5b-96d3-03f7bbb5b674",
+						"attribute",
+						"a1356f86-0ddf-48cb-9ccb-b1a6999d1218"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getProviders",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{MrsWrapper_sandbox}}/providers?v=full&q=swanand marathe",
+					"host": [
+						"{{MrsWrapper_sandbox}}"
+					],
+					"path": [
+						"providers"
+					],
+					"query": [
+						{
+							"key": "v",
+							"value": "full"
+						},
+						{
+							"key": "q",
+							"value": "swanand marathe"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getProviderAttributeTypes",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{MrsWrapper_sandbox}}/providers/attributes",
+					"host": [
+						"{{MrsWrapper_sandbox}}"
+					],
+					"path": [
+						"providers",
+						"attributes"
+					],
+					"query": [
+						{
+							"key": "v",
+							"value": "full",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetAppointmentStatusHistory",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{MrsWrapper_sandbox}}/appointments/statushistory?v=full",
+					"host": [
+						"{{MrsWrapper_sandbox}}"
+					],
+					"path": [
+						"appointments",
+						"statushistory"
+					],
+					"query": [
+						{
+							"key": "v",
+							"value": "full"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetListOfScheduledAppointments",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{MrsWrapper_sandbox}}/appointments?limit=100&q=&provider=67cb7692-dd7e-4bd8-8d84-3fd5f5ffb8dc&v=default&index=200",
+					"host": [
+						"{{MrsWrapper_sandbox}}"
+					],
+					"path": [
+						"appointments"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "100"
+						},
+						{
+							"key": "q",
+							"value": ""
+						},
+						{
+							"key": "provider",
+							"value": "67cb7692-dd7e-4bd8-8d84-3fd5f5ffb8dc"
+						},
+						{
+							"key": "v",
+							"value": "default"
+						},
+						{
+							"key": "index",
+							"value": "200"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updateAppointmentStatus",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"status\": \"CANCELLED\",\r\n  \"cancelReason\": \"Booked by Patient\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{MrsWrapper_sandbox}}/appointments/bc74f2c2-5590-4492-94ff-a5a3eedc36e5",
+					"host": [
+						"{{MrsWrapper_sandbox}}"
+					],
+					"path": [
+						"appointments",
+						"bc74f2c2-5590-4492-94ff-a5a3eedc36e5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getAvailableAppointments",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{MrsWrapper_sandbox}}/appointments/timeslot?v=full&limit=1&startIndex=100",
+					"host": [
+						"{{MrsWrapper_sandbox}}"
+					],
+					"path": [
+						"appointments",
+						"timeslot"
+					],
+					"query": [
+						{
+							"key": "v",
+							"value": "full"
+						},
+						{
+							"key": "limit",
+							"value": "1"
+						},
+						{
+							"key": "startIndex",
+							"value": "100"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getAvailableTimeSlots",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{MrsWrapper_sandbox}}/slots?fromDate=2022-08-29T00:00:00&toDate=2022-09-04T23:59:59&limit=1&q=&provider=b69a2d0c-53d6-44d4-85fa-a1df09de7bc6&appointmentType=b7f07cc1-1147-48b7-8585-0df6bd15f606&v=default&includeFull=true",
+					"host": [
+						"{{MrsWrapper_sandbox}}"
+					],
+					"path": [
+						"slots"
+					],
+					"query": [
+						{
+							"key": "fromDate",
+							"value": "2022-08-29T00:00:00"
+						},
+						{
+							"key": "toDate",
+							"value": "2022-09-04T23:59:59"
+						},
+						{
+							"key": "limit",
+							"value": "1"
+						},
+						{
+							"key": "q",
+							"value": ""
+						},
+						{
+							"key": "provider",
+							"value": "b69a2d0c-53d6-44d4-85fa-a1df09de7bc6"
+						},
+						{
+							"key": "appointmentType",
+							"value": "b7f07cc1-1147-48b7-8585-0df6bd15f606"
+						},
+						{
+							"key": "v",
+							"value": "default"
+						},
+						{
+							"key": "includeFull",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AddAppointmentSlot",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"amod joshi\",\r\n  \"person\": \"9da4883d-712e-4d72-b0a4-31416afc0c29\",\r\n  \"identifier\": \"amod@hpr.abdm\",\r\n  \"retired\": false\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{MrsWrapper_sandbox}}/appointments?v=full",
+					"host": [
+						"{{MrsWrapper_sandbox}}"
+					],
+					"path": [
+						"appointments"
+					],
+					"query": [
+						{
+							"key": "v",
+							"value": "full"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SlotAdd",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"startDate\": \"2022-08-04T14:00:00\",\r\n    \"endDate\": \"2022-08-04T14:15:00\",\r\n    \"provider\": \"b69a2d0c-53d6-44d4-85fa-a1df09de7bc6\",\r\n    \"location\": \"58c57d25-8d39-41ab-8422-108a0c277d98\",\r\n    \"types\": [\r\n        \"b7f07cc1-1147-48b7-8585-0df6bd15f606\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{MrsWrapper_sandbox}}/slot",
+					"host": [
+						"{{MrsWrapper_sandbox}}"
+					],
+					"path": [
+						"slot"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete Appointment",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"context\": {\r\n        \"domain\": \"nic2004:85111\",\r\n        \"country\": \"IND\",\r\n        \"city\": \"std:080\",\r\n        \"action\": \"cancel\",\r\n        \"core_version\": \"0.7.1\",\r\n        \"consumer_id\": \"eua-nha\",\r\n        \"consumer_uri\": \"http://100.65.158.41:8901/api/v1/euaService\",\r\n        \"message_id\": \"8cc284a0-2211-11ed-b310-9dd00700a3a8\",\r\n        \"timestamp\": \"2022-08-22T11:57:09.672291Z\",\r\n        \"transaction_id\": \"8cc284a0-2211-11ed-b310-9dd00700a3a8\"\r\n    },\r\n    \"message\": {\r\n        \"order\": {\r\n            \"id\": \"3499b290-d47b-4930-83f9-c5c0558b209e\",\r\n            \"state\": \"CANCELLED\",\r\n            \"fulfillment\": {\r\n                \"tags\": {\r\n                    \"@abdm/gov.in/cancelledby\": \"doctor\"\r\n                }\r\n            }\r\n        }\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{MrsWrapper_sandbox}}/cancel/appointment",
+					"host": [
+						"{{MrsWrapper_sandbox}}"
+					],
+					"path": [
+						"cancel",
+						"appointment"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "MrsWrapper_sandbox",
+			"value": "https://uhihspasbx.abdm.gov.in",
+			"type": "string"
+		}
+	]
+}
