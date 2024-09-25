@@ -24,7 +24,6 @@ import '../../../widgets/src/square_rounded_button_with_icon.dart';
 import '../../../widgets/src/vertical_spacing.dart';
 import 'package:dotted_border/dotted_border.dart';
 
-import '../../dashboard/src/dashboard_page.dart';
 
 class TakeUploadPhotoPage extends StatefulWidget {
   const TakeUploadPhotoPage({Key? key}) : super(key: key);
@@ -149,7 +148,7 @@ class _TakeUploadPhotoPageState extends State<TakeUploadPhotoPage> {
           ),
           Column(
             children: [
-              Spacing(
+              const Spacing(
                 isWidth: false,
                 size: 16,
               ),
@@ -211,7 +210,7 @@ class _TakeUploadPhotoPageState extends State<TakeUploadPhotoPage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(child: Text(pickedFile!.name, style: AppTextStyle.textLightStyle(fontSize: 14, color: AppColors.tileColors),maxLines: 2,)),
-            Spacing(),
+            const Spacing(),
             TextButton(
               onPressed: () {
                 setState(() {

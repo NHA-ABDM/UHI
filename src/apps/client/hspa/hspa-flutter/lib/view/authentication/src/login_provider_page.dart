@@ -6,19 +6,13 @@ import '../../../utils/src/validator.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 import '../../../constants/src/strings.dart';
-import '../../../constants/src/web_urls.dart';
 import '../../../controller/src/auth_controller.dart';
 import '../../../model/response/src/provider_response.dart';
 import '../../../model/src/doctor_profile.dart';
 import '../../../theme/src/app_colors.dart';
 import '../../../theme/src/app_text_style.dart';
-import '../../../utils/src/utility.dart';
 import '../../../widgets/src/square_rounded_button_with_icon.dart';
 import '../../../widgets/src/vertical_spacing.dart';
-import '../../dashboard/src/dashboard_page.dart';
-import '../../profile/src/doctor_profile_page.dart';
-import '../../profile/src/profile_not_found_page.dart';
-import 'register_provider_page.dart';
 
 class LoginProviderPage extends StatefulWidget {
   const LoginProviderPage({Key? key}) : super(key: key);

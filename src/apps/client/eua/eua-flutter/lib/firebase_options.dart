@@ -69,7 +69,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '179299234068',
     projectId: 'abdm-uhi',
     storageBucket: 'abdm-uhi.appspot.com',
-    iosClientId: '179299234068-b5d97a2l1n6eodujoc5eq1mupfofjnd4.apps.googleusercontent.com',
+    iosClientId:
+        '179299234068-b5d97a2l1n6eodujoc5eq1mupfofjnd4.apps.googleusercontent.com',
     iosBundleId: 'in.abdm.gov.uhi.eua',
   );
 }

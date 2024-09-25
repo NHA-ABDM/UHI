@@ -1,10 +1,8 @@
-import 'dart:convert';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 
 class RoomScreen extends StatefulWidget {
-  RoomScreen({
+  const RoomScreen({
     Key? key,
   }) : super(key: key);
 
@@ -55,9 +53,9 @@ class _RoomScreenState extends State<RoomScreen> {
             child: Container(
               width: width * 0.9,
               height: height * 0.075,
-              padding: EdgeInsets.only(left: 15, right: 15),
+              padding: const EdgeInsets.only(left: 15, right: 15),
               decoration: BoxDecoration(
-                color: Color(0xFF264488),
+                color: const Color(0xFF264488),
                 borderRadius: BorderRadius.circular(15),
               ),
               child: Row(
@@ -85,7 +83,7 @@ class _RoomScreenState extends State<RoomScreen> {
                       Navigator.of(context).pop();
                     },
                     child: Container(
-                      padding: EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(8),
                       decoration: const BoxDecoration(
                         shape: BoxShape.circle,
                         color: Colors.red,

@@ -6,11 +6,11 @@ import 'package:hspa_app/constants/src/get_pages.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'src/call_sample/call_sample.dart';
-import 'src/call_sample/data_channel_sample.dart';
 import 'src/route_item.dart';
 
 class UHIWebRTC extends StatefulWidget {
+  const UHIWebRTC({Key? key}) : super(key: key);
+
   @override
   _UHIWebRTCState createState() => _UHIWebRTCState();
 }
@@ -38,9 +38,9 @@ class _UHIWebRTCState extends State<UHIWebRTC> {
       ListTile(
         title: Text(item.title),
         onTap: () => item.push(context),
-        trailing: Icon(Icons.arrow_right),
+        trailing: const Icon(Icons.arrow_right),
       ),
-      Divider()
+      const Divider()
     ]);
   }
 
@@ -48,7 +48,7 @@ class _UHIWebRTCState extends State<UHIWebRTC> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Flutter-WebRTC example'),
+          title: const Text('Flutter-WebRTC example'),
         ),
         body: ListView.builder(
             shrinkWrap: true,
@@ -80,7 +80,9 @@ class _UHIWebRTCState extends State<UHIWebRTC> {
               ? DataChannelSample(host: _server)
               : CallSample(host: _server));*/
 
-          Get.toNamed(_datachannel ? AppRoutes.callSample : AppRoutes.callSample, arguments: {'host': _server});
+          Get.toNamed(
+              _datachannel ? AppRoutes.callSample : AppRoutes.callSample,
+              arguments: {'host': _server});
           // Navigator.push(
           //     context,
           //     MaterialPageRoute(
@@ -109,12 +111,12 @@ class _UHIWebRTCState extends State<UHIWebRTC> {
               textAlign: TextAlign.center,
             ),
             actions: <Widget>[
-              FlatButton(
+              TextButton(
                   child: const Text('CANCEL'),
                   onPressed: () {
                     Navigator.pop(context, DialogDemoAction.cancel);
                   }),
-              FlatButton(
+              TextButton(
                   child: const Text('CONNECT'),
                   onPressed: () {
                     debugPrint('In web rtc connect');

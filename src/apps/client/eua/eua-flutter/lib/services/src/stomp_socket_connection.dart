@@ -2,13 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:http/http.dart';
 import 'package:stomp_dart_client/stomp.dart';
 import 'package:stomp_dart_client/stomp_config.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
 import 'package:uhi_flutter_app/constants/constants.dart';
 import 'package:uhi_flutter_app/model/response/response.dart';
-import 'package:uhi_flutter_app/model/response/src/response_model.dart';
 
 class StompSocketConnection {
   StompClient? stompClient;

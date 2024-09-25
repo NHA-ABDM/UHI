@@ -8,9 +8,6 @@ import 'package:hspa_app/widgets/src/spacing.dart';
 
 import '../../../constants/src/asset_images.dart';
 import '../../../theme/src/app_text_style.dart';
-import '../../../utils/src/utility.dart';
-import '../../authentication/src/login_provider_page.dart';
-import '../../authentication/src/mobile_number_auth_page.dart';
 
 class UserRolePage extends StatefulWidget {
   const UserRolePage({Key? key}) : super(key: key);
@@ -43,20 +40,20 @@ class _UserRolePageState extends State<UserRolePage> {
       child: ListView(
         children: [
 
-          Spacing(isWidth: false, size: 20,),
+          const Spacing(isWidth: false, size: 20,),
           buildUserRoleWidget(assetIcon: AssetImages.doctorWithBorder,
               userRole: AppStrings().doctor,
               onPressed: (){
             //Get.to(const MobileNumberAuthPage());
           }),
-          Spacing(isWidth: false, size: 30,),
+          const Spacing(isWidth: false, size: 30,),
           buildUserRoleWidget(assetIcon: AssetImages.therapistWithBorder,
               userRole: AppStrings().therapist,
               isUpcoming: true,
               onPressed: (){
             //Get.to(const MobileNumberAuthPage());
             }, isCenter: true),
-          Spacing(isWidth: false, size: 30,),
+          const Spacing(isWidth: false, size: 30,),
           buildUserRoleWidget(assetIcon: AssetImages.psychologistWithBorder,
               userRole: AppStrings().psychologist,
               isUpcoming: true,
@@ -64,7 +61,7 @@ class _UserRolePageState extends State<UserRolePage> {
             //Get.to(const MobileNumberAuthPage());
             },
               isCenter: true),
-          Spacing(isWidth: false, size: 30,),
+          const Spacing(isWidth: false, size: 30,),
           buildUserRoleWidget(assetIcon: AssetImages.othersWithBorder,
               userRole: AppStrings().others,
               isUpcoming: true,
@@ -72,7 +69,7 @@ class _UserRolePageState extends State<UserRolePage> {
             //Get.to(const MobileNumberAuthPage());
             },
               isCenter: true),
-          Spacing(isWidth: false, size: 20,),
+          const Spacing(isWidth: false, size: 20,),
         ],
       ),
     );
@@ -101,7 +98,7 @@ class _UserRolePageState extends State<UserRolePage> {
             ),
           ],
         ),
-        Spacing(isWidth: false, size: 8,),
+        const Spacing(isWidth: false, size: 8,),
         SizedBox(width: 180,
           child: customSquareElevatedButton(
               text: userRole,
@@ -122,7 +119,7 @@ class _UserRolePageState extends State<UserRolePage> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         SizedBox(height: 120, width: 120, child:  Image.asset(assetIcon),),
-        Spacing(isWidth: false, size: 8,),
+        const Spacing(isWidth: false, size: 8,),
         SizedBox(width: 240,
           child: customSquareElevatedButton(
               text: userRole,

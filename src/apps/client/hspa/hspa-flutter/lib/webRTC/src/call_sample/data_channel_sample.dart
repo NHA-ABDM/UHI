@@ -8,7 +8,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 class DataChannelSample extends StatefulWidget {
   static String tag = 'call_sample';
   final String host;
-  DataChannelSample({required this.host});
+  const DataChannelSample({Key? key, required this.host}) : super(key: key);
 
   @override
   _DataChannelSampleState createState() => _DataChannelSampleState();
@@ -73,8 +73,8 @@ class _DataChannelSampleState extends State<DataChannelSample> {
               _session = session;
               _inCalling = true;
             });
-            _timer =
-                Timer.periodic(Duration(seconds: 1), _handleDataChannelTest);
+            _timer = Timer.periodic(
+                const Duration(seconds: 1), _handleDataChannelTest);
             break;
           }
         case CallState.callStateBye:
@@ -129,10 +129,10 @@ class _DataChannelSampleState extends State<DataChannelSample> {
             ? peer['name'] + ', ID: ${peer['id']} ' + ' [Your self]'
             : peer['name'] + ', ID: ${peer['id']} '),
         onTap: () => _invitePeer(context, peer['id']),
-        trailing: Icon(Icons.sms),
+        trailing: const Icon(Icons.sms),
         subtitle: Text('[' + peer['user_agent'] + ']'),
       ),
-      Divider()
+      const Divider()
     ]);
   }
 
@@ -142,9 +142,9 @@ class _DataChannelSampleState extends State<DataChannelSample> {
       appBar: AppBar(
         title: Text('Data Channel Sample' +
             (_selfId != null ? ' [Your ID ($_selfId)] ' : '')),
-        actions: <Widget>[
+        actions: const <Widget>[
           IconButton(
-            icon: const Icon(Icons.settings),
+            icon: Icon(Icons.settings),
             onPressed: null,
             tooltip: 'setup',
           ),
@@ -154,7 +154,7 @@ class _DataChannelSampleState extends State<DataChannelSample> {
           ? FloatingActionButton(
               onPressed: _hangUp,
               tooltip: 'Hangup',
-              child: Icon(Icons.call_end),
+              child: const Icon(Icons.call_end),
             )
           : null,
       body: _inCalling

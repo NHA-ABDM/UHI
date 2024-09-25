@@ -25,7 +25,6 @@ import '../../../../common/common.dart';
 import '../../../../controller/login/login.dart';
 import '../../../../controller/login/src/access_token_controller.dart';
 import '../../../../controller/login/src/post_fcm_token_controller.dart';
-import '../../../../model/common/src/fcm_token_model.dart';
 
 class OTPVerificationPage extends StatefulWidget {
   String? mobileNumber;
@@ -219,7 +218,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
       return iosDeviceInfo.identifierForVendor; // unique ID on iOS
     } else if (Platform.isAndroid) {
       var androidDeviceInfo = await deviceInfo.androidInfo;
-      return androidDeviceInfo.androidId; // unique ID on Android
+      return androidDeviceInfo.id; // unique ID on Android
     }
     return null;
   }

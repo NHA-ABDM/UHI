@@ -20,10 +20,6 @@ class GetSharedKeyController extends GetxController with ExceptionHandler {
   ///ERROR STRING
   var errorString = '';
 
-  @override
-  void onInit() {
-    super.onInit();
-  }
 
   Future<void> getSharedKeyDetails(
       {String? doctorId, String? patientId}) async {

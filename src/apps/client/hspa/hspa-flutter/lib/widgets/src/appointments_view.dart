@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:get/get.dart';
 import 'package:hspa_app/constants/src/get_pages.dart';
 import 'package:hspa_app/widgets/src/vertical_spacing.dart';
@@ -11,27 +12,23 @@ import '../../model/src/doctor_profile.dart';
 import '../../theme/src/app_colors.dart';
 import '../../theme/src/app_text_style.dart';
 import '../../utils/src/utility.dart';
-import '../../view/appointments/src/appointment_details_page.dart';
-import '../../view/appointments/src/cancel_appointment_page.dart';
-import '../../view/appointments/src/reschedule_appointments_page.dart';
-import '../../view/chat/src/chat_page.dart';
-import '../../webRTC/src/call_sample/call_sample.dart';
 import 'alert_dialog_with_single_action.dart';
 import 'spacing.dart';
 import 'square_rounded_button.dart';
 
 class AppointmentsView extends StatelessWidget {
-  AppointmentsView(
-      {Key? key,
-      required this.providerAppointment,
-      required this.isTeleconsultation,
-      required this.cancelAppointment,
-      this.isPrevious = false})
-      : super(key: key);
+  const AppointmentsView({
+    Key? key,
+    required this.providerAppointment,
+    required this.isTeleconsultation,
+    required this.cancelAppointment,
+    this.isPrevious = false,
+  }) : super(key: key);
+
   final ProviderAppointments providerAppointment;
   final bool isTeleconsultation;
   final Function() cancelAppointment;
-  bool isPrevious;
+  final bool isPrevious;
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +59,7 @@ class AppointmentsView extends StatelessWidget {
                               style: AppTextStyle.textSemiBoldStyle(
                                   color: AppColors.testColor, fontSize: 16),
                             ),
-                            Spacing(),
+                            const Spacing(),
                             Text(
                               Utility.getAppointmentDisplayDate(
                                   date: DateTime.parse(providerAppointment
@@ -84,7 +81,7 @@ class AppointmentsView extends StatelessWidget {
                               style: AppTextStyle.textNormalStyle(
                                   color: AppColors.testColor, fontSize: 12),
                             ),
-                            Spacing(),
+                            const Spacing(),
                             Text(
                               Utility.getAppointmentDisplayTimeRange(
                                   startDateTime: DateTime.parse(
@@ -101,7 +98,7 @@ class AppointmentsView extends StatelessWidget {
                             ),
                           ],
                         ),
-                        Spacing(isWidth: false, size: 10),
+                        const Spacing(isWidth: false, size: 10),
                         if (!isPrevious)
                           Padding(
                             padding: const EdgeInsets.only(top: 8),
@@ -179,7 +176,10 @@ class AppointmentsView extends StatelessWidget {
                                             host: '121.242.73.119'),
                                         transition: Utility.pageTransition,
                                       );*/
-                                      Get.toNamed(AppRoutes.callSample, arguments: {'host': '121.242.73.119'});
+                                      Get.toNamed(AppRoutes.callSample,
+                                          arguments: {
+                                            'host': '121.242.73.119'
+                                          });
                                     },
                                     visualDensity: VisualDensity.compact,
                                     icon: Image.asset(
@@ -242,13 +242,18 @@ class AppointmentsView extends StatelessWidget {
                                 color: AppColors.infoIconColor,
                                 actionText: AppStrings().labelCancel,
                                 onTap: () async {
-                                  bool isCancelled = /*await Get.to(
+                                  bool
+                                      isCancelled = /*await Get.to(
                                       () => CancelAppointmentPage(
                                           providerAppointment:
                                               providerAppointment),
                                       transition: Utility.pageTransition);*/
-                                  await Get.toNamed(AppRoutes.cancelAppointmentPage, arguments: {'providerAppointment':
-                                  providerAppointment});
+                                      await Get.toNamed(
+                                          AppRoutes.cancelAppointmentPage,
+                                          arguments: {
+                                        'providerAppointment':
+                                            providerAppointment
+                                      });
                                   if (isCancelled) {
                                     cancelAppointment();
                                   }
@@ -315,7 +320,7 @@ class AppointmentsView extends StatelessWidget {
               height: 20,
               width: 20,
             ),
-            Spacing(size: 5),
+            const Spacing(size: 5),
             Text(
               actionText,
               style: AppTextStyle.textNormalStyle(color: color, fontSize: 14),

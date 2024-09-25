@@ -177,7 +177,7 @@ class Qualifications1 {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['identifier'] = identifier;
     data['courseName'] = courseName;
     data['collegeName'] = collegeName;
@@ -264,7 +264,7 @@ class HbiDetails {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['identifier'] = identifier;
     data['languageKnown'] = languageKnown;
     data['languageKnownIds'] = languageKnownIds;

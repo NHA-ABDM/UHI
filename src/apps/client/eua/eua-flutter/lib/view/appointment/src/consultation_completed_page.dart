@@ -4,7 +4,6 @@ import 'package:uhi_flutter_app/common/src/get_pages.dart';
 import 'package:uhi_flutter_app/constants/src/strings.dart';
 import 'package:uhi_flutter_app/model/response/src/booking_confirm_response_model.dart';
 import 'package:uhi_flutter_app/utils/src/shared_preferences.dart';
-import 'package:uhi_flutter_app/view/chat/src/chat_page.dart';
 import 'package:uhi_flutter_app/widgets/src/spacing.dart';
 
 import '../../../theme/src/app_colors.dart';

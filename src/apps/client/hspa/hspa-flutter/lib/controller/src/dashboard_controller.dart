@@ -11,7 +11,6 @@ import 'package:hspa_app/services/services.dart';
 
 import '../../constants/src/request_urls.dart';
 import '../../constants/src/strings.dart';
-import '../../model/request/src/save_public_key_model.dart';
 import '../../model/response/src/appointment_slots_response.dart';
 import '../../model/src/doctor_profile.dart';
 import '../../settings/src/preferences.dart';

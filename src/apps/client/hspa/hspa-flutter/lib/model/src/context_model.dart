@@ -50,14 +50,14 @@ class ContextModel {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['domain'] = this.domain;
-    data['country'] = this.country;
-    data['city'] = this.city;
-    data['action'] = this.action;
-    data['core_version'] = this.coreVersion;
-    data['consumer_id'] = this.consumerId;
-    data['consumer_uri'] = this.consumerUri;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['domain'] = domain;
+    data['country'] = country;
+    data['city'] = city;
+    data['action'] = action;
+    data['core_version'] = coreVersion;
+    data['consumer_id'] = consumerId;
+    data['consumer_uri'] = consumerUri;
     // if (this.bppId != null) {
     //   data['bpp_id'] = this.bppId;
     // }
@@ -65,15 +65,15 @@ class ContextModel {
     //   data['bpp_uri'] = this.bppUri;
     // }
 
-    data['message_id'] = this.messageId;
-    data['timestamp'] = this.timestamp;
-    if (this.deviceId != null) {
-      data['device_id'] = this.deviceId;
+    data['message_id'] = messageId;
+    data['timestamp'] = timestamp;
+    if (deviceId != null) {
+      data['device_id'] = deviceId;
     }
-    if (this.providerUrl != null) {
-      data['provider_uri'] = this.providerUrl;
+    if (providerUrl != null) {
+      data['provider_uri'] = providerUrl;
     }
-    data['transaction_id'] = this.transactionId;
+    data['transaction_id'] = transactionId;
     return data;
   }
 }

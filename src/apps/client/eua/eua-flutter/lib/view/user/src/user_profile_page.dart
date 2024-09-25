@@ -215,7 +215,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       return iosDeviceInfo.identifierForVendor; // unique ID on iOS
     } else if (Platform.isAndroid) {
       var androidDeviceInfo = await deviceInfo.androidInfo;
-      return androidDeviceInfo.androidId; // unique ID on Android
+      return androidDeviceInfo.id; // unique ID on Android
     }
     return null;
   }
@@ -335,7 +335,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       fontSize: 18),
                 ),
                 Stack(
-                  overflow: Overflow.visible,
+                  clipBehavior: Clip.none,
                   children: [
                     CircleAvatar(
                       radius: 48,

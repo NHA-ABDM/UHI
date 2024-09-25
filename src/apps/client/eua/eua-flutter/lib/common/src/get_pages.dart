@@ -2,7 +2,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:uhi_flutter_app/utils/src/check_internet.dart';
-import 'package:uhi_flutter_app/view/authentication/login/src/base_login_page.dart';
 import 'package:uhi_flutter_app/view/chat/src/show_selected_media_page.dart';
 import 'package:uhi_flutter_app/view/view.dart';
 
